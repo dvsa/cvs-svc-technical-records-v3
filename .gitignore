@@ -107,4 +107,6 @@ dist
 # MAC files
 .DS_Store
 
-
+# Output files
+.aws-sam/**
+*LambdaFunction.zip

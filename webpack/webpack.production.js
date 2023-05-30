@@ -10,7 +10,7 @@ const LAMBDA_NAMES = [
   'PostLambdaFunction',
 ];
 
-const OUTPUT_FOLDER = './dist'
+const OUTPUT_FOLDER = './'
 const REPO_NAME = 'cvs-svc-techincal-records-v3';
 const BRANCH_NAME = branchName().replace(/\//g,"-");
 const COMMIT_HASH = process.env.ZIP_NAME ? process.env.ZIP_NAME : 'local';
