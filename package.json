@@ -1,7 +1,7 @@
 {
-  "name": "dvsa-lambda-starter",
+  "name": "technical-records-v3",
   "version": "1.2.0",
-  "description": "A package to act as a starter for typescript lambdas",
+  "description": "An API to access flat technical records",
   "main": "index.js",
   "scripts": {
     "lint": "eslint '*/**/*.ts' --quiet --fix",

@@ -1,6 +1,6 @@
 # lambda-starter
 
-A starting pattern for AWS lambda in Typescript 
+An API to access flat technical records
 
 **Requirements**
 
