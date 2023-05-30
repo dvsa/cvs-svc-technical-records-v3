@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 
 Resources:
-    Get:
+    GetLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
@@ -45,7 +45,7 @@ Outputs:
   GetLambdaApi:
     Description: "API Gateway endpoint URL for GetLambdaFunction on dev stage"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Dev/"
-  Get:
+  GetLambdaFunction:
     Description: "Get Lambda Function ARN"
     Value: !GetAtt GetLambdaFunction.Arn
 
