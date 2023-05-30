@@ -6,8 +6,8 @@ const branchName = require('current-git-branch');
 
 const LAMBDA_NAMES = [
   'CWEventLambdaFunction',
-  'GetLambdaFunction',
   'PostLambdaFunction',
+  'Get'
 ];
 
 const OUTPUT_FOLDER = './'
