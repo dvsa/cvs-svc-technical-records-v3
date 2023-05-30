@@ -11,6 +11,7 @@
     "build:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.js",
     "watch:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.watch.js",
     "build:prod": "webpack-cli --config webpack/webpack.production.js",
+    "build": "npm run build:prod",
     "start:dev": "sam local start-api",
     "tools-setup": "echo 'moving on'",
     "test-i": "echo 'no integration tests'",
