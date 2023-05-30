@@ -4,10 +4,16 @@ const common = require('./webpack.common.js');
 const archiver = require('archiver');
 const branchName = require('current-git-branch');
 
-const LAMBDA_NAME = 'GetLambdaFunction';
+const LAMBDA_NAMES = [
+  'CWEventLambdaFunction',
+  'GetLambdaFunction',
+  'PostLambdaFunction',
+];
+
 const OUTPUT_FOLDER = './dist'
-const REPO_NAME = 'dvsa-lambda-starter';
+const REPO_NAME = 'cvs-svc-techincal-records-v3';
 const BRANCH_NAME = branchName().replace(/\//g,"-");
+const COMMIT_HASH = process.env.ZIP_NAME ? process.env.ZIP_NAME : 'local';
 
 class BundlePlugin {
   constructor(params) {
@@ -61,13 +67,13 @@ module.exports = env => {
     mode: 'production',
     plugins: [
       new BundlePlugin({
-        archives: [
-          {
-            inputPath: `.aws-sam/build/${LAMBDA_NAME}`,
-            outputPath: `${OUTPUT_FOLDER}`,
-            outputName: `${REPO_NAME}-${BRANCH_NAME}-${commit}`,
+        archives:LAMBDA_NAMES.map(ln => {
+          return {
+           inputPath: `.aws-sam/build/${ln}`,
+           outputPath: `${OUTPUT_FOLDER}`,
+           outputName: `${COMMIT_HASH}-${ln}`
           }
-        ],
+         })
       }),
     ],
   });
