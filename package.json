@@ -15,7 +15,8 @@
     "start:dev": "sam local start-api",
     "tools-setup": "echo 'moving on'",
     "test-i": "echo 'no integration tests'",
-    "invoke": "sam local invoke"
+    "invoke": "sam local invoke",
+    "package": "npm run build:prod"
   },
   "contributors": [
     {
