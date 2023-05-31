@@ -12,7 +12,7 @@ Resources:
           SearchLambdaApi:
             Type: Api
             Properties:
-              Path: /
+              Path: /v3/technical-records/search/{searchIdentifier}
               Method: get
 
 Outputs:
