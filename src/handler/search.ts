@@ -5,7 +5,6 @@ import { SearchCriteria } from '../models/search';
 import { searchByAll, searchByCriteria } from '../services/database';
 import { getSearchErrors } from '../validators/search';
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Search end point called');
 
@@ -18,7 +17,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const searchIdentifier: string = decodeURIComponent(event.pathParameters?.searchIdentifier ?? '');
 
   logger.info(`Search database with identifier ${searchIdentifier} and criteria ${searchCriteria}`);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
   const searchResult = searchCriteria === SearchCriteria.ALL
     ? await searchByAll(searchIdentifier) : await searchByCriteria(searchCriteria, searchIdentifier);
 
