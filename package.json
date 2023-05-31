@@ -14,7 +14,8 @@
     "start:dev": "sam local start-api",
     "invoke": "sam local invoke",
     "dynamo:start": "docker compose up -d && ts-node scripts/setup-local-tables.ts",
-    "dynamo:stop": "docker compose down"
+    "dynamo:stop": "docker compose down",
+    "dynamo:reset": "docker compose down --volumes && npm run dynamo:start"
   },
   "contributors": [
     {
@@ -24,7 +25,8 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.341.0"
+    "@aws-sdk/client-dynamodb": "^3.341.0",
+    "@aws-sdk/util-dynamodb": "^3.341.0"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.341.0",

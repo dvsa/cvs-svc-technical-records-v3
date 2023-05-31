@@ -1,6 +1,8 @@
 import {
-  CreateTableCommandOutput, CreateTableInput, DynamoDB,
+  CreateTableCommandOutput, CreateTableInput, DynamoDB, DynamoDBClient, BatchWriteItemCommand, BatchWriteItemCommandInput, WriteRequest,
 } from '@aws-sdk/client-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
+import techRecordData from '../tests/resources/technical-records-v3.json';
 
 const tablesToSetup: CreateTableInput[] = [
   {
@@ -10,7 +12,23 @@ const tablesToSetup: CreateTableInput[] = [
         AttributeType: 'S',
       },
       {
-        AttributeName: 'createdAtTimestamp',
+        AttributeName: 'createdTimestamp',
+        AttributeType: 'S',
+      },
+      {
+        AttributeName: 'primaryVrm',
+        AttributeType: 'S',
+      },
+      {
+        AttributeName: 'trailerId',
+        AttributeType: 'S',
+      },
+      {
+        AttributeName: 'partialVin',
+        AttributeType: 'S',
+      },
+      {
+        AttributeName: 'vin',
         AttributeType: 'S',
       },
     ],
@@ -20,7 +38,7 @@ const tablesToSetup: CreateTableInput[] = [
         KeyType: 'HASH',
       },
       {
-        AttributeName: 'createdAtTimestamp',
+        AttributeName: 'createdTimestamp',
         KeyType: 'RANGE',
       },
     ],
@@ -151,7 +169,7 @@ const tablesToSetup: CreateTableInput[] = [
       ReadCapacityUnits: 1,
       WriteCapacityUnits: 1,
     },
-    TableName: process.env.TABLE_NAME ?? 'local-flat-technical-records',
+    TableName: 'local-flat-technical-records',
     StreamSpecification: {
       StreamEnabled: false,
     },
@@ -176,10 +194,23 @@ const setupLocalTables = async () => {
   });
 };
 
+const seedTables = async () => {
+  const docClient = new DynamoDBClient({ region: 'eu-west-2', endpoint: 'http://localhost:8000' });
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+  const marshalledData: WriteRequest[] = techRecordData.map((item) => ({ PutRequest: { Item: marshall(item) } }));
+  const command: BatchWriteItemCommandInput = {
+    RequestItems: {
+      'local-flat-technical-records': marshalledData,
+    },
+  };
+  await docClient.send(new BatchWriteItemCommand(command));
+};
+
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
   try {
     await setupLocalTables();
+    await seedTables();
   } catch (e) {
     console.log(e);
   }

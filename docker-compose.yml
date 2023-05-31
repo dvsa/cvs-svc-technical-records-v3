@@ -11,5 +11,6 @@ services:
     working_dir: /home/dynamodblocal
     command: '-jar DynamoDBLocal.jar -sharedDb -dbPath .'
 
+# This will persist data and tables when restarting the dynamo container
 volumes:
   dynamodata: {}
