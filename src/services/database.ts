@@ -22,7 +22,7 @@ export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, S
   try {
     const data = await ddbClient.send(new QueryCommand(query));
     logger.debug(JSON.stringify(data));
-    return data.Items?.map((item) => unmarshall(item)) ?? [] as SearchResult[];
+    return (data.Items?.map((item) => unmarshall(item)) ?? []) as SearchResult[];
   } catch (e) {
     console.log('Error in search by criteria:', e);
     throw new Error(`database client failed getting data by ${searchCriteria} with ${searchIdentifier}`);
@@ -30,7 +30,7 @@ export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, S
 };
 
 export const searchByAll = async (searchIdentifier: string): Promise<SearchResult[]> => {
-  const databaseCallPromises: Promise<SearchResult>[] = [];
+  const databaseCallPromises: Promise<SearchResult[]>[] = [];
   Object.keys(CriteriaIndexMap).forEach((searchCriteria) => {
     const query: QueryInput = {
       TableName: tableName,
@@ -44,10 +44,10 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
       },
     };
 
-    const queryPromise = new Promise<SearchResult>((resolve, reject) => {
+    const queryPromise = new Promise<SearchResult[]>((resolve, reject) => {
       ddbClient.send(new QueryCommand(query)).then((data) => {
         logger.debug(JSON.stringify(data));
-        resolve(data.Items?.map((item) => unmarshall(item)) ?? []);
+        resolve((data.Items?.map((item) => unmarshall(item)) ?? []) as SearchResult[]);
       }).catch((e) => {
         console.log('Error in search by criteria:', e);
         reject(new Error(`database client failed getting data by ${searchCriteria} with ${searchIdentifier}`));

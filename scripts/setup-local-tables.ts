@@ -4,6 +4,20 @@ import {
 import { marshall } from '@aws-sdk/util-dynamodb';
 import techRecordData from '../tests/resources/technical-records-v3.json';
 
+const flatTechRecordNonKeyAttributes: string[] = [
+  'systemNumber',
+  'createdTimestamp',
+  'vin',
+  'primaryVrm',
+  'trailerId',
+  'techRecord_vehicleType',
+  'techRecord_manufactureYear',
+  'techRecord_chassisMake',
+  'techRecord_chassisModel',
+  'techRecord_make',
+  'techRecord_model',
+];
+
 const tablesToSetup: CreateTableInput[] = [
   {
     AttributeDefinitions: [
@@ -53,14 +67,7 @@ const tablesToSetup: CreateTableInput[] = [
         ],
         Projection: {
           ProjectionType: 'INCLUDE',
-          NonKeyAttributes: [
-            'vin',
-            'primaryVrm',
-            'secondaryVrms',
-            'trailerId',
-            'createdTimestamp',
-            'systemNumber',
-          ],
+          NonKeyAttributes: flatTechRecordNonKeyAttributes,
         },
         ProvisionedThroughput: {
           ReadCapacityUnits: 1,
@@ -77,14 +84,7 @@ const tablesToSetup: CreateTableInput[] = [
         ],
         Projection: {
           ProjectionType: 'INCLUDE',
-          NonKeyAttributes: [
-            'vin',
-            'primaryVrm',
-            'secondaryVrms',
-            'trailerId',
-            'createdTimestamp',
-            'systemNumber',
-          ],
+          NonKeyAttributes: flatTechRecordNonKeyAttributes,
         },
         ProvisionedThroughput: {
           ReadCapacityUnits: 1,
@@ -101,14 +101,7 @@ const tablesToSetup: CreateTableInput[] = [
         ],
         Projection: {
           ProjectionType: 'INCLUDE',
-          NonKeyAttributes: [
-            'vin',
-            'primaryVrm',
-            'secondaryVrms',
-            'trailerId',
-            'createdTimestamp',
-            'systemNumber',
-          ],
+          NonKeyAttributes: flatTechRecordNonKeyAttributes,
         },
         ProvisionedThroughput: {
           ReadCapacityUnits: 1,
@@ -125,14 +118,7 @@ const tablesToSetup: CreateTableInput[] = [
         ],
         Projection: {
           ProjectionType: 'INCLUDE',
-          NonKeyAttributes: [
-            'vin',
-            'primaryVrm',
-            'secondaryVrms',
-            'trailerId',
-            'createdTimestamp',
-            'systemNumber',
-          ],
+          NonKeyAttributes: flatTechRecordNonKeyAttributes,
         },
         ProvisionedThroughput: {
           ReadCapacityUnits: 1,
@@ -149,14 +135,7 @@ const tablesToSetup: CreateTableInput[] = [
         ],
         Projection: {
           ProjectionType: 'INCLUDE',
-          NonKeyAttributes: [
-            'vin',
-            'primaryVrm',
-            'secondaryVrms',
-            'trailerId',
-            'createdTimestamp',
-            'systemNumber',
-          ],
+          NonKeyAttributes: flatTechRecordNonKeyAttributes,
         },
         ProvisionedThroughput: {
           ReadCapacityUnits: 1,
