@@ -24,7 +24,7 @@ export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, S
     logger.debug(JSON.stringify(data));
     return (data.Items?.map((item) => unmarshall(item)) ?? []) as SearchResult[];
   } catch (e) {
-    console.log('Error in search by criteria:', e);
+    logger.debug('Error in search by criteria:', e);
     throw new Error(`database client failed getting data by ${searchCriteria} with ${searchIdentifier}`);
   }
 };
@@ -49,7 +49,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
         logger.debug(JSON.stringify(data));
         resolve((data.Items?.map((item) => unmarshall(item)) ?? []) as SearchResult[]);
       }).catch((e) => {
-        console.log('Error in search by criteria:', e);
+        logger.debug('Error in search by criteria:', e);
         reject(new Error(`database client failed getting data by ${searchCriteria} with ${searchIdentifier}`));
       });
     });
@@ -57,8 +57,12 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
     databaseCallPromises.push(queryPromise);
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return (await Promise.all(databaseCallPromises)).flat();
+  try {
+    return (await Promise.all(databaseCallPromises)).flat();
+  } catch {
+    logger.debug('One of the promises rejected when calling the database');
+    throw new Error('Error in calling the database');
+  }
 };
 
 const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, TableIndexes> = {
