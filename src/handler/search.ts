@@ -24,7 +24,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug(JSON.stringify(searchResult));
 
-  if (!searchResult?.length) {
+  if (!searchResult.length) {
     return {
       statusCode: 404,
       body: `No records found matching identifier ${searchIdentifier} and criteria ${searchCriteria}`,
