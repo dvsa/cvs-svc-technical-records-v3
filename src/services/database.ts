@@ -1,11 +1,12 @@
 import { DynamoDBClient, QueryCommand, QueryInput } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
+import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 
 const ddbClient = new DynamoDBClient({ region: 'eu-west-1' });
 const tableName = process.env.TABLE_NAME ?? 'cvs-develop-flat-tech-records';
 
-export const searchByCriteria = async (searchCriteria: string, searchIdentifier: string) => {
+export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
   const query: QueryInput = {
     TableName: tableName,
     IndexName: CriteriaIndexMap[searchCriteria],
@@ -21,19 +22,19 @@ export const searchByCriteria = async (searchCriteria: string, searchIdentifier:
   try {
     const data = await ddbClient.send(new QueryCommand(query));
     logger.debug(JSON.stringify(data));
-    return data.Items?.map((item) => unmarshall(item));
+    return data.Items?.map((item) => unmarshall(item)) ?? [] as SearchResult[];
   } catch (e) {
     console.log('Error in search by criteria:', e);
     throw new Error(`database client failed getting data by ${searchCriteria} with ${searchIdentifier}`);
   }
 };
 
-export const searchByAll = async (searchIdentifier: string) => {
-  const databaseCallPromises: any[] = [];
+export const searchByAll = async (searchIdentifier: string): Promise<SearchResult[]> => {
+  const databaseCallPromises: Promise<SearchResult>[] = [];
   Object.keys(CriteriaIndexMap).forEach((searchCriteria) => {
     const query: QueryInput = {
       TableName: tableName,
-      IndexName: CriteriaIndexMap[searchCriteria],
+      IndexName: CriteriaIndexMap[searchCriteria as keyof typeof CriteriaIndexMap],
       KeyConditionExpression: `#${searchCriteria} = :${searchCriteria}`,
       ExpressionAttributeNames: {
         [`#${searchCriteria}`]: searchCriteria,
@@ -43,10 +44,10 @@ export const searchByAll = async (searchIdentifier: string) => {
       },
     };
 
-    const queryPromise = new Promise((resolve, reject) => {
+    const queryPromise = new Promise<SearchResult>((resolve, reject) => {
       ddbClient.send(new QueryCommand(query)).then((data) => {
         logger.debug(JSON.stringify(data));
-        resolve(data.Items?.map((item) => unmarshall(item)));
+        resolve(data.Items?.map((item) => unmarshall(item)) ?? []);
       }).catch((e) => {
         console.log('Error in search by criteria:', e);
         reject(new Error(`database client failed getting data by ${searchCriteria} with ${searchIdentifier}`));
@@ -60,7 +61,7 @@ export const searchByAll = async (searchIdentifier: string) => {
   return (await Promise.all(databaseCallPromises)).flat();
 };
 
-const CriteriaIndexMap: { [key: string]: string } = {
+const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, TableIndexes> = {
   systemNumber: 'SysNumIndex',
   partialVin: 'PartialVinIndex',
   primaryVrm: 'VRMIndex',

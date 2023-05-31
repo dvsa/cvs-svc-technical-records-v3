@@ -116,7 +116,7 @@ const tablesToSetup: CreateTableInput[] = [
         },
       },
       {
-        IndexName: 'vinIndex',
+        IndexName: 'VinIndex',
         KeySchema: [
           {
             AttributeName: 'vin',
