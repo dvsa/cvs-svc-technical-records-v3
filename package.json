@@ -15,7 +15,10 @@
     "invoke": "sam local invoke",
     "dynamo:start": "docker compose up -d && ts-node scripts/setup-local-tables.ts",
     "dynamo:stop": "docker compose down",
-    "dynamo:reset": "docker compose down --volumes && npm run dynamo:start"
+    "dynamo:reset": "docker compose down --volumes && npm run dynamo:start",
+    "tools-setup": "echo 'move on'",
+    "test-i": "echo 'no integration tests'",
+    "package": "npm run build:prod"
   },
   "contributors": [
     {
