@@ -3,8 +3,10 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import techRecordData from '../tests/resources/technical-records-v3.json';
+import { SearchResult } from '../src/models/search';
 
-const flatTechRecordNonKeyAttributes: string[] = [
+type SearchResultKeys = keyof SearchResult;
+const flatTechRecordNonKeyAttributes: SearchResultKeys[] = [
   'systemNumber',
   'createdTimestamp',
   'vin',
