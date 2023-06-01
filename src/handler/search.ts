@@ -15,7 +15,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   const searchCriteria: SearchCriteria = event.queryStringParameters?.searchCriteria as SearchCriteria ?? SearchCriteria.ALL;
   const searchIdentifier: string = decodeURIComponent(event.pathParameters?.searchIdentifier ?? '');
-
   logger.info(`Search database with identifier ${searchIdentifier} and criteria ${searchCriteria}`);
 
   const searchResult = searchCriteria === SearchCriteria.ALL

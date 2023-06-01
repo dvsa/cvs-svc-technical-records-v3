@@ -2,9 +2,9 @@ import { DynamoDBClient, QueryCommand, QueryInput } from '@aws-sdk/client-dynamo
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
+import { dynamoDBClientConfig, tableName } from '../config';
 
-const ddbClient = new DynamoDBClient({ region: 'eu-west-1' });
-const tableName = process.env.TABLE_NAME ?? 'cvs-develop-flat-tech-records';
+const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
 export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
   const query: QueryInput = {
@@ -24,7 +24,7 @@ export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, S
     logger.debug(JSON.stringify(data));
     return (data.Items?.map((item) => unmarshall(item)) ?? []) as SearchResult[];
   } catch (e) {
-    logger.debug('Error in search by criteria:', e);
+    logger.error('Error in search by criteria: ', e);
     throw new Error(`database client failed getting data by ${searchCriteria} with ${searchIdentifier}`);
   }
 };
@@ -49,7 +49,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
         logger.debug(JSON.stringify(data));
         resolve((data.Items?.map((item) => unmarshall(item)) ?? []) as SearchResult[]);
       }).catch((e) => {
-        logger.debug('Error in search by criteria:', e);
+        logger.error('Error in search by criteria: ', e);
         reject(new Error(`database client failed getting data by ${searchCriteria} with ${searchIdentifier}`));
       });
     });
