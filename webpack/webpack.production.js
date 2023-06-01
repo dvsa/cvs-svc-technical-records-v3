@@ -4,7 +4,7 @@ const common = require('./webpack.common.js');
 const archiver = require('archiver');
 const branchName = require('current-git-branch');
 
-const LAMBDA_NAME = ['GetLambdaFunction'];
+const LAMBDA_NAMES = ['SearchLambdaFunction'];
 const OUTPUT_FOLDER = './'
 const REPO_NAME = 'cvs-svc-techincal-records-v3';
 const BRANCH_NAME = branchName().replace(/\//g,"-");
