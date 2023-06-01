@@ -176,7 +176,7 @@ const setupLocalTables = async () => {
   });
 };
 
-const seedTables = async (seedingRequest: TableSeedRequest[]) => {
+export const seedTables = async (seedingRequest: TableSeedRequest[]) => {
   const command: BatchWriteItemCommandInput = seedingRequest.reduce((prev, { table, data }) => {
     const prevTableData: WriteRequest[] = prev.RequestItems?.[table] ?? [];
     const marshalledData: WriteRequest[] = data.map((item) => ({ PutRequest: { Item: marshall(item) } }));
