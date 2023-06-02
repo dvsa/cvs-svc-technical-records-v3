@@ -4,13 +4,14 @@ import logger from '../util/logger';
 import { SearchCriteria } from '../models/search';
 import { searchByAll, searchByCriteria } from '../services/database';
 import { getSearchErrors } from '../validators/search';
+import { addHttpHeaders } from '../util/httpHeaders';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Search end point called');
 
   const searchErrors = getSearchErrors(event);
   if (searchErrors) {
-    return searchErrors;
+    return addHttpHeaders(searchErrors);
   }
 
   const searchCriteria: SearchCriteria = event.queryStringParameters?.searchCriteria as SearchCriteria ?? SearchCriteria.ALL;
@@ -24,14 +25,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   logger.debug(JSON.stringify(searchResult));
 
   if (!searchResult.length) {
-    return {
+    return addHttpHeaders({
       statusCode: 404,
       body: `No records found matching identifier ${searchIdentifier} and criteria ${searchCriteria}`,
-    };
+    });
   }
 
-  return {
+  return addHttpHeaders({
     statusCode: 200,
     body: JSON.stringify(searchResult),
-  };
+  });
 };
