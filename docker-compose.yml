@@ -10,6 +10,11 @@ services:
       - dynamodata:/home/dynamodblocal
     working_dir: /home/dynamodblocal
     command: '-jar DynamoDBLocal.jar -sharedDb -dbPath .'
+    networks:
+          dynamodbNetwork:
+            ipv4_address: 172.22.0.2
+            aliases:
+            - dynamodblocal
 
   # Can view tables and data in tables
   dynamodb_admin:
@@ -18,9 +23,24 @@ services:
       ports:
         - "8001:8001"
       environment:
-        - DYNAMO_ENDPOINT=http://dynamo:8000
+        - DYNAMO_ENDPOINT=http://172.22.0.2:8000
       depends_on:
         - dynamo
+      networks:
+          dynamodbNetwork:
+            ipv4_address: 172.22.0.3
+            aliases:
+            - dynamodbadmin
+
 # This will persist data and tables when restarting the dynamo container
 volumes:
   dynamodata: {}
+
+networks:
+  dynamodbNetwork:
+    name: dynamo_net
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.22.0.2/16"

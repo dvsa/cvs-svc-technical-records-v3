@@ -37,17 +37,17 @@ describe('Test Search Lambda Function', () => {
     it('should return results when given a search criteria', async () => {
       mockGetSearchErrors.mockReturnValueOnce(null);
       mockSearchByCriteria.mockResolvedValueOnce(['record 1', 'record 2']);
-      const result = await handler({ pathParameters: { searchIdentifier: '123456' },  queryStringParameters: { searchCriteria: 'systemNumber'}} as unknown as APIGatewayProxyEvent);
+      const result = await handler({ pathParameters: { searchIdentifier: '123456' }, queryStringParameters: { searchCriteria: 'systemNumber' } } as unknown as APIGatewayProxyEvent);
       expect(mockSearchByCriteria).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ statusCode: 200, body: "[\"record 1\",\"record 2\"]" });
-    })
+      expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]' });
+    });
 
     it('should return results when not given a search criteria', async () => {
       mockGetSearchErrors.mockReturnValueOnce(null);
       mockSearchByAll.mockResolvedValueOnce(['record 1', 'record 2']);
-      const result = await handler({ pathParameters: { searchIdentifier: '123456' }} as unknown as APIGatewayProxyEvent);
+      const result = await handler({ pathParameters: { searchIdentifier: '123456' } } as unknown as APIGatewayProxyEvent);
       expect(mockSearchByAll).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ statusCode: 200, body: "[\"record 1\",\"record 2\"]" });
-    })
-  })
+      expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]' });
+    });
+  });
 });

@@ -1,9 +1,11 @@
 import {
-  CreateTableCommandOutput, CreateTableInput, DynamoDB, DynamoDBClient, BatchWriteItemCommand, BatchWriteItemCommandInput, WriteRequest,
+  CreateTableCommandOutput, CreateTableInput, DynamoDB, DynamoDBClient, BatchWriteItemCommand, BatchWriteItemCommandInput, WriteRequest, DynamoDBClientConfig,
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import techRecordData from '../tests/resources/technical-records-v3.json';
 import { SearchResult } from '../src/models/search';
+import { dynamoDBClientConfig, tableName } from '../src/config';
+import { TableSeedRequest } from './setup-local-tables.model';
 
 type SearchResultKeys = keyof SearchResult;
 const flatTechRecordNonKeyAttributes: SearchResultKeys[] = [
@@ -150,7 +152,7 @@ const tablesToSetup: CreateTableInput[] = [
       ReadCapacityUnits: 1,
       WriteCapacityUnits: 1,
     },
-    TableName: 'local-flat-technical-records',
+    TableName: tableName,
     StreamSpecification: {
       StreamEnabled: false,
     },
@@ -158,15 +160,14 @@ const tablesToSetup: CreateTableInput[] = [
 
 ];
 
+const dynamoConfig: DynamoDBClientConfig = { ...dynamoDBClientConfig, endpoint: process.env.DYNAMO_ENDPOINT };
+
 const setupLocalTables = async () => {
-  const ddb = new DynamoDB({
-    endpoint: 'http://localhost:8000',
-    region: 'eu-west-2',
-  });
+  const ddb = new DynamoDB(dynamoConfig);
   const existingTables = await ddb.listTables({});
   const tables: Promise<CreateTableCommandOutput>[] = [];
   tablesToSetup.forEach((table) => {
-    if (!existingTables.TableNames?.find((tableName) => table.TableName === tableName)) {
+    if (!existingTables.TableNames?.find((name) => table.TableName === name)) {
       tables.push(ddb.createTable(table));
     }
   });
@@ -175,15 +176,18 @@ const setupLocalTables = async () => {
   });
 };
 
-const seedTables = async () => {
-  const docClient = new DynamoDBClient({ region: 'eu-west-2', endpoint: 'http://localhost:8000' });
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-  const marshalledData: WriteRequest[] = techRecordData.map((item) => ({ PutRequest: { Item: marshall(item) } }));
-  const command: BatchWriteItemCommandInput = {
-    RequestItems: {
-      'local-flat-technical-records': marshalledData,
-    },
-  };
+export const seedTables = async (seedingRequest: TableSeedRequest[]) => {
+  const command: BatchWriteItemCommandInput = seedingRequest.reduce((prev, { table, data }) => {
+    const prevTableData: WriteRequest[] = prev.RequestItems?.[table] ?? [];
+    const marshalledData: WriteRequest[] = data.map((item) => ({ PutRequest: { Item: marshall(item) } }));
+    return {
+      RequestItems: {
+        ...prev.RequestItems,
+        [table]: [...prevTableData, ...marshalledData],
+      },
+    };
+  }, {} as BatchWriteItemCommandInput);
+  const docClient = new DynamoDBClient(dynamoConfig);
   await docClient.send(new BatchWriteItemCommand(command));
 };
 
@@ -191,7 +195,10 @@ const seedTables = async () => {
 (async () => {
   try {
     await setupLocalTables();
-    await seedTables();
+    await seedTables([{
+      table: tableName,
+      data: techRecordData,
+    }]);
   } catch (e) {
     console.log(e);
   }
