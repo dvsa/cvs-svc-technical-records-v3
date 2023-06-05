@@ -2,63 +2,23 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 
 Resources:
-    GetLambdaFunction:
+    SearchLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
-        Handler: get.handler
+        Handler: search.handler
         Runtime: nodejs18.x
         Events:
-          GetLambdaApi:
+          SearchLambdaApi:
             Type: Api
             Properties:
-              Path: /
+              Path: /v3/technical-records/search/{searchIdentifier}
               Method: get
 
-    PostLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: post.handler
-        Runtime: nodejs18.x
-        Events:
-          PostLambdaApi:
-            Type: Api
-            Properties:
-              Path: /
-              Method: post
-
-    CWEventLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: cloudWatchEvent.handler
-        Runtime: nodejs18.x
-        Events:
-          CWEventLambdaSchedule:
-            Type: Schedule
-            Properties:
-              Schedule: 'rate(1 minute)'
-              # Schedule: 'cron(1 * * * ? *)'
-
 Outputs:
-  GetLambdaApi:
-    Description: "API Gateway endpoint URL for GetLambdaFunction on dev stage"
+  SearchLambdaApi:
+    Description: "API Gateway endpoint URL for SearchLambdaFunction on dev stage"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Dev/"
-  GetLambdaFunction:
-    Description: "Get Lambda Function ARN"
+  SearchLambdaFunction:
+    Description: "Search Lambda Function ARN"
     Value: !GetAtt GetLambdaFunction.Arn
-
-  PostLambdaApi:
-    Description: "API Gateway endpoint URL for GetLambdaFunction on dev stage"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Dev/"
-  PostLambdaFunction:
-    Description: "Post Lambda Function ARN"
-    Value: !GetAtt PostLambdaFunction.Arn
-
-  CWEventLambdaSchedule:
-    Description: "CloudWatch Event schedule for CloudWatchEventLambdaFunction"
-    Value: "rate(1 minute)"
-  CWEventLambdaFunction:
-    Description: "CloudWatch Event Lambda Function ARN"
-    Value: !GetAtt CWEventLambdaFunction.Arn

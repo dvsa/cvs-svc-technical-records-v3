@@ -1,10 +1,10 @@
-# lambda-starter
+# Technical Records v3
 
-A starting pattern for AWS lambda in Typescript 
+This collections of lambdas interact with the `flat-tech-records` database. Entry points to the lambdas are in `./src/handler`.
 
 **Requirements**
 
-- node v16.17.1 (Note if still using node 14 please checkout tag 1.0.0 and consider upgrading your runtime)
+- node v18.*
 - [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 - npm 8+
 
@@ -29,10 +29,8 @@ To watch for changes and automatically trigger a new build:
 
 - Build the files first
 - `npm run start:dev`
-- To ensure that the lambdas have been successfully served, run the following command in a separate terminal:
-    - `curl --request GET http://localhost:3000/?message=hello%20world`
-    - the response should be: `{"queryParams": {"message": "hello world"}}`
-- To run CloudWatch Event lambdas: `npm run invoke -- CloudWatchEventLambdaFunction`
+- To ensure that the lambdas have been successfully served, make requests to the port the lambda is running on e.g. `localhost:3000` through [Postman](https://postman.com/) or `curl`.
+- To run a specific lambda: `npm run invoke -- {lambda}`
 
 
 **Debug Lambdas Locally (VS Code only)**
@@ -40,9 +38,13 @@ To watch for changes and automatically trigger a new build:
 - Run lambdas in debug mode: `npm run start:dev -- -d 5858`
 - Add a breakpoint to the lambda being tested (`src/handler/get.ts`)
 - Run the debug config from VS Code that corresponds to lambda being tested (`GetLambdaFunction`)
-- Send an HTTP request to the lambda's URI (`curl --request GET http://localhost:3000/?message=hello%20world`)
-- To debug CloudWatch Event lambdas: `npm run invoke -- CWEventLambdaFunction -d 5858`
+- Send an HTTP request to the lambda's URI e.g. `curl --request GET http://localhost:3000`
+- To debug a specific lambda: `npm run invoke -- {lambda} -d 5858`
 
+
+**Local DynamoDB Table**
+
+A local DynamoDB table is available for local testing. [DynamoDB Admin](https://github.com/aaronshaf/dynamodb-admin) is also spun up  at [localhost:8001](http://localhost:8001), allowing a view of the local tables and the data in them for easy local debugging. 
 
 **Tests**
 
@@ -53,6 +55,7 @@ To watch for changes and automatically trigger a new build:
 
 
 **Logging**
+
 Logging is handled by `https://github.com/winstonjs/winston`. A pre-configured logger is available, and can be used like so:
 
 ```ts
@@ -61,18 +64,4 @@ import logger from "../utils/logger";
 logger.info('Hello world');
 logger.error('Hello world');
 logger.warn('Hello world');
-```
-
-**Tip:** It's usually a good idea to attach the `requestId` and any `X-Correlation-Id` to the logger object's meta data so every log message will contain these useful bits of information.
-
-```ts
-  const event: APIGatewayProxyEvent = currentInvoke.event as APIGatewayProxyEvent;
-  const correlationId: string = event.headers['X-Correlation-Id'] || (currentInvoke.context as Context).awsRequestId;
-
-  const { requestId } = event.requestContext;
-
-  req.app.locals.correlationId = correlationId;
-  req.app.locals.requestId = requestId;
-
-  Logger.defaultMeta = { requestId, correlationId };
 ```

@@ -1,18 +1,25 @@
 {
-  "name": "dvsa-lambda-starter",
+  "name": "technical-records-v3",
   "version": "1.2.0",
-  "description": "A package to act as a starter for typescript lambdas",
+  "description": "An API to access flat technical records",
   "main": "index.js",
   "scripts": {
     "lint": "eslint '*/**/*.ts' --quiet --fix",
     "lint:ci": "eslint '*/**/*.ts'",
     "test": "jest --coverage",
     "test:ci": "jest --ci",
+    "build": "npm run build:prod",
     "build:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.js",
-    "watch:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.watch.js",
+    "watch:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.watch.js & npm run start:dev",
     "build:prod": "webpack-cli --config webpack/webpack.production.js",
-    "start:dev": "sam local start-api",
-    "invoke": "sam local invoke"
+    "start:dev": "npm run dynamo:start && sam local start-api --docker-network dynamo_net",
+    "invoke": "sam local invoke --docker-network dynamo_net",
+    "dynamo:start": " docker compose up -d && ts-node scripts/setup-local-tables.ts",
+    "dynamo:stop": "docker compose down",
+    "dynamo:reset": "docker compose down --volumes && npm run dynamo:start",
+    "tools-setup": "echo 'move on'",
+    "test-i": "echo 'no integration tests'",
+    "package": "npm run build:prod"
   },
   "contributors": [
     {
@@ -22,13 +29,15 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.1354.0"
+    "@aws-sdk/client-dynamodb": "^3.341.0",
+    "@aws-sdk/util-dynamodb": "^3.341.0"
   },
   "devDependencies": {
+    "@aws-sdk/types": "^3.341.0",
     "@dvsa/eslint-config-ts": "^3.0.0",
     "@types/aws-lambda": "^8.10.114",
     "@types/jest": "^28.1.8",
-    "@types/node": "^16.18.23",
+    "@types/node": "^16.18.34",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
