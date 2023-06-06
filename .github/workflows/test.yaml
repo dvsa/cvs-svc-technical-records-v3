@@ -28,3 +28,5 @@ jobs:
         run: npm run test:ci
       - name: Build
         run: npm run build:prod
+      - name: Integration tests
+        run: npm run test-i
