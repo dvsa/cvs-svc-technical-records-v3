@@ -6,7 +6,7 @@ const branchName = require('current-git-branch');
 
 const LAMBDA_NAMES = ['SearchLambdaFunction'];
 const OUTPUT_FOLDER = './'
-const REPO_NAME = 'cvs-svc-techincal-records-v3';
+const REPO_NAME = 'cvs-svc-technical-records-v3';
 const BRANCH_NAME = branchName().replace(/\//g,"-");
 const COMMIT_HASH = process.env.ZIP_NAME ? process.env.ZIP_NAME : 'local';
 
