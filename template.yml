@@ -14,11 +14,15 @@ Resources:
             Properties:
               Path: /v3/technical-records/search/{searchIdentifier}
               Method: get
-
-Outputs:
-  SearchLambdaApi:
-    Description: "API Gateway endpoint URL for SearchLambdaFunction on dev stage"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Dev/"
-  SearchLambdaFunction:
-    Description: "Search Lambda Function ARN"
-    Value: !GetAtt GetLambdaFunction.Arn
+    GetLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: get.handler
+        Runtime: nodejs18.x
+        Events:
+          SearchLambdaApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/{searchIdentifier}/{createdTimestamp}
+              Method: get
