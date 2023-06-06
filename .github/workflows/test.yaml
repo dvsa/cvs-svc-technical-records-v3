@@ -28,5 +28,13 @@ jobs:
         run: npm run test:ci
       - name: Build
         run: npm run build:prod
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: foo
+          aws-secret-access-key: foo
+          aws-region: us-west-1
       - name: Integration tests
         run: npm run test-i
