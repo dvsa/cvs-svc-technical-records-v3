@@ -14,7 +14,7 @@
     "build:prod": "webpack-cli --config webpack/webpack.production.js",
     "start:dev": "npm run dynamo:start && sam local start-api --docker-network dynamo_net",
     "invoke": "sam local invoke --docker-network dynamo_net",
-    "dynamo:start": " docker compose up -d && ts-node scripts/setup-local-tables.ts",
+    "dynamo:start": " docker-compose up -d && ts-node scripts/setup-local-tables.ts",
     "dynamo:stop": "docker compose down",
     "dynamo:reset": "docker compose down --volumes && npm run dynamo:start",
     "tools-setup": "echo 'move on'",
