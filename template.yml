@@ -21,8 +21,8 @@ Resources:
         Handler: get.handler
         Runtime: nodejs18.x
         Events:
-          SearchLambdaApi:
+          GetLambdaApi:
             Type: Api
             Properties:
-              Path: /v3/technical-records/{searchIdentifier}/{createdTimestamp}
+              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
               Method: get

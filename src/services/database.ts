@@ -1,5 +1,7 @@
-import { DynamoDBClient, QueryCommand, QueryInput } from '@aws-sdk/client-dynamodb';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import {
+  DynamoDBClient, GetItemCommand, GetItemCommandInput, QueryCommand, QueryInput,
+} from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import { dynamoDBClientConfig, tableName } from '../config';
@@ -62,6 +64,25 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
   } catch {
     logger.debug('One of the promises rejected when calling the database');
     throw new Error('Error in calling the database');
+  }
+};
+
+export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<any> => {
+  const command: GetItemCommandInput = {
+    TableName: tableName,
+    Key: marshall({
+      systemNumber,
+      createdTimestamp,
+    }),
+  };
+
+  try {
+    const data = await ddbClient.send(new GetItemCommand(command));
+    logger.debug(JSON.stringify(data));
+    return unmarshall(data.Item || {});
+  } catch (e: any) {
+    logger.error('Error in search by sysnum and time: ', e);
+    throw new Error(`database client failed getting data by ${systemNumber} and ${createdTimestamp}`);
   }
 };
 
