@@ -19,5 +19,6 @@ export interface SearchResult {
   techRecord_chassisMake?: string
   techRecord_chassisModel?: string
   techRecord_make?: string
-  techRecord_model?: string
+  techRecord_model?: string,
+  techRecord_statusCode?: string
 }

@@ -6,8 +6,8 @@
   "scripts": {
     "lint": "eslint '*/**/*.ts' --quiet --fix",
     "lint:ci": "eslint '*/**/*.ts'",
-    "test": "jest --coverage",
-    "test:ci": "jest --ci",
+    "test": "jest --coverage unit",
+    "test:ci": "jest --ci unit",
     "build": "npm run build:prod",
     "build:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.js",
     "watch:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.watch.js & npm run start:dev",
@@ -18,7 +18,7 @@
     "dynamo:stop": "docker compose down",
     "dynamo:reset": "docker compose down --volumes && npm run dynamo:start",
     "tools-setup": "echo 'move on'",
-    "test-i": "echo 'no integration tests'",
+    "test-i": "npm run build:dev && jest int --globalSetup='./scripts/spin-up-lambdas.ts' --globalTeardown='./scripts/destroy-lambdas.ts' --testTimeout 10000",
     "package": "npm run build:prod"
   },
   "contributors": [
@@ -36,6 +36,7 @@
     "@aws-sdk/types": "^3.341.0",
     "@dvsa/eslint-config-ts": "^3.0.0",
     "@types/aws-lambda": "^8.10.114",
+    "@types/axios": "^0.14.0",
     "@types/jest": "^28.1.8",
     "@types/node": "^16.18.34",
     "@types/uuid": "^8.3.4",
@@ -43,6 +44,7 @@
     "@typescript-eslint/parser": "^5.57.1",
     "archiver": "^5.3.1",
     "aws-sam-webpack-plugin": "^0.13.0",
+    "axios": "^1.4.0",
     "copy-webpack-plugin": "^11.0.0",
     "current-git-branch": "^1.1.0",
     "dotenv": "^16.0.3",
