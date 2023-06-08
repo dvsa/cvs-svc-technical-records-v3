@@ -67,7 +67,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
   }
 };
 
-export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<any> => {
+export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<object> => {
   const command: GetItemCommandInput = {
     TableName: tableName,
     Key: marshall({

@@ -4,6 +4,7 @@ import logger from '../util/logger';
 import { addHttpHeaders } from '../util/httpHeaders';
 import { getGetErrors } from '../validators/get';
 import { getBySystemNumberAndCreatedTimestamp } from '../services/database';
+import { formatTechRecord } from '../util/formatTechRecord';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Get end point called');
@@ -21,20 +22,21 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const record = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
-  // TODO: reformat the record and add things back into arrays
-
   logger.debug(`result is: ${JSON.stringify(record)}`);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  if (!record || Object.keys(record).length === 0) {
+  if (!record || Object.keys(record).length) {
     return addHttpHeaders({
       statusCode: 404,
       body: `No record found matching sysNum ${systemNumber} and timestamp ${createdTimestamp}`,
     });
   }
 
+  const formattedRecord = formatTechRecord(record);
+
+  logger.debug(`formatted record is: ${JSON.stringify(formattedRecord)}`);
+
   return addHttpHeaders({
     statusCode: 200,
-    body: JSON.stringify(record),
+    body: JSON.stringify(formattedRecord),
   });
 };
