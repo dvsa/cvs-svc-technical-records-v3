@@ -1,9 +1,9 @@
-const buildNestedArray = (techRecordWithoutArrays: object, arrayName: string) => {
+const buildNestedArray = (techRecordWithoutArrays: object, arrayName: string, formattedTechRecord: any): object => {
   const array: any[] = [];
   let objectToAdd: any = {};
   let arrayCount = 0;
   Object.entries(techRecordWithoutArrays).sort().forEach(([key, value]) => {
-    if (/_\d_/.test(key) && key.includes(arrayName)) {
+    if (/_\d+_/.test(key) && key.includes(arrayName)) {
       const splitKey = key.split('_');
 
       if (parseInt(splitKey[2], 10) === arrayCount) {
@@ -20,6 +20,8 @@ const buildNestedArray = (techRecordWithoutArrays: object, arrayName: string) =>
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
       }
+    } else if (/_\d+/.test(key) && key.includes(arrayName)) {
+      array.push(value);
     }
   });
 
@@ -27,49 +29,25 @@ const buildNestedArray = (techRecordWithoutArrays: object, arrayName: string) =>
     array.push(objectToAdd);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return array;
-};
+  if (array.length) {
+  // eslint-disable-next-line security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
+    formattedTechRecord[arrayName] = array;
+  }
 
-const buildVehicleSubclass = (techRecordWithoutArrays: object) => {
-  const vehicleSubclass: any[] = [];
-  Object.entries(techRecordWithoutArrays).sort().forEach(([key, value]) => {
-    if (/vehicleSubclass_\d/.test(key)) {
-      vehicleSubclass.push(value);
-    }
-  });
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return vehicleSubclass;
+  return formattedTechRecord as object;
 };
 
 export const formatTechRecord = (techRecordWithoutArrays: object) => {
-  const axles = buildNestedArray(techRecordWithoutArrays, 'axles');
-  const vehicleSubclass = buildVehicleSubclass(techRecordWithoutArrays);
-  const plates = buildNestedArray(techRecordWithoutArrays, 'plates');
-
   const formattedTechRecord: any = {};
+  const valuesToArrayify = ['axles', 'vehicleSubclass', 'plates'];
+  valuesToArrayify.forEach((value) => buildNestedArray(techRecordWithoutArrays, value, formattedTechRecord as object));
+
   Object.entries(techRecordWithoutArrays).sort().forEach(([key, value]) => {
-    if (!/_\d/.test(key)) {
+    if (!/_\d+/.test(key)) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
       formattedTechRecord[key] = value;
     }
   });
-
-  if (axles.length) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    formattedTechRecord.axles = axles;
-  }
-
-  if (vehicleSubclass.length) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    formattedTechRecord.vehicleSubclass = vehicleSubclass;
-  }
-
-  if (plates.length) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    formattedTechRecord.plates = plates;
-  }
 
   return formattedTechRecord as object;
 };

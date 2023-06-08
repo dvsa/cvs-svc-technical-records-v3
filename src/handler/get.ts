@@ -24,7 +24,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug(`result is: ${JSON.stringify(record)}`);
 
-  if (!record || Object.keys(record).length) {
+  if (!record || !Object.keys(record).length) {
     return addHttpHeaders({
       statusCode: 404,
       body: `No record found matching sysNum ${systemNumber} and timestamp ${createdTimestamp}`,
