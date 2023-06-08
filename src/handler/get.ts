@@ -33,8 +33,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     });
   }
 
-  return {
+  return addHttpHeaders({
     statusCode: 200,
     body: JSON.stringify(record),
-  };
+  });
 };

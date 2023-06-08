@@ -3,16 +3,19 @@ const mockSend = jest.fn();
 
 const mockQueryCommand = jest.fn();
 
+const mockGetItemCommand = jest.fn();
+
 const mockDynamoDBClient = jest.fn(() => ({
   send: mockSend,
 }));
 
 import { SearchCriteria } from '../../../src/models/search';
-import { searchByCriteria, searchByAll } from '../../../src/services/database';
+import { searchByCriteria, searchByAll, getBySystemNumberAndCreatedTimestamp } from '../../../src/services/database';
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
   QueryCommand: mockQueryCommand,
+  GetItemCommand: mockGetItemCommand,
 }));
 
 describe('searchByCriteria', () => {
@@ -79,5 +82,30 @@ describe('searchByAll', () => {
   it('should catch an error', async () => {
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
     await expect(searchByAll('ABC123')).rejects.toThrow();
+  });
+});
+
+describe('getBySystemNumberAndCreatedTimestamp', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it('should return a record when given data', async () => {
+    mockSend.mockReturnValueOnce({ Item: { foo: { S: 'foo' } } });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const res = await getBySystemNumberAndCreatedTimestamp('ABC123', '1234');
+    expect(res).toStrictEqual({ foo: 'foo' });
+  });
+
+  it('should return a empty object if it cannot find a result', async () => {
+    mockSend.mockReturnValueOnce({});
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const res = await getBySystemNumberAndCreatedTimestamp('ABC123', '1234');
+    expect(res).toStrictEqual({});
+  });
+
+  it('should catch an error', async () => {
+    mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
+    await expect(getBySystemNumberAndCreatedTimestamp('ABC123', '1234')).rejects.toThrow();
   });
 });

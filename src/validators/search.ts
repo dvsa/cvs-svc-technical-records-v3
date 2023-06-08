@@ -9,7 +9,6 @@ export const getSearchErrors = (event: APIGatewayProxyEvent): APIGatewayProxyRes
       body: 'Missing vehicle search identifier',
     };
   }
-
   const searchCriteria = event.queryStringParameters?.searchCriteria;
   if (searchCriteria && !Object.values(SearchCriteria).includes(searchCriteria as SearchCriteria)) {
     return {

@@ -13,9 +13,9 @@ jest.mock('../../../src/services/database.ts', () => ({
   searchByCriteria: mockSearchByCriteria,
   searchByAll: mockSearchByAll,
 }));
+const headers = { 'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token', 'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT', 'Access-Control-Allow-Origin': '*' };
 
 describe('Test Search Lambda Function', () => {
-  const headers = { 'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token', 'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT', 'Access-Control-Allow-Origin': '*' };
   beforeEach(() => {
     jest.resetAllMocks();
   });
