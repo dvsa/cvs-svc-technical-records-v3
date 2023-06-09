@@ -1,19 +1,19 @@
 const buildArray = (techRecordWithoutArrays: object, arrayName: string, formattedTechRecord: any): object => {
-  const array: any[] = [];
+  const arrayToAdd: any[] = [];
   let objectToAdd: any = {};
-  let arrayCount = 0;
+  let arrayIndex = 0;
   Object.entries(techRecordWithoutArrays).sort().forEach(([key, value]) => {
     if (/_\d+_/.test(key) && key.includes(arrayName)) {
       const splitKey = key.split('_');
 
-      if (parseInt(splitKey[2], 10) === arrayCount) {
+      if (parseInt(splitKey[2], 10) === arrayIndex) {
         splitKey.splice(1, 2);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
       } else {
-        array.push(objectToAdd);
-        arrayCount = parseInt(splitKey[2], 10);
+        arrayToAdd.push(objectToAdd);
+        arrayIndex = parseInt(splitKey[2], 10);
         objectToAdd = {};
         splitKey.splice(1, 2);
         const newKey = splitKey.join('_');
@@ -21,17 +21,17 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
         objectToAdd[newKey] = value;
       }
     } else if (/_\d+/.test(key) && key.includes(arrayName)) {
-      array.push(value);
+      arrayToAdd.push(value);
     }
   });
 
   if (Object.keys(objectToAdd as object).length) {
-    array.push(objectToAdd);
+    arrayToAdd.push(objectToAdd);
   }
 
-  if (array.length) {
+  if (arrayToAdd.length) {
   // eslint-disable-next-line security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
-    formattedTechRecord[arrayName] = array;
+    formattedTechRecord[arrayName] = arrayToAdd;
   }
 
   return formattedTechRecord as object;

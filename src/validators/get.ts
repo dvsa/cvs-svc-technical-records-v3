@@ -25,7 +25,7 @@ export const getGetErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult
   }
 
   const createdTimestamp = decodeURIComponent(event.pathParameters.createdTimestamp);
-  if (!/[0-9]+-[0-9]+-[0-9]+T[0-9]+:[0-9]+:[0-9]+\.[0-9]+Z/i.test(createdTimestamp)) {
+  if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{0,20}Z/i.test(createdTimestamp)) {
     return {
       statusCode: 400,
       body: 'Invalid created timestamp',
