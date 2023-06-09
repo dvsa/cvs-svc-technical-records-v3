@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 // eslint-disable-next-line consistent-return
-export const getGetErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
+export const validateGetErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
   if (!event.pathParameters?.systemNumber) {
     return {
       statusCode: 400,

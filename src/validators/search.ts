@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { SearchCriteria } from '../models/search';
 
 // eslint-disable-next-line consistent-return
-export const getSearchErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
+export const validateSearchErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
   if (!event.pathParameters?.searchIdentifier) {
     return {
       statusCode: 400,

@@ -3,19 +3,19 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import logger from '../util/logger';
 import { SearchCriteria } from '../models/search';
 import { searchByAll, searchByCriteria } from '../services/database';
-import { getSearchErrors } from '../validators/search';
+import { validateSearchErrors } from '../validators/search';
 import { addHttpHeaders } from '../util/httpHeaders';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Search end point called');
 
-  const searchErrors = getSearchErrors(event);
+  const searchErrors = validateSearchErrors(event);
   if (searchErrors) {
     return addHttpHeaders(searchErrors);
   }
 
   const searchCriteria: SearchCriteria = event.queryStringParameters?.searchCriteria as SearchCriteria ?? SearchCriteria.ALL;
-  const searchIdentifier: string = decodeURIComponent(event.pathParameters?.searchIdentifier ?? '');
+  const searchIdentifier: string = decodeURIComponent(event.pathParameters?.searchIdentifier as string);
   logger.info(`Search database with identifier ${searchIdentifier} and criteria ${searchCriteria}`);
 
   const searchResult = searchCriteria === SearchCriteria.ALL
