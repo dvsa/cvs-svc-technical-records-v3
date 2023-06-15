@@ -50,5 +50,15 @@ describe('Test Search Lambda Function', () => {
       expect(mockSearchByAll).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]', headers });
     });
+
+    it('should capitalise the searchIdentifier', async () => {
+      const searchIdentifier = 'a lower case string';
+      mockValidateSearchErrors.mockReturnValueOnce(null);
+      mockSearchByAll.mockResolvedValueOnce(['record 1', 'record 2']);
+      const result = await handler({ pathParameters: { searchIdentifier } } as unknown as APIGatewayProxyEvent);
+      expect(mockSearchByAll).toHaveBeenCalledTimes(1);
+      expect(mockSearchByAll).toHaveBeenLastCalledWith(searchIdentifier.toUpperCase());
+      expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]', headers });
+    });
   });
 });
