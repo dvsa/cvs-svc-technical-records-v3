@@ -135,9 +135,9 @@ export const generateSystemNumber = async () : Promise<string> => {
     }
     // the payload (input) to the "my-lambda-func" is a JSON as follows:
     const input = {
-      path: '/system-number',
+      path: '/system-number/',
       httpMethod: 'POST',
-      resource: '/system-number',
+      resource: '/system-number/',
     };
 
     const command = new InvokeCommand({
