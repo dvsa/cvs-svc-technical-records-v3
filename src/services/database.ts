@@ -133,7 +133,6 @@ export const generateSystemNumber = async () : Promise<string> => {
     if (process.env.AWS_SAM_LOCAL) {
       return '123';
     }
-    // the payload (input) to the "my-lambda-func" is a JSON as follows:
     const input = {
       path: '/system-number/',
       httpMethod: 'POST',
@@ -142,17 +141,15 @@ export const generateSystemNumber = async () : Promise<string> => {
 
     const command = new InvokeCommand({
       FunctionName: process.env.TEST_NUMBER_LAMBDA_NAME,
-      InvocationType: 'RequestResponse', // or "Event" for asynchronous invocation
+      InvocationType: 'RequestResponse',
       Payload: JSON.stringify(input),
     });
 
     const response = await lambdaClient.send(command);
-    // const creds =  // if using TypeScript, you'll need to use Buffer.from(data.Payload).toString() to be type-safe
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions,@typescript-eslint/no-non-null-assertion
-    logger.info(`TEST NUMBER RESPONSE: ${JSON.stringify(Buffer.from(response.Payload!).toString('utf-8'))}`);
+    logger.info(`TEST NUMBER RESPONSE: ${Buffer.from(response.Payload!).toString('utf-8')}`);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion
-    return JSON.stringify(Buffer.from(response.Payload!).toString('utf-8'));
-    // Handle the response from the invoked Lambda function
+    return JSON.parse(Buffer.from(response.Payload!).toString('utf-8'));
   } catch (e) {
     logger.error(`Error in generate system number ${JSON.stringify(e)}`);
     throw new Error('lambda client failed getting data');
