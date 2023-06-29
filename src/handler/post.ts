@@ -1,8 +1,7 @@
 import 'dotenv/config';
-import { APIGatewayProxyEvent } from 'aws-lambda';
-import { postTechRecord } from '../services/database';
+import {APIGatewayProxyEvent} from 'aws-lambda';
+import {postTechRecord} from '../services/database';
 import logger from '../util/logger';
-import { PostCar } from '../models/post';
 
 export const handler = async (
   event: APIGatewayProxyEvent,
@@ -13,25 +12,13 @@ export const handler = async (
     if (event.body === null) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Body is not a valid TechRecord' }),
+        body: JSON.stringify({error: 'Body is not a valid TechRecord'}),
       };
     }
-    // TODO to use proper type when we have them.
+    // TODO to use proper type when we have them
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const requestBody: PostCar = JSON.parse(event.body);
+    const requestBody: any = JSON.parse(event.body);
 
-    if (!requestBody.vin || requestBody.vin.length > 21 || requestBody.vin.length < 3) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Invalid body field 'vin'" }),
-      };
-    }
-    if (!requestBody.msUserDetails || !requestBody.msUserDetails.msUser || !requestBody.msUserDetails.msOid) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Microsoft user details not provided' }),
-      };
-    }
     await postTechRecord(requestBody);
 
     // Return a successful response
@@ -40,12 +27,12 @@ export const handler = async (
       body: JSON.stringify(requestBody),
     };
   } catch
-  (error) {
+    (error) {
     logger.error(error);
     // Return an error response
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to add record to DynamoDB' }),
+      body: JSON.stringify({error: 'Failed to add record to DynamoDB'}),
     };
   }
 };

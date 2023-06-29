@@ -1,11 +1,19 @@
 import {
-  CreateTableCommandOutput, CreateTableInput, DynamoDB, DynamoDBClient, BatchWriteItemCommand, BatchWriteItemCommandInput, WriteRequest, DynamoDBClientConfig,
+  CreateTableCommandOutput,
+  CreateTableInput,
+  DynamoDB,
+  DynamoDBClient,
+  BatchWriteItemCommand,
+  BatchWriteItemCommandInput,
+  WriteRequest,
+  DynamoDBClientConfig,
 } from '@aws-sdk/client-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
+import {marshall} from '@aws-sdk/util-dynamodb';
 import techRecordData from '../tests/resources/technical-records-v3.json';
-import { SearchResult } from '../src/models/search';
-import { dynamoDBClientConfig, tableName } from '../src/config';
-import { TableSeedRequest } from './setup-local-tables.model';
+
+import {SearchResult} from '../src/models/search';
+import {dynamoDBClientConfig, tableName} from '../src/config';
+import {TableSeedRequest} from './setup-local-tables.model';
 
 type SearchResultKeys = keyof SearchResult;
 const flatTechRecordNonKeyAttributes: SearchResultKeys[] = [
@@ -22,7 +30,8 @@ const flatTechRecordNonKeyAttributes: SearchResultKeys[] = [
   'techRecord_model',
 ];
 
-const tablesToSetup: CreateTableInput[] = [
+let tablesToSetup: CreateTableInput[];
+tablesToSetup = [
   {
     AttributeDefinitions: [
       {
@@ -157,10 +166,28 @@ const tablesToSetup: CreateTableInput[] = [
       StreamEnabled: false,
     },
   },
+  {
+    TableName: 'cvs-local-test-number',
+    AttributeDefinitions: [
+      {
+        AttributeName: 'testNumberKey',
+        AttributeType: "N"
+      }
+    ],
+    KeySchema: [
+      {
+        AttributeName: 'testNumberKey',
+        KeyType: 'HASH'
+      }
+    ],
+    ProvisionedThroughput: {
+      ReadCapacityUnits: 1,
+      WriteCapacityUnits: 1,
+    },
+  }
+]
 
-];
-
-const dynamoConfig: DynamoDBClientConfig = { ...dynamoDBClientConfig, endpoint: process.env.DYNAMO_ENDPOINT };
+const dynamoConfig: DynamoDBClientConfig = {...dynamoDBClientConfig, endpoint: process.env.DYNAMO_ENDPOINT};
 
 const setupLocalTables = async () => {
   const ddb = new DynamoDB(dynamoConfig);
@@ -177,9 +204,9 @@ const setupLocalTables = async () => {
 };
 
 export const seedTables = async (seedingRequest: TableSeedRequest[]) => {
-  const command: BatchWriteItemCommandInput = seedingRequest.reduce((prev, { table, data }) => {
+  const command: BatchWriteItemCommandInput = seedingRequest.reduce((prev, {table, data}) => {
     const prevTableData: WriteRequest[] = prev.RequestItems?.[table] ?? [];
-    const marshalledData: WriteRequest[] = data.map((item) => ({ PutRequest: { Item: marshall(item) } }));
+    const marshalledData: WriteRequest[] = data.map((item) => ({PutRequest: {Item: marshall(item)}}));
     return {
       RequestItems: {
         ...prev.RequestItems,

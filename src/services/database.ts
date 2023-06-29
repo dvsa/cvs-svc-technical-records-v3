@@ -9,8 +9,7 @@ import {
 import {marshall, unmarshall} from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
 import {SearchCriteria, SearchResult, TableIndexes} from '../models/search';
-import {dynamoDBClientConfig, tableName, test_number_endpoint} from '../config';
-import {PostCar} from '../models/post';
+import {dynamoDBClientConfig, tableName} from '../config';
 
 const axios = require('axios');
 
@@ -101,13 +100,9 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   vin: 'VinIndex',
   trailerId: 'TrailerIdIndex',
 };
-export const postTechRecord = async (body: PostCar) => {
-  await generateSystemNumber()
-  // generate system number
-
+export const postTechRecord = async (body: any) => {
   const {systemNumber} = body;
   const {vin} = body;
-  // body.systemNumber = '';
   body.partialVin = body.vin.length < 6 ? body.vin : body.vin.substring(body.vin.length - 6);
   // Prepare the parameters for the PutItemCommand
   const params = {
@@ -126,17 +121,3 @@ export const postTechRecord = async (body: PostCar) => {
   // Use the PutItemCommand to add the record to DynamoDB
   return ddbClient.send(new PutItemCommand(params));
 };
-
-
-export const generateSystemNumber = async () => {
-  const response = await axios.post(`http://localhost:3008/2015-03-31/functions/cvs-svc-test-number-dev-generateTestNumber/invocations`,
-    {
-      "path": "/system-number",
-      "httpMethod": "POST",
-      "resource": "/system-number"
-    }
-
-)
-console.log('Response:', response.data);
-
-}
