@@ -129,26 +129,26 @@ export const postTechRecord = async (request: any) => {
 };
 
 export const generateSystemNumber = async () : Promise<string> => {
-  if (process.env.AWS_SAM_LOCAL) {
-    return '123';
-  }
-  // the payload (input) to the "my-lambda-func" is a JSON as follows:
-  const input = {
-    path: '/system-number',
-    httpMethod: 'POST',
-    resource: '/system-number',
-  };
-
-  const command = new InvokeCommand({
-    FunctionName: `test-number-${process.env.BRANCH ?? 'local'}`,
-    InvocationType: 'RequestResponse', // or "Event" for asynchronous invocation
-    Payload: JSON.stringify(input),
-  });
-
   try {
+    if (process.env.AWS_SAM_LOCAL) {
+      return '123';
+    }
+    // the payload (input) to the "my-lambda-func" is a JSON as follows:
+    const input = {
+      path: '/system-number',
+      httpMethod: 'POST',
+      resource: '/system-number',
+    };
+
+    const command = new InvokeCommand({
+      FunctionName: 'test-number-cb2-8086',
+      InvocationType: 'RequestResponse', // or "Event" for asynchronous invocation
+      Payload: JSON.stringify(input),
+    });
+
     const response = await lambdaClient.send(command);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
-    return JSON.parse(response.Payload?.toString() || '').systemNumber;
+    return JSON.parse(response.Payload?.toString() ?? '').systemNumber;
     // Handle the response from the invoked Lambda function
   } catch (e) {
     logger.error(`Error in generate system number ${JSON.stringify(e)}`);
