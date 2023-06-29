@@ -147,9 +147,11 @@ export const generateSystemNumber = async () : Promise<string> => {
 
     const response = await lambdaClient.send(command);
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions,@typescript-eslint/no-non-null-assertion
-    logger.info(`TEST NUMBER RESPONSE: ${Buffer.from(response.Payload!).toString('utf-8').replace(/\\/g, '')}`);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion
-    return JSON.parse(Buffer.from(response.Payload!).toString('utf-8').replace(/\\/g, ''));
+    logger.info(`TEST NUMBER RESPONSE: ${Buffer.from(response.Payload!).toString('utf-8')}`);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion,@typescript-eslint/no-unsafe-assignment
+    const bufferResponse = JSON.parse(Buffer.from(response.Payload!).toString('utf-8')).body;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
+    return JSON.parse(bufferResponse.systemNumber);
   } catch (e) {
     logger.error(`Error in generate system number ${JSON.stringify(e)}`);
     throw new Error('lambda client failed getting data');
