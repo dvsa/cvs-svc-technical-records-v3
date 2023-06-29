@@ -152,6 +152,10 @@ export const generateSystemNumber = async () : Promise<string> => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     logger.info('json parse');
     logger.info(JSON.parse(bufferResponse));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+    const bufferBody = JSON.parse(bufferResponse).body;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+    logger.info(JSON.parse(bufferBody).systemNumber);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
     return JSON.parse(bufferResponse).body.systemNumber;
