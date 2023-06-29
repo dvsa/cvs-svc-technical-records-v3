@@ -158,7 +158,7 @@ export const generateSystemNumber = async () : Promise<string> => {
     logger.info(JSON.parse(bufferBody).systemNumber);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
-    return JSON.parse(bufferResponse).body.systemNumber;
+    return JSON.parse(bufferBody).systemNumber;
   } catch (e) {
     logger.error(`Error in generate system number ${JSON.stringify(e)}`);
     throw new Error('lambda client failed getting data');
