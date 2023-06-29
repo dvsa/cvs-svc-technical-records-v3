@@ -7,6 +7,7 @@ import {
   QueryInput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import logger from '../util/logger';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
@@ -101,20 +102,25 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 export const postTechRecord = async (request: any) => {
-  const systemNumber: string = await generateSystemNumber();
-  const vin = request.vin;
+  const systemNumber = await generateSystemNumber();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { vin } = request;
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   request.systemNumber = systemNumber;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
   request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
   const params = {
     TableName: tableName,
-    Item: marshall(request),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    Item: request,
     ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
     ExpressionAttributeNames: {
       '#vin': 'vin',
       '#systemNumber': 'systemNumber',
     },
     ExpressionAttributeValues: {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       ':vin': { S: vin },
       ':systemNumber': { S: systemNumber },
     },
@@ -134,13 +140,14 @@ export const generateSystemNumber = async () : Promise<string> => {
   };
 
   const command = new InvokeCommand({
-    FunctionName: `test-number-${process.env.BRANCH}`,
+    FunctionName: `test-number-${process.env.BRANCH ?? 'local'}`,
     InvocationType: 'RequestResponse', // or "Event" for asynchronous invocation
     Payload: JSON.stringify(input),
   });
 
   try {
     const response = await lambdaClient.send(command);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
     return JSON.parse(response.Payload?.toString() || '').systemNumber;
     // Handle the response from the invoked Lambda function
   } catch (e) {
