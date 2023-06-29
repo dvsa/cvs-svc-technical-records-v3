@@ -147,9 +147,11 @@ export const generateSystemNumber = async () : Promise<string> => {
     });
 
     const response = await lambdaClient.send(command);
-    logger.info(`TEST NUMBER RESPONSE: ${JSON.stringify(response)}`);
+    // const creds =  // if using TypeScript, you'll need to use Buffer.from(data.Payload).toString() to be type-safe
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    logger.info(`TEST NUMBER RESPONSE: ${JSON.parse(Buffer.from(response.Payload!).toString())}`);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
-    return JSON.parse(response.Payload?.toString() ?? '').systemNumber;
+    return JSON.parse(Buffer.from(response.Payload!).toString()).systemNumber;
     // Handle the response from the invoked Lambda function
   } catch (e) {
     logger.error(`Error in generate system number ${JSON.stringify(e)}`);
