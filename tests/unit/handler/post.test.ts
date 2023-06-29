@@ -1,5 +1,4 @@
 /* eslint-disable import/first */
-
 const mockPostTechRecords = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
