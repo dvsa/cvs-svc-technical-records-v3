@@ -6,12 +6,14 @@ import {
   QueryCommand,
   QueryInput,
 } from '@aws-sdk/client-dynamodb';
-import {marshall, unmarshall} from '@aws-sdk/util-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import logger from '../util/logger';
-import {SearchCriteria, SearchResult, TableIndexes} from '../models/search';
-import {dynamoDBClientConfig, tableName} from '../config';
+import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
+import { dynamoDBClientConfig, tableName } from '../config';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
+const lambdaClient = new LambdaClient({ region: dynamoDBClientConfig.region });
 
 export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
   const query: QueryInput = {
@@ -22,7 +24,7 @@ export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, S
       [`#${searchCriteria}`]: searchCriteria,
     },
     ExpressionAttributeValues: {
-      [`:${searchCriteria}`]: {S: searchIdentifier},
+      [`:${searchCriteria}`]: { S: searchIdentifier },
     },
   };
 
@@ -47,7 +49,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
         [`#${searchCriteria}`]: searchCriteria,
       },
       ExpressionAttributeValues: {
-        [`:${searchCriteria}`]: {S: searchIdentifier},
+        [`:${searchCriteria}`]: { S: searchIdentifier },
       },
     };
 
@@ -98,22 +100,51 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   vin: 'VinIndex',
   trailerId: 'TrailerIdIndex',
 };
-export const postTechRecord = async (body: any) => {
-  const {systemNumber} = body;
-  const {vin} = body;
-  body.partialVin = body.vin.length < 6 ? body.vin : body.vin.substring(body.vin.length - 6);
+export const postTechRecord = async (request: any) => {
+  const systemNumber: string = await generateSystemNumber();
+  const vin = request.vin;
+
+  request.systemNumber = systemNumber;
+  request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
   const params = {
     TableName: tableName,
-    Item: marshall(body),
+    Item: marshall(request),
     ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
     ExpressionAttributeNames: {
       '#vin': 'vin',
       '#systemNumber': 'systemNumber',
     },
     ExpressionAttributeValues: {
-      ':vin': {S: vin},
-      ':systemNumber': {S: systemNumber},
+      ':vin': { S: vin },
+      ':systemNumber': { S: systemNumber },
     },
   };
   return ddbClient.send(new PutItemCommand(params));
+};
+
+export const generateSystemNumber = async () : Promise<string> => {
+  if (process.env.AWS_SAM_LOCAL) {
+    return '123';
+  }
+  // the payload (input) to the "my-lambda-func" is a JSON as follows:
+  const input = {
+    path: '/system-number',
+    httpMethod: 'POST',
+    resource: '/system-number',
+  };
+
+  const command = new InvokeCommand({
+    FunctionName: `test-number-${process.env.BRANCH}`,
+    InvocationType: 'RequestResponse', // or "Event" for asynchronous invocation
+    Payload: JSON.stringify(input),
+  });
+
+  try {
+    const response = await lambdaClient.send(command);
+    return JSON.parse(response.Payload?.toString() || '').systemNumber;
+    // Handle the response from the invoked Lambda function
+  } catch (e) {
+    logger.error(`Error in generate system number ${JSON.stringify(e)}`);
+    throw new Error('lambda client failed getting data');
+  }
 };

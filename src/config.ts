@@ -15,4 +15,4 @@ export const dynamoDBClientConfig: DynamoDBClientConfig = {
 };
 export const tableName = process.env.TABLE_NAME ?? 'local-flat-technical-records';
 
-export const test_number_endpoint = "http://localhost:3008";
+export const test_number_endpoint = 'http://localhost:3008';

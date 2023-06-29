@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import {APIGatewayProxyEvent} from 'aws-lambda';
-import {postTechRecord} from '../services/database';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+import { postTechRecord } from '../services/database';
 import logger from '../util/logger';
 
 export const handler = async (
@@ -11,7 +11,7 @@ export const handler = async (
     if (event.body === null) {
       return {
         statusCode: 400,
-        body: JSON.stringify({error: 'Body is not a valid TechRecord'}),
+        body: JSON.stringify({ error: 'Body is not a valid TechRecord' }),
       };
     }
     // TODO to use proper type when we have them
@@ -24,11 +24,11 @@ export const handler = async (
       body: JSON.stringify(requestBody),
     };
   } catch
-    (error) {
+  (error) {
     logger.error(error);
     return {
       statusCode: 500,
-      body: JSON.stringify({error: 'Failed to add record to DynamoDB'}),
+      body: JSON.stringify({ error: 'Failed to add record to DynamoDB' }),
     };
   }
 };
