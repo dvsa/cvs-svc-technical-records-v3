@@ -141,7 +141,7 @@ export const generateSystemNumber = async () : Promise<string> => {
     };
 
     const command = new InvokeCommand({
-      FunctionName: 'test-number-cb2-8086',
+      FunctionName: process.env.TEST_NUMBER_LAMBDA_NAME,
       InvocationType: 'RequestResponse', // or "Event" for asynchronous invocation
       Payload: JSON.stringify(input),
     });
