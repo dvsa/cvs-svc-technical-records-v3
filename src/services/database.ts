@@ -147,7 +147,7 @@ export const generateSystemNumber = async () : Promise<string> => {
     });
 
     const response = await lambdaClient.send(command);
-    logger.info(`TEST NUMBER RESPONSE: ${response}`);
+    logger.info(`TEST NUMBER RESPONSE: ${JSON.stringify(response)}`);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
     return JSON.parse(response.Payload?.toString() ?? '').systemNumber;
     // Handle the response from the invoked Lambda function
