@@ -14,3 +14,5 @@ export const dynamoDBClientConfig: DynamoDBClientConfig = {
   region: process.env.DYNAMO_AWS_REGION,
 };
 export const tableName = process.env.TABLE_NAME ?? 'local-flat-technical-records';
+
+export const test_number_endpoint = "http://localhost:3008";

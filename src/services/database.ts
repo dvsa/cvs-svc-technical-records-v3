@@ -1,10 +1,18 @@
 import {
-  DynamoDBClient, GetItemCommand, GetItemCommandInput, QueryCommand, QueryInput,
+  DynamoDBClient,
+  GetItemCommand,
+  GetItemCommandInput,
+  PutItemCommand,
+  QueryCommand,
+  QueryInput,
 } from '@aws-sdk/client-dynamodb';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import {marshall, unmarshall} from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
-import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
-import { dynamoDBClientConfig, tableName } from '../config';
+import {SearchCriteria, SearchResult, TableIndexes} from '../models/search';
+import {dynamoDBClientConfig, tableName, test_number_endpoint} from '../config';
+import {PostCar} from '../models/post';
+
+const axios = require('axios');
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
@@ -17,7 +25,7 @@ export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, S
       [`#${searchCriteria}`]: searchCriteria,
     },
     ExpressionAttributeValues: {
-      [`:${searchCriteria}`]: { S: searchIdentifier },
+      [`:${searchCriteria}`]: {S: searchIdentifier},
     },
   };
 
@@ -42,7 +50,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
         [`#${searchCriteria}`]: searchCriteria,
       },
       ExpressionAttributeValues: {
-        [`:${searchCriteria}`]: { S: searchIdentifier },
+        [`:${searchCriteria}`]: {S: searchIdentifier},
       },
     };
 
@@ -93,3 +101,42 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   vin: 'VinIndex',
   trailerId: 'TrailerIdIndex',
 };
+export const postTechRecord = async (body: PostCar) => {
+  await generateSystemNumber()
+  // generate system number
+
+  const {systemNumber} = body;
+  const {vin} = body;
+  // body.systemNumber = '';
+  body.partialVin = body.vin.length < 6 ? body.vin : body.vin.substring(body.vin.length - 6);
+  // Prepare the parameters for the PutItemCommand
+  const params = {
+    TableName: tableName,
+    Item: marshall(body),
+    ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
+    ExpressionAttributeNames: {
+      '#vin': 'vin',
+      '#systemNumber': 'systemNumber',
+    },
+    ExpressionAttributeValues: {
+      ':vin': {S: vin},
+      ':systemNumber': {S: systemNumber},
+    },
+  };
+  // Use the PutItemCommand to add the record to DynamoDB
+  return ddbClient.send(new PutItemCommand(params));
+};
+
+
+export const generateSystemNumber = async () => {
+  const response = await axios.post(`http://localhost:3008/2015-03-31/functions/cvs-svc-test-number-dev-generateTestNumber/invocations`,
+    {
+      "path": "/system-number",
+      "httpMethod": "POST",
+      "resource": "/system-number"
+    }
+
+)
+console.log('Response:', response.data);
+
+}

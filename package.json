@@ -10,7 +10,7 @@
     "test:ci": "jest --ci",
     "build": "npm run build:prod",
     "build:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.js",
-    "watch:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.watch.js & npm run start:dev",
+    "watch:dev": "DOCKER_HOST=unix://$HOME/.docker/run/docker.sock NODE_ENV=development webpack-cli --config webpack/webpack.development.watch.js & DOCKER_HOST=unix://$HOME/.docker/run/docker.sock npm run start:dev",
     "build:prod": "webpack-cli --config webpack/webpack.production.js",
     "start:dev": "npm run dynamo:start && sam local start-api --docker-network dynamo_net",
     "invoke": "sam local invoke --docker-network dynamo_net",
@@ -30,7 +30,9 @@
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.341.0",
-    "@aws-sdk/util-dynamodb": "^3.341.0"
+    "@aws-sdk/util-dynamodb": "^3.341.0",
+    "axios": "^1.4.0",
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.341.0",

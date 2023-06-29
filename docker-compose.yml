@@ -31,6 +31,20 @@ services:
             ipv4_address: 172.22.0.3
             aliases:
             - dynamodbadmin
+  cvs-svc-test-number:
+    container_name: cvs-svc-test-number
+    image: cvs-svc-test-number-local
+    depends_on:
+      - dynamo
+    ports:
+      - "3008:3008"
+
+    command: 'npm run start'
+    networks:
+      dynamodbNetwork:
+        ipv4_address: 172.22.0.4
+        aliases:
+          - dynamodbadmin
 
 # This will persist data and tables when restarting the dynamo container
 volumes:
