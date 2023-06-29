@@ -11,8 +11,6 @@ import logger from '../util/logger';
 import {SearchCriteria, SearchResult, TableIndexes} from '../models/search';
 import {dynamoDBClientConfig, tableName} from '../config';
 
-const axios = require('axios');
-
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
 export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
@@ -104,7 +102,6 @@ export const postTechRecord = async (body: any) => {
   const {systemNumber} = body;
   const {vin} = body;
   body.partialVin = body.vin.length < 6 ? body.vin : body.vin.substring(body.vin.length - 6);
-  // Prepare the parameters for the PutItemCommand
   const params = {
     TableName: tableName,
     Item: marshall(body),
@@ -118,6 +115,5 @@ export const postTechRecord = async (body: any) => {
       ':systemNumber': {S: systemNumber},
     },
   };
-  // Use the PutItemCommand to add the record to DynamoDB
   return ddbClient.send(new PutItemCommand(params));
 };

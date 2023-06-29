@@ -8,7 +8,6 @@ export const handler = async (
 ): Promise<{ body: unknown; statusCode: number }> => {
   logger.info('Post end point called');
   try {
-    // Parse the request body
     if (event.body === null) {
       return {
         statusCode: 400,
@@ -18,10 +17,8 @@ export const handler = async (
     // TODO to use proper type when we have them
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const requestBody: any = JSON.parse(event.body);
-
     await postTechRecord(requestBody);
 
-    // Return a successful response
     return {
       statusCode: 200,
       body: JSON.stringify(requestBody),
@@ -29,7 +26,6 @@ export const handler = async (
   } catch
     (error) {
     logger.error(error);
-    // Return an error response
     return {
       statusCode: 500,
       body: JSON.stringify({error: 'Failed to add record to DynamoDB'}),

@@ -165,25 +165,6 @@ tablesToSetup = [
     StreamSpecification: {
       StreamEnabled: false,
     },
-  },
-  {
-    TableName: 'cvs-local-test-number',
-    AttributeDefinitions: [
-      {
-        AttributeName: 'testNumberKey',
-        AttributeType: "N"
-      }
-    ],
-    KeySchema: [
-      {
-        AttributeName: 'testNumberKey',
-        KeyType: 'HASH'
-      }
-    ],
-    ProvisionedThroughput: {
-      ReadCapacityUnits: 1,
-      WriteCapacityUnits: 1,
-    },
   }
 ]
 
