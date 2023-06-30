@@ -13,7 +13,7 @@ jest.mock('../../../src/services/database.ts', () => ({
 }));
 
 describe('Test test Number Service', () => {
-  process.env.AWS_SAM_LOCAL='true';
+  process.env.AWS_SAM_LOCAL = 'true';
   describe('Successful response', () => {
     it('should return a system number', async () => {
       const result = await generateSystemNumber();
