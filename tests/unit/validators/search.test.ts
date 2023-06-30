@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { validateSearchErrors } from '../../../src/validators/search';
 
 describe('test the get error validator', () => {
