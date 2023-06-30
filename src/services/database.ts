@@ -102,37 +102,34 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 export const postTechRecord = async (request: any) => {
-  try {
-    const systemNumber = await generateSystemNumber();
-    logger.info(`system number after in database.ts${systemNumber}`);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const { vin } = request;
+  const systemNumber = await generateSystemNumber();
+  logger.info(`system number after in database.ts${systemNumber}`);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { vin } = request;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    request.systemNumber = systemNumber;
-    logger.info('assigned generated systemnumber to request');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
-    request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
-    const params = {
-      TableName: tableName,
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  request.systemNumber = systemNumber;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  request.createdTimestamp = new Date().toISOString();
+  logger.info('assigned generated systemnumber to request');
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
+  request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
+  const params = {
+    TableName: tableName,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    Item: request,
+    ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
+    ExpressionAttributeNames: {
+      '#vin': 'vin',
+      '#systemNumber': 'systemNumber',
+    },
+    ExpressionAttributeValues: {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      Item: request,
-      ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
-      ExpressionAttributeNames: {
-        '#vin': 'vin',
-        '#systemNumber': 'systemNumber',
-      },
-      ExpressionAttributeValues: {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        ':vin': { S: vin },
-        ':systemNumber': { S: systemNumber },
-      },
-    };
-    return await ddbClient.send(new PutItemCommand(params));
-  } catch (e) {
-    logger.error(e);
-    return Promise.reject(e);
-  }
+      ':vin': { S: vin },
+      ':systemNumber': { S: systemNumber },
+    },
+  };
+  return ddbClient.send(new PutItemCommand(params)).catch((x) => logger.error(x));
 };
 
 export const generateSystemNumber = async () : Promise<string> => {
