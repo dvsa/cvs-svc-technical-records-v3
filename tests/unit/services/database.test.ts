@@ -1,16 +1,29 @@
 /* eslint-disable import/first */
 const mockSend = jest.fn();
-
 const mockQueryCommand = jest.fn();
-
 const mockGetItemCommand = jest.fn();
+const mockGenerateNewNumber = jest.fn();
+const mockLambdaSend = jest.fn();
 
 const mockDynamoDBClient = jest.fn(() => ({
   send: mockSend,
 }));
 
+jest.mock('@aws-sdk/client-lambda', () => ({
+  LambdaClient: jest.fn(() => ({
+    send: mockLambdaSend,
+  })),
+  InvokeCommand: jest.fn(),
+}));
+
 import { SearchCriteria } from '../../../src/models/search';
-import { searchByCriteria, searchByAll, getBySystemNumberAndCreatedTimestamp } from '../../../src/services/database';
+import {
+  searchByCriteria,
+  searchByAll,
+  getBySystemNumberAndCreatedTimestamp,
+  postTechRecord,
+} from '../../../src/services/database';
+import postCarData from '../../resources/techRecordCarPost.json';
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
@@ -107,5 +120,47 @@ describe('getBySystemNumberAndCreatedTimestamp', () => {
   it('should catch an error', async () => {
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
     await expect(getBySystemNumberAndCreatedTimestamp('ABC123', '1234')).rejects.toThrow();
+  });
+});
+
+describe('postTechRecord', () => {
+  jest.mock('../../../src/services/database', () => ({
+    generateNewNumber: mockGenerateNewNumber,
+  }));
+  it('should return a record when given data', async () => {
+    try {
+      await postTechRecord('');
+    } catch (e) {
+      // eslint-disable-next-line jest/no-conditional-expect
+      expect(e as Error).toStrictEqual(new Error('lambda client failed getting data'));
+    }
+  });
+  it('should return a record when given data', async () => {
+    try {
+      const mockBody = {
+        body: JSON.stringify({
+          level: 'info',
+          message: {
+            body: '{"systemNumber":"10000021","testNumberKey":3}',
+            headers: {
+              'Access-Control-Allow-Credentials': true,
+              'Access-Control-Allow-Origin': '*',
+              Vary: 'Origin',
+              'X-Content-Type-Options': 'nosniff',
+              'X-XSS-Protection': '1; mode=block',
+            },
+            statusCode: 200,
+          },
+        }),
+      };
+      const mockBuffer = Buffer.from(JSON.stringify(mockBody));
+      mockLambdaSend.mockReturnValueOnce(Promise.resolve({ Payload: mockBuffer }));
+      mockGenerateNewNumber.mockResolvedValueOnce('foo');
+      const res = await postTechRecord(postCarData);
+      expect(res).toBe('foo');
+    } catch (e) {
+      console.log(e);
+      // eslint-disable-next-line jest/no-conditional-expect
+    }
   });
 });

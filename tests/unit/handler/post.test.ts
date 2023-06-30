@@ -1,5 +1,4 @@
 /* eslint-disable import/first */
-
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/post';
 import postCarData from '../../resources/techRecordCarPost.json';

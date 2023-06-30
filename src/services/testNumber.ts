@@ -16,49 +16,38 @@ export enum NumberTypes {
   SystemNumber = 'system-number',
 }
 
-const apiResponseMap: Record<NumberTypes, string> = {
-  [NumberTypes.ZNumber]: 'zNumber',
-  [NumberTypes.TrailerId]: 'trailerId',
-  [NumberTypes.TNumber]: 'tNumber',
-  [NumberTypes.SystemNumber]: 'systemNumber',
-};
-
 const lambdaClient = new LambdaClient({ region: dynamoDBClientConfig.region });
 
-export const generateAndSendInvokeCommand = async (input: any) => {
+export const generateNewNumber = async (numberType: NumberTypes): Promise<string> => {
+  if (process.env.AWS_SAM_LOCAL) {
+    return '123';
+  }
+  const input = {
+    path: `/${numberType}`,
+    httpMethod: 'POST',
+    resource: `/${numberType}`,
+  };
   const command = new InvokeCommand({
     FunctionName: process.env.TEST_NUMBER_LAMBDA_NAME,
     InvocationType: 'RequestResponse',
     Payload: JSON.stringify(input),
   });
-  const response = await lambdaClient.send(command);
-  const bufferResponse = Buffer.from(response.Payload!).toString('utf-8');
-  return JSON.parse(bufferResponse).body;
-};
-
-export const generateNewNumber = async (numberType: NumberTypes): Promise<string> => {
   try {
-    if (process.env.AWS_SAM_LOCAL) {
-      return '123';
-    }
-    const input = {
-      path: `/${numberType}`,
-      httpMethod: 'POST',
-      resource: `/${numberType}`,
-    };
-    const command = new InvokeCommand({
-      FunctionName: process.env.TEST_NUMBER_LAMBDA_NAME,
-      InvocationType: 'RequestResponse',
-      Payload: JSON.stringify(input),
-    });
     const response = await lambdaClient.send(command);
     const bufferResponse = Buffer.from(response.Payload!).toString('utf-8');
-    const bufferBody = JSON.parse(bufferResponse).body;
-    logger.info(bufferBody);
-    const apiResponseValue = apiResponseMap[numberType];
-    logger.info(apiResponseValue);
-    logger.info('returning response');
-    return JSON.parse(bufferBody)[apiResponseValue];
+    const bufferBody = await JSON.parse(bufferResponse).body;
+    switch (numberType) {
+      case NumberTypes.SystemNumber:
+        return JSON.parse(bufferBody).systemNumber;
+      case NumberTypes.TNumber:
+        return JSON.parse(bufferBody).tNumber;
+      case NumberTypes.TrailerId:
+        return JSON.parse(bufferBody).trailerId;
+      case NumberTypes.ZNumber:
+        return JSON.parse(bufferBody).zNumber;
+      default:
+        throw new Error('Invalid search parameter');
+    }
   } catch (e) {
     logger.error(`Error in generate ${numberType} ${JSON.stringify(e)}`);
     throw new Error('lambda client failed getting data');
