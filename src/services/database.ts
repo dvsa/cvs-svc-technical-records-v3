@@ -1,3 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 import {
   DynamoDBClient,
   GetItemCommand,
@@ -103,20 +109,13 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
 };
 export const postTechRecord = async (request: any) => {
   const systemNumber = await generateSystemNumber();
-  logger.info(`system number after in database.ts${systemNumber}`);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { vin } = request;
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   request.systemNumber = systemNumber;
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   request.createdTimestamp = new Date().toISOString();
-  logger.info('assigned generated systemnumber to request');
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
   const params = {
     TableName: tableName,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     Item: request,
     ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
     ExpressionAttributeNames: {
@@ -124,7 +123,6 @@ export const postTechRecord = async (request: any) => {
       '#systemNumber': 'systemNumber',
     },
     ExpressionAttributeValues: {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       ':vin': { S: vin },
       ':systemNumber': { S: systemNumber },
     },
@@ -150,18 +148,8 @@ export const generateSystemNumber = async () : Promise<string> => {
     });
 
     const response = await lambdaClient.send(command);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion,@typescript-eslint/no-unsafe-assignment
     const bufferResponse = Buffer.from(response.Payload!).toString('utf-8');
-    logger.info(`buffer response: ${bufferResponse}`);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    logger.info('json parse');
-    logger.info(JSON.parse(bufferResponse));
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
     const bufferBody = JSON.parse(bufferResponse).body;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-    logger.info(`system number: ${JSON.parse(bufferBody).systemNumber}`);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
     return JSON.parse(bufferBody).systemNumber;
   } catch (e) {
     logger.error(`Error in generate system number ${JSON.stringify(e)}`);
