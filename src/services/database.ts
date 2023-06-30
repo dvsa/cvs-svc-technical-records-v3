@@ -13,14 +13,14 @@ import {
   QueryInput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import logger from '../util/logger';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import { dynamoDBClientConfig, tableName } from '../config';
+import {
+  generateSystemNumber, generateTNumber, generateTrailerId, generateZNumber,
+} from './testNumber';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
-const lambdaClient = new LambdaClient({ region: dynamoDBClientConfig.region });
 
 export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
   const query: QueryInput = {
@@ -109,7 +109,14 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
 };
 export const postTechRecord = async (request: any) => {
   const systemNumber = await generateSystemNumber();
-  const { vin } = request;
+  if (request.techRecord_vehicleType !== 'trl' && !request.primaryVrm) {
+    request.primaryVrm = generateZNumber();
+  }
+  if (request.techRecord_vehicleType === 'trl' && request.techRecord.trailerId) {
+    request.trailerId = generateTrailerId();
+  } else if (request.techRecord_euVehicleCategory === ('o1' || 'o2')) {
+    request.trailerId = generateTNumber();
+  } const { vin } = request;
   request.systemNumber = systemNumber;
   request.createdTimestamp = new Date().toISOString();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -128,31 +135,4 @@ export const postTechRecord = async (request: any) => {
     },
   };
   return ddbClient.send(new PutItemCommand(params)).catch((x) => logger.error(x));
-};
-
-export const generateSystemNumber = async () : Promise<string> => {
-  try {
-    if (process.env.AWS_SAM_LOCAL) {
-      return '123';
-    }
-    const input = {
-      path: '/system-number/',
-      httpMethod: 'POST',
-      resource: '/system-number/',
-    };
-
-    const command = new InvokeCommand({
-      FunctionName: process.env.TEST_NUMBER_LAMBDA_NAME,
-      InvocationType: 'RequestResponse',
-      Payload: JSON.stringify(input),
-    });
-
-    const response = await lambdaClient.send(command);
-    const bufferResponse = Buffer.from(response.Payload!).toString('utf-8');
-    const bufferBody = JSON.parse(bufferResponse).body;
-    return JSON.parse(bufferBody).systemNumber;
-  } catch (e) {
-    logger.error(`Error in generate system number ${JSON.stringify(e)}`);
-    throw new Error('lambda client failed getting data');
-  }
 };
