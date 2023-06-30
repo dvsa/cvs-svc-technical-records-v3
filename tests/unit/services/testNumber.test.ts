@@ -3,10 +3,8 @@ const mockSend = jest.fn();
 
 import {
   generateAndSendInvokeCommand,
-  generateSystemNumber,
-  generateTNumber,
-  generateTrailerId,
-  generateZNumber,
+  generateNewNumber,
+  NumberTypes,
 } from '../../../src/services/testNumber';
 
 process.env.TEST_NUMBER_LAMBDA_NAME = 'cvs-svc-local-test-number';
@@ -136,19 +134,19 @@ describe('Test test Number Service', () => {
   describe('Successful response with local environment variable set', () => {
     process.env.AWS_SAM_LOCAL = 'true';
     it('should return a system number', async () => {
-      const result = await generateSystemNumber();
+      const result = await generateNewNumber(NumberTypes.SystemNumber);
       expect(result).toBe('123');
     });
     it('should return a trailerId number', async () => {
-      const result = await generateTrailerId();
+      const result = await generateNewNumber(NumberTypes.TrailerId);
       expect(result).toBe('123');
     });
     it('should return a Z number', async () => {
-      const result = await generateZNumber();
+      const result = await generateNewNumber(NumberTypes.ZNumber);
       expect(result).toBe('123');
     });
     it('should return a T number', async () => {
-      const result = await generateTNumber();
+      const result = await generateNewNumber(NumberTypes.TNumber);
       expect(result).toBe('123');
     });
   });

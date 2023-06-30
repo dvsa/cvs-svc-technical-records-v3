@@ -16,9 +16,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import { dynamoDBClientConfig, tableName } from '../config';
-import {
-  generateSystemNumber, generateTNumber, generateTrailerId, generateZNumber,
-} from './testNumber';
+import { generateNewNumber, NumberTypes } from './testNumber';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
@@ -108,14 +106,14 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 export const postTechRecord = async (request: any) => {
-  const systemNumber = await generateSystemNumber();
+  const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
   if (request.techRecord_vehicleType !== 'trl' && !request.primaryVrm) {
-    request.primaryVrm = generateZNumber();
+    request.primaryVrm = await generateNewNumber(NumberTypes.ZNumber);
   }
   if (request.techRecord_vehicleType === 'trl' && request.techRecord.trailerId) {
-    request.trailerId = generateTrailerId();
+    request.trailerId = await generateNewNumber(NumberTypes.TrailerId);
   } else if (request.techRecord_euVehicleCategory === ('o1' || 'o2')) {
-    request.trailerId = generateTNumber();
+    request.trailerId = await generateNewNumber(NumberTypes.TNumber);
   } const { vin } = request;
   request.systemNumber = systemNumber;
   request.createdTimestamp = new Date().toISOString();
