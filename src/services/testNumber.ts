@@ -13,7 +13,7 @@ export enum NumberTypes {
   ZNumber = 'z-number',
   TrailerId = 'trailerId',
   TNumber = 't-number',
-  SystemNumber = 'systemNumber',
+  SystemNumber = 'system-number',
 }
 
 const apiResponseMap: Record<NumberTypes, string> = {
