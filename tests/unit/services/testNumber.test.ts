@@ -6,15 +6,16 @@ import {
   generateZNumber,
 } from '../../../src/services/testNumber';
 
-const mockPostTechRecords = jest.fn();
-
-jest.mock('../../../src/services/database.ts', () => ({
-  postTechRecord: mockPostTechRecords,
+jest.fn();
+jest.mock('@aws-sdk/client-lambda', () => ({
+  LambdaClient: jest.fn(() => ({
+    send: jest.fn(),
+  })),
 }));
 
 describe('Test test Number Service', () => {
-  process.env.AWS_SAM_LOCAL = 'true';
-  describe('Successful response', () => {
+  describe('Successful response with environment variable set', () => {
+    process.env.AWS_SAM_LOCAL = 'true';
     it('should return a system number', async () => {
       const result = await generateSystemNumber();
       expect(result).toBe('123');
