@@ -127,7 +127,7 @@ describe('postTechRecord', () => {
   jest.mock('../../../src/services/database', () => ({
     generateNewNumber: mockGenerateNewNumber,
   }));
-  it('should return a record when given data', async () => {
+  it('should throw an error with an invalid body', async () => {
     try {
       await postTechRecord('');
     } catch (e) {
@@ -135,7 +135,7 @@ describe('postTechRecord', () => {
       expect(e as Error).toStrictEqual(new Error('lambda client failed getting data'));
     }
   });
-  it('should return a record when given data', async () => {
+  it('should not error', async () => {
     try {
       const mockBody = {
         body: JSON.stringify({
