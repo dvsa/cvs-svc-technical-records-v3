@@ -1,13 +1,8 @@
 /* eslint-disable import/first */
-const mockPostTechRecords = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/post';
 import postCarData from '../../resources/techRecordCarPost.json';
-
-jest.mock('../../../src/services/database.ts', () => ({
-  postTechRecord: mockPostTechRecords,
-}));
 
 describe('Test Post Lambda Function', () => {
   describe('Error handling', () => {

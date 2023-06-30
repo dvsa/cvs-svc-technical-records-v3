@@ -18,7 +18,6 @@ export const handler = async (
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const requestBody: any = JSON.parse(event.body);
     await postTechRecord(requestBody);
-
     return {
       statusCode: 200,
       body: JSON.stringify(requestBody),

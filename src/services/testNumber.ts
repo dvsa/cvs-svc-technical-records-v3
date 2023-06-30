@@ -90,7 +90,6 @@ export const generateAndSendInvokeCommand = async (input: any) => {
     InvocationType: 'RequestResponse',
     Payload: JSON.stringify(input),
   });
-
   const response = await lambdaClient.send(command);
   const bufferResponse = Buffer.from(response.Payload!).toString('utf-8');
   return JSON.parse(bufferResponse).body;
