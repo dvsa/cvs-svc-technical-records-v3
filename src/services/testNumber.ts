@@ -42,9 +42,9 @@ export const generateNewNumber = async (numberType: NumberTypes): Promise<string
       return '123';
     }
     const input = {
-      path: `/${numberType}/`,
+      path: `/${numberType}`,
       httpMethod: 'POST',
-      resource: `/${numberType}/`,
+      resource: `/${numberType}`,
     };
     const command = new InvokeCommand({
       FunctionName: process.env.TEST_NUMBER_LAMBDA_NAME,
