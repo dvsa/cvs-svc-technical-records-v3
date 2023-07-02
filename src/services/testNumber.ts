@@ -8,6 +8,7 @@
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import logger from '../util/logger';
 import { dynamoDBClientConfig } from '../config';
+import {APIGatewayProxyResult} from "aws-lambda";
 
 export enum NumberTypes {
   ZNumber = 'z-number',
@@ -34,6 +35,8 @@ export const generateNewNumber = async (numberType: NumberTypes): Promise<string
   });
   try {
     const response = await lambdaClient.send(command);
+    logger.info('test number response');
+    logger.info(response);
     const bufferResponse = Buffer.from(response.Payload!).toString('utf-8');
     const bufferBody = await JSON.parse(bufferResponse).body;
     switch (numberType) {

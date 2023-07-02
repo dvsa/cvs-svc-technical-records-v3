@@ -107,6 +107,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
 };
 export const postTechRecord = async (request: any) => {
   const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
+  logger.info(`system number : ${systemNumber}`);
   if (request.techRecord_vehicleType !== 'trl' && !request.primaryVrm) {
     request.primaryVrm = await generateNewNumber(NumberTypes.ZNumber);
   }
@@ -114,11 +115,14 @@ export const postTechRecord = async (request: any) => {
     request.trailerId = await generateNewNumber(NumberTypes.TrailerId);
   } else if (request.techRecord_euVehicleCategory === ('o1' || 'o2')) {
     request.trailerId = await generateNewNumber(NumberTypes.TNumber);
-  } const { vin } = request;
+  }
+  const { vin } = request;
   request.systemNumber = systemNumber;
   request.createdTimestamp = new Date().toISOString();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
+  logger.info('request');
+  logger.info(request);
   const params = {
     TableName: tableName,
     Item: request,
@@ -132,5 +136,8 @@ export const postTechRecord = async (request: any) => {
       ':systemNumber': { S: systemNumber },
     },
   };
-  return ddbClient.send(new PutItemCommand(params)).catch((x) => logger.error(x));
+  logger.info('params');
+  logger.info(params);
+  logger.info('sending put item command ...');
+  return ddbClient.send(new PutItemCommand(params));
 };
