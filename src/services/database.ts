@@ -11,7 +11,7 @@ import {
   QueryCommand,
   QueryInput,
 } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
@@ -140,18 +140,4 @@ export const postTechRecord = async (request: any) => {
   const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 
   return ddbDocClient.send(new PutCommand(params));
-  // const dbResponse = await ddbClient.send(new PutItemCommand(params)).then(
-  //   (data) => {
-  //     process data.
-      // logger.info('dbResponse');
-      // console.log(data);
-      // console.log(JSON.stringify(data));
-    // },
-    // (error) => {
-    //   error handling.
-      // logger.info('dbResponse');
-      // console.log(error);
-      // console.log(JSON.stringify(error));
-    // },
-  // );
 };

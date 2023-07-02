@@ -8,7 +8,6 @@
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import logger from '../util/logger';
 import { dynamoDBClientConfig } from '../config';
-import {APIGatewayProxyResult} from "aws-lambda";
 
 export enum NumberTypes {
   ZNumber = 'z-number',
