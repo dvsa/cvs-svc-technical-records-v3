@@ -136,8 +136,13 @@ export const postTechRecord = async (request: any) => {
       ':systemNumber': { S: systemNumber },
     },
   };
-
   const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
-
-  return ddbDocClient.send(new PutCommand(params));
+  const res = ddbDocClient.send(new PutCommand(params)).then((x) => {
+    console.log(x);
+  }).catch((x) => {
+    console.log('error: ');
+    console.log(x);
+  });
+  console.log(res);
+  return res;
 };
