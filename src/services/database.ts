@@ -123,7 +123,7 @@ export const postTechRecord = async (request: any) => {
   request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
   logger.info('request');
   logger.info(request);
-  const params = {
+  const command = new PutCommand({
     TableName: tableName,
     Item: request,
     ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
@@ -135,14 +135,9 @@ export const postTechRecord = async (request: any) => {
       ':vin': { S: vin },
       ':systemNumber': { S: systemNumber },
     },
-  };
-  const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
-  const res = ddbDocClient.send(new PutCommand(params)).then((x) => {
-    console.log(x);
-  }).catch((x) => {
-    console.log('error: ');
-    console.log(x);
   });
-  console.log(res);
-  return res;
+  const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
+  const response = await ddbDocClient.send(command);
+  console.log(response);
+  return response;
 };
