@@ -140,14 +140,14 @@ export const postTechRecord = async (request: any) => {
     (data) => {
       // process data.
       logger.info('dbResponse');
-      logger.info(data);
-      logger.info(JSON.stringify(data));
+      console.log(data);
+      console.log(JSON.stringify(data));
     },
     (error) => {
       // error handling.
       logger.info('dbResponse');
-      logger.info(error);
-      logger.info(JSON.stringify(error));
+      console.log(error);
+      console.log(JSON.stringify(error));
     },
   );
 
