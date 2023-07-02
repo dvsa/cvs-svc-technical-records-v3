@@ -136,9 +136,20 @@ export const postTechRecord = async (request: any) => {
       ':systemNumber': { S: systemNumber },
     },
   };
-  const dbResponse = await ddbClient.send(new PutItemCommand(params));
-  logger.info('dbResponse');
-  logger.info(dbResponse);
-  logger.info(JSON.stringify(dbResponse));
+  const dbResponse = await ddbClient.send(new PutItemCommand(params)).then(
+    (data) => {
+      // process data.
+      logger.info('dbResponse');
+      logger.info(data);
+      logger.info(JSON.stringify(data));
+    },
+    (error) => {
+      // error handling.
+      logger.info('dbResponse');
+      logger.info(error);
+      logger.info(JSON.stringify(error));
+    },
+  );
+
   return dbResponse;
 };
