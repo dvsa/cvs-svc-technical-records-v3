@@ -136,8 +136,6 @@ export const postTechRecord = async (request: any) => {
       ':systemNumber': { S: systemNumber },
     },
   };
-  logger.info('params');
-  logger.info(params);
-  logger.info('sending put item command ...');
-  return ddbClient.send(new PutItemCommand(params));
+  const dbResponse = await ddbClient.send(new PutItemCommand(params));
+  return dbResponse;
 };
