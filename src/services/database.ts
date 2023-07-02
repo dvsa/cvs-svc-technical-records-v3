@@ -137,5 +137,8 @@ export const postTechRecord = async (request: any) => {
     },
   };
   const dbResponse = await ddbClient.send(new PutItemCommand(params));
+  logger.info('dbResponse');
+  logger.info(dbResponse);
+  logger.info(JSON.stringify(dbResponse));
   return dbResponse;
 };
