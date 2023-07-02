@@ -137,7 +137,12 @@ export const postTechRecord = async (request: any) => {
     },
   });
   const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
-  const response = await ddbDocClient.send(command);
+  const response = await ddbDocClient.send(command).then((data) => {
+    console.log(data);
+    return data;
+  }).catch((error) => {
+    console.log(error);
+  });
   console.log(response);
   return response;
 };
