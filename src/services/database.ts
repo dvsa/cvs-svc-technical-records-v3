@@ -7,7 +7,7 @@
 import {
   DynamoDBClient,
   GetItemCommand,
-  GetItemCommandInput,
+  GetItemCommandInput, PutItemCommand,
   QueryCommand,
   QueryInput,
 } from '@aws-sdk/client-dynamodb';
@@ -123,9 +123,9 @@ export const postTechRecord = async (request: any) => {
   request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
   logger.info('request');
   logger.info(request);
-  const command = new PutCommand({
+  logger.info(`table name: ${tableName}`);
+  const command = {
     TableName: tableName,
-    Item: request,
     ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
     ExpressionAttributeNames: {
       '#vin': 'vin',
@@ -135,14 +135,10 @@ export const postTechRecord = async (request: any) => {
       ':vin': { S: vin },
       ':systemNumber': { S: systemNumber },
     },
-  });
+    Item: request,
+  };
   const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
-  const response = await ddbDocClient.send(command).then((data) => {
-    console.log(data);
-    return data;
-  }).catch((error) => {
-    console.log(error);
-  });
+  const response = await ddbDocClient.send(new PutItemCommand(command));
+  logger.info(response);
   console.log(response);
-  return response;
 };

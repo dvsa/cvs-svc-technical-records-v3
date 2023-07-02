@@ -34,8 +34,6 @@ export const generateNewNumber = async (numberType: NumberTypes): Promise<string
   });
   try {
     const response = await lambdaClient.send(command);
-    logger.info('test number response');
-    logger.info(response);
     const bufferResponse = Buffer.from(response.Payload!).toString('utf-8');
     const bufferBody = await JSON.parse(bufferResponse).body;
     switch (numberType) {
