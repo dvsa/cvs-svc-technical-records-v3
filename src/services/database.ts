@@ -138,14 +138,8 @@ export const postTechRecord = async (request: any) => {
     Item: request,
   };
   const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
-  const response = await ddbDocClient.send(new PutItemCommand(command)).then((x) => {
-    logger.info(x);
-    console.log(x);
-  }).catch((error) => {
-    logger.log(error);
-    logger.error(error);
-    console.log(error);
-  });
-  logger.info(response);
-  console.log(response);
+  const response = await ddbDocClient.send(new PutItemCommand(command));
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+  logger.info(`this is the response ${response}`);
+  console.log(response, 'this is the response');
 };
