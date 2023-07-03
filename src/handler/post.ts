@@ -25,7 +25,7 @@ export const handler = async (
     };
   } catch
   (error) {
-    logger.info(error);
+    logger.error(`Error has been thrown with ${JSON.stringify(error)}`);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Failed to add record to DynamoDB' }),
