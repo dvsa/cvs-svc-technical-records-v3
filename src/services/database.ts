@@ -137,9 +137,12 @@ export const postTechRecord = async (request: any) => {
     },
     Item: request,
   };
-  const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
+  logger.info('we have got to try and catch');
   try {
+    const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
+    logger.info('doc client made');
     const response = await ddbDocClient.send(new PutItemCommand(command));
+    logger.info(response);
     return response;
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
