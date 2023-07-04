@@ -145,6 +145,7 @@ export const postTechRecord = async (request: any) => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     logger.error(`this is the error ${err}`);
   }
+  return null;
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   // logger.info(`this is the response ${response}`);
   // console.log(response, 'this is the response');
