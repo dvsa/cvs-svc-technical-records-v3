@@ -5,13 +5,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import {
+  AttributeValue,
   DynamoDBClient,
   GetItemCommand,
   GetItemCommandInput, PutItemCommand,
   QueryCommand,
   QueryInput,
 } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
@@ -124,7 +124,7 @@ export const postTechRecord = async (request: any) => {
   logger.info('request');
   logger.info(request);
   logger.info(`table name: ${tableName}`);
-  const command = {
+  const command = new PutItemCommand({
     TableName: tableName,
     ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
     ExpressionAttributeNames: {
@@ -135,13 +135,11 @@ export const postTechRecord = async (request: any) => {
       ':vin': { S: vin },
       ':systemNumber': { S: systemNumber },
     },
-    Item: request,
-  };
+    Item: marshall(request as Record<string, AttributeValue>),
+  });
   logger.info('we have got to try and catch');
   try {
-    const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
-    logger.info('doc client made');
-    const response = await ddbDocClient.send(new PutItemCommand(command));
+    const response = await ddbClient.send(command);
     logger.info(response);
     return response;
   } catch (err) {
