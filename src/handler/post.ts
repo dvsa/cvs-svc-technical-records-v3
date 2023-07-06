@@ -28,8 +28,7 @@ export const handler = async (
       statusCode: 200,
       body: JSON.stringify(requestBody),
     };
-  } catch
-  (error) {
+  } catch (error) {
     logger.error(`Error has been thrown with ${JSON.stringify(error)}`);
     return {
       statusCode: 500,

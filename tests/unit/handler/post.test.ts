@@ -3,9 +3,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 const mockPostTechRecord = jest.fn();
+
 jest.mock('../../../src/services/database.ts', () => ({
   postTechRecord: mockPostTechRecord,
 }));
+
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler, processRequest } from '../../../src/handler/post';
 import postCarData from '../../resources/techRecordCarPost.json';
@@ -42,16 +44,16 @@ describe('Test Post Lambda Function', () => {
     });
   });
   describe('Error handling', () => {
-    it('should return an error', async () => {
-      const result = await handler(postCarData as unknown as APIGatewayProxyEvent);
+    it('should return 400 when event has no body', async () => {
+      const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
       expect(result.body).toContain('Body is not a valid TechRecord');
     });
-
-    it('should return 400 when event has no body', async () => {
-      const result = await handler(postCarData as unknown as APIGatewayProxyEvent);
+    it('should return 500 error when error is thrown', async () => {
+      mockPostTechRecord.mockImplementationOnce(() => { throw new Error(); });
+      const result = await handler({ body: JSON.stringify(postTrlData) } as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(500);
-      expect(result.body).toContain('Failed to add record to DynamoDB');
+      expect(result.body).toMatch('Failed to add record to DynamoDB');
     });
   });
   describe('testing helper method processRequest', () => {
