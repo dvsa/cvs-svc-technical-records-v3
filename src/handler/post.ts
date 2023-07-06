@@ -38,6 +38,7 @@ export const handler = async (
 };
 
 export const processRequest = async (request: any) => {
+  logger.info('processing request');
   // helper method for handler
   const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
   if (request.techRecord_vehicleType !== 'trl' && !request.primaryVrm) {
@@ -56,5 +57,6 @@ export const processRequest = async (request: any) => {
   request.systemNumber = systemNumber;
   request.createdTimestamp = new Date().toISOString();
   request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
+  logger.info('successfully processed record');
   return request;
 };

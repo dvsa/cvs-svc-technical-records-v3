@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import {
-  AttributeValue,
   DynamoDBClient,
   GetItemCommand,
   GetItemCommandInput, PutItemCommand,
@@ -124,7 +123,7 @@ export const postTechRecord = async (request: any) => {
   if (process.env.AWS_SAM_LOCAL) {
     return '123';
   }
-  const command = new PutItemCommand({
+  const command = {
     TableName: tableName,
     ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
     ExpressionAttributeNames: {
@@ -135,11 +134,11 @@ export const postTechRecord = async (request: any) => {
       ':vin': { S: request.vin },
       ':systemNumber': { S: request.systemNumber },
     },
-    Item: marshall(request as Record<string, AttributeValue>),
-  });
+    Item: request,
+  };
   logger.info('we have got to try and catch');
   try {
-    const response = await ddbClient.send(command);
+    const response = await ddbClient.send(new PutItemCommand(command));
     logger.info(response);
     return response;
   } catch (err) {
