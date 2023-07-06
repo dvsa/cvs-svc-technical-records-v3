@@ -44,6 +44,12 @@ describe('Test Post Lambda Function', () => {
   describe('Error handling', () => {
     it('should return an error', async () => {
       const result = await handler(postCarData as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toContain('Body is not a valid TechRecord');
+    });
+
+    it('should return 400 when event has no body', async () => {
+      const result = await handler(postCarData as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(500);
       expect(result.body).toContain('Failed to add record to DynamoDB');
     });

@@ -14,7 +14,7 @@ export const handler = async (
 ): Promise<{ body: unknown; statusCode: number }> => {
   logger.info('Post end point called');
   try {
-    if (event.body === null) {
+    if (!event.body) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Body is not a valid TechRecord' }),
