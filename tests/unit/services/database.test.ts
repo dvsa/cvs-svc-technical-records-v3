@@ -127,15 +127,7 @@ describe('postTechRecord', () => {
   jest.mock('../../../src/services/database', () => ({
     generateNewNumber: mockGenerateNewNumber,
   }));
-  it('should throw an error with an invalid body', async () => {
-    try {
-      await postTechRecord('');
-    } catch (e) {
-      // eslint-disable-next-line jest/no-conditional-expect
-      expect(e as Error).toStrictEqual(new Error('lambda client failed getting data'));
-    }
-  });
-  it('should not error', async () => {
+  it('should return a successful response', async () => {
     try {
       const mockBody = {
         body: JSON.stringify({
@@ -160,7 +152,6 @@ describe('postTechRecord', () => {
       expect(res).toBe('foo');
     } catch (e) {
       console.log(e);
-      // eslint-disable-next-line jest/no-conditional-expect
     }
   });
 });

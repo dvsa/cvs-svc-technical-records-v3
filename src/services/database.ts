@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import {
   AttributeValue,
@@ -16,7 +13,6 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import { dynamoDBClientConfig, tableName } from '../config';
-import { generateNewNumber, NumberTypes } from './testNumber';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
@@ -106,24 +102,28 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 export const postTechRecord = async (request: any) => {
-  const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
-  logger.info(`system number : ${systemNumber}`);
-  if (request.techRecord_vehicleType !== 'trl' && !request.primaryVrm) {
-    request.primaryVrm = await generateNewNumber(NumberTypes.ZNumber);
-  }
-  if (request.techRecord_vehicleType === 'trl' && request.techRecord.trailerId) {
-    request.trailerId = await generateNewNumber(NumberTypes.TrailerId);
-  } else if (request.techRecord_euVehicleCategory === ('o1' || 'o2')) {
-    request.trailerId = await generateNewNumber(NumberTypes.TNumber);
-  }
-  const { vin } = request;
-  request.systemNumber = systemNumber;
-  request.createdTimestamp = new Date().toISOString();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
+  // TODO logic moved to handler
+  // const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
+  // logger.info(`system number : ${systemNumber}`);
+  // if (request.techRecord_vehicleType !== 'trl' && !request.primaryVrm) {
+  //   request.primaryVrm = await generateNewNumber(NumberTypes.ZNumber);
+  // }
+  // if (request.techRecord_vehicleType === 'trl' && request.techRecord.trailerId) {
+  //   request.trailerId = await generateNewNumber(NumberTypes.TrailerId);
+  // } else if (request.techRecord_euVehicleCategory === ('o1' || 'o2')) {
+  //   request.trailerId = await generateNewNumber(NumberTypes.TNumber);
+  // }
+  // const { vin } = request;
+  // request.systemNumber = systemNumber;
+  // request.createdTimestamp = new Date().toISOString();
+  // // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  // request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
   logger.info('request');
   logger.info(request);
   logger.info(`table name: ${tableName}`);
+  if (process.env.AWS_SAM_LOCAL) {
+    return '123';
+  }
   const command = new PutItemCommand({
     TableName: tableName,
     ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
@@ -132,8 +132,8 @@ export const postTechRecord = async (request: any) => {
       '#systemNumber': 'systemNumber',
     },
     ExpressionAttributeValues: {
-      ':vin': { S: vin },
-      ':systemNumber': { S: systemNumber },
+      ':vin': { S: request.vin },
+      ':systemNumber': { S: request.systemNumber },
     },
     Item: marshall(request as Record<string, AttributeValue>),
   });
@@ -147,7 +147,4 @@ export const postTechRecord = async (request: any) => {
     logger.error(`this is the error ${err}`);
   }
   return null;
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  // logger.info(`this is the response ${response}`);
-  // console.log(response, 'this is the response');
 };
