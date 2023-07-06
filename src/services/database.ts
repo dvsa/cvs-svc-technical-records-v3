@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import {
+  AttributeValue,
   DynamoDBClient,
   GetItemCommand,
   GetItemCommandInput, PutItemCommand,
@@ -101,22 +102,6 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 export const postTechRecord = async (request: any) => {
-  // TODO logic moved to handler
-  // const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
-  // logger.info(`system number : ${systemNumber}`);
-  // if (request.techRecord_vehicleType !== 'trl' && !request.primaryVrm) {
-  //   request.primaryVrm = await generateNewNumber(NumberTypes.ZNumber);
-  // }
-  // if (request.techRecord_vehicleType === 'trl' && request.techRecord.trailerId) {
-  //   request.trailerId = await generateNewNumber(NumberTypes.TrailerId);
-  // } else if (request.techRecord_euVehicleCategory === ('o1' || 'o2')) {
-  //   request.trailerId = await generateNewNumber(NumberTypes.TNumber);
-  // }
-  // const { vin } = request;
-  // request.systemNumber = systemNumber;
-  // request.createdTimestamp = new Date().toISOString();
-  // // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  // request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
   logger.info('request');
   logger.info(request);
   logger.info(`table name: ${tableName}`);
@@ -134,8 +119,9 @@ export const postTechRecord = async (request: any) => {
       ':vin': { S: request.vin },
       ':systemNumber': { S: request.systemNumber },
     },
-    Item: request,
+    Item: marshall(request as Record<string, AttributeValue>),
   };
+  logger.info(command);
   logger.info('we have got to try and catch');
   try {
     const response = await ddbClient.send(new PutItemCommand(command));
