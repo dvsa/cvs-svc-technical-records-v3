@@ -13,8 +13,6 @@ export const handler = async (
   event: APIGatewayProxyEvent,
 ): Promise<{ body: unknown; statusCode: number }> => {
   logger.info('Post end point called');
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  logger.info(`event: ${event}`);
   try {
     if (!event.body) {
       return {
@@ -23,9 +21,8 @@ export const handler = async (
       };
     }
     // TODO to use proper type when we have them
-    const requestBody: any = processRequest(JSON.parse(event.body));
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    logger.info(`requestBody: ${requestBody}`);
+    const requestBody: any = await processRequest(JSON.parse(event.body));
+    logger.info(`requestBody: ${JSON.stringify(requestBody)}`);
     await postTechRecord(requestBody);
     logger.info('put item command sent');
     return {
