@@ -22,7 +22,6 @@ export const handler = async (
     }
     // TODO to use proper type when we have them
     const requestBody: any = await processRequest(JSON.parse(event.body));
-    logger.info(`requestBody: ${JSON.stringify(requestBody)}`);
     await postTechRecord(requestBody);
     logger.info('put item command sent');
     return {
@@ -59,6 +58,5 @@ export const processRequest = async (request: any) => {
   request.createdTimestamp = new Date().toISOString();
   request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
   logger.info('successfully processed record');
-  logger.info(request);
   return request;
 };

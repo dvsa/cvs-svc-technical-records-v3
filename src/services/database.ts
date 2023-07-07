@@ -5,7 +5,8 @@ import {
   AttributeValue,
   DynamoDBClient,
   GetItemCommand,
-  GetItemCommandInput, PutItemCommand,
+  GetItemCommandInput,
+  PutItemCommand,
   QueryCommand,
   QueryInput,
 } from '@aws-sdk/client-dynamodb';
@@ -102,9 +103,6 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 export const postTechRecord = async (request: any) => {
-  logger.info('request');
-  logger.info(request);
-  logger.info(`table name: ${tableName}`);
   if (process.env.AWS_SAM_LOCAL) {
     return '123';
   }
@@ -121,15 +119,11 @@ export const postTechRecord = async (request: any) => {
     },
     Item: marshall(request as Record<string, AttributeValue>),
   };
-  logger.info(command);
-  logger.info('we have got to try and catch');
   try {
-    const response = await ddbClient.send(new PutItemCommand(command));
-    logger.info(response);
-    return response;
+    return await ddbClient.send(new PutItemCommand(command));
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    logger.error(`this is the error ${err}`);
+    logger.error(`Error: ${err}`);
   }
   return null;
 };
