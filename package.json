@@ -33,11 +33,12 @@
     "@aws-sdk/client-dynamodb": "^3.341.0",
     "@aws-sdk/client-lambda": "^3.362.0",
     "@aws-sdk/util-dynamodb": "^3.362.0",
+    "jwt-decode": "^3.1.2",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
-    "@dvsa/cvs-type-definitions": "^2.0.13",
     "@aws-sdk/types": "^3.341.0",
+    "@dvsa/cvs-type-definitions": "^2.0.14",
     "@dvsa/eslint-config-ts": "^3.0.0",
     "@types/aws-lambda": "^8.10.114",
     "@types/jest": "^28.1.8",

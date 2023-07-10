@@ -8,8 +8,9 @@ import { isValidObject } from '@dvsa/cvs-type-definitions/lib/src/schema-validat
 import logger from './logger';
 import { generateNewNumber, NumberTypes } from '../services/testNumber';
 import { identifySchema } from '../validators/post';
+import { UserDetails } from '../services/user';
 
-export const processRequest = async (request: any) => {
+export const processRequest = async (request: any, userDetails: UserDetails) => {
   logger.info('processing request');
   // helper method for handler
   const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
@@ -30,6 +31,8 @@ export const processRequest = async (request: any) => {
   request.createdTimestamp = new Date().toISOString();
   request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
   request.techRecord_recordCompleteness = computeRecordCompleteness(request) ?? '';
+  request.techRecord_createdByName = userDetails.username;
+  request.techRecord_createdById = userDetails.msOid;
   logger.info('successfully processed record');
   return request;
 };

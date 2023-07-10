@@ -8,6 +8,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { postTechRecord } from '../services/database';
 import logger from '../util/logger';
 import { processRequest } from '../util/processRequest';
+import { getUserDetails } from '../services/user';
 
 export const handler = async (
   event: APIGatewayProxyEvent,
@@ -20,12 +21,19 @@ export const handler = async (
         body: JSON.stringify({ error: 'Body is not a valid TechRecord' }),
       };
     }
+    if (!event.headers.Authorization) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ error: 'Missing authorization header' }),
+      };
+    }
+    const userDetails = getUserDetails(event.headers.Authorization);
     logger.info('parsing body');
     const body = JSON.parse(event.body);
     // const schema: typeof schemas[number] = identifyObjectType(body, 'put')[0];
     // body.techRecord_recordCompleteness = computeRecordCompleteness(schema, body);
     // console.log(`schema: ${schema}`);
-    const requestBody: any = await processRequest(body);
+    const requestBody: any = await processRequest(body, userDetails);
     if (!requestBody.techRecord_recordCompleteness) {
       return {
         statusCode: 400,
