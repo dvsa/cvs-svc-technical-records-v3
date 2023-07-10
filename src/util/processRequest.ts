@@ -4,10 +4,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
+import { isValidObject } from '@dvsa/cvs-type-definitions/lib/src/schema-validation/schema-validator';
 import logger from './logger';
 import { generateNewNumber, NumberTypes } from '../services/testNumber';
 import { identifySchema } from '../validators/post';
-import {isValidObject} from "@dvsa/cvs-type-definitions/lib/src/schema-validation/schema-validator";
 
 export const processRequest = async (request: any) => {
   logger.info('processing request');
@@ -43,12 +43,13 @@ export function computeRecordCompleteness(input: any) {
   logger.info(input);
   logger.info('yrdy');
   logger.info(input.techRecord_vehicleType, 'complete', 'put');
-  let isCompleteSchema = identifySchema(input.techRecord_vehicleType, 'complete', 'put');
-logger.info('is complete schema ' + isCompleteSchema[0]);
-  let isTestableSchema = identifySchema(input.techRecord_vehicleType, 'testable', 'put');
-  logger.info('is testable schema ' + isTestableSchema[0]);
-  let isSkeletonSchema = identifySchema(input.techRecord_vehicleType, 'skeleton', 'put');
-  logger.info('is skeleton schema ' + isSkeletonSchema[0]);
+  const isCompleteSchema = identifySchema(input.techRecord_vehicleType, 'complete', 'put');
+  logger.info(`is complete schema ${isCompleteSchema[0]}`);
+  const isTestableSchema = identifySchema(input.techRecord_vehicleType, 'testable', 'put');
+  logger.info(`is testable schema ${isTestableSchema[0]}`);
+  const isSkeletonSchema = identifySchema(input.techRecord_vehicleType, 'skeleton', 'put');
+  logger.info(`is skeleton schema ${isSkeletonSchema[0]}`);
+  logger.info(`process.cwd() typescript: ${process.cwd()}`);
   const isComplete = isValidObject(isCompleteSchema[0], input);
   const isTestable = isValidObject(isTestableSchema[0], input);
   const isSkeleton = isValidObject(isSkeletonSchema[0], input);
@@ -56,15 +57,15 @@ logger.info('is complete schema ' + isCompleteSchema[0]);
   console.log(`is testable?: ${isTestable}`);
   console.log(`is skeleton? ${isSkeleton}`);
   if (isComplete) {
-    logger.info(`returning complete`);
+    logger.info('returning complete');
     return 'complete';
   }
   if (isTestable) {
-    logger.info(`returning testable`);
+    logger.info('returning testable');
     return 'testable';
   }
   if (isSkeleton) {
-    logger.info(`returning skeleton`);
+    logger.info('returning skeleton');
     return 'skeleton';
   }
   return '';
