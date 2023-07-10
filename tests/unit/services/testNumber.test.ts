@@ -24,24 +24,11 @@ describe('Test test Number Service', () => {
     process.env = OLD_ENV;
   });
   describe('Successful response with local environment variable set', () => {
-    it('should return a system number', async () => {
+    const testCases = [NumberTypes.SystemNumber, NumberTypes.TrailerId, NumberTypes.ZNumber, NumberTypes.TNumber];
+
+    it.each(testCases)('should return a $number', async (number: NumberTypes) => {
       process.env.AWS_SAM_LOCAL = 'true';
-      const result = await generateNewNumber(NumberTypes.SystemNumber);
-      expect(result).toBe('123');
-    });
-    it('should return a trailerId number', async () => {
-      process.env.AWS_SAM_LOCAL = 'true';
-      const result = await generateNewNumber(NumberTypes.TrailerId);
-      expect(result).toBe('123');
-    });
-    it('should return a Z number', async () => {
-      process.env.AWS_SAM_LOCAL = 'true';
-      const result = await generateNewNumber(NumberTypes.ZNumber);
-      expect(result).toBe('123');
-    });
-    it('should return a T number', async () => {
-      process.env.AWS_SAM_LOCAL = 'true';
-      const result = await generateNewNumber(NumberTypes.TNumber);
+      const result = await generateNewNumber(number);
       expect(result).toBe('123');
     });
   });
@@ -65,7 +52,7 @@ describe('Test test Number Service', () => {
     const mockBuffer = Buffer.from(JSON.stringify(mockBody));
     mockSend.mockReturnValueOnce(Promise.resolve({ Payload: mockBuffer }));
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    it('should return a system number', async () => {
+    it('should not return a system number', async () => {
       const result = await generateNewNumber(NumberTypes.SystemNumber);
       expect(result).toBeUndefined();
     });

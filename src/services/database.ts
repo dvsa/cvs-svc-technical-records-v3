@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import {
   AttributeValue,
@@ -103,9 +104,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 export const postTechRecord = async (request: any) => {
-  if (process.env.AWS_SAM_LOCAL) {
-    return '123';
-  }
+  console.log('in post tech record DB');
   const command = {
     TableName: tableName,
     ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
@@ -120,10 +119,11 @@ export const postTechRecord = async (request: any) => {
     Item: marshall(request as Record<string, AttributeValue>),
   };
   try {
-    return await ddbClient.send(new PutItemCommand(command));
+    await ddbClient.send(new PutItemCommand(command));
+    return request;
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     logger.error(`Error: ${err}`);
+    throw new Error('database client failed getting data');
   }
-  return null;
 };

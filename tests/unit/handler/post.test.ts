@@ -9,8 +9,7 @@ jest.mock('../../../src/services/database.ts', () => ({
 }));
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
-import { handler, processRequest } from '../../../src/handler/post';
-import postCarData from '../../resources/techRecordCarPost.json';
+import { handler } from '../../../src/handler/post';
 import postTrlData from '../../resources/techRecordsTrlPost.json';
 
 describe('Test Post Lambda Function', () => {
@@ -19,74 +18,96 @@ describe('Test Post Lambda Function', () => {
     jest.resetModules();
   });
   describe('Successful response', () => {
-    it('should not return an error when attempting to post a car', async () => {
+    const event = {
+      resource: '/',
+      path: '/',
+      httpMethod: 'GET',
+      requestContext: {
+        resourcePath: '/',
+        httpMethod: 'GET',
+        path: '/Prod/',
+      },
+      headers: {
+        accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'accept-encoding': 'gzip, deflate, br',
+        Host: '70ixmpl4fl.execute-api.us-east-2.amazonaws.com',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
+        'X-Amzn-Trace-Id': 'Root=1-5e66d96f-7491f09xmpl79d18acf3d050',
+      },
+      multiValueHeaders: {
+        accept: [
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        ],
+        'accept-encoding': [
+          'gzip, deflate, br',
+        ],
+      },
+      queryStringParameters: null,
+      multiValueQueryStringParameters: null,
+      pathParameters: null,
+      stageVariables: null,
+      body: JSON.stringify(postTrlData),
+      isBase64Encoded: false,
+    };
+    it('should pass validation and return a 200 response', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
-      mockPostTechRecord.mockResolvedValueOnce(postCarData);
-      const result = await handler({ body: JSON.stringify(postCarData) } as unknown as APIGatewayProxyEvent);
+      mockPostTechRecord.mockResolvedValueOnce(postTrlData);
+      const result = await handler(event as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(200);
-    });
-
-    it('should not return an error when attempting to post a trl', async () => {
-      process.env.AWS_SAM_LOCAL = 'true';
-      postTrlData.trailerId = '';
-      mockPostTechRecord.mockResolvedValueOnce(postCarData);
-      const result = await handler({ body: JSON.stringify(postTrlData) } as unknown as APIGatewayProxyEvent);
-      expect(result.statusCode).toBe(200);
-    });
-
-    it('should not return an error when attempting to post a small trl', async () => {
-      process.env.AWS_SAM_LOCAL = 'true';
-      mockPostTechRecord.mockResolvedValueOnce(postCarData);
-      postTrlData.trailerId = '';
-      postTrlData.techRecord_euVehicleCategory = 'o1';
-      const result = await handler({ body: JSON.stringify(postTrlData) } as unknown as APIGatewayProxyEvent);
-      expect(result.statusCode).toBe(200);
+      expect(result.body).not.toBeNull();
     });
   });
   describe('Error handling', () => {
+    const event = {
+      resource: '/',
+      path: '/',
+      httpMethod: 'GET',
+      requestContext: {
+        resourcePath: '/',
+        httpMethod: 'GET',
+        path: '/Prod/',
+      },
+      headers: {
+        accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'accept-encoding': 'gzip, deflate, br',
+        Host: '70ixmpl4fl.execute-api.us-east-2.amazonaws.com',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
+        'X-Amzn-Trace-Id': 'Root=1-5e66d96f-7491f09xmpl79d18acf3d050',
+      },
+      multiValueHeaders: {
+        accept: [
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        ],
+        'accept-encoding': [
+          'gzip, deflate, br',
+        ],
+      },
+      queryStringParameters: null,
+      multiValueQueryStringParameters: null,
+      pathParameters: null,
+      stageVariables: null,
+      body: JSON.stringify(postTrlData),
+      isBase64Encoded: false,
+    };
     it('should return 400 when event has no body', async () => {
       const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
       expect(result.body).toContain('Body is not a valid TechRecord');
     });
-    it('should return 500 error when error is thrown', async () => {
-      mockPostTechRecord.mockImplementationOnce(() => { throw new Error(); });
+    it('should return 400 when validation is triggered', async () => {
+      postTrlData.techRecord_statusCode = 'foo';
+
       const result = await handler({ body: JSON.stringify(postTrlData) } as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toContain('Invalid Technical Record');
+    });
+    it('should return 500 when error is thrown', async () => {
+      mockPostTechRecord.mockImplementationOnce(() => {
+        throw new Error();
+      });
+      const result = await handler(event as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(500);
       expect(result.body).toMatch('Failed to add record to DynamoDB');
-    });
-  });
-  describe('testing helper method processRequest', () => {
-    it('should return a request body and have changed the systemNumber for a car', async () => {
-      process.env.AWS_SAM_LOCAL = 'true';
-      const request = postCarData;
-      request.primaryVrm = '';
-      const res = await processRequest(request);
-      expect(res.systemNumber).toBe('123');
-    });
-    it('should return a request body and have changed the trailer id for a trailer', async () => {
-      process.env.AWS_SAM_LOCAL = 'true';
-      const request = postTrlData;
-      postTrlData.trailerId = '';
-      const res = await processRequest(request);
-      expect(res.trailerId).toBe('123');
-    });
-    it('should return a request body and have changed the trailer id for a small trailer o1', async () => {
-      process.env.AWS_SAM_LOCAL = 'true';
-      postTrlData.trailerId = '';
-      postTrlData.techRecord_euVehicleCategory = 'o1';
-      const request = postTrlData;
-      const res = await processRequest(request);
-      expect(res.trailerId).toBe('123');
-    });
-
-    it('should return a request body and have changed the trailer id for a small trailer o2', async () => {
-      process.env.AWS_SAM_LOCAL = 'true';
-      postTrlData.trailerId = '';
-      postTrlData.techRecord_euVehicleCategory = 'o2';
-      const request = postTrlData;
-      const res = await processRequest(request);
-      expect(res.trailerId).toBe('123');
     });
   });
 });
