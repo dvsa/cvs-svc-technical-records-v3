@@ -9,6 +9,7 @@ import logger from './logger';
 import { generateNewNumber, NumberTypes } from '../services/testNumber';
 import { identifySchema } from '../validators/post';
 import { UserDetails } from '../services/user';
+import { HttpMethod, RecordCompleteness } from './enum';
 
 export const processRequest = async (request: any, userDetails: UserDetails) => {
   logger.info('processing request');
@@ -43,16 +44,12 @@ export function computeRecordCompleteness(input: any) {
     logger.info('general errors: ', generalVehicleErrors);
     return 'skeleton';
   }
-  logger.info(input);
-  logger.info('yrdy');
-  logger.info(input.techRecord_vehicleType, 'complete', 'put');
-  const isCompleteSchema = identifySchema(input.techRecord_vehicleType, 'complete', 'put');
+  const isCompleteSchema = identifySchema(input.techRecord_vehicleType, RecordCompleteness.COMPLETE, HttpMethod.PUT);
   logger.info(`is complete schema ${isCompleteSchema[0]}`);
-  const isTestableSchema = identifySchema(input.techRecord_vehicleType, 'testable', 'put');
+  const isTestableSchema = identifySchema(input.techRecord_vehicleType, RecordCompleteness.TESTABLE, HttpMethod.PUT);
   logger.info(`is testable schema ${isTestableSchema[0]}`);
-  const isSkeletonSchema = identifySchema(input.techRecord_vehicleType, 'skeleton', 'put');
+  const isSkeletonSchema = identifySchema(input.techRecord_vehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
   logger.info(`is skeleton schema ${isSkeletonSchema[0]}`);
-  logger.info(`process.cwd() typescript: ${process.cwd()}`);
   const isComplete = isValidObject(isCompleteSchema[0], input);
   const isTestable = isValidObject(isTestableSchema[0], input);
   const isSkeleton = isValidObject(isSkeletonSchema[0], input);

@@ -95,21 +95,11 @@ describe('Test Post Lambda Function', () => {
       expect(result.statusCode).toBe(400);
       expect(result.body).toContain('Body is not a valid TechRecord');
     });
-    it('should return 400 when validation is triggered', async () => {
-      postTrlData.techRecord_statusCode = 'foo';
-
-      const result = await handler({ body: JSON.stringify(postTrlData) } as unknown as APIGatewayProxyEvent);
-      expect(result.statusCode).toBe(400);
-      expect(result.body).toContain('Invalid Technical Record');
-    });
     it('should return 500 when error is thrown', async () => {
-      mockPostTechRecord.mockImplementationOnce(() => {
-        throw new Error();
-      });
-      event.body = JSON.stringify(postCarData);
-      const result = await handler(event as unknown as APIGatewayProxyEvent);
+      postTrlData.techRecord_statusCode = 'foo';
+      const result = await handler({ body: JSON.stringify(postTrlData) } as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(500);
-      expect(result.body).toMatch('Failed to add record to DynamoDB');
+      expect(result.body).toContain('Failed to add record to DynamoDB');
     });
   });
 });

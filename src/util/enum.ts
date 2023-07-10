@@ -6,3 +6,13 @@ export enum VehicleType {
   LGV = 'lgv',
   MOTORCYCLE = 'motorcycle',
 }
+
+export enum RecordCompleteness {
+  COMPLETE = 'complete',
+  TESTABLE = 'testable',
+  SKELETON = 'skeleton',
+}
+
+export enum HttpMethod {
+  PUT = 'put',
+}

@@ -5,9 +5,10 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-assignment
 
 import { schemas } from '@dvsa/cvs-type-definitions/lib/schemas';
+import { HttpMethod, RecordCompleteness, VehicleType } from '../util/enum';
 
-export const identifyObjectType = (obj: any, method: string) => identifySchema(obj.techRecord_vehicleType, obj.techRecord_recordCompleteness, method);
-export const identifySchema = (vehicleType: string, recordCompleteness: string, method: string) => schemas
+export const identifyObjectType = (obj: any, method: HttpMethod) => identifySchema(obj.techRecord_vehicleType, obj.techRecord_recordCompleteness, method);
+export const identifySchema = (vehicleType: VehicleType, recordCompleteness: RecordCompleteness, method: HttpMethod) => schemas
   .filter((x: string | string[]) => (x.includes(vehicleType) && x.includes(recordCompleteness)))
   .filter(((x: string | string[]) => x.includes(method)))
   .map((x) => x);

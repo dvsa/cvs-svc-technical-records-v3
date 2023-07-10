@@ -30,9 +30,6 @@ export const handler = async (
     const userDetails = getUserDetails(event.headers.Authorization);
     logger.info('parsing body');
     const body = JSON.parse(event.body);
-    // const schema: typeof schemas[number] = identifyObjectType(body, 'put')[0];
-    // body.techRecord_recordCompleteness = computeRecordCompleteness(schema, body);
-    // console.log(`schema: ${schema}`);
     const requestBody: any = await processRequest(body, userDetails);
     if (!requestBody.techRecord_recordCompleteness) {
       return {
