@@ -11,6 +11,7 @@ jest.mock('../../../src/services/database.ts', () => ({
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/post';
 import postTrlData from '../../resources/techRecordsTrlPost.json';
+import postCarData from '../../resources/techRecordCarPost.json';
 
 describe('Test Post Lambda Function', () => {
   beforeEach(() => {
@@ -46,12 +47,12 @@ describe('Test Post Lambda Function', () => {
       multiValueQueryStringParameters: null,
       pathParameters: null,
       stageVariables: null,
-      body: JSON.stringify(postTrlData),
+      body: JSON.stringify(postCarData),
       isBase64Encoded: false,
     };
     it('should pass validation and return a 200 response', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
-      mockPostTechRecord.mockResolvedValueOnce(postTrlData);
+      mockPostTechRecord.mockResolvedValueOnce(postCarData);
       const result = await handler(event as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(200);
       expect(result.body).not.toBeNull();
@@ -105,6 +106,7 @@ describe('Test Post Lambda Function', () => {
       mockPostTechRecord.mockImplementationOnce(() => {
         throw new Error();
       });
+      event.body = JSON.stringify(postCarData);
       const result = await handler(event as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(500);
       expect(result.body).toMatch('Failed to add record to DynamoDB');

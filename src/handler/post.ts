@@ -5,12 +5,9 @@
 
 import 'dotenv/config';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { schemas } from '@dvsa/cvs-type-definitions/schemas';
-import { isValidObject } from '@dvsa/cvs-type-definitions/src/schema-validation/schema-validator';
 import { postTechRecord } from '../services/database';
 import logger from '../util/logger';
 import { processRequest } from '../util/processRequest';
-import { identifyObjectType } from '../validators/post';
 
 export const handler = async (
   event: APIGatewayProxyEvent,
@@ -23,18 +20,18 @@ export const handler = async (
         body: JSON.stringify({ error: 'Body is not a valid TechRecord' }),
       };
     }
+    logger.info('parsing body');
     const body = JSON.parse(event.body);
-    const schema: typeof schemas[number] = identifyObjectType(body, 'put')[0];
-    console.log(schema);
-    const res = isValidObject(schema, body);
-    console.log(res);
-    if (!res) {
+    // const schema: typeof schemas[number] = identifyObjectType(body, 'put')[0];
+    // body.techRecord_recordCompleteness = computeRecordCompleteness(schema, body);
+    // console.log(`schema: ${schema}`);
+    const requestBody: any = await processRequest(body);
+    if (!requestBody.techRecord_recordCompleteness) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Invalid Technical Record' }),
       };
     }
-    const requestBody: any = await processRequest(body);
     const postResponse = await postTechRecord(requestBody);
     logger.info('put item command sent');
     return {

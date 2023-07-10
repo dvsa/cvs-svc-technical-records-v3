@@ -14,6 +14,6 @@ module.exports = {
   reporters: ['default', 'github-actions'],
   preset: "ts-jest",
   moduleNameMapper: {
-    '@dvsa/cvs-type-definitions/schemas': require.resolve('@dvsa/cvs-type-definitions/schemas')
+    '@dvsa/cvs-type-definitions/lib/schemas': require.resolve('@dvsa/cvs-type-definitions/lib/schemas')
   }
 };
