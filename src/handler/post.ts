@@ -7,7 +7,6 @@ import 'dotenv/config';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { schemas } from '@dvsa/cvs-type-definitions/schemas';
 import { isValidObject } from '@dvsa/cvs-type-definitions/src/schema-validation/schema-validator';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { postTechRecord } from '../services/database';
 import logger from '../util/logger';
 import { processRequest } from '../util/processRequest';

@@ -103,7 +103,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   vin: 'VinIndex',
   trailerId: 'TrailerIdIndex',
 };
-export const postTechRecord = async (request: any) => {
+export const postTechRecord = async (request: any): Promise <any> => {
   console.log('in post tech record DB');
   const command = {
     TableName: tableName,

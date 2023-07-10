@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import logger from './logger';
 import { generateNewNumber, NumberTypes } from '../services/testNumber';
+import { computeRecordCompleteness } from './recordCompleteness';
 
 export const processRequest = async (request: any) => {
   logger.info('processing request');
@@ -25,6 +26,7 @@ export const processRequest = async (request: any) => {
   request.systemNumber = systemNumber;
   request.createdTimestamp = new Date().toISOString();
   request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
+  request.techRecord_recordCompleteness = computeRecordCompleteness(request) ?? '';
   logger.info('successfully processed record');
   return request;
 };

@@ -6,7 +6,7 @@
 import { schemas } from '@dvsa/cvs-type-definitions/schemas';
 
 export const identifyObjectType = (obj: any, method: string) => identifySchema(obj.techRecord_vehicleType, obj.techRecord_recordCompleteness, method);
-const identifySchema = (vehicleType: string, recordCompleteness: string, method: string) => schemas
+export const identifySchema = (vehicleType: string, recordCompleteness: string, method: string) => schemas
   .filter((x: string | string[]) => (x.includes(vehicleType) && x.includes(recordCompleteness)))
   .filter(((x: string | string[]) => x.includes(method)))
   .map((x) => x);
