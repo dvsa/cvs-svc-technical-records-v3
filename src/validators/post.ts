@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 // eslint-disable-next-line @typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-assignment
 
-import { schemas } from '@dvsa/cvs-type-definitions/lib/schemas';
+import { schemas } from '@dvsa/cvs-type-definitions/schemas';
 import { HttpMethod, RecordCompleteness, VehicleType } from '../util/enum';
 
 export const identifyObjectType = (obj: any, method: HttpMethod) => identifySchema(obj.techRecord_vehicleType, obj.techRecord_recordCompleteness, method);

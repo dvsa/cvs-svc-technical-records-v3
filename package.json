@@ -11,7 +11,7 @@
     "test:ci": "jest --ci",
     "build": "npm run build:prod",
     "build:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.js",
-    "watch:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.watch.js & npm run start:dev",
+    "watch:dev": "NODE_ENV=development webpack-cli --config webpack/webpack.development.watch.js & DOCKER_HOST=unix://$HOME/.docker/run/docker.sock npm run start:dev",
     "build:prod": "webpack-cli --config webpack/webpack.production.js",
     "start:dev": "npm run dynamo:start && sam local start-api --docker-network dynamo_net",
     "invoke": "sam local invoke --docker-network dynamo_net",
@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.341.0",
-    "@dvsa/cvs-type-definitions": "^2.0.14",
+    "@dvsa/cvs-type-definitions": "2.0.18",
     "@dvsa/eslint-config-ts": "^3.0.0",
     "@types/aws-lambda": "^8.10.114",
     "@types/jest": "^28.1.8",

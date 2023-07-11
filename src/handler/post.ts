@@ -28,16 +28,15 @@ export const handler = async (
       };
     }
     const userDetails = getUserDetails(event.headers.Authorization);
-    const body = JSON.parse(event.body);
-    const requestBody: any = await processRequest(body, userDetails);
-    if (!requestBody.techRecord_recordCompleteness) {
+    const body = await JSON.parse(event.body);
+    const requestBody = await processRequest(body, userDetails);
+    if (!requestBody) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Invalid Technical Record' }),
       };
     }
     const postResponse = await postTechRecord(requestBody);
-    logger.info('put item command sent');
     return {
       statusCode: 200,
       body: JSON.stringify(postResponse),

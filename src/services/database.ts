@@ -104,21 +104,21 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 export const postTechRecord = async (request: any): Promise <any> => {
-  console.log('in post tech record DB');
-  const command = {
-    TableName: tableName,
-    ConditionExpression: '#vin <> :vin AND #systemNumber <> :systemNumber',
-    ExpressionAttributeNames: {
-      '#vin': 'vin',
-      '#systemNumber': 'systemNumber',
-    },
-    ExpressionAttributeValues: {
-      ':vin': { S: request.vin },
-      ':systemNumber': { S: request.systemNumber },
-    },
-    Item: marshall(request as Record<string, AttributeValue>),
-  };
   try {
+    const command = {
+      TableName: tableName,
+      ConditionExpression: '#createdTimestamp <> :createdTimestamp AND #systemNumber <> :systemNumber',
+      ExpressionAttributeNames: {
+        '#createdTimestamp': 'createdTimestamp',
+        '#systemNumber': 'systemNumber',
+      },
+      ExpressionAttributeValues: {
+        ':createdTimestamp': { S: request.createdTimestamp },
+        ':systemNumber': { S: request.systemNumber },
+      },
+      Item: marshall(request as Record<string, AttributeValue>, { removeUndefinedValues: true }),
+    };
+
     await ddbClient.send(new PutItemCommand(command));
     return request;
   } catch (err) {

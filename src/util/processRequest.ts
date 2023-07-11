@@ -4,12 +4,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { isValidObject } from '@dvsa/cvs-type-definitions/lib/src/schema-validation/schema-validator';
+import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
 import logger from './logger';
 import { generateNewNumber, NumberTypes } from '../services/testNumber';
 import { identifySchema } from '../validators/post';
 import { UserDetails } from '../services/user';
-import { HttpMethod, RecordCompleteness } from './enum';
+import { HttpMethod, RecordCompleteness, VehicleType } from './enum';
 
 export const processRequest = async (request: any, userDetails: UserDetails) => {
   logger.info('processing request');
@@ -27,11 +27,10 @@ export const processRequest = async (request: any, userDetails: UserDetails) => 
   if (request.techRecord_vehicleType === 'trl' && !request.trailerId) {
     request.trailerId = await generateNewNumber(NumberTypes.TrailerId);
   }
-  const { vin } = request;
+  request.techRecord_recordCompleteness = computeRecordCompleteness(request);
   request.systemNumber = systemNumber;
   request.createdTimestamp = new Date().toISOString();
-  request.partialVin = vin.length < 6 ? vin : vin.substring(request.vin.length - 6);
-  request.techRecord_recordCompleteness = computeRecordCompleteness(request) ?? '';
+  request.partialVin = request.vin.length < 6 ? request.vin : request.vin.substring(request.vin.length - 6);
   request.techRecord_createdByName = userDetails.username;
   request.techRecord_createdById = userDetails.msOid;
   logger.info('successfully processed record');
@@ -45,10 +44,13 @@ export function computeRecordCompleteness(input: any) {
     return 'skeleton';
   }
   const isCompleteSchema = identifySchema(input.techRecord_vehicleType, RecordCompleteness.COMPLETE, HttpMethod.PUT);
-  const isTestableSchema = identifySchema(input.techRecord_vehicleType, RecordCompleteness.TESTABLE, HttpMethod.PUT);
+  const isTestableSchema = input.techRecord_vehicleType === (VehicleType.TRL || VehicleType.PSV || VehicleType.HGV) ? identifySchema(input.techRecord_vehicleType, RecordCompleteness.TESTABLE, HttpMethod.PUT) : '';
   const isSkeletonSchema = identifySchema(input.techRecord_vehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
   const isComplete = isValidObject(isCompleteSchema[0], input);
-  const isTestable = isValidObject(isTestableSchema[0], input);
+  let isTestable = false;
+  if (isTestableSchema) {
+    isTestable = isValidObject(isTestableSchema[0], input);
+  }
   const isSkeleton = isValidObject(isSkeletonSchema[0], input);
   if (isComplete) {
     logger.info('returning complete');
