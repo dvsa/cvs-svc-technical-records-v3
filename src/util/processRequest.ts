@@ -45,17 +45,11 @@ export function computeRecordCompleteness(input: any) {
     return 'skeleton';
   }
   const isCompleteSchema = identifySchema(input.techRecord_vehicleType, RecordCompleteness.COMPLETE, HttpMethod.PUT);
-  logger.info(`is complete schema ${isCompleteSchema[0]}`);
   const isTestableSchema = identifySchema(input.techRecord_vehicleType, RecordCompleteness.TESTABLE, HttpMethod.PUT);
-  logger.info(`is testable schema ${isTestableSchema[0]}`);
   const isSkeletonSchema = identifySchema(input.techRecord_vehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
-  logger.info(`is skeleton schema ${isSkeletonSchema[0]}`);
   const isComplete = isValidObject(isCompleteSchema[0], input);
   const isTestable = isValidObject(isTestableSchema[0], input);
   const isSkeleton = isValidObject(isSkeletonSchema[0], input);
-  console.log(`is complete?: ${isComplete}`);
-  console.log(`is testable?: ${isTestable}`);
-  console.log(`is skeleton? ${isSkeleton}`);
   if (isComplete) {
     logger.info('returning complete');
     return 'complete';

@@ -28,7 +28,6 @@ export const handler = async (
       };
     }
     const userDetails = getUserDetails(event.headers.Authorization);
-    logger.info('parsing body');
     const body = JSON.parse(event.body);
     const requestBody: any = await processRequest(body, userDetails);
     if (!requestBody.techRecord_recordCompleteness) {
