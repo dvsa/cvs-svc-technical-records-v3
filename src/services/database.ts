@@ -93,3 +93,5 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   vin: 'VinIndex',
   trailerId: 'TrailerIdIndex',
 };
+
+export const updateVin = async ()
