@@ -55,17 +55,3 @@ export function validateVins(oldVin: string, newVin: string) {
     });
   }
 }
-
-export const validateNewVinNotInUse = async (newVin: string): Promise<boolean> => {
-
-  const records = await searchByCriteria(SearchCriteria.VIN, newVin)
-
-  const currentRecords = records.filter(record => record.statusCode === 'current')
-
-  if(currentRecords.length){
-      return false
-  }
-
-  return true
-
-}

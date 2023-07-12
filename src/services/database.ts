@@ -1,5 +1,5 @@
 import {
-  DynamoDBClient, GetItemCommand, GetItemCommandInput, QueryCommand, QueryInput,
+  DynamoDBClient, GetItemCommand, GetItemCommandInput, QueryCommand, QueryInput, TransactWriteItemsInput, TransactWriteItemsCommand
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
@@ -94,4 +94,19 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 
-export const updateVin = async ()
+export const updateCurrentCreateNew = async (oldRecord: any, newRecord: any): Promise<string> => {
+  const transactWriteParams: TransactWriteItemsInput = {
+    TransactItems: [
+      { Put: { Item: marshall({...oldRecord}), TableName: tableName } },
+      { Put: { Item: marshall({...newRecord}), TableName: tableName } }
+    ]
+  }
+  try{
+    const data = await ddbClient.send(new TransactWriteItemsCommand(transactWriteParams))
+    logger.debug(JSON.stringify(data));
+    return 'VIN successfully updated';
+  } catch (e: any) {
+    logger.error(`Error in updateVin: ${JSON.stringify(e)}`);
+    throw new Error(`database client failed to update VIN`);
+  }
+}

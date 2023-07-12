@@ -36,5 +36,5 @@ Resources:
           GetLambdaApi:
             Type: Api
             Properties:
-              Path: /v3/technical-records/update-vin/
-              Method: put
+              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
+              Method: patch

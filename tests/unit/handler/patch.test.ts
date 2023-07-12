@@ -3,7 +3,7 @@ const mockGetBySystemNumberAndCreatedTimestamp = jest.fn()
 const mockSearchByCriteria = jest.fn()
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
-import { handler } from '../../../src/handler/updateVin';
+import { handler } from '../../../src/handler/patch';
 import { searchByCriteria } from '../../../src/services/database';
 
 jest.mock('../../../src/services/database.ts', () => ({
@@ -15,7 +15,7 @@ jest.mock('../../../src/services/database.ts', () => ({
 
 const headers = { 'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token', 'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT', 'Access-Control-Allow-Origin': '*' };
 
-describe('Test Get Lambda Function', () => {
+describe('Test Patch Lambda Function', () => {
     describe('Error handling', () => {
         let requestBody: any
         beforeEach(() => {

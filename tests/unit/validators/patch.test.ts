@@ -4,10 +4,9 @@ const mockSearchByCriteria = jest.fn()
 
 import type { APIGatewayProxyEvent } from "aws-lambda";
 import {
-  validateNewVinNotInUse,
   validateUpdateVinRequest,
   validateVins,
-} from "../../../src/validators/updateVin";
+} from "../../../src/validators/patch";
 
 const headers = {
   "Access-Control-Allow-Headers":
@@ -113,37 +112,4 @@ describe("Test updateVin Validators", () => {
       });
     });
   });
-
-  describe("validateNewVinNotInUse", () => {
-    it("returns true if the VIN is not in use", async () => {
-      mockSearchByCriteria.mockReturnValue([])
-      const result = await validateNewVinNotInUse('newVin')
-
-      expect(result).toBe(true)
-    })
-    it("returns false if the VIN is in use on a current record", async () => {
-      mockSearchByCriteria.mockReturnValue([{statusCode: 'current'}])
-      const result = await validateNewVinNotInUse('newVin')
-
-      expect(result).toBe(false)
-    })
-    it("returns false if the VIN is in use on a current record and has archived records included in array", async () => {
-      mockSearchByCriteria.mockReturnValue([{statusCode: 'archived'}, {statusCode: 'archived'}, {statusCode: 'archived'}, {statusCode: 'current'}])
-      const result = await validateNewVinNotInUse('newVin')
-
-      expect(result).toBe(false)
-    })
-    it("returns true if the VIN is in use on an archived record", async () => {
-      mockSearchByCriteria.mockReturnValue([{statusCode: 'archived'}])
-      const result = await validateNewVinNotInUse('newVin')
-
-      expect(result).toBe(true)
-    })
-    it("returns true if the VIN is in use on multiple archived records", async () => {
-      mockSearchByCriteria.mockReturnValue([{statusCode: 'archived'}, {statusCode: 'archived'}, {statusCode: 'archived'}, {statusCode: 'archived'}])
-      const result = await validateNewVinNotInUse('newVin')
-
-      expect(result).toBe(true)
-    })
-  })
 });
