@@ -1,20 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-
 import {
-  AttributeValue,
   DynamoDBClient,
   GetItemCommand,
   GetItemCommandInput,
   PutItemCommand,
+  PutItemCommandInput,
   QueryCommand,
   QueryInput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import logger from '../util/logger';
-import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import { dynamoDBClientConfig, tableName } from '../config';
+import { TechrecordGet } from '../models/post';
+import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
+import logger from '../util/logger';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
@@ -103,10 +100,11 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   vin: 'VinIndex',
   trailerId: 'TrailerIdIndex',
 };
-export const postTechRecord = async (request: any): Promise <any> => {
+
+export const postTechRecord = async (request: TechrecordGet): Promise <TechrecordGet> => {
   logger.info(request);
   try {
-    const command = {
+    const command: PutItemCommandInput = {
       TableName: tableName,
       ConditionExpression: '#createdTimestamp <> :createdTimestamp AND #systemNumber <> :systemNumber',
       ExpressionAttributeNames: {
@@ -114,10 +112,10 @@ export const postTechRecord = async (request: any): Promise <any> => {
         '#systemNumber': 'systemNumber',
       },
       ExpressionAttributeValues: {
-        ':createdTimestamp': { S: request.createdTimestamp },
+        ':createdTimestamp': { S: request.createdTimestamp! },
         ':systemNumber': { S: request.systemNumber },
       },
-      Item: marshall(request as Record<string, AttributeValue>, { removeUndefinedValues: true }),
+      Item: marshall(request, { removeUndefinedValues: true }),
     };
 
     await ddbClient.send(new PutItemCommand(command));

@@ -1,10 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import logger from '../util/logger';
 import { dynamoDBClientConfig } from '../config';
@@ -35,16 +28,21 @@ export const generateNewNumber = async (numberType: NumberTypes): Promise<string
   try {
     const response = await lambdaClient.send(command);
     const bufferResponse = Buffer.from(response.Payload ?? '').toString('utf-8');
-    const bufferBody = await JSON.parse(bufferResponse).body;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const bufferBody: string = await JSON.parse(bufferResponse).body;
     switch (numberType) {
       case NumberTypes.SystemNumber:
-        return JSON.parse(bufferBody).systemNumber;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        return JSON.parse(bufferBody).systemNumber as string;
       case NumberTypes.TNumber:
-        return JSON.parse(bufferBody).tNumber;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        return JSON.parse(bufferBody).tNumber as string;
       case NumberTypes.TrailerId:
-        return JSON.parse(bufferBody).trailerId;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        return JSON.parse(bufferBody).trailerId as string;
       case NumberTypes.ZNumber:
-        return JSON.parse(bufferBody).zNumber;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        return JSON.parse(bufferBody).zNumber as string;
       default:
         throw new Error('Invalid search parameter');
     }

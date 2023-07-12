@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-
 import 'dotenv/config';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { postTechRecord } from '../services/database';
@@ -27,7 +24,7 @@ export const handler = async (
       };
     }
     const userDetails = getUserDetails(event.headers.Authorization);
-    const body = await JSON.parse(event.body);
+    const body: unknown = await JSON.parse(event.body);
     const requestBody = await processPostRequest(body, userDetails);
     if (!requestBody) {
       return {

@@ -1,9 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
 import logger from '../util/logger';
 import { generateNewNumber, NumberTypes } from '../services/testNumber';
@@ -12,8 +6,9 @@ import { UserDetails } from '../services/user';
 import { HttpMethod, RecordCompleteness, VehicleType } from '../util/enum';
 import { TechrecordGet, TechrecordPut } from '../models/post';
 
-export const processPostRequest = async (input: TechrecordPut, userDetails: UserDetails) => {
-  const request: TechrecordPut = await flattenArrays(input);
+export const processPostRequest = async (input: unknown, userDetails: UserDetails) => {
+  // we should be validating it's a valid technical record HERE.
+  const request: TechrecordPut = await flattenArrays(input) as TechrecordPut;
   logger.info('processing request');
   // helper method for handler
   const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
@@ -76,11 +71,12 @@ export function computeRecordCompleteness(input: TechrecordPut): RecordCompleten
   return RecordCompleteness.SKELETON;
 }
 
-const generalErrors = (input: any) => {
+const generalErrors = (input: TechrecordPut) => {
   if (!input.techRecord_vehicleType) {
     return 'Missing vehicle type';
   }
-  if (input.techRecord_hiddenInVta) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  if ((input as any).techRecord_hiddenInVta) {
     return 'skeleton';
   }
   return '';
@@ -90,6 +86,7 @@ async function flattenArrays<T>(input: T): Promise<T> {
     if (Array.isArray(obj)) {
       return obj.reduce((acc: any, curr: any, index: number) => {
         const key = path ? `${path}_${index}` : `${index}`;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return {
           ...acc,
           ...flattenArray(curr, key),
@@ -98,8 +95,10 @@ async function flattenArrays<T>(input: T): Promise<T> {
     }
 
     if (typeof obj === 'object' && obj !== null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       return Object.entries(obj).reduce((acc: any, [key, value]: [string, any]) => {
         const newPath = path ? `${path}_${key}` : key;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return {
           ...acc,
           ...flattenArray(value, newPath),
@@ -107,7 +106,9 @@ async function flattenArrays<T>(input: T): Promise<T> {
       }, {});
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     return { [path]: obj };
   };
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return Promise.resolve(flattenArray(input, ''));
 }
