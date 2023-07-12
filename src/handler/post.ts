@@ -22,7 +22,7 @@ export const handler = async (
     }
     if (!event.headers.Authorization) {
       return {
-        statusCode: 200,
+        statusCode: 400,
         body: JSON.stringify({ error: 'Missing authorization header' }),
       };
     }
