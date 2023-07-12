@@ -7,11 +7,15 @@ const mockPostTechRecord = jest.fn();
 jest.mock('../../../src/services/database.ts', () => ({
   postTechRecord: mockPostTechRecord,
 }));
+jest.mock('../../../src/services/user.ts', () => ({
+  getUserDetails: jest.fn(():UserDetails => ({ username: 'foo', email: 'foo@bar.foo', msOid: 'id' })),
+}));
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/post';
 import postTrlData from '../../resources/techRecordsTrlPost.json';
 import postCarData from '../../resources/techRecordCarPost.json';
+import { UserDetails } from '../../../src/services/user';
 
 describe('Test Post Lambda Function', () => {
   beforeEach(() => {
@@ -34,6 +38,7 @@ describe('Test Post Lambda Function', () => {
         Host: '70ixmpl4fl.execute-api.us-east-2.amazonaws.com',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
         'X-Amzn-Trace-Id': 'Root=1-5e66d96f-7491f09xmpl79d18acf3d050',
+        Authorization: 'Bearer dgshfjaksgdfafdgsajk',
       },
       multiValueHeaders: {
         accept: [
