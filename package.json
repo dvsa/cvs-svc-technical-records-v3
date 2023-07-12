@@ -30,7 +30,8 @@
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.341.0",
-    "@aws-sdk/util-dynamodb": "^3.341.0"
+    "@aws-sdk/util-dynamodb": "^3.341.0",
+    "jwt-decode": "^3.1.2"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.341.0",

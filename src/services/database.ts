@@ -1,5 +1,6 @@
 import {
-  DynamoDBClient, GetItemCommand, GetItemCommandInput, QueryCommand, QueryInput,
+  AttributeValue,
+  DynamoDBClient, GetItemCommand, GetItemCommandInput, PutItemCommand, QueryCommand, QueryInput, UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from '../util/logger';
@@ -7,6 +8,34 @@ import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import { dynamoDBClientConfig, tableName } from '../config';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
+
+
+export const archiveRecord = async (record: any) : Promise<any> => {
+  const { systemNumber, createdTimestamp, lastUpdatedAt, lastUpdatedByName, lastUpdatedById } 
+    = record;
+
+  const command = {
+    TableName: tableName,
+    ExpressionAttributeNames: {
+      '#createdTimestamp': 'createdTimestamp',
+      '#systemNumber': 'systemNumber',
+      '#lastUpdatedAt': 'lastUpdatedAt',
+      '#lastUpdatedByName': 'lastUpdatedByName',
+      '#lastUpdatedById': 'lastUpdatedById'
+    },
+    ExpressionAttributeValues: {
+      ':createdTimestamp': { S: record.createdTimestamp },
+      ':systemNumber': { S: record.systemNumber },
+      ':lastUpdatedAt': { S: record.systemNumber },
+      ':lastUpdatedByName': { S: record.lastUpdatedByName},
+      ':lastUpdatedById': {S: record.lastUpdatedById }
+    },
+    Item: marshall(record as Record<string, AttributeValue>, { removeUndefinedValues: true }),
+    ReturnValues: 'ALL_NEW'
+  };
+
+  return await ddbClient.send(new PutItemCommand(command));
+}
 
 export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
   const query: QueryInput = {

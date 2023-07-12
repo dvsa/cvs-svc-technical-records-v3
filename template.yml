@@ -26,3 +26,15 @@ Resources:
             Properties:
               Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
               Method: get
+    PostLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: archive.handler
+        Runtime: nodejs18.x
+        Events:
+          PostLambdaApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/archive/{systemNumber}/{createdTimestamp}
+              Method: patch
