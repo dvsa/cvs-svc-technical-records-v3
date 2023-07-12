@@ -1,19 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import 'dotenv/config';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { postTechRecord } from '../services/database';
 import logger from '../util/logger';
-import { processRequest } from '../util/processRequest';
+import { processPostRequest } from '../processors/processPostRequest';
 import { getUserDetails } from '../services/user';
 
 export const handler = async (
   event: APIGatewayProxyEvent,
 ): Promise<{ body: unknown; statusCode: number }> => {
   logger.info('Post end point called');
+
   try {
     if (!event.body) {
       return {
@@ -29,7 +28,7 @@ export const handler = async (
     }
     const userDetails = getUserDetails(event.headers.Authorization);
     const body = await JSON.parse(event.body);
-    const requestBody = await processRequest(body, userDetails);
+    const requestBody = await processPostRequest(body, userDetails);
     if (!requestBody) {
       return {
         statusCode: 400,

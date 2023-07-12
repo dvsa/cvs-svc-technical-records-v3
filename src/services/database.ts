@@ -104,6 +104,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 export const postTechRecord = async (request: any): Promise <any> => {
+  logger.info(request);
   try {
     const command = {
       TableName: tableName,
