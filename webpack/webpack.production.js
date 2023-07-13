@@ -1,13 +1,16 @@
 const fs = require('fs-extra')
-const { merge } = require('webpack-merge');
+const {merge} = require('webpack-merge');
 const common = require('./webpack.common.js');
 const archiver = require('archiver');
 const branchName = require('current-git-branch');
+const CopyPlugin = require('copy-webpack-plugin');
+const AwsSamPlugin = require("aws-sam-webpack-plugin");
 
-const LAMBDA_NAMES = ['SearchLambdaFunction', 'GetLambdaFunction'];
+
+const LAMBDA_NAMES = ['SearchLambdaFunction', 'GetLambdaFunction', 'PostLambdaFunction'];
 const OUTPUT_FOLDER = './'
 const REPO_NAME = 'cvs-svc-technical-records-v3';
-const BRANCH_NAME = branchName().replace(/\//g,"-");
+const BRANCH_NAME = branchName().replace(/\//g, "-");
 const COMMIT_HASH = process.env.ZIP_NAME ? process.env.ZIP_NAME : 'local';
 
 class BundlePlugin {
@@ -31,7 +34,7 @@ class BundlePlugin {
   createArchive(inputPath, outputPath, outputName, ignore) {
     if (!fs.existsSync(outputPath)) {
       fs.mkdirSync(outputPath)
-    };
+    }
     const output = fs.createWriteStream(`${outputPath}/${outputName}.zip`);
     const archive = archiver('zip');
 
@@ -39,8 +42,8 @@ class BundlePlugin {
       console.log(archive.pointer() + ' total bytes');
       console.log('archiver has been finalized and the output file descriptor has closed.');
     });
-    archive.on('error', function(err){
-        throw err;
+    archive.on('error', function (err) {
+      throw err;
     });
 
     archive.pipe(output);
@@ -57,19 +60,26 @@ class BundlePlugin {
 
 
 module.exports = env => {
-  let commit = env ? env.commit ? env.commit : 'local' : 'local' ;
+  let commit = env ? env.commit ? env.commit : 'local' : 'local';
   return merge(common, {
     mode: 'production',
-    plugins: [
+    plugins: [new CopyPlugin({
+      patterns: Object.keys((new AwsSamPlugin({vscodeDebug: false}).entry())).map((lambdaName) => ([
+        {
+          from: './node_modules/@dvsa/cvs-type-definitions/json-schemas/',
+          to: `.aws-sam/build/${lambdaName}/json-schemas`
+        }
+      ])).flat()
+    }),
       new BundlePlugin({
-        archives:LAMBDA_NAMES.map(ln => {
-          return {
-           inputPath: `.aws-sam/build/${ln}`,
-           outputPath: `${OUTPUT_FOLDER}`,
-           outputName: `${COMMIT_HASH}-${ln}`
-          }
-         })
-      }),
+          archives: LAMBDA_NAMES.map(ln => {
+            return {
+              inputPath: `.aws-sam/build/${ln}`,
+              outputPath: `${OUTPUT_FOLDER}`,
+              outputName: `${COMMIT_HASH}-${ln}`
+            }
+          })
+       })
     ],
   });
 };
