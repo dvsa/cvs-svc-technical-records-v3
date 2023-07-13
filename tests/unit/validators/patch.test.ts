@@ -1,6 +1,5 @@
 /* eslint-disable import/first */
-const mockSearchByCriteria = jest.fn()
-
+const mockSearchByCriteria = jest.fn();
 
 import type { APIGatewayProxyEvent } from "aws-lambda";
 import {
@@ -15,19 +14,21 @@ const headers = {
   "Access-Control-Allow-Origin": "*",
 };
 
-jest.mock('../../../src/services/database.ts', () => ({
+jest.mock("../../../src/services/database.ts", () => ({
   searchByCriteria: mockSearchByCriteria,
 }));
 
 describe("Test updateVin Validators", () => {
   describe("validateUpdateVinRequest", () => {
-    let requestBody: any;
+    let request: any;
     beforeEach(() => {
-      requestBody = {
-        msUserDetails: "user",
-        newVin: "newVin",
-        createdTimestamp: "20-21",
-        systemNumber: "system",
+      request = {
+        body: JSON.stringify({
+          msUserDetails: "user",
+          newVin: "newVin",
+          createdTimestamp: "20-21",
+          systemNumber: "system",
+        })
       };
     });
     it("should return an error when missing a request body", () => {
@@ -40,22 +41,9 @@ describe("Test updateVin Validators", () => {
         headers,
       });
     });
-    it("should return an error when missing the system number", () => {
-      delete requestBody.systemNumber;
-      const result = validateUpdateVinRequest({
-        body: JSON.stringify(requestBody),
-      } as unknown as APIGatewayProxyEvent);
-      expect(result).toEqual({
-        statusCode: 400,
-        body: "You must provide a System Number",
-        headers,
-      });
-    });
     it("should return an error when missing the new VIN", () => {
-      delete requestBody.newVin;
-      const result = validateUpdateVinRequest({
-        body: JSON.stringify(requestBody),
-      } as unknown as APIGatewayProxyEvent);
+      delete request.newVin;
+      const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
         body: "You must provide a new VIN",
@@ -63,24 +51,10 @@ describe("Test updateVin Validators", () => {
       });
     });
     it("should return an error when missing the msUserDetails", () => {
-      delete requestBody.msUserDetails;
-      const result = validateUpdateVinRequest({
-        body: JSON.stringify(requestBody),
-      } as unknown as APIGatewayProxyEvent);
+      const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
         body: "Microsoft user details not provided",
-        headers,
-      });
-    });
-    it("should return an error when missing the vin", () => {
-      delete requestBody.createdTimestamp;
-      const result = validateUpdateVinRequest({
-        body: JSON.stringify(requestBody),
-      } as unknown as APIGatewayProxyEvent);
-      expect(result).toEqual({
-        statusCode: 400,
-        body: "You must provide a createdTimestamp",
         headers,
       });
     });

@@ -68,6 +68,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
 };
 
 export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<object> => {
+  logger.debug(systemNumber, createdTimestamp);
   const command: GetItemCommandInput = {
     TableName: tableName,
     Key: marshall({
@@ -94,10 +95,10 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 
-export const updateCurrentCreateNew = async (oldRecord: any, newRecord: any): Promise<string> => {
+export const updateRecordCreateNew = async (oldRecord: any, newRecord: any): Promise<string> => {
   const transactWriteParams: TransactWriteItemsInput = {
     TransactItems: [
-      { Put: { Item: marshall({...oldRecord}), TableName: tableName } },
+      { Put: { Item: marshall({...oldRecord}), TableName: tableName, ConditionExpression: 'StatusCode <> archived ' } },
       { Put: { Item: marshall({...newRecord}), TableName: tableName } }
     ]
   }

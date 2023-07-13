@@ -30,10 +30,11 @@ Resources:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
-        Handler: updateVin.handler
+        Handler: patch.handler
         Runtime: nodejs18.x
+        Timeout: 10
         Events:
-          GetLambdaApi:
+          POSTLambdaApi:
             Type: Api
             Properties:
               Path: /v3/technical-records/{systemNumber}/{createdTimestamp}

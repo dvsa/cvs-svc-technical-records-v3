@@ -2,21 +2,23 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { addHttpHeaders } from "../util/httpHeaders";
 import { getBySystemNumberAndCreatedTimestamp, searchByCriteria } from "../services/database";
 import { SearchCriteria } from "../models/search";
+import { getUserDetails } from "../services/user";
 
 export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
   if (!event.body) {
     return addHttpHeaders({ statusCode: 400, body: "invalid request" });
   }
-  const { msUserDetails, newVin, createdTimestamp, systemNumber } = JSON.parse(
+
+  if(!event.headers.Authorization){
+    return {
+      statusCode: 400,
+      body: JSON.stringify("Missing authorization header")
+    }
+  }
+  
+  const { newVin } = JSON.parse(
     event.body
   );
-
-  if (!msUserDetails) {
-    return addHttpHeaders({
-      statusCode: 400,
-      body: "Microsoft user details not provided",
-    });
-  }
 
   if (!newVin) {
     return addHttpHeaders({
@@ -24,22 +26,9 @@ export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
       body: "You must provide a new VIN",
     });
   }
-
-  if (!createdTimestamp) {
-    return addHttpHeaders({
-      statusCode: 400,
-      body: "You must provide a createdTimestamp",
-    });
-  }
-
-  if (!systemNumber) {
-    return addHttpHeaders({
-      statusCode: 400,
-      body: "You must provide a System Number",
-    });
-  }
 }
 export function validateVins(oldVin: string, newVin: string) {
+  console.log('in here')
   if (
     !newVin ||
     newVin.length < 3 ||
