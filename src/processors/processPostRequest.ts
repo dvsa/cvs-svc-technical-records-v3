@@ -19,7 +19,7 @@ import {
 
 export const processPostRequest = async (input: unknown, userDetails: UserDetails) => {
   // we should be validating it's a valid technical record HERE.)
-  if (await isObjectEmpty(input)) {
+  if (isObjectEmpty(input)) {
     throw new Error('Invalid Technical Record');
   }
   const request: TechrecordPut = await flattenArrays(input) as TechrecordPut;
