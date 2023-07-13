@@ -1,8 +1,6 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEvent } from "aws-lambda";
 import { addHttpHeaders } from "../util/httpHeaders";
-import { getBySystemNumberAndCreatedTimestamp, searchByCriteria } from "../services/database";
-import { SearchCriteria } from "../models/search";
-import { getUserDetails } from "../services/user";
+
 
 export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
   if (!event.body) {

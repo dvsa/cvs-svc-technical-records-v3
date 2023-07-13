@@ -31,9 +31,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.341.0",
     "@aws-sdk/util-dynamodb": "^3.341.0",
-    "@dvsa/cvs-type-definitions": "^2.0.18",
-    "aws-crt": "^1.15.20",
-    "jwt-decode": "^3.1.2"
+    "@dvsa/cvs-type-definitions": "^2.0.18"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.341.0",

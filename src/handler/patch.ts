@@ -1,8 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { validateUpdateVinRequest, validateVins } from "../validators/patch";
 import { getBySystemNumberAndCreatedTimestamp, updateRecordCreateNew} from "../services/database";
-import { addHttpHeaders } from "../util/httpHeaders";
-import { getUserDetails } from "../services/user";
+import { addHttpHeaders } from "../util/httpHeaders"; 
 import { formatTechRecord } from "../util/formatTechRecord";
 import { validateGetErrors } from "../validators/get";
 
