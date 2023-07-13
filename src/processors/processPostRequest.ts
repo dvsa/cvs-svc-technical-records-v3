@@ -17,7 +17,7 @@ import {
   TechrecordPut, TechrecordTrl,
 } from '../models/post';
 
-export const processPostRequest = async (input: unknown, userDetails: UserDetails) => {
+export const processPostRequest = async (input: unknown, userDetails: UserDetails): TechRecordGet => {
   // we should be validating it's a valid technical record HERE.)
   if (isObjectEmpty(input)) {
     throw new Error('Invalid Technical Record');
