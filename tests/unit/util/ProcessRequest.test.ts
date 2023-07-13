@@ -4,7 +4,7 @@
 import { PUTTRLTechnicalRecordV3Complete } from '@dvsa/cvs-type-definitions/types/v3/tech-record/put/trl/complete';
 import {
   TechRecordPUTRequestCompleteCarSchema,
-} from '@dvsa/cvs-type-definitions/types/v3/tech-record/put/car/complete/request';
+} from '@dvsa/cvs-type-definitions/types/v3/tech-record/put/car/complete';
 import { GETTRLTechnicalRecordV3Complete } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/trl/complete';
 import postCarData from '../../resources/techRecordCarPost.json';
 import { processPostRequest } from '../../../src/processors/processPostRequest';

@@ -9,7 +9,6 @@ export const handler = async (
   event: APIGatewayProxyEvent,
 ): Promise<{ body: unknown; statusCode: number }> => {
   logger.info('Post end point called');
-
   try {
     if (!event.body) {
       return {
@@ -41,7 +40,8 @@ export const handler = async (
     logger.error(`Error has been thrown with ${JSON.stringify(error)}`);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to add record to DynamoDB' }),
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      body: JSON.stringify({ error: `Failed to add record to DynamoDB: ${error}` }),
     };
   }
 };

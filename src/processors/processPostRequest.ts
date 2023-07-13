@@ -1,44 +1,53 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
 import logger from '../util/logger';
 import { generateNewNumber, NumberTypes } from '../services/testNumber';
 import { identifySchema } from '../validators/post';
 import { UserDetails } from '../services/user';
 import { HttpMethod, RecordCompleteness, VehicleType } from '../util/enum';
-import { TechrecordGet, TechrecordPut } from '../models/post';
+import {
+  TechrecordCar,
+  TechrecordGet,
+  TechrecordHgv,
+  TechrecordMotorcycle,
+  TechrecordPsv,
+  TechrecordPut, TechrecordTrl,
+} from '../models/post';
+
+export const isObjectEmpty = async (input:unknown):Promise<boolean> => {
+  if (typeof input === 'object' && input !== null) {
+    return Object.keys(input).length === 0;
+  }
+  return Promise.reject(new Error('Invalid Technical Record'));
+};
 
 export const processPostRequest = async (input: unknown, userDetails: UserDetails) => {
   // we should be validating it's a valid technical record HERE.
+  if (await isObjectEmpty(input)) {
+    throw new Error('Invalid Technical Record');
+  }
   const request: TechrecordPut = await flattenArrays(input) as TechrecordPut;
   logger.info('processing request');
+  (request as TechrecordGet).techRecord_recordCompleteness = computeRecordCompleteness(request);
   // helper method for handler
   const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
   if (request.techRecord_vehicleType !== 'trl' && !request.primaryVrm) {
-    request.primaryVrm = await generateNewNumber(NumberTypes.ZNumber);
+    (request as (TechrecordPsv | TechrecordCar | TechrecordHgv | TechrecordMotorcycle)).primaryVrm = await generateNewNumber(NumberTypes.ZNumber);
   }
   if (request.techRecord_vehicleType === 'trl' && !request.trailerId && (request.techRecord_euVehicleCategory === 'o1' || request.techRecord_euVehicleCategory === 'o2')) {
-    request.trailerId = await generateNewNumber(NumberTypes.TNumber);
+    (request as TechrecordTrl).trailerId = await generateNewNumber(NumberTypes.TNumber);
   }
   if (request.techRecord_vehicleType === 'trl' && !request.trailerId) {
-    request.trailerId = await generateNewNumber(NumberTypes.TrailerId);
+    (request as TechrecordTrl).trailerId = await generateNewNumber(NumberTypes.TrailerId);
   }
-  if ('techRecord_recordCompleteness' in request) {
-    request.techRecord_recordCompleteness = computeRecordCompleteness(request);
-  }
-  if ('systemNumber' in request) {
-    request.systemNumber = systemNumber;
-  }
-  if ('createdTimestamp' in request) {
-    request.createdTimestamp = new Date().toISOString();
-  }
-  if ('vin' in request && request.vin) {
-    request.partialVin = request.vin.length < 6 ? request.vin : request.vin.substring(request.vin.length - 6);
-  }
-  if ('techRecord_createdByName' in request) {
-    request.techRecord_createdByName = userDetails.username;
-  }
-  if ('techRecord_createdById' in request) {
-    request.techRecord_createdById = userDetails.msOid;
-  }
+  (request as TechrecordGet).systemNumber = systemNumber;
+  (request as TechrecordGet).createdTimestamp = new Date().toISOString();
+  (request as TechrecordGet).partialVin = request.vin.length < 6 ? request.vin : request.vin.substring(request.vin.length - 6);
+  (request as TechrecordGet).techRecord_createdByName = userDetails.username;
+  (request as TechrecordGet).techRecord_createdById = userDetails.msOid;
   logger.info('successfully processed record');
   return request as TechrecordGet;
 };
@@ -86,7 +95,6 @@ async function flattenArrays<T>(input: T): Promise<T> {
     if (Array.isArray(obj)) {
       return obj.reduce((acc: any, curr: any, index: number) => {
         const key = path ? `${path}_${index}` : `${index}`;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return {
           ...acc,
           ...flattenArray(curr, key),
@@ -95,10 +103,8 @@ async function flattenArrays<T>(input: T): Promise<T> {
     }
 
     if (typeof obj === 'object' && obj !== null) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       return Object.entries(obj).reduce((acc: any, [key, value]: [string, any]) => {
         const newPath = path ? `${path}_${key}` : key;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return {
           ...acc,
           ...flattenArray(value, newPath),
@@ -106,9 +112,7 @@ async function flattenArrays<T>(input: T): Promise<T> {
       }, {});
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     return { [path]: obj };
   };
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return Promise.resolve(flattenArray(input, ''));
 }
