@@ -102,7 +102,8 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
 };
 
 export const postTechRecord = async (request: TechrecordGet): Promise <TechrecordGet> => {
-  logger.info(request);
+  logger.info('about to post');
+
   try {
     const command: PutItemCommandInput = {
       TableName: tableName,

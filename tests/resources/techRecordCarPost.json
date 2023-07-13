@@ -5,6 +5,8 @@
   "secondaryVrms": [
     " "
   ],
+  "techRecord_createdByName":"foo",
+  "techRecord_createdById":"foo",
   "systemNumber": "5976221",
   "techRecord_bodyType_code": null,
   "techRecord_bodyType_description": null,

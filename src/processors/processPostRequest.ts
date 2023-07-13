@@ -17,15 +17,8 @@ import {
   TechrecordPut, TechrecordTrl,
 } from '../models/post';
 
-export const isObjectEmpty = async (input:unknown):Promise<boolean> => {
-  if (typeof input === 'object' && input !== null) {
-    return Object.keys(input).length === 0;
-  }
-  return Promise.reject(new Error('Invalid Technical Record'));
-};
-
 export const processPostRequest = async (input: unknown, userDetails: UserDetails) => {
-  // we should be validating it's a valid technical record HERE.
+  // we should be validating it's a valid technical record HERE.)
   if (await isObjectEmpty(input)) {
     throw new Error('Invalid Technical Record');
   }
@@ -48,7 +41,7 @@ export const processPostRequest = async (input: unknown, userDetails: UserDetail
   (request as TechrecordGet).partialVin = request.vin.length < 6 ? request.vin : request.vin.substring(request.vin.length - 6);
   (request as TechrecordGet).techRecord_createdByName = userDetails.username;
   (request as TechrecordGet).techRecord_createdById = userDetails.msOid;
-  logger.info('successfully processed record');
+  logger.info('Successfully Processed Record');
   return request as TechrecordGet;
 };
 
@@ -116,3 +109,5 @@ async function flattenArrays<T>(input: T): Promise<T> {
   };
   return Promise.resolve(flattenArray(input, ''));
 }
+
+const isObjectEmpty = (input: unknown) => (typeof input === 'object' && input !== null ? !Object.keys(input).length : false);
