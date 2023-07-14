@@ -1,11 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
- 
+
   if (!event.headers.Authorization) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Missing authorization header' }),
+      body: 'Missing authorization header',
     };
   }
 
