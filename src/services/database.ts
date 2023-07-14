@@ -11,7 +11,7 @@ const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
 
 export const archiveRecord = async (record: any) : Promise<any> => {
-  const { systemNumber, createdTimestamp, lastUpdatedAt, lastUpdatedByName, lastUpdatedById } 
+  const { systemNumber, createdTimestamp, lastUpdatedAt, lastUpdatedByName, lastUpdatedById }
     = record;
 
   const command = {
@@ -24,11 +24,11 @@ export const archiveRecord = async (record: any) : Promise<any> => {
       '#lastUpdatedById': 'lastUpdatedById'
     },
     ExpressionAttributeValues: {
-      ':createdTimestamp': { S: record.createdTimestamp },
-      ':systemNumber': { S: record.systemNumber },
-      ':lastUpdatedAt': { S: record.systemNumber },
-      ':lastUpdatedByName': { S: record.lastUpdatedByName},
-      ':lastUpdatedById': {S: record.lastUpdatedById }
+      ':createdTimestamp': { S: createdTimestamp },
+      ':systemNumber': { S: systemNumber },
+      ':lastUpdatedAt': { S: lastUpdatedAt },
+      ':lastUpdatedByName': { S: lastUpdatedByName},
+      ':lastUpdatedById': {S: lastUpdatedById }
     },
     Item: marshall(record as Record<string, AttributeValue>, { removeUndefinedValues: true }),
     ReturnValues: 'ALL_NEW'

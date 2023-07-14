@@ -7,18 +7,18 @@ import { archiveRecord, getBySystemNumberAndCreatedTimestamp } from '../services
 import { Status, VehicleType } from '../util/enums';
 import { getUserDetails } from '../services/user';
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => { 
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Archive end point called');
 
     const archiveErrors = validateArchiveErrors(event);
-    
+
     if(archiveErrors) {
         return addHttpHeaders(archiveErrors);
     }
 
     const body = await JSON.parse(event.body as string);
 
-    if (body.reasonForArchiving) {
+    if (!body.reasonForArchiving) {
         return {
           statusCode: 400,
           body: 'Reason for archiving not provided',
@@ -33,7 +33,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     logger.info(`Get from database with sysNum ${systemNumber} and timestamp ${createdTimestamp}`);
 
     const record: any = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
-    
+
     logger.debug(`result is: ${JSON.stringify(record)}`);
 
     if (!record || !Object.keys(record).length) {
@@ -42,12 +42,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           body: `No record found matching sysNum ${systemNumber} and timestamp ${createdTimestamp}`,
         });
     }
-    
+
     if(record.statusCode === Status.ARCHIVED){
         return addHttpHeaders({
             statusCode: 400,
             body: 'Cannot archive an archived record'
-          }); 
+          });
     }
 
     record.statusCode = Status.ARCHIVED;
@@ -56,11 +56,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     record.lastUpdatedById = userDetails.msOid;
 
     if(record.vehicleType === VehicleType.PSV) {
-        record.remarks = record.remarks ? 
+        record.remarks = record.remarks ?
             record.remarks + `\n${reasonForArchiving}`
             : reasonForArchiving;
     } else {
-        record.notes = record.notes ? 
+        record.notes = record.notes ?
             record.notes + `\n${reasonForArchiving}`
             : reasonForArchiving;
     }
@@ -69,6 +69,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     return addHttpHeaders({
         statusCode: 200,
-        body: ''
+        body: JSON.stringify(response)
       });
 }
