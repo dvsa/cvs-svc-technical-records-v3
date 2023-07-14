@@ -6,6 +6,7 @@ import { addHttpHeaders } from '../util/httpHeaders';
 import { archiveRecord, getBySystemNumberAndCreatedTimestamp } from '../services/database';
 import { Status, VehicleType } from '../util/enums';
 import { getUserDetails } from '../services/user';
+import { formatTechRecord } from '../util/formatTechRecord';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Archive end point called');
@@ -43,32 +44,26 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         });
     }
 
-    if(record.statusCode === Status.ARCHIVED){
+    if(record.techRecord_statusCode === Status.ARCHIVED){
         return addHttpHeaders({
             statusCode: 400,
             body: 'Cannot archive an archived record'
           });
     }
 
-    record.statusCode = Status.ARCHIVED;
-    record.lastUpdatedAt = new Date().toISOString();
-    record.lastUpdatedByName = userDetails.username;
-    record.lastUpdatedById = userDetails.msOid;
+    record.techRecord_statusCode = Status.ARCHIVED;
+    record.techRecord_lastUpdatedAt = new Date().toISOString();
+    record.techRecord_lastUpdatedByName = userDetails.username;
+    record.techRecord_lastUpdatedById = userDetails.msOid;
 
-    if(record.vehicleType === VehicleType.PSV) {
-        record.remarks = record.remarks ?
-            record.remarks + `\n${reasonForArchiving}`
-            : reasonForArchiving;
-    } else {
-        record.notes = record.notes ?
-            record.notes + `\n${reasonForArchiving}`
-            : reasonForArchiving;
-    }
+    record.techRecord_notes = record.techRecord_notes ?
+    record.techRecord_notes + `\n${reasonForArchiving}`
+        : reasonForArchiving;
 
-    const response = await archiveRecord(record);
+    await archiveRecord(record);
 
     return addHttpHeaders({
         statusCode: 200,
-        body: JSON.stringify(response)
+        body: JSON.stringify(formatTechRecord(record))
       });
 }
