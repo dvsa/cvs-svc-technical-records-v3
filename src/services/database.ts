@@ -77,7 +77,6 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
 };
 
 export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<object> => {
-  logger.debug(systemNumber, createdTimestamp);
   const command: GetItemCommandInput = {
     TableName: tableName,
     Key: marshall({
