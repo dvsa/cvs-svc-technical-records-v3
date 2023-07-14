@@ -38,3 +38,15 @@ Resources:
             Properties:
               Path: /v3/technical-records
               Method: post
+    UpdateLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: update.handler
+        Runtime: nodejs18.x
+        Events:
+          UpdateLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
+              Method: post

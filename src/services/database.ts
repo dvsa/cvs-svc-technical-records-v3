@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   DynamoDBClient,
   GetItemCommand,
@@ -5,15 +8,18 @@ import {
   PutItemCommand,
   PutItemCommandInput,
   QueryCommand,
-  QueryInput,
+  QueryInput, TransactWriteItemsCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { DynamoDBDocumentClient, TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
+import polly from 'polly-js';
 import { dynamoDBClientConfig, tableName } from '../config';
 import { TechrecordGet } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
+const docClient = DynamoDBDocumentClient.from(ddbClient);
 
 export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
   const query: QueryInput = {
@@ -85,7 +91,7 @@ export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string,
 
   try {
     const data = await ddbClient.send(new GetItemCommand(command));
-    logger.debug(JSON.stringify(data));
+    // logger.debug(JSON.stringify(data));
     return unmarshall(data.Item || {});
   } catch (e: any) {
     logger.error(`Error in search by sysnum and time: ${JSON.stringify(e)}`);
@@ -126,4 +132,40 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
     logger.error(`Error: ${err}`);
     throw new Error('database client failed getting data');
   }
+};
+
+export const updateVehicle = async (oldRecord: any, newRecord: any): Promise<object> => {
+  logger.info('inside updateVehicle');
+  logger.debug(oldRecord.createdTimestamp);
+  logger.debug(newRecord.createdTimestamp);
+  const transactWriteParams: TransactWriteCommandInput = {
+    TransactItems: [
+      {
+        Put: {
+          TableName: tableName,
+          Item: marshall(oldRecord),
+          ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
+        },
+      },
+      {
+        Put: {
+          TableName: tableName,
+          Item: marshall(newRecord),
+        },
+      },
+    ],
+  };
+
+  const sendTransaction = new Promise<object>((resolve, reject) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    docClient.send(new TransactWriteItemsCommand(transactWriteParams)).then(() => {
+      logger.debug('Resolving with success');
+      resolve(newRecord);
+    }).catch((error: Error) => {
+      logger.error('Rejecting with an error', error);
+      reject(error.message);
+    });
+  });
+
+  return polly().waitAndRetry(3).executeForPromise(() => sendTransaction);
 };
