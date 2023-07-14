@@ -4,7 +4,7 @@ import logger from '../util/logger';
 import { validateArchiveErrors } from '../validators/archive';
 import { addHttpHeaders } from '../util/httpHeaders';
 import { archiveRecord, getBySystemNumberAndCreatedTimestamp } from '../services/database';
-import { Status, VehicleType } from '../util/enums';
+import { Status } from '../util/enums';
 import { getUserDetails } from '../services/user';
 import { formatTechRecord } from '../util/formatTechRecord';
 
