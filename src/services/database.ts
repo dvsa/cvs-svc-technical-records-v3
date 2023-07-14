@@ -1,11 +1,18 @@
 import {
   AttributeValue,
-  DynamoDBClient, GetItemCommand, GetItemCommandInput, PutItemCommand, QueryCommand, QueryInput, UpdateItemCommand,
+  DynamoDBClient,
+  GetItemCommand,
+  GetItemCommandInput,
+  PutItemCommand,
+  PutItemCommandInput,
+  PutItemCommand, QueryCommand,
+  QueryInput, UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import logger from '../util/logger';
-import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import { dynamoDBClientConfig, tableName } from '../config';
+import { TechrecordGet } from '../models/post';
+import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
+import logger from '../util/logger';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
@@ -104,4 +111,31 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   primaryVrm: 'VRMIndex',
   vin: 'VinIndex',
   trailerId: 'TrailerIdIndex',
+};
+
+export const postTechRecord = async (request: TechrecordGet): Promise <TechrecordGet> => {
+  logger.info('about to post');
+
+  try {
+    const command: PutItemCommandInput = {
+      TableName: tableName,
+      ConditionExpression: '#createdTimestamp <> :createdTimestamp AND #systemNumber <> :systemNumber',
+      ExpressionAttributeNames: {
+        '#createdTimestamp': 'createdTimestamp',
+        '#systemNumber': 'systemNumber',
+      },
+      ExpressionAttributeValues: {
+        ':createdTimestamp': { S: request.createdTimestamp! },
+        ':systemNumber': { S: request.systemNumber },
+      },
+      Item: marshall(request, { removeUndefinedValues: true }),
+    };
+
+    await ddbClient.send(new PutItemCommand(command));
+    return request;
+  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    logger.error(`Error: ${err}`);
+    throw new Error('database client failed getting data');
+  }
 };

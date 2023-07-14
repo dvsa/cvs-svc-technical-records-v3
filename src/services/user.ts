@@ -1,6 +1,3 @@
-import jwt_decode from 'jwt-decode';
-
-export type UserDetails = { username: string, msOid: string, email: string };
 
 export const getUserDetails = (jwt: string): UserDetails => {
   const removedBearer = jwt.substring(7);

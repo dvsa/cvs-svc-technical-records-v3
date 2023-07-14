@@ -1,16 +1,29 @@
 /* eslint-disable import/first */
 const mockSend = jest.fn();
-
 const mockQueryCommand = jest.fn();
-
 const mockGetItemCommand = jest.fn();
+const mockGenerateNewNumber = jest.fn();
+const mockLambdaSend = jest.fn();
 
 const mockDynamoDBClient = jest.fn(() => ({
   send: mockSend,
 }));
 
+jest.mock('@aws-sdk/client-lambda', () => ({
+  LambdaClient: jest.fn(() => ({
+    send: mockLambdaSend,
+  })),
+  InvokeCommand: jest.fn(),
+}));
+
 import { SearchCriteria } from '../../../src/models/search';
-import { searchByCriteria, searchByAll, getBySystemNumberAndCreatedTimestamp } from '../../../src/services/database';
+import {
+  searchByCriteria,
+  searchByAll,
+  getBySystemNumberAndCreatedTimestamp, postTechRecord,
+
+} from '../../../src/services/database';
+import postCarData from '../../resources/techRecordCarPost.json';
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
