@@ -13,14 +13,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if(isRequestInvalid){
         return isRequestInvalid
     }
-    // const getErrors = validateGetErrors(event);
-    // if (getErrors) {
-    //   return addHttpHeaders(getErrors);
-    // }
-    // const user = getUserDetails(event.headers.Authorization!)
         
     const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
     const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
+    const user: any = getUserDetails(event.headers.Authorization!)
 
     const { newVin } = JSON.parse(event.body!)
 
@@ -30,15 +26,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     if(areVinsInvalid){
         return areVinsInvalid
-    }
+    } 
 
     const newRecord = { ...currentRecord }
 
-    newRecord.createdTimestamp = (new Date()).toISOString()
+    const date = (new Date()).toISOString()
+
+    newRecord.createdTimestamp = date
     newRecord.vin = newVin
-    // newRecord.techRecord_createdByName = user
+    newRecord.techRecord_createdByName = user
     
-    currentRecord.statusCode = 'archived'
+    currentRecord.techRecord_statusCode = 'archived'
+    currentRecord.techRecord_lastUpdatedAt = date
  
     const updateVin = await updateRecordCreateNew(currentRecord, newRecord)
         

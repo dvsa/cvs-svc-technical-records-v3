@@ -106,7 +106,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
 export const updateRecordCreateNew = async (oldRecord: any, newRecord: any): Promise<string> => {
   const transactWriteParams: TransactWriteItemsInput = {
     TransactItems: [
-      { Put: { Item: marshall({...oldRecord}), TableName: tableName, ConditionExpression: 'StatusCode <> archived ' } },
+      { Put: { Item: marshall({...oldRecord}), TableName: tableName } },
       { Put: { Item: marshall({...newRecord}), TableName: tableName } }
     ]
   }
@@ -119,6 +119,7 @@ export const updateRecordCreateNew = async (oldRecord: any, newRecord: any): Pro
     throw new Error(`database client failed to update VIN`);
   }
 }
+
 export const postTechRecord = async (request: TechrecordGet): Promise <TechrecordGet> => {
   logger.info('about to post');
 
