@@ -3,10 +3,9 @@ import {
   DynamoDBClient,
   GetItemCommand,
   GetItemCommandInput,
-  PutItemCommand,
   PutItemCommandInput,
   PutItemCommand, QueryCommand,
-  QueryInput, UpdateItemCommand,
+  QueryInput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { dynamoDBClientConfig, tableName } from '../config';
