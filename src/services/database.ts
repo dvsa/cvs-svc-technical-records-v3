@@ -151,7 +151,6 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
       ]
     }
   
-    
     try{ 
       await ddbClient.send(new TransactWriteItemsCommand(transactParams))
   
