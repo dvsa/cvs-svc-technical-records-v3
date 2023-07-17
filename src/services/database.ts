@@ -12,18 +12,25 @@ import { dynamoDBClientConfig, tableName } from '../config';
 import { TechrecordGet } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
+import { ArchiveRecord } from '../models/archive';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
 
-export const archiveRecord = async (record: any) : Promise<any> => {
+export const archiveRecord = async (record: ArchiveRecord) : Promise<any> => {
 
   const command = {
     TableName: tableName,
-    Item: marshall(record as Record<string, AttributeValue>, { removeUndefinedValues: true })
+    Item: marshall(record as unknown as Record<string, AttributeValue>, { removeUndefinedValues: true })
   };
 
-  return await ddbClient.send(new PutItemCommand(command));
+  try{
+    return await ddbClient.send(new PutItemCommand(command));
+  }
+  catch(e) {
+    logger.error('Error in archive record: ', e);
+    throw new Error(`database client failed in archiving the record with systemNumber ${record.systemNumber} and createdTimestamp ${record.createdTimestamp} `);
+  }
 }
 
 export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {

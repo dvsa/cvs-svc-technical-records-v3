@@ -7,6 +7,7 @@ import { archiveRecord, getBySystemNumberAndCreatedTimestamp } from '../services
 import { Status } from '../util/enums';
 import { getUserDetails } from '../services/user';
 import { formatTechRecord } from '../util/formatTechRecord';
+import { ArchiveRecord } from '../models/archive';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Archive end point called');
@@ -33,7 +34,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     logger.info(`Get from database with sysNum ${systemNumber} and timestamp ${createdTimestamp}`);
 
-    const record: any = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
+    const record = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as ArchiveRecord;
 
     logger.debug(`result is: ${JSON.stringify(record)}`);
 
