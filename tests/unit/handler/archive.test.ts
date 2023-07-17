@@ -42,7 +42,7 @@ describe('Archive Patch Lambda Function', () => {
   describe('Unsuccessful Response', () => {
     it('should not pass validation and return a 400 response when reasonForArchiving is empty', async () => {
       const invalidArchiveRequestData = cloneDeep(archiveRequestData);
-      invalidArchiveRequestData.body = JSON.stringify({ 'reasonForArchiving': '' });
+      invalidArchiveRequestData.body = JSON.stringify({ reasonForArchiving: '' });
 
       process.env.AWS_SAM_LOCAL = 'true';
 
@@ -78,5 +78,5 @@ describe('Archive Patch Lambda Function', () => {
       expect(result.statusCode).toBe(400);
       expect(result.body).toContain('Cannot archive an archived record');
     });
-  })
+  });
 });

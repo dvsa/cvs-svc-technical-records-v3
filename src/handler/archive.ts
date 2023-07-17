@@ -7,7 +7,7 @@ import { archiveRecord, getBySystemNumberAndCreatedTimestamp } from '../services
 import { Status } from '../util/enum';
 import { getUserDetails } from '../services/user';
 import { formatTechRecord } from '../util/formatTechRecord';
-import { ArchiveRecord } from '../models/archive';
+import { ArchiveRecord, ArchiveRecordRequestBody } from '../models/archive';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Archive end point called');
@@ -18,7 +18,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders(archiveErrors);
   }
 
-  const body = await JSON.parse(event.body as string);
+  const body: ArchiveRecordRequestBody = await JSON.parse(event.body as string);
 
   if (!body.reasonForArchiving) {
     return {
@@ -29,7 +29,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   const systemNumber = decodeURIComponent(event?.pathParameters?.systemNumber as string);
   const createdTimestamp = decodeURIComponent(event?.pathParameters?.createdTimestamp as string);
-  const { reasonForArchiving } = body.reasonForArchiving;
   const userDetails = getUserDetails(event.headers.Authorization as string);
 
   logger.info(`Get from database with sysNum ${systemNumber} and timestamp ${createdTimestamp}`);
@@ -58,13 +57,13 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   record.techRecord_lastUpdatedById = userDetails.msOid;
 
   record.techRecord_notes = record.techRecord_notes
-    ? `${record.techRecord_notes} + \n${reasonForArchiving}`
-    : reasonForArchiving;
+    ? `${record.techRecord_notes} + \n${body.reasonForArchiving}`
+    : body.reasonForArchiving;
 
   await archiveRecord(record);
 
   return addHttpHeaders({
     statusCode: 200,
-    body: JSON.stringify(formatTechRecord(record))
+    body: JSON.stringify(formatTechRecord(record)),
   });
 };

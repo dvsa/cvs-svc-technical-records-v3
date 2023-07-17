@@ -24,11 +24,11 @@ export const archiveRecord = async (record: ArchiveRecord) : Promise<any> => {
 
   try {
     return await ddbClient.send(new PutItemCommand(command));
-  } catch(e) {
+  } catch (e) {
     logger.error('Error in archive record: ', e);
     throw new Error(`database client failed in archiving the record with systemNumber ${record.systemNumber} and createdTimestamp ${record.createdTimestamp} `);
   }
-}
+};
 
 export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
   const query: QueryInput = {
