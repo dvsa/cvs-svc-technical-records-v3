@@ -103,23 +103,6 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 
-export const updateRecordCreateNew = async (oldRecord: any, newRecord: any): Promise<string> => {
-  const transactWriteParams: TransactWriteItemsInput = {
-    TransactItems: [
-      { Put: { Item: marshall({...oldRecord}), TableName: tableName } },
-      { Put: { Item: marshall({...newRecord}), TableName: tableName } }
-    ]
-  }
-  try{
-    const data = await ddbClient.send(new TransactWriteItemsCommand(transactWriteParams))
-    logger.debug(JSON.stringify(data));
-    return 'VIN successfully updated';
-  } catch (e: any) {
-    logger.error(`Error in updateVin: ${JSON.stringify(e)}`);
-    throw new Error(`database client failed to update VIN`);
-  }
-}
-
 export const postTechRecord = async (request: TechrecordGet): Promise <TechrecordGet> => {
   logger.info('about to post');
 
@@ -145,4 +128,37 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
     logger.error(`Error: ${err}`);
     throw new Error('database client failed getting data');
   }
-};
+
+}
+  export const archiveOldCreateCurrentRecord = async (recordToArchive: any, recordToCreate: any): Promise<any> => {
+    logger.info("Preparing Transact Items")
+  
+    const transactParams: TransactWriteItemsInput = {
+      TransactItems: [
+        {
+          Put: {
+          TableName: tableName,
+          Item: marshall(recordToArchive),
+          ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)'
+          }
+        },
+        {
+          Put: {
+          TableName: tableName,
+          Item: marshall(recordToCreate),
+          }
+        },
+      ]
+    }
+  
+    
+    try{ 
+      await ddbClient.send(new TransactWriteItemsCommand(transactParams))
+  
+      return {message: 'records updated'}
+  
+    } catch (error) {
+      logger.error(`Error: ${error}`);
+      throw new Error('Transact Write Items Failed');
+    }
+  }

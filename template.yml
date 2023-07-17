@@ -26,19 +26,6 @@ Resources:
             Properties:
               Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
               Method: get
-    PatchLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: patch.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          PostLambdaApi:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
-              Method: patch
     PostLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -52,3 +39,16 @@ Resources:
             Properties:
               Path: /v3/technical-records
               Method: post
+    PatchLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: patch.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PatchLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
+              Method: patch

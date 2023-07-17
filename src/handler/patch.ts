@@ -6,9 +6,7 @@ import 'dotenv/config';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import logger from '../util/logger';
 import { addHttpHeaders } from '../util/httpHeaders';
-import { archiveOldCreateCurrentRecord, getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';
-import { formatTechRecord } from '../util/formatTechRecord';
-import { validateUpdateErrors } from '../validators/update';
+import { archiveOldCreateCurrentRecord, getBySystemNumberAndCreatedTimestamp } from '../services/database';
 import { getUserDetails } from '../services/user';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
