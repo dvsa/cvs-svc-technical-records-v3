@@ -14,21 +14,21 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   const archiveErrors = validateArchiveErrors(event);
 
-  if(archiveErrors) {
-      return addHttpHeaders(archiveErrors);
+  if (archiveErrors) {
+    return addHttpHeaders(archiveErrors);
   }
 
   const body = await JSON.parse(event.body as string);
 
   if (!body.reasonForArchiving) {
-      return {
-        statusCode: 400,
-        body: 'Reason for archiving not provided',
-      };
+    return {
+      statusCode: 400,
+      body: 'Reason for archiving not provided',
+    };
   }
 
-  const systemNumber = decodeURIComponent(event?.pathParameters?.systemNumber as string)
-  const createdTimestamp = decodeURIComponent(event?.pathParameters?.createdTimestamp as string)
+  const systemNumber = decodeURIComponent(event?.pathParameters?.systemNumber as string);
+  const createdTimestamp = decodeURIComponent(event?.pathParameters?.createdTimestamp as string);
   const reasonForArchiving = body.reasonForArchiving;
   const userDetails = getUserDetails(event.headers.Authorization as string);
 
@@ -39,17 +39,17 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   logger.debug(`result is: ${JSON.stringify(record)}`);
 
   if (!record || !Object.keys(record).length) {
-      return addHttpHeaders({
-        statusCode: 400,
-        body: `No record found matching sysNum ${systemNumber} and timestamp ${createdTimestamp}`,
-      });
+    return addHttpHeaders({
+      statusCode: 400,
+      body: `No record found matching sysNum ${systemNumber} and timestamp ${createdTimestamp}`,
+    });
   }
 
-  if(record.techRecord_statusCode === Status.ARCHIVED){
-      return addHttpHeaders({
-          statusCode: 400,
-          body: 'Cannot archive an archived record'
-        });
+  if (record.techRecord_statusCode === Status.ARCHIVED) {
+    return addHttpHeaders({
+        statusCode: 400,
+        body: 'Cannot archive an archived record'
+      });
   }
 
   record.techRecord_statusCode = Status.ARCHIVED;
@@ -57,14 +57,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   record.techRecord_lastUpdatedByName = userDetails.username;
   record.techRecord_lastUpdatedById = userDetails.msOid;
 
-  record.techRecord_notes = record.techRecord_notes ?
-  record.techRecord_notes + `\n${reasonForArchiving}`
-      : reasonForArchiving;
+  record.techRecord_notes = record.techRecord_notes
+    ? record.techRecord_notes + `\n${reasonForArchiving}`
+    : reasonForArchiving;
 
   await archiveRecord(record);
 
   return addHttpHeaders({
-      statusCode: 200,
-      body: JSON.stringify(formatTechRecord(record))
-    });
+    statusCode: 200,
+    body: JSON.stringify(formatTechRecord(record))
+  });
 }
