@@ -17,7 +17,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const isRequestInvalid = validateUpdateVinRequest(event)
 
     if(isRequestInvalid) {
-        return addHttpHeaders({statusCode: 400, body: JSON.stringify({message: isRequestInvalid})})
+        return isRequestInvalid
     }
 
     logger.info('Request is Valid')
@@ -29,10 +29,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const currentRecord: any = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
-    const isVinInvalid = validateVins(currentRecord.vin, newVin);
+    const isVinInvalid = validateVins(currentRecord.vin, newVin.toUpperCase());
 
     if(isVinInvalid) {
-        return addHttpHeaders({statusCode: 400, body: JSON.stringify({message: isVinInvalid})});
+        return isVinInvalid;
     }
 
     logger.info("Vin's have been validated")

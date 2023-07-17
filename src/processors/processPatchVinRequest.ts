@@ -9,7 +9,7 @@ export const processPatchVinRequest = (currentRecord: any, event: APIGatewayProx
 
     const date = (new Date).toISOString();
 
-    newRecord.vin = newVin;
+    newRecord.vin = newVin.toUpperCase();
     newRecord.createdTimestamp = date;
     delete newRecord.techRecord_lastUpdatedAt;
     newRecord.techRecord_updatedByName = userDetails.username;
