@@ -20,5 +20,4 @@ export interface SearchResult {
   techRecord_chassisModel?: string
   techRecord_make?: string
   techRecord_model?: string
-  statusCode: string
 }
