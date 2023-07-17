@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
+// eslint-disable-next-line consistent-return
 export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
-
   if (!event.headers.Authorization) {
     return {
       statusCode: 400,

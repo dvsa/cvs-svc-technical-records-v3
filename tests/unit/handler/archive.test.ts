@@ -11,11 +11,11 @@ jest.mock('../../../src/services/database.ts', () => ({
 }));
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
+import { cloneDeep } from 'lodash';
 import { handler } from '../../../src/handler/archive';
 import archivePatchData from '../../resources/techRecordArchiveRecord.json';
-import archiveRequestData from '../../resources/techRecordArchiveRequest.json'
-import { Status } from '../../../src/util/enums';
-import { cloneDeep } from 'lodash';
+import archiveRequestData from '../../resources/techRecordArchiveRequest.json';
+import { Status } from '../../../src/util/enum';
 
 describe('Archive Patch Lambda Function', () => {
   beforeEach(() => {
@@ -41,9 +41,8 @@ describe('Archive Patch Lambda Function', () => {
 
   describe('Unsuccessful Response', () => {
     it('should not pass validation and return a 400 response when reasonForArchiving is empty', async () => {
-
       const invalidArchiveRequestData = cloneDeep(archiveRequestData);
-      invalidArchiveRequestData.body = JSON.stringify({ "reasonForArchiving": "" });
+      invalidArchiveRequestData.body = JSON.stringify({ 'reasonForArchiving': '' });
 
       process.env.AWS_SAM_LOCAL = 'true';
 

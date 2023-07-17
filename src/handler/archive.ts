@@ -4,7 +4,7 @@ import logger from '../util/logger';
 import { validateArchiveErrors } from '../validators/archive';
 import { addHttpHeaders } from '../util/httpHeaders';
 import { archiveRecord, getBySystemNumberAndCreatedTimestamp } from '../services/database';
-import { Status } from '../util/enums';
+import { Status } from '../util/enum';
 import { getUserDetails } from '../services/user';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { ArchiveRecord } from '../models/archive';
@@ -29,7 +29,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   const systemNumber = decodeURIComponent(event?.pathParameters?.systemNumber as string);
   const createdTimestamp = decodeURIComponent(event?.pathParameters?.createdTimestamp as string);
-  const reasonForArchiving = body.reasonForArchiving;
+  const { reasonForArchiving } = body.reasonForArchiving;
   const userDetails = getUserDetails(event.headers.Authorization as string);
 
   logger.info(`Get from database with sysNum ${systemNumber} and timestamp ${createdTimestamp}`);
@@ -47,9 +47,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   if (record.techRecord_statusCode === Status.ARCHIVED) {
     return addHttpHeaders({
-        statusCode: 400,
-        body: 'Cannot archive an archived record'
-      });
+      statusCode: 400,
+      body: 'Cannot archive an archived record',
+    });
   }
 
   record.techRecord_statusCode = Status.ARCHIVED;
@@ -58,7 +58,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   record.techRecord_lastUpdatedById = userDetails.msOid;
 
   record.techRecord_notes = record.techRecord_notes
-    ? record.techRecord_notes + `\n${reasonForArchiving}`
+    ? `${record.techRecord_notes} + \n${reasonForArchiving}`
     : reasonForArchiving;
 
   await archiveRecord(record);
@@ -67,4 +67,4 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     statusCode: 200,
     body: JSON.stringify(formatTechRecord(record))
   });
-}
+};

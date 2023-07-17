@@ -16,18 +16,15 @@ import { ArchiveRecord } from '../models/archive';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
-
 export const archiveRecord = async (record: ArchiveRecord) : Promise<any> => {
-
   const command = {
     TableName: tableName,
-    Item: marshall(record as unknown as Record<string, AttributeValue>, { removeUndefinedValues: true })
+    Item: marshall(record as unknown as Record<string, AttributeValue>, { removeUndefinedValues: true }),
   };
 
-  try{
+  try {
     return await ddbClient.send(new PutItemCommand(command));
-  }
-  catch(e) {
+  } catch(e) {
     logger.error('Error in archive record: ', e);
     throw new Error(`database client failed in archiving the record with systemNumber ${record.systemNumber} and createdTimestamp ${record.createdTimestamp} `);
   }
