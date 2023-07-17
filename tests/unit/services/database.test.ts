@@ -4,6 +4,7 @@ const mockQueryCommand = jest.fn();
 const mockGetItemCommand = jest.fn();
 const mockGenerateNewNumber = jest.fn();
 const mockLambdaSend = jest.fn();
+const mockTransactWriteItemsCommand = jest.fn();
 
 const mockDynamoDBClient = jest.fn(() => ({
   send: mockSend,
@@ -20,15 +21,18 @@ import { SearchCriteria } from '../../../src/models/search';
 import {
   searchByCriteria,
   searchByAll,
-  getBySystemNumberAndCreatedTimestamp, postTechRecord,
+  getBySystemNumberAndCreatedTimestamp, postTechRecord, archiveOldCreateCurrentRecord,
 
 } from '../../../src/services/database';
 import postCarData from '../../resources/techRecordCarPost.json';
+import { processPatchVinRequest } from "../../../src/processors/processPatchVinRequest";
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
   QueryCommand: mockQueryCommand,
   GetItemCommand: mockGetItemCommand,
+  TransactWriteItemsCommand: mockTransactWriteItemsCommand
 }));
 
 describe('searchByCriteria', () => {
@@ -122,3 +126,38 @@ describe('getBySystemNumberAndCreatedTimestamp', () => {
     await expect(getBySystemNumberAndCreatedTimestamp('ABC123', '1234')).rejects.toThrow();
   });
 });
+
+describe('archiveOldCreateCurrentRecord', () => {
+  it('should return a success message if the transact is successful', async () => {
+    const event = {
+      headers: {
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw",
+      },
+      body: JSON.stringify({
+        newVin: "newVin",
+      }),
+    }
+    const {newRecord, recordToArchive } = processPatchVinRequest(postCarData, event as unknown as APIGatewayProxyEvent)
+    mockSend.mockReturnValueOnce({})
+
+    const res = await archiveOldCreateCurrentRecord(recordToArchive, newRecord)
+
+    await expect(res).toEqual({message: "records updated"})
+  })
+  it('should return an error message if the transact fails', async () => {
+    const event = {
+      headers: {
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw",
+      },
+      body: JSON.stringify({
+        newVin: "newVin",
+      }),
+    }
+    const {newRecord, recordToArchive } = processPatchVinRequest(postCarData, event as unknown as APIGatewayProxyEvent)
+    mockSend.mockImplementation((): Promise<unknown> => Promise.reject([]));
+
+    await expect(archiveOldCreateCurrentRecord(recordToArchive, newRecord)).rejects.toThrow();
+  })
+})

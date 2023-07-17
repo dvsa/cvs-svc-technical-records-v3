@@ -23,38 +23,50 @@ describe("Test updateVin Validators", () => {
     let request: any;
     beforeEach(() => {
       request = {
+        headers: {
+          accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+          "accept-encoding": "gzip, deflate, br",
+          Host: "70ixmpl4fl.execute-api.us-east-2.amazonaws.com",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36",
+          "X-Amzn-Trace-Id": "Root=1-5e66d96f-7491f09xmpl79d18acf3d050",
+          Authorization:
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw",
+        },
+        pathParameters:{
+          systemNumber: 'testNumber',
+          createdTimestamp: 'testTimeStamp'
+        },
         body: JSON.stringify({
-          msUserDetails: "user",
           newVin: "newVin",
-          createdTimestamp: "20-21",
-          systemNumber: "system",
-        })
+        }),
       };
     });
     it("should return an error when missing a request body", () => {
-      const result = validateUpdateVinRequest(
-        {} as unknown as APIGatewayProxyEvent
-      );
+      delete request.body
+      const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: "invalid request",
+        body: JSON.stringify({error: "invalid request"}),
         headers,
       });
     });
     it("should return an error when missing the new VIN", () => {
-      delete request.newVin;
+      request.body = JSON.stringify({newVin: ""});
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: "You must provide a new VIN",
+        body: JSON.stringify({error: "You must provide a new VIN"}),
         headers,
       });
     });
     it("should return an error when missing the msUserDetails", () => {
+      delete request.headers.Authorization
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: "Microsoft user details not provided",
+        body: JSON.stringify({error: "Missing authorization header"}),
         headers,
       });
     });
@@ -65,7 +77,7 @@ describe("Test updateVin Validators", () => {
       const result = validateVins("oldvin", "to");
       expect(result).toEqual({
         statusCode: 400,
-        body: "New VIN is invalid",
+        body: JSON.stringify({error: "New VIN is invalid"}),
         headers,
       });
     });
@@ -73,7 +85,7 @@ describe("Test updateVin Validators", () => {
       const result = validateVins("oldvin", "tototototototototototo");
       expect(result).toEqual({
         statusCode: 400,
-        body: "New VIN is invalid",
+        body: JSON.stringify({error: "New VIN is invalid"}),
         headers,
       });
     });
@@ -81,7 +93,7 @@ describe("Test updateVin Validators", () => {
       const result = validateVins("samevin", "samevin");
       expect(result).toEqual({
         statusCode: 400,
-        body: "New VIN must be different to the current VIN",
+        body: JSON.stringify({error: "New VIN must be different to the current VIN"}),
         headers,
       });
     });

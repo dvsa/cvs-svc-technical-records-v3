@@ -10,7 +10,6 @@ import {
   archiveOldCreateCurrentRecord,
   getBySystemNumberAndCreatedTimestamp,
 } from "../services/database";
-import { getUserDetails } from "../services/user";
 import { validateUpdateVinRequest, validateVins } from "../validators/patch";
 import { processPatchVinRequest } from "../processors/processPatchVinRequest";
 
