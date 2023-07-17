@@ -1,47 +1,48 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { validateUpdateVinRequest, validateVins } from "../validators/patch";
-import { getBySystemNumberAndCreatedTimestamp, updateRecordCreateNew} from "../services/database";
-import { addHttpHeaders } from "../util/httpHeaders";
-import { getUserDetails } from "../services/user";
-import { formatTechRecord } from "../util/formatTechRecord";
-import { validateGetErrors } from "../validators/get";
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import 'dotenv/config';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import logger from '../util/logger';
+import { addHttpHeaders } from '../util/httpHeaders';
+import { archiveOldCreateCurrentRecord, getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';
+import { formatTechRecord } from '../util/formatTechRecord';
+import { validateUpdateErrors } from '../validators/update';
+import { getUserDetails } from '../services/user';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    logger.info('Patch Technical Record Called')
 
-    const isRequestInvalid = validateUpdateVinRequest(event)
-       
-    if(isRequestInvalid){
-        return isRequestInvalid
-    }
-        
-    const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
-    const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
-    const user: any = getUserDetails(event.headers.Authorization!)
+  const userDetails = getUserDetails(event.headers.Authorization!);
 
-    const { newVin } = JSON.parse(event.body!)
+  const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
+  const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
 
-    const currentRecord: any = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
+  const { newVin } = JSON.parse(event.body!)
 
-    const areVinsInvalid = validateVins(currentRecord.vin, newVin) 
+  const currentRecord: any = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
-    if(areVinsInvalid){
-        return areVinsInvalid
-    } 
+  const newRecord: any = { ...currentRecord };
 
-    const newRecord = { ...currentRecord }
+  const date = (new Date).toISOString();
 
-    const date = (new Date()).toISOString()
+  newRecord.vin = newVin;
+  newRecord.createdTimestamp = date;
+  delete newRecord.techRecord_lastUpdatedAt;
+  newRecord.techRecord_updatedByName = userDetails.username;
+  newRecord.techRecord_updatedById = userDetails.msOid;
 
-    newRecord.createdTimestamp = date
-    newRecord.vin = newVin
-    newRecord.techRecord_createdByName = user
-    
-    currentRecord.techRecord_statusCode = 'archived'
-    currentRecord.techRecord_lastUpdatedAt = date
- 
-    const updateVin = await updateRecordCreateNew(currentRecord, newRecord)
-        
-    
-    return addHttpHeaders({statusCode: 200, body: JSON.stringify(updateVin)}) 
+  currentRecord.techRecord_statusCode = 'archived';
+  currentRecord.techRecord_lastUpdatedAt = date;
+  currentRecord.techRecord_createdByName = userDetails.username;
+  currentRecord.techRecord_createdById = userDetails.msOid;
+
+  try{
+    const patchRequest = await archiveOldCreateCurrentRecord(currentRecord, newRecord)
+
+    return addHttpHeaders({statusCode: 200, body: JSON.stringify(patchRequest)})
+  } catch (error) {
+    return addHttpHeaders({statusCode: 400, body: JSON.stringify(error)})
+  }
 }
-
