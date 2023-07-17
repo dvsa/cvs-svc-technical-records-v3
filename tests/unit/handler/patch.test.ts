@@ -5,7 +5,6 @@ const mockArchiveOldCreateCurrentRecord = jest.fn();
 import type { APIGatewayProxyEvent } from "aws-lambda";
 import { handler } from "../../../src/handler/patch";
 import carPostRecord from "../../resources/techRecordCarPost.json";
-import { getBySystemNumberAndCreatedTimestamp } from "../../../src/services/database";
 
 jest.mock("../../../src/services/database.ts", () => ({
   getBySystemNumberAndCreatedTimestamp:
