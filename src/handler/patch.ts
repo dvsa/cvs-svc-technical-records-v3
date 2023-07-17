@@ -8,39 +8,45 @@ import logger from '../util/logger';
 import { addHttpHeaders } from '../util/httpHeaders';
 import { archiveOldCreateCurrentRecord, getBySystemNumberAndCreatedTimestamp } from '../services/database';
 import { getUserDetails } from '../services/user';
+import { validateUpdateVinRequest, validateVins } from '../validators/patch';
+import { processPatchVinRequest } from '../processors/processPatchVinRequest';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Patch Technical Record Called')
 
-  const userDetails = getUserDetails(event.headers.Authorization!);
+    const isRequestInvalid = validateUpdateVinRequest(event)
 
-  const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
-  const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
+    if(isRequestInvalid) {
+        return addHttpHeaders({statusCode: 400, body: JSON.stringify({message: isRequestInvalid})})
+    }
 
-  const { newVin } = JSON.parse(event.body!)
+    logger.info('Request is Valid')
 
-  const currentRecord: any = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
+    const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
+    const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
 
-  const newRecord: any = { ...currentRecord };
+    const { newVin } = JSON.parse(event.body!)
 
-  const date = (new Date).toISOString();
+    const currentRecord: any = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
-  newRecord.vin = newVin;
-  newRecord.createdTimestamp = date;
-  delete newRecord.techRecord_lastUpdatedAt;
-  newRecord.techRecord_updatedByName = userDetails.username;
-  newRecord.techRecord_updatedById = userDetails.msOid;
+    const isVinInvalid = validateVins(currentRecord.vin, newVin);
 
-  currentRecord.techRecord_statusCode = 'archived';
-  currentRecord.techRecord_lastUpdatedAt = date;
-  currentRecord.techRecord_createdByName = userDetails.username;
-  currentRecord.techRecord_createdById = userDetails.msOid;
+    if(isVinInvalid) {
+        return addHttpHeaders({statusCode: 400, body: JSON.stringify({message: isVinInvalid})});
+    }
 
-  try{
-    const patchRequest = await archiveOldCreateCurrentRecord(currentRecord, newRecord)
+    logger.info("Vin's have been validated")
 
-    return addHttpHeaders({statusCode: 200, body: JSON.stringify(patchRequest)})
-  } catch (error) {
-    return addHttpHeaders({statusCode: 400, body: JSON.stringify(error)})
-  }
+    const { recordToArchive, newRecord } = processPatchVinRequest(currentRecord, event);
+
+    try {
+        const patchRequest = await archiveOldCreateCurrentRecord(recordToArchive, newRecord);
+
+        return addHttpHeaders({statusCode: 200, body: JSON.stringify(patchRequest)});
+
+    } catch (error) {
+
+        return addHttpHeaders({statusCode: 400, body: JSON.stringify(error)});
+
+    };
 }

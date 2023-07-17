@@ -4,14 +4,17 @@ import { addHttpHeaders } from "../util/httpHeaders";
 
 export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
   if (!event.body) {
-    return addHttpHeaders({ statusCode: 400, body: "invalid request" });
+    return addHttpHeaders({
+      statusCode: 400, 
+      body: JSON.stringify({error: "invalid request"})
+    });
   }
 
   if(!event.headers.Authorization){
-    return {
+    return addHttpHeaders({
       statusCode: 400,
-      body: JSON.stringify("Missing authorization header")
-    }
+      body: JSON.stringify({error: "Missing authorization header"})
+    })
   }
   
   const { newVin } = JSON.parse(
@@ -21,10 +24,11 @@ export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
   if (!newVin) {
     return addHttpHeaders({
       statusCode: 400,
-      body: "You must provide a new VIN",
+      body: JSON.stringify({error: "You must provide a new VIN"}),
     });
   }
 }
+
 export function validateVins(oldVin: string, newVin: string) {
   console.log('in here')
   if (
@@ -33,12 +37,15 @@ export function validateVins(oldVin: string, newVin: string) {
     newVin.length > 21 ||
     typeof newVin !== "string"
   ) {
-    return addHttpHeaders({ statusCode: 400, body: "New VIN is invalid" });
+    return addHttpHeaders({ 
+      statusCode: 400, 
+      body: JSON.stringify({error: "New VIN is invalid"}) 
+    });
   }
   if (newVin === oldVin) {
     return addHttpHeaders({
       statusCode: 400,
-      body: "New VIN must be different to the current VIN",
+      body: JSON.stringify({error: "New VIN must be different to the current VIN"}),
     });
   }
 }
