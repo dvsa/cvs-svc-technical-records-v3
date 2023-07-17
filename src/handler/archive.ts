@@ -18,6 +18,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders(archiveErrors);
   }
 
+  // eslint-disable-next-line no-unsafe-assignment
   const body: ArchiveRecordRequestBody = await JSON.parse(event.body as string);
 
   if (!body.reasonForArchiving) {

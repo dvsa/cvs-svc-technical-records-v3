@@ -22,5 +22,5 @@ export enum Status {
   CURRENT = 'current',
   PROVISIONAL = 'provisional',
   PROVISIONAL_OVER_CURRENT = 'provisional_over_current',
-  ALL = 'all'
+  ALL = 'all',
 }
