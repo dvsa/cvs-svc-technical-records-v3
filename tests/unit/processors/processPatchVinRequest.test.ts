@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { PatchRequestRecords } from '../../../src/processors/processPatchVinRequest';
+import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
 import carPostData from '../../resources/techRecordCarPost.json';
 import { TechrecordGet } from '../../../src/models/post';
 
@@ -21,17 +21,17 @@ describe('processPatchVinrequest', () => {
         newVin: 'newVin',
       }),
     };
-    const patchRequest: PatchRequestRecords = new PatchRequestRecords(
+    const patchRequest: Array<TechrecordGet> = processPatchVinRequest(
       carPostData as TechrecordGet,
       event as unknown as APIGatewayProxyEvent,
     );
 
-    expect(patchRequest.newRecord).not.toEqual(patchRequest.recordToArchive);
-    expect(patchRequest.newRecord.vin).toBe('NEWVIN');
-    expect(patchRequest.newRecord.techRecord_createdById).toBe('123123');
-    expect(patchRequest.newRecord.techRecord_createdByName).toBe('John Doe');
-    expect(patchRequest.recordToArchive.vin).toBe('AA11100851');
-    expect(patchRequest.recordToArchive.techRecord_lastUpdatedById).toBe('123123');
-    expect(patchRequest.recordToArchive.techRecord_lastUpdatedByName).toBe('John Doe');
+    expect(patchRequest[1]).not.toEqual(patchRequest[0]);
+    expect(patchRequest[1].vin).toBe('NEWVIN');
+    expect(patchRequest[1].techRecord_createdById).toBe('123123');
+    expect(patchRequest[1].techRecord_createdByName).toBe('John Doe');
+    expect(patchRequest[0].vin).toBe('AA11100851');
+    expect(patchRequest[0].techRecord_lastUpdatedById).toBe('123123');
+    expect(patchRequest[0].techRecord_lastUpdatedByName).toBe('John Doe');
   });
 });

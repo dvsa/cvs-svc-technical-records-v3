@@ -7,7 +7,7 @@ import {
   getBySystemNumberAndCreatedTimestamp,
 } from '../services/database';
 import { validateUpdateVinRequest, validateVins } from '../validators/patch';
-import { PatchRequestRecords } from '../processors/processPatchVinRequest';
+import { processPatchVinRequest } from '../processors/processPatchVinRequest';
 import { TechrecordGet } from '../models/post';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -43,15 +43,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug("Vin's have been validated");
 
-  const patchRecords: PatchRequestRecords = new PatchRequestRecords(
+  const patchRecords: Array<TechrecordGet> = processPatchVinRequest(
     currentRecord,
     event,
   );
 
+  const recordToArchive: TechrecordGet = patchRecords[0];
+  const newRecord: TechrecordGet = patchRecords[1];
+
   try {
     const patchRequest: string = await archiveOldCreateCurrentRecord(
-      patchRecords.recordToArchive,
-      patchRecords.newRecord,
+      recordToArchive,
+      newRecord,
     ) as string;
 
     return addHttpHeaders({
