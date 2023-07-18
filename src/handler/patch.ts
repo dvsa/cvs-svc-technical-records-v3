@@ -30,8 +30,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const newVin: string = JSON.parse(event.body!).newVin! as string;
 
-  // TODO: Make this a proper type
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const currentRecord: TechrecordGet = await getBySystemNumberAndCreatedTimestamp(
     systemNumber,
     createdTimestamp,

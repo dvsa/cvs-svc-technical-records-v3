@@ -8,17 +8,15 @@ export class PatchRequestRecords {
   public recordToArchive: TechrecordGet;
 
   constructor(
-    currentRecord: any,
+    currentRecord: TechrecordGet,
     event: APIGatewayProxyEvent,
   ) {
     const userDetails = getUserDetails(event.headers.Authorization!);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const newVin: string = JSON.parse(event.body!).newVin as string;
-    // TODO: Make this a proper type
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     this.recordToArchive = { ...currentRecord };
-    // TODO: Make this a proper type
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     this.newRecord = { ...currentRecord };
 
     const date: string = new Date().toISOString();
