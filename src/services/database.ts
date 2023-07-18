@@ -129,7 +129,7 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
     throw new Error('database client failed getting data');
   }
 };
-export const archiveOldCreateCurrentRecord = async (recordToArchive: any, recordToCreate: any): Promise<string | Error> => {
+export const archiveOldCreateCurrentRecord = async (recordToArchive: TechrecordGet, recordToCreate: TechrecordGet): Promise<string | Error> => {
   logger.info('Preparing Transact Items');
 
   const transactParams: TransactWriteItemsInput = {
