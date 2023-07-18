@@ -16,7 +16,7 @@ import { ArchiveRecord } from '../models/archive';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
-export const archiveRecord = async (record: ArchiveRecord) : Promise<any> => {
+export const archiveRecord = async (record: ArchiveRecord) : Promise<object> => {
   const command = {
     TableName: tableName,
     Item: marshall(record as unknown as Record<string, AttributeValue>, { removeUndefinedValues: true }),
@@ -128,7 +128,7 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
         '#systemNumber': 'systemNumber',
       },
       ExpressionAttributeValues: {
-        ':createdTimestamp': { S: request.createdTimestamp! },
+        ':createdTimestamp': { S: request.createdTimestamp as string },
         ':systemNumber': { S: request.systemNumber },
       },
       Item: marshall(request, { removeUndefinedValues: true }),

@@ -20,10 +20,9 @@ import { SearchCriteria } from '../../../src/models/search';
 import {
   searchByCriteria,
   searchByAll,
-  getBySystemNumberAndCreatedTimestamp, postTechRecord,
+  getBySystemNumberAndCreatedTimestamp,
 
 } from '../../../src/services/database';
-import postCarData from '../../resources/techRecordCarPost.json';
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,

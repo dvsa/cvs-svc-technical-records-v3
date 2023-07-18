@@ -8,7 +8,6 @@ import {
   TechrecordGet,
   TechrecordHgv,
   TechrecordMotorcycle,
-  TechrecordPsv,
   TechrecordPut, TechrecordTrl,
 } from '../models/post';
 import { generateNewNumber, NumberTypes } from '../services/testNumber';

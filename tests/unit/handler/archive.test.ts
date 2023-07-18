@@ -15,7 +15,6 @@ import { cloneDeep } from 'lodash';
 import { handler } from '../../../src/handler/archive';
 import archivePatchData from '../../resources/techRecordArchiveRecord.json';
 import archiveRequestData from '../../resources/techRecordArchiveRequest.json';
-import { Status } from '../../../src/util/enum';
 
 describe('Archive Patch Lambda Function', () => {
   beforeEach(() => {
@@ -68,7 +67,7 @@ describe('Archive Patch Lambda Function', () => {
     it('should return a 400 response when record is already archived', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
       const invalidRecordData = cloneDeep(archivePatchData);
-      invalidRecordData.techRecord_statusCode = Status.ARCHIVED;
+      invalidRecordData.techRecord_statusCode = 'archived';
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(invalidRecordData);
 
       const result = await handler(archiveRequestData as unknown as APIGatewayProxyEvent);

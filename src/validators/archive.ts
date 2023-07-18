@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { DateTime } from 'luxon';
 
 // eslint-disable-next-line consistent-return
 export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
@@ -23,7 +24,7 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
     };
   }
 
-  const systemNumber: string = decodeURIComponent(event.pathParameters.systemNumber);
+  const systemNumber: string = event.pathParameters.systemNumber;
   if (systemNumber.length < 3 || systemNumber.length > 21) {
     return {
       statusCode: 400,
@@ -31,11 +32,15 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
     };
   }
 
-  const createdTimestamp = decodeURIComponent(event.pathParameters.createdTimestamp);
-  if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{0,20}Z/i.test(createdTimestamp)) {
+  const createdTimestamp = event.pathParameters.createdTimestamp;
+  if (isISO8601Date(createdTimestamp)) {
     return {
       statusCode: 400,
       body: 'Invalid created timestamp',
     };
+  }
+
+  function isISO8601Date(input: string): boolean {
+    return DateTime.fromISO(input).isValid;
   }
 };

@@ -1,11 +1,12 @@
 import jwt_decode from 'jwt-decode';
+import { AuthorisationJwtBearerToken } from '../models/user';
 
 export type UserDetails = { username: string, msOid: string, email: string };
 
 export const getUserDetails = (jwt: string): UserDetails => {
   const removedBearer = jwt.substring(7);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const decodedToken: any = jwt_decode(removedBearer);
+  const decodedToken: AuthorisationJwtBearerToken = jwt_decode(removedBearer);
   return {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     username: decodedToken.name,

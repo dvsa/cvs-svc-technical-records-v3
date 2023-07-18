@@ -33,7 +33,9 @@
     "@aws-sdk/client-dynamodb": "^3.341.0",
     "@aws-sdk/client-lambda": "^3.362.0",
     "@aws-sdk/util-dynamodb": "^3.362.0",
-    "jwt-decode": "^3.1.2"
+    "@types/luxon": "^3.3.0",
+    "jwt-decode": "^3.1.2",
+    "luxon": "^3.3.0"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.341.0",
