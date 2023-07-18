@@ -11,15 +11,15 @@ import { PatchRequestRecords } from '../processors/processPatchVinRequest';
 import { TechrecordGet } from '../models/post';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.info('Patch Technical Record Called');
+  logger.info('Amend VIN Called');
 
-  const isRequestInvalid = validateUpdateVinRequest(event);
+  const isRequestInvalid: APIGatewayProxyResult | undefined = validateUpdateVinRequest(event);
 
   if (isRequestInvalid) {
     return isRequestInvalid;
   }
 
-  logger.info('Request is Valid');
+  logger.debug('Request is Valid');
 
   const systemNumber: string = decodeURIComponent(
     event.pathParameters?.systemNumber as string,
@@ -35,13 +35,13 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     createdTimestamp,
   ) as TechrecordGet;
 
-  const isVinInvalid = validateVins(currentRecord.vin, newVin.toUpperCase());
+  const isVinInvalid: APIGatewayProxyResult | undefined = validateVins(currentRecord.vin, newVin.toUpperCase());
 
   if (isVinInvalid) {
     return isVinInvalid;
   }
 
-  logger.info("Vin's have been validated");
+  logger.debug("Vin's have been validated");
 
   const patchRecords: PatchRequestRecords = new PatchRequestRecords(
     currentRecord,
@@ -56,7 +56,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     return addHttpHeaders({
       statusCode: 200,
-      body: JSON.stringify(patchRequest),
+      body: patchRequest,
     });
   } catch (error) {
     return addHttpHeaders({ statusCode: 500, body: JSON.stringify(error) });

@@ -121,7 +121,7 @@ describe('Test Patch Lambda Function', () => {
 
       expect(result).toEqual({
         statusCode: 200,
-        body: JSON.stringify({ message: 'records updated' }),
+        body: { message: 'records updated' },
         headers,
       });
     });
