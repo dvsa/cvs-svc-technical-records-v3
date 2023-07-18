@@ -52,13 +52,13 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       });
     }
 
-    record.techRecord_statusCode = 'archived'
+    record.techRecord_statusCode = 'archived';
     record.techRecord_lastUpdatedAt = new Date().toISOString();
     record.techRecord_lastUpdatedByName = userDetails.username;
     record.techRecord_lastUpdatedById = userDetails.msOid;
 
     record.techRecord_notes = record.techRecord_notes
-      ? record.techRecord_notes + `\n${body.reasonForArchiving}`
+      ? `${record.techRecord_notes} \n${body.reasonForArchiving}`
       : body.reasonForArchiving;
 
     await archiveRecord(record);
@@ -67,8 +67,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       statusCode: 200,
       body: JSON.stringify(formatTechRecord(record)),
     });
-  }
-  catch (error) {
+  } catch (error) {
     logger.error(`Error has been thrown with ${JSON.stringify(error)}`);
     return {
       statusCode: 500,

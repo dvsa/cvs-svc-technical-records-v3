@@ -1,5 +1,8 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const buildArray = (techRecordWithoutArrays: object, arrayName: string, formattedTechRecord: any): object => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const arrayToAdd: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let objectToAdd: any = {};
   let arrayIndex = 0;
   Object.entries(techRecordWithoutArrays).sort().forEach(([key, value]) => {
@@ -38,6 +41,7 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
 };
 
 export const formatTechRecord = (techRecordWithoutArrays: object) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formattedTechRecord: any = {};
   const arrayNames: string[] = [];
   Object.entries(techRecordWithoutArrays).sort().forEach(([key, value]) => {

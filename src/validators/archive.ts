@@ -24,7 +24,7 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
     };
   }
 
-  const systemNumber: string = event.pathParameters.systemNumber;
+  const systemNumber: string = event.pathParameters?.systemNumber;
   if (systemNumber.length < 3 || systemNumber.length > 21) {
     return {
       statusCode: 400,
@@ -32,7 +32,7 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
     };
   }
 
-  const createdTimestamp = event.pathParameters.createdTimestamp;
+  const createdTimestamp = event.pathParameters?.createdTimestamp;
   if (isISO8601Date(createdTimestamp)) {
     return {
       statusCode: 400,

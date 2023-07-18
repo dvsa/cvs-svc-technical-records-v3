@@ -4,4 +4,4 @@ export type AuthorisationJwtBearerToken = {
   email: string,
   preferred_username: string,
   upn: string,
-}
+};
