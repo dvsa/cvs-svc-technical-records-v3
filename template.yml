@@ -45,7 +45,7 @@ Resources:
         Handler: archive.handler
         Runtime: nodejs18.x
         Events:
-          PostLambdaApi:
+          ArchiveLambdaApi:
             Type: Api
             Properties:
               Path: /v3/technical-records/archive/{systemNumber}/{createdTimestamp}
