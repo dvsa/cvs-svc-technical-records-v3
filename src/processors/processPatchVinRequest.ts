@@ -1,10 +1,11 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getUserDetails } from '../services/user';
+import { TechrecordGet } from '../models/post';
 
 export class PatchRequestRecords {
-  public newRecord: any;
+  public newRecord: TechrecordGet;
 
-  public recordToArchive: any;
+  public recordToArchive: TechrecordGet;
 
   constructor(
     currentRecord: any,
@@ -15,22 +16,22 @@ export class PatchRequestRecords {
     const newVin: string = JSON.parse(event.body!).newVin as string;
     // TODO: Make this a proper type
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const recordToArchive: any = { ...currentRecord };
+    this.recordToArchive = { ...currentRecord };
     // TODO: Make this a proper type
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const newRecord: any = { ...currentRecord };
+    this.newRecord = { ...currentRecord };
 
     const date: string = new Date().toISOString();
 
-    newRecord.vin = newVin.toUpperCase();
-    newRecord.createdTimestamp = date;
-    delete newRecord.techRecord_lastUpdatedAt;
-    newRecord.techRecord_createdByName = userDetails.username;
-    newRecord.techRecord_createdById = userDetails.msOid;
+    this.newRecord.vin = newVin.toUpperCase();
+    this.newRecord.createdTimestamp = date;
+    delete this.newRecord.techRecord_lastUpdatedAt;
+    this.newRecord.techRecord_createdByName = userDetails.username;
+    this.newRecord.techRecord_createdById = userDetails.msOid;
 
-    recordToArchive.techRecord_statusCode = 'archived';
-    recordToArchive.techRecord_lastUpdatedAt = date;
-    recordToArchive.techRecord_updatedByName = userDetails.username;
-    recordToArchive.techRecord_updatedById = userDetails.msOid;
+    this.recordToArchive.techRecord_statusCode = 'archived';
+    this.recordToArchive.techRecord_lastUpdatedAt = date;
+    this.recordToArchive.techRecord_lastUpdatedByName = userDetails.username;
+    this.recordToArchive.techRecord_lastUpdatedById = userDetails.msOid;
   }
 }

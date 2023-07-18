@@ -30,7 +30,7 @@ describe('processPatchVinrequest', () => {
     expect(patchRequest.newRecord.techRecord_createdById).toBe('123123');
     expect(patchRequest.newRecord.techRecord_createdByName).toBe('John Doe');
     expect(patchRequest.recordToArchive.vin).toBe('AA11100851');
-    expect(patchRequest.recordToArchive.techRecord_updatedById).toBe('123123');
-    expect(patchRequest.recordToArchive.techRecord_updatedByName).toBe('John Doe');
+    expect(patchRequest.recordToArchive.techRecord_lastUpdatedById).toBe('123123');
+    expect(patchRequest.recordToArchive.techRecord_lastUpdatedByName).toBe('John Doe');
   });
 });

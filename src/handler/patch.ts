@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { TechRecordCompleteMotorcycleSchema } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/motorcycle/complete';
 import logger from '../util/logger';
 import { addHttpHeaders } from '../util/httpHeaders';
 import {
@@ -8,7 +7,8 @@ import {
   getBySystemNumberAndCreatedTimestamp,
 } from '../services/database';
 import { validateUpdateVinRequest, validateVins } from '../validators/patch';
-import { PatchRequestRecords, processPatchVinRequest } from '../processors/processPatchVinRequest';
+import { PatchRequestRecords } from '../processors/processPatchVinRequest';
+import { TechrecordGet } from '../models/post';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Patch Technical Record Called');
@@ -32,12 +32,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   // TODO: Make this a proper type
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const currentRecord = await getBySystemNumberAndCreatedTimestamp(
+  const currentRecord: TechrecordGet = await getBySystemNumberAndCreatedTimestamp(
     systemNumber,
     createdTimestamp,
-  );
+  ) as TechrecordGet;
 
-  const isVinInvalid = validateVins(currentRecord.vin as string, newVin.toUpperCase());
+  const isVinInvalid = validateVins(currentRecord.vin, newVin.toUpperCase());
 
   if (isVinInvalid) {
     return isVinInvalid;
@@ -58,7 +58,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     return addHttpHeaders({
       statusCode: 200,
-      body: JSON.stringify({ message: patchRequest }),
+      body: JSON.stringify(patchRequest),
     });
   } catch (error) {
     return addHttpHeaders({ statusCode: 500, body: JSON.stringify(error) });
