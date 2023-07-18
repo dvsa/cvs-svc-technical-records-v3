@@ -17,6 +17,7 @@ jest.mock('@aws-sdk/client-lambda', () => ({
   InvokeCommand: jest.fn(),
 }));
 
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { SearchCriteria } from '../../../src/models/search';
 import {
   searchByCriteria,
@@ -25,14 +26,13 @@ import {
 
 } from '../../../src/services/database';
 import postCarData from '../../resources/techRecordCarPost.json';
-import { processPatchVinRequest } from "../../../src/processors/processPatchVinRequest";
-import { APIGatewayProxyEvent } from 'aws-lambda';
+import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
   QueryCommand: mockQueryCommand,
   GetItemCommand: mockGetItemCommand,
-  TransactWriteItemsCommand: mockTransactWriteItemsCommand
+  TransactWriteItemsCommand: mockTransactWriteItemsCommand,
 }));
 
 describe('searchByCriteria', () => {
@@ -132,32 +132,32 @@ describe('archiveOldCreateCurrentRecord', () => {
     const event = {
       headers: {
         Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw",
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
       },
       body: JSON.stringify({
-        newVin: "newVin",
+        newVin: 'newVin',
       }),
-    }
-    const {newRecord, recordToArchive } = processPatchVinRequest(postCarData, event as unknown as APIGatewayProxyEvent)
-    mockSend.mockReturnValueOnce({})
+    };
+    const { newRecord, recordToArchive } = processPatchVinRequest(postCarData, event as unknown as APIGatewayProxyEvent);
+    mockSend.mockReturnValueOnce({});
 
-    const res = await archiveOldCreateCurrentRecord(recordToArchive, newRecord)
+    const res = await archiveOldCreateCurrentRecord(recordToArchive, newRecord);
 
-    await expect(res).toEqual({message: "records updated"})
-  })
+    expect(res).toEqual({ message: 'records updated' });
+  });
   it('should return an error message if the transact fails', async () => {
     const event = {
       headers: {
         Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw",
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
       },
       body: JSON.stringify({
-        newVin: "newVin",
+        newVin: 'newVin',
       }),
-    }
-    const {newRecord, recordToArchive } = processPatchVinRequest(postCarData, event as unknown as APIGatewayProxyEvent)
-    mockSend.mockImplementation((): Promise<unknown> => Promise.reject([]));
+    };
+    const { newRecord, recordToArchive } = processPatchVinRequest(postCarData, event as unknown as APIGatewayProxyEvent);
+    mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
     await expect(archiveOldCreateCurrentRecord(recordToArchive, newRecord)).rejects.toThrow();
-  })
-})
+  });
+});

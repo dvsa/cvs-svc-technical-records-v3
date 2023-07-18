@@ -128,36 +128,35 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
     logger.error(`Error: ${err}`);
     throw new Error('database client failed getting data');
   }
+};
+export const archiveOldCreateCurrentRecord = async (recordToArchive: any, recordToCreate: any): Promise<string | Error> => {
+  logger.info('Preparing Transact Items');
 
-}
-  export const archiveOldCreateCurrentRecord = async (recordToArchive: any, recordToCreate: any): Promise<any> => {
-    logger.info("Preparing Transact Items")
-  
-    const transactParams: TransactWriteItemsInput = {
-      TransactItems: [
-        {
-          Put: {
+  const transactParams: TransactWriteItemsInput = {
+    TransactItems: [
+      {
+        Put: {
           TableName: tableName,
           Item: marshall(recordToArchive),
-          ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)'
-          }
+          ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
         },
-        {
-          Put: {
+      },
+      {
+        Put: {
           TableName: tableName,
           Item: marshall(recordToCreate),
-          }
         },
-      ]
-    }
-  
-    try{ 
-      await ddbClient.send(new TransactWriteItemsCommand(transactParams))
-  
-      return {message: 'records updated'}
-  
-    } catch (error) {
-      logger.error(`Error: ${error}`);
-      throw new Error('Transact Write Items Failed');
-    }
+      },
+    ],
+  };
+
+  try {
+    await ddbClient.send(new TransactWriteItemsCommand(transactParams));
+
+    return 'records updated';
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    logger.error(`Error: ${error}`);
+    throw new Error('Transact Write Items Failed');
   }
+};
