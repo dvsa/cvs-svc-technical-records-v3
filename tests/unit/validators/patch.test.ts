@@ -8,6 +8,7 @@ import {
 } from '../../../src/validators/patch';
 import carPostRecord from '../../resources/techRecordCarPost.json';
 import { TechrecordGet } from '../../../src/models/post';
+import { formatTechRecord } from '../../../src/util/formatTechRecord';
 
 const headers = {
   'Access-Control-Allow-Headers':
@@ -97,7 +98,7 @@ describe('Test updateVin Validators', () => {
       const result = validateVins(currentRecord, 'AA11100851');
       expect(result).toEqual({
         statusCode: 200,
-        body: JSON.stringify(currentRecord),
+        body: JSON.stringify(formatTechRecord(currentRecord)),
         headers,
       });
     });

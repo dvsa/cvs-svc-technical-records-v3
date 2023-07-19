@@ -51,11 +51,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       newRecord,
     ) as string;
 
-    const formattedRecord = formatTechRecord(newRecord)
-
     return addHttpHeaders({
       statusCode: 200,
-      body: JSON.stringify(newRecord),
+      body: JSON.stringify(formatTechRecord(newRecord)),
     });
   } catch (error) {
     return addHttpHeaders({ statusCode: 500, body: JSON.stringify(error) });

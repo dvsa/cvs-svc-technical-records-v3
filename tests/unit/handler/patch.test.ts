@@ -7,6 +7,7 @@ import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/patch';
 import carPostRecord from '../../resources/techRecordCarPost.json';
 import { TechrecordGet } from '../../../src/models/post';
+import { formatTechRecord } from '../../../src/util/formatTechRecord';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp:
@@ -136,7 +137,7 @@ describe('Test Patch Lambda Function', () => {
 
       expect(result).toEqual({
         statusCode: 200,
-        body: JSON.stringify(recordToCreate),
+        body: JSON.stringify(formatTechRecord(recordToCreate)),
         headers,
       });
     });

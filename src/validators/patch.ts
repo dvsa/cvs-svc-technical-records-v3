@@ -42,10 +42,9 @@ export function validateVins(currentRecord: TechrecordGet, newVin: string) {
     });
   }
   if (newVin === currentRecord.vin) {
-    const formattedRecord = formatTechRecord(currentRecord)
     return addHttpHeaders({
       statusCode: 200,
-      body: JSON.stringify(formattedRecord),
+      body: JSON.stringify(formatTechRecord(currentRecord)),
     });
   }
   return undefined;
