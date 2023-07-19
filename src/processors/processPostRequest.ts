@@ -84,15 +84,17 @@ const generalErrors = (input: TechrecordPut) => {
   if (!input.techRecord_vehicleType) {
     return 'Missing vehicle type';
   }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unnecessary-type-assertion
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unnecessary-type-assertion
   if ((input as any).techRecord_hiddenInVta) {
     return 'skeleton';
   }
   return '';
 };
 async function flattenArrays<T>(input: T): Promise<T> {
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any,
   const flattenArray = (obj: any, path: string): any => {
     if (Array.isArray(obj)) {
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any,
       return obj.reduce((acc: any, curr: any, index: number) => {
         const key = path ? `${path}_${index}` : `${index}`;
         return {
@@ -103,6 +105,7 @@ async function flattenArrays<T>(input: T): Promise<T> {
     }
 
     if (typeof obj === 'object' && obj !== null) {
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any,
       return Object.entries(obj).reduce((acc: any, [key, value]: [string, any]) => {
         const newPath = path ? `${path}_${key}` : key;
         return {

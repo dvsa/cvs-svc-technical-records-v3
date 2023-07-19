@@ -41,7 +41,6 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
   }
 
   function isISO8601Date(input: string): boolean {
-    console.log("HELLO " + DateTime.now().toISO());
     return DateTime.fromISO(input).isValid;
   }
 };
