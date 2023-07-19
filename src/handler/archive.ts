@@ -18,7 +18,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   try {
-    const body: ArchiveRecordRequestBody = JSON.parse(event.body as string) as ArchiveRecordRequestBody;;
+    const body: ArchiveRecordRequestBody = JSON.parse(event.body as string) as ArchiveRecordRequestBody;
 
     if (!body.reasonForArchiving) {
       return {
