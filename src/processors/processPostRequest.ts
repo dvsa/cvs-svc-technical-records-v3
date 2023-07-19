@@ -95,7 +95,7 @@ async function flattenArrays<T>(input: T): Promise<T> {
   const flattenArray = (obj: any, path: string): any => {
     if (Array.isArray(obj)) {
       return obj.reduce((acc: any, curr: any, index: number) => {
-        const key = path ? `${path}_${index}` : `${index}`;
+        const key = path && !path.includes('secondaryVrms') ? `technicalRecord_${path}_${index}` : `${index}`;
         return {
           ...acc,
           ...flattenArray(curr, key),
@@ -105,10 +105,10 @@ async function flattenArrays<T>(input: T): Promise<T> {
 
     if (typeof obj === 'object' && obj !== null) {
       return Object.entries(obj).reduce((acc: any, [key, value]: [string, any]) => {
-        const newPath = path ? `${path}_${key}` : key;
+        const newPath = path && !path.includes('secondaryVrms') ? `${path}_${key}` : key;
         return {
           ...acc,
-          ...flattenArray(value, newPath),
+          ...(key === 'secondaryVrms' ? { [newPath]: value } : flattenArray(value, newPath)),
         };
       }, {});
     }
