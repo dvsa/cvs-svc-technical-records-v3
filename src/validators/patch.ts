@@ -4,6 +4,20 @@ import { TechrecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
 
 export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
+  if (!event.pathParameters?.systemNumber) {
+    return addHttpHeaders({
+      statusCode: 400,
+      body: JSON.stringify({ error: 'missing systemNumber from path' }),
+    });
+  }
+
+  if (!event.pathParameters?.createdTimestamp) {
+    return addHttpHeaders({
+      statusCode: 400,
+      body: JSON.stringify({ error: 'missing createdTimestamp from path' }),
+    });
+  }
+
   if (!event.body) {
     return addHttpHeaders({
       statusCode: 400,

@@ -48,6 +48,24 @@ describe('Test updateVin Validators', () => {
         }),
       } as unknown as APIGatewayProxyEvent;
     });
+    it('should return an error when missing a systemNumber from path', () => {
+      delete request.pathParameters!.systemNumber;
+      const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
+      expect(result).toEqual({
+        statusCode: 400,
+        body: JSON.stringify({ error: 'missing systemNumber from path' }),
+        headers,
+      });
+    });
+    it('should return an error when missing a createdTimestamp from path', () => {
+      delete request.pathParameters!.createdTimestamp;
+      const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
+      expect(result).toEqual({
+        statusCode: 400,
+        body: JSON.stringify({ error: 'missing createdTimestamp from path' }),
+        headers,
+      });
+    });
     it('should return an error when missing a request body', () => {
       request.body = null;
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
