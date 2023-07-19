@@ -306,13 +306,13 @@
     ],
     "plates": [
       {
-        "techRecord_extraInfo": "more info",
-        "techRecord_info": "info"
+        "extraInfo": "more info",
+        "info": "info"
 
       },
       {
-        "techRecord_extraInfo": "more info",
-        "techRecord_info": "info"
+        "extraInfo": "more info",
+        "info": "info"
       }
     ],
     "systemNumber": "XYZEP5JYOMM00020",
