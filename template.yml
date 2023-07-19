@@ -44,6 +44,7 @@ Resources:
         CodeUri: src/handler/
         Handler: update.handler
         Runtime: nodejs18.x
+        Timeout: 20
         Events:
           UpdateLambda:
             Type: Api

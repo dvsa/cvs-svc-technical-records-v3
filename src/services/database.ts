@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   DynamoDBClient,
   GetItemCommand,
@@ -14,7 +11,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { DynamoDBDocumentClient, TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
 import polly from 'polly-js';
 import { dynamoDBClientConfig, tableName } from '../config';
-import { TechrecordGet } from '../models/post';
+import { TechrecordGet, TechrecordPut } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
 
@@ -134,30 +131,27 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
   }
 };
 
-export const updateVehicle = async (oldRecord: any, newRecord: any): Promise<object> => {
+export const updateVehicle = async (oldRecord: TechrecordGet, newRecord: TechrecordPut): Promise<object> => {
   logger.info('inside updateVehicle');
-  logger.debug(oldRecord.createdTimestamp);
-  logger.debug(newRecord.createdTimestamp);
+
   const transactWriteParams: TransactWriteCommandInput = {
     TransactItems: [
       {
         Put: {
           TableName: tableName,
-          Item: marshall(oldRecord),
+          Item: marshall(oldRecord, { removeUndefinedValues: true }),
           ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
         },
       },
       {
         Put: {
           TableName: tableName,
-          Item: marshall(newRecord),
+          Item: marshall(newRecord, { removeUndefinedValues: true }),
         },
       },
     ],
   };
-
   const sendTransaction = new Promise<object>((resolve, reject) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     docClient.send(new TransactWriteItemsCommand(transactWriteParams)).then(() => {
       logger.debug('Resolving with success');
       resolve(newRecord);

@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import {
+  TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordCar, TechrecordPsv,
+} from '../models/post';
+import { ERRORS, STATUS } from '../util/enum';
 
-// eslint-disable-next-line consistent-return
 export const validateUpdateErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
   if (!event.pathParameters?.systemNumber) {
     return {
@@ -34,11 +35,57 @@ export const validateUpdateErrors = (event: APIGatewayProxyEvent): APIGatewayPro
     };
   }
 
-  const techRec = event.body ? JSON.parse(event.body).techRecord : null;
+  if (!event.body) {
+    return {
+      statusCode: 400,
+      body: ERRORS.MISSING_PAYLOAD,
+    };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  const techRec = (event.body ? JSON.parse(event.body).techRecord : null) as TechrecordGet;
   if (!techRec) {
     return {
       statusCode: 400,
-      body: 'Body does not have any data to update',
+      body: ERRORS.MISSING_PAYLOAD,
     };
   }
+
+  if (techRec.vin || techRec.partialVin) {
+    return {
+      statusCode: 400,
+      body: 'Cannot update VIN through this endpoint',
+    };
+  }
+
+  if ((techRec as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm) {
+    return {
+      statusCode: 400,
+      body: 'Cannot update VRM through this endpoint',
+    };
+  }
+
+  return undefined;
+};
+
+export const checkStatusCodeValidity = (oldStatus: string | undefined, newStatus?: string | undefined): APIGatewayProxyResult | undefined => {
+  if (oldStatus === STATUS.ARCHIVED) {
+    return {
+      statusCode: 400,
+      body: ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD,
+    };
+  }
+  if (newStatus === STATUS.ARCHIVED) {
+    return {
+      statusCode: 400,
+      body: ERRORS.CANNOT_USE_UPDATE_TO_ARCHIVE,
+    };
+  }
+  // if (oldStatus === STATUS.CURRENT && newStatus === STATUS.PROVISIONAL) {
+  //   return {
+  //     statusCode: 400,
+  //     body: ERRORS.CANNOT_CHANGE_CURRENT_TO_PROVISIONAL,
+  //   };
+  // }
+  return undefined;
 };

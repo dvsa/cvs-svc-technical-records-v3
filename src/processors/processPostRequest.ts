@@ -91,7 +91,7 @@ const generalErrors = (input: TechrecordPut) => {
   }
   return '';
 };
-async function flattenArrays<T>(input: T): Promise<T> {
+export async function flattenArrays<T>(input: T): Promise<T> {
   const flattenArray = (obj: any, path: string): any => {
     if (Array.isArray(obj)) {
       return obj.reduce((acc: any, curr: any, index: number) => {
