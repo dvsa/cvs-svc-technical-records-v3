@@ -15,7 +15,7 @@ import { UserDetails } from '../services/user';
 import { HttpMethod, RecordCompleteness, VehicleType } from '../util/enum';
 import logger from '../util/logger';
 import { identifySchema } from '../validators/post';
-import {flattenArrays} from "../util/formatTechRecord";
+import { flattenArrays } from '../util/formatTechRecord';
 
 export const processPostRequest = async (input: unknown, userDetails: UserDetails): Promise<TechrecordGet> => {
   // we should be validating it's a valid technical record HERE.)
