@@ -39,13 +39,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug("Vin's have been validated");
 
-  const patchRecords: Array<TechrecordGet> = processPatchVinRequest(
+  const [recordToArchive, newRecord] = processPatchVinRequest(
     currentRecord,
     event,
   );
-
-  const recordToArchive: TechrecordGet = patchRecords[0];
-  const newRecord: TechrecordGet = patchRecords[1];
 
   try {
     const patchRequest: string = await archiveOldCreateCurrentRecord(
