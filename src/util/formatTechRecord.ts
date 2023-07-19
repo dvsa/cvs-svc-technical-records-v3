@@ -55,7 +55,7 @@ export const formatTechRecord = (techRecordWithoutArrays: object) => {
 };
 
 type FlattenArrays<T> = T extends (infer U)[] ? FlattenArrays<U>[] :
-  T extends object ? { [K in keyof T as K extends 'so' ? never : K]: FlattenArrays<T[K]> } :
+  T extends object ? { [K in keyof T as K extends 'secondaryVrms' ? never : K]: FlattenArrays<T[K]> } :
     T;
 
 export function flattenArrays<T>(input: T): Promise<FlattenArrays<T>> {
