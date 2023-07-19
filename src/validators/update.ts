@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import {
-  TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordCar, TechrecordPsv,
+  TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordCar, TechrecordPsv, TechrecordTrl,
 } from '../models/post';
 import { ERRORS, STATUS } from '../util/enum';
 
@@ -42,14 +42,7 @@ export const validateUpdateErrors = (event: APIGatewayProxyEvent): APIGatewayPro
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const techRec = (event.body ? JSON.parse(event.body).techRecord : null) as TechrecordGet;
-  if (!techRec) {
-    return {
-      statusCode: 400,
-      body: ERRORS.MISSING_PAYLOAD,
-    };
-  }
+  const techRec = JSON.parse(event.body) as TechrecordGet;
 
   if (techRec.vin || techRec.partialVin) {
     return {
@@ -62,6 +55,13 @@ export const validateUpdateErrors = (event: APIGatewayProxyEvent): APIGatewayPro
     return {
       statusCode: 400,
       body: 'Cannot update VRM through this endpoint',
+    };
+  }
+
+  if ((techRec as TechrecordTrl).trailerId) {
+    return {
+      statusCode: 400,
+      body: 'Cannot update TrailerID through this endpoint',
     };
   }
 
