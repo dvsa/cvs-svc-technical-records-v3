@@ -24,14 +24,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const systemNumber: string = event.pathParameters?.systemNumber as string;
   const createdTimestamp: string = event.pathParameters?.createdTimestamp as string;
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const newVin: string = JSON.parse(event.body!).newVin! as string;
+  const newVin: string = JSON.parse(event.body!).newVin!.toUpperCase() as string;
 
   const currentRecord: TechrecordGet = await getBySystemNumberAndCreatedTimestamp(
     systemNumber,
     createdTimestamp,
   ) as TechrecordGet;
 
-  const isVinInvalid: APIGatewayProxyResult | undefined = validateVins(currentRecord.vin, newVin.toUpperCase());
+  const isVinInvalid: APIGatewayProxyResult | undefined = validateVins(currentRecord, newVin);
 
   if (isVinInvalid) {
     return isVinInvalid;

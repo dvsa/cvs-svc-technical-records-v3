@@ -6,6 +6,8 @@ import {
   validateUpdateVinRequest,
   validateVins,
 } from '../../../src/validators/patch';
+import carPostRecord from '../../resources/techRecordCarPost.json';
+import { TechrecordGet } from '../../../src/models/post';
 
 const headers = {
   'Access-Control-Allow-Headers':
@@ -17,6 +19,8 @@ const headers = {
 jest.mock('../../../src/services/database.ts', () => ({
   searchByCriteria: mockSearchByCriteria,
 }));
+
+const currentRecord = carPostRecord as TechrecordGet
 
 describe('Test updateVin Validators', () => {
   describe('validateUpdateVinRequest', () => {
@@ -74,7 +78,7 @@ describe('Test updateVin Validators', () => {
 
   describe('validateVins', () => {
     it('should return an error if new VIN is shorter than 3 characters', () => {
-      const result = validateVins('oldvin', 'to');
+      const result = validateVins(currentRecord, 'TO');
       expect(result).toEqual({
         statusCode: 400,
         body: JSON.stringify({ error: 'New VIN is invalid' }),
@@ -82,7 +86,7 @@ describe('Test updateVin Validators', () => {
       });
     });
     it('should return an error if new VIN is longer than 21 characters', () => {
-      const result = validateVins('oldvin', 'tototototototototototo');
+      const result = validateVins(currentRecord, 'TOTOTOTOTOTOTOTOTOTOTO');
       expect(result).toEqual({
         statusCode: 400,
         body: JSON.stringify({ error: 'New VIN is invalid' }),
@@ -90,10 +94,10 @@ describe('Test updateVin Validators', () => {
       });
     });
     it('should return an error if new VIN is the same as the old VIN', () => {
-      const result = validateVins('samevin', 'samevin');
+      const result = validateVins(currentRecord, 'AA11100851');
       expect(result).toEqual({
         statusCode: 200,
-        body: JSON.stringify({ error: 'This VIN already exists on this vehicle' }),
+        body: JSON.stringify(currentRecord),
         headers,
       });
     });

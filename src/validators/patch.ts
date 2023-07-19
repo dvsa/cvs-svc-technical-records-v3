@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { addHttpHeaders } from '../util/httpHeaders';
+import { TechrecordGet } from '../models/post';
 
 export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
   if (!event.body) {
@@ -27,7 +28,7 @@ export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
   return undefined;
 }
 
-export function validateVins(oldVin: string, newVin: string) {
+export function validateVins(currentRecord: TechrecordGet,  newVin: string) {
   if (
     !newVin
     || newVin.length < 3
@@ -39,12 +40,10 @@ export function validateVins(oldVin: string, newVin: string) {
       body: JSON.stringify({ error: 'New VIN is invalid' }),
     });
   }
-  if (newVin === oldVin) {
+  if (newVin === currentRecord.vin) {
     return addHttpHeaders({
       statusCode: 200,
-      body: JSON.stringify({
-        error: 'This VIN already exists on this vehicle',
-      }),
+      body: JSON.stringify(currentRecord),
     });
   }
   return undefined;
