@@ -53,3 +53,32 @@ export const formatTechRecord = (techRecordWithoutArrays: object) => {
 
   return formattedTechRecord as object;
 };
+
+type FlattenArrays<T> = T extends (infer U)[] ? FlattenArrays<U>[] :
+  T extends object ? { [K in keyof T as K extends 'so' ? never : K]: FlattenArrays<T[K]> } :
+    T;
+
+export function flattenArrays<T>(input: T): Promise<FlattenArrays<T>> {
+  const flattenArray = <U>(obj: U, path: string): FlattenArrays<U> => {
+    if (Array.isArray(obj)) {
+      return obj.reduce<FlattenArrays<U>>((acc, curr, index) => {
+        const key: string = path && !path.includes('secondaryVrms') ? `techRecords_${path}_${index}` : `${index}`;
+        return {
+          ...acc,
+          ...flattenArray(curr, key),
+        } as FlattenArrays<U>;
+      }, [] as FlattenArrays<U>);
+    }
+    if (typeof obj === 'object' && obj !== null) {
+      return Object.entries(obj).reduce((acc, [key, value]) => {
+        const newPath: string = path && !path.includes('secondaryVrms') ? `${path}_${key}` : key;
+        return {
+          ...acc,
+          ...(key === 'secondaryVrms' ? { [newPath]: value as FlattenArrays<U> } : flattenArray(value, newPath)),
+        } as FlattenArrays<U>;
+      }, {} as FlattenArrays<U>);
+    }
+    return { [path]: obj } as FlattenArrays<U>;
+  };
+  return Promise.resolve(flattenArray(input, '')) as Promise<FlattenArrays<T>>;
+}
