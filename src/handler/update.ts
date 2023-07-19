@@ -28,16 +28,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
   const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
 
-  const oldRecord = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechrecordGet;
-  // logger.debug(oldRecord);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const putBody = JSON.parse(event.body!).techRecord as TechrecordPut;
+  const recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechrecordGet;
 
-  // const flattenPutBody = await flattenArrays(putBody);
-  const formattedOldRecord: any = formatTechRecord(oldRecord);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  // logger.debug(formattedOldRecord);
-  const statusErrors = checkStatusCodeValidity(oldRecord.techRecord_statusCode, putBody.techRecord_statusCode);
+  const putBody = JSON.parse(event.body?? '').techRecord as TechrecordPut;
+  const formattedRecordFromDB: any = formatTechRecord(recordFromDB);
+
+  const statusErrors = checkStatusCodeValidity(recordFromDB.techRecord_statusCode, putBody.techRecord_statusCode);
   if (statusErrors) {
     return addHttpHeaders(statusErrors);
   }
@@ -47,25 +43,20 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // updateVehicleIdentifiers - not required
   // capitaliseGeneralVehicleAttributes - not required
 
-  const newRecord = { ...formattedOldRecord, ...putBody } as TechrecordGet;
-  // logger.debug(newRecord);
+  const newRecord = { ...formattedRecordFromDB, ...putBody } as TechrecordGet;
   newRecord.techRecord_recordCompleteness = computeRecordCompleteness(newRecord as TechrecordPut);
 
-  // TODO: is updateType required???
-  // const updateType = getUpdateType(newRecord, oldRecord);
-  // oldRecord.techRecord_updateType = updateType;
+  // const updateType = getUpdateType(newRecord, recordFromDB);
+  // recordFromDB.techRecord_updateType = updateType;
 
-  logger.debug('updating details');
   const userDetails = getUserDetails(event.headers.Authorization);
   const date = new Date().toISOString();
-  const updatedOldRecord = setLastUpdatedAuditDetails(oldRecord, userDetails.username, userDetails.msOid, date);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const updatedNewRecord1 = JSON.parse(JSON.stringify(setCreatedAuditDetails(newRecord, userDetails.username, userDetails.msOid, date)));
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const updatedNewRecord = await flattenArrays(updatedNewRecord1) as TechrecordPut;
-  logger.debug(updatedNewRecord1);
+  const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, userDetails.username, userDetails.msOid, date);
+  const updatedNewRecord1 = setCreatedAuditDetails(newRecord, userDetails.username, userDetails.msOid, date);
+  const updatedNewRecord: TechrecordPut = await flattenArrays(updatedNewRecord1);
+  // logger.debug(updatedNewRecord);
   try {
-    const record = await updateVehicle(updatedOldRecord, updatedNewRecord);
+    const record = await updateVehicle(updatedRecordFromDB, updatedNewRecord);
     logger.debug('updated details');
     const formattedRecord = formatTechRecord(record);
     // logger.debug(`formatted record is: ${JSON.stringify(formattedRecord)}`);
