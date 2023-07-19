@@ -61,7 +61,7 @@ describe('Archive Patch Lambda Function', () => {
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
 
       expect(result.statusCode).toBe(404);
-      expect(result.body).toContain('No record found matching sysNum XYZEP5JYOMM00020 and timestamp 2019-06-15T10:26:54.903Z');
+      expect(result.body).toContain('No record found matching systemNumber XYZEP5JYOMM00020 and timestamp 2019-06-15T10:26:54.903Z');
     });
 
     it('should return a 400 response when record is already archived', async () => {

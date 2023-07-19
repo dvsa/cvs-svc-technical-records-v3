@@ -32,7 +32,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const createdTimestamp = event?.pathParameters?.createdTimestamp as string;
     const userDetails = getUserDetails(event.headers.Authorization as string);
 
-    logger.debug(`Get from database with sysNum ${systemNumber} and timestamp ${createdTimestamp}`);
+    logger.debug(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
 
     const record: ArchiveRecord = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as ArchiveRecord;
 
