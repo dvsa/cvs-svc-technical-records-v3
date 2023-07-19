@@ -54,14 +54,24 @@ export const formatTechRecord = (techRecordWithoutArrays: object) => {
   return formattedTechRecord as object;
 };
 
+/**
+ * Conditional type that is used while flattening.
+ */
 type FlattenArrays<T> = T extends (infer U)[] ? FlattenArrays<U>[] :
   T extends object ? { [K in keyof T as K extends 'secondaryVrms' ? never : K]: FlattenArrays<T[K]> } : T;
 
-export function flattenArrays<T>(input: T): Promise<FlattenArrays<T>> {
+/**
+ * This function takes an input of type T and returns a promise.
+ * The purpose of this method is to recursively flatten using the helper function flattenArray
+ * @param input: T
+ * @returns Promise
+ *
+ */
+export const flattenArrays = <T>(input: T): Promise<FlattenArrays<T>> => {
   const flattenArray = <U>(obj: U, path: string): FlattenArrays<U> => {
     if (Array.isArray(obj)) {
       return obj.reduce<FlattenArrays<U>>((acc, curr, index) => {
-        const key: string = path && !path.includes('secondaryVrms') ? `techRecords_${path}_${index}` : `${index}`;
+        const key: string = path && !path.includes('secondaryVrms') ? `techRecord_${path}_${index}` : `${index}`;
         return {
           ...acc,
           ...flattenArray(curr, key),
@@ -80,4 +90,4 @@ export function flattenArrays<T>(input: T): Promise<FlattenArrays<T>> {
     return { [path]: obj } as FlattenArrays<U>;
   };
   return Promise.resolve(flattenArray(input, '')) as Promise<FlattenArrays<T>>;
-}
+};
