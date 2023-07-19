@@ -33,7 +33,7 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
   }
 
   const createdTimestamp = event.pathParameters?.createdTimestamp;
-  if (isISO8601Date(createdTimestamp)) {
+  if (!isISO8601Date(createdTimestamp)) {
     return {
       statusCode: 400,
       body: 'Invalid created timestamp',
@@ -41,6 +41,7 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
   }
 
   function isISO8601Date(input: string): boolean {
+    console.log("HELLO " + DateTime.now().toISO());
     return DateTime.fromISO(input).isValid;
   }
 };
