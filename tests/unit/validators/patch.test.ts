@@ -20,7 +20,7 @@ jest.mock('../../../src/services/database.ts', () => ({
   searchByCriteria: mockSearchByCriteria,
 }));
 
-const currentRecord = carPostRecord as TechrecordGet
+const currentRecord = carPostRecord as TechrecordGet;
 
 describe('Test updateVin Validators', () => {
   describe('validateUpdateVinRequest', () => {

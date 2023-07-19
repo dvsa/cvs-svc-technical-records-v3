@@ -28,7 +28,7 @@ export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
   return undefined;
 }
 
-export function validateVins(currentRecord: TechrecordGet,  newVin: string) {
+export function validateVins(currentRecord: TechrecordGet, newVin: string) {
   if (
     !newVin
     || newVin.length < 3

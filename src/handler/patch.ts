@@ -21,17 +21,17 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug('Request is Valid');
 
-  const systemNumber: string = event.pathParameters?.systemNumber as string;
-  const createdTimestamp: string = event.pathParameters?.createdTimestamp as string;
+  const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
+  const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const newVin: string = JSON.parse(event.body!).newVin!.toUpperCase() as string;
+  const newVin: string = JSON.parse(event.body!).newVin! as string;
 
   const currentRecord: TechrecordGet = await getBySystemNumberAndCreatedTimestamp(
     systemNumber,
     createdTimestamp,
   ) as TechrecordGet;
 
-  const isVinInvalid: APIGatewayProxyResult | undefined = validateVins(currentRecord, newVin);
+  const isVinInvalid: APIGatewayProxyResult | undefined = validateVins(currentRecord, newVin.toUpperCase());
 
   if (isVinInvalid) {
     return isVinInvalid;
