@@ -19,7 +19,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const body: ArchiveRecordRequestBody = await JSON.parse(event.body as string);
+    const body: ArchiveRecordRequestBody = JSON.parse(event.body as string);
 
     if (!body.reasonForArchiving) {
       return {
@@ -34,14 +34,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     logger.debug(`Get from database with sysNum ${systemNumber} and timestamp ${createdTimestamp}`);
 
-    const record = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as ArchiveRecord;
+    const record: ArchiveRecord = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as ArchiveRecord;
 
     logger.debug(`result is: ${JSON.stringify(record)}`);
 
     if (!record || !Object.keys(record).length) {
       return addHttpHeaders({
         statusCode: 404,
-        body: `No record found matching sysNum ${systemNumber} and timestamp ${createdTimestamp}`,
+        body: `No record found matching systemNumber ${systemNumber} and timestamp ${createdTimestamp}`,
       });
     }
 
@@ -60,7 +60,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     record.techRecord_notes = record.techRecord_notes
       ? `${record.techRecord_notes} \n${body.reasonForArchiving}`
       : body.reasonForArchiving;
-
     await archiveRecord(record);
 
     return addHttpHeaders({
