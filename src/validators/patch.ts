@@ -27,7 +27,7 @@ export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
     });
   }
   return undefined;
-}
+};
 
 export const validateVins = (currentRecord: TechrecordGet, newVin: string) => {
   if (
@@ -48,4 +48,4 @@ export const validateVins = (currentRecord: TechrecordGet, newVin: string) => {
     });
   }
   return undefined;
-}
+};
