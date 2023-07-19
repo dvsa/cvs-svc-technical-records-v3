@@ -18,8 +18,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const body: ArchiveRecordRequestBody = JSON.parse(event.body as string);
+    const body: ArchiveRecordRequestBody = JSON.parse(event.body as string) as ArchiveRecordRequestBody;;
 
     if (!body.reasonForArchiving) {
       return {
@@ -28,9 +27,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       };
     }
 
-    const systemNumber = event?.pathParameters?.systemNumber as string;
-    const createdTimestamp = event?.pathParameters?.createdTimestamp as string;
-    const userDetails = getUserDetails(event.headers.Authorization as string);
+    const systemNumber = event?.pathParameters?.systemNumber ?? '';
+    const createdTimestamp = event?.pathParameters?.createdTimestamp ?? '';
+    const userDetails = getUserDetails(event.headers.Authorization ?? '');
 
     logger.debug(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
 

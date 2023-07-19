@@ -1,7 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DateTime } from 'luxon';
 
-// eslint-disable-next-line consistent-return
 export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
   if (!event.headers.Authorization) {
     return {
@@ -39,6 +38,8 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
       body: 'Invalid created timestamp',
     };
   }
+
+  return undefined;
 
   function isISO8601Date(input: string): boolean {
     return DateTime.fromISO(input).isValid;
