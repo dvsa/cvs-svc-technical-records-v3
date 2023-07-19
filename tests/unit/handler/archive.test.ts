@@ -51,7 +51,7 @@ describe('Archive Patch Lambda Function', () => {
       expect(result.body).toContain('Reason for archiving not provided');
     });
 
-    it('should return a 400 response when no record is found', async () => {
+    it('should return a 404 response when no record is found', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
 
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({});
@@ -60,7 +60,7 @@ describe('Archive Patch Lambda Function', () => {
 
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
 
-      expect(result.statusCode).toBe(400);
+      expect(result.statusCode).toBe(404);
       expect(result.body).toContain('No record found matching sysNum XYZEP5JYOMM00020 and timestamp 2019-06-15T10:26:54.903Z');
     });
 
