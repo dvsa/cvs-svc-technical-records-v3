@@ -8,7 +8,6 @@ import {
   TechrecordGet,
   TechrecordHgv,
   TechrecordMotorcycle,
-  TechrecordPsv,
   TechrecordPut, TechrecordTrl,
 } from '../models/post';
 import { generateNewNumber, NumberTypes } from '../services/testNumber';
@@ -16,12 +15,14 @@ import { UserDetails } from '../services/user';
 import { HttpMethod, RecordCompleteness, VehicleType } from '../util/enum';
 import logger from '../util/logger';
 import { identifySchema } from '../validators/post';
+import { flattenArrays } from '../util/formatTechRecord';
 
 export const processPostRequest = async (input: unknown, userDetails: UserDetails): Promise<TechrecordGet> => {
   // we should be validating it's a valid technical record HERE.)
   if (isObjectEmpty(input)) {
     throw new Error('Invalid Technical Record');
   }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const request: TechrecordPut = await flattenArrays(input) as TechrecordPut;
   logger.info('processing request');
   (request as TechrecordGet).techRecord_recordCompleteness = computeRecordCompleteness(request);
@@ -91,31 +92,5 @@ const generalErrors = (input: TechrecordPut) => {
   }
   return '';
 };
-export async function flattenArrays<T>(input: T): Promise<T> {
-  const flattenArray = (obj: any, path: string): any => {
-    if (Array.isArray(obj)) {
-      return obj.reduce((acc: any, curr: any, index: number) => {
-        const key = path ? `${path}_${index}` : `${index}`;
-        return {
-          ...acc,
-          ...flattenArray(curr, key),
-        };
-      }, {});
-    }
-
-    if (typeof obj === 'object' && obj !== null) {
-      return Object.entries(obj).reduce((acc: any, [key, value]: [string, any]) => {
-        const newPath = path ? `${path}_${key}` : key;
-        return {
-          ...acc,
-          ...flattenArray(value, newPath),
-        };
-      }, {});
-    }
-
-    return { [path]: obj };
-  };
-  return Promise.resolve(flattenArray(input, ''));
-}
 
 const isObjectEmpty = (input: unknown) => (typeof input === 'object' && input !== null ? !Object.keys(input).length : false);
