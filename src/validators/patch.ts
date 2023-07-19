@@ -3,7 +3,7 @@ import { addHttpHeaders } from '../util/httpHeaders';
 import { TechrecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
 
-export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
+export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
   if (!event.body) {
     return addHttpHeaders({
       statusCode: 400,
@@ -29,7 +29,7 @@ export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
   return undefined;
 }
 
-export function validateVins(currentRecord: TechrecordGet, newVin: string) {
+export const validateVins = (currentRecord: TechrecordGet, newVin: string) => {
   if (
     !newVin
     || newVin.length < 3

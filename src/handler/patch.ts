@@ -56,6 +56,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       body: JSON.stringify(formatTechRecord(newRecord)),
     });
   } catch (error) {
-    return addHttpHeaders({ statusCode: 500, body: JSON.stringify(error) });
+    return addHttpHeaders({ 
+      statusCode: 500, 
+      body: JSON.stringify(error) 
+    });
   }
 };
