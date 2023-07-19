@@ -1,5 +1,6 @@
 /* eslint-disable import/first */
 const mockSearchByCriteria = jest.fn();
+const mockValidateGetErrors = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import {
@@ -21,6 +22,10 @@ jest.mock('../../../src/services/database.ts', () => ({
   searchByCriteria: mockSearchByCriteria,
 }));
 
+jest.mock('../../../src/validators/get.ts', () => ({
+  validateGetErrors: mockValidateGetErrors,
+}));
+
 const currentRecord = carPostRecord as TechrecordGet;
 
 describe('Test updateVin Validators', () => {
@@ -40,8 +45,8 @@ describe('Test updateVin Validators', () => {
             'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
         },
         pathParameters: {
-          systemNumber: 'testNumber',
-          createdTimestamp: 'testTimeStamp',
+          systemNumber: '123456',
+          createdTimestamp: '2019-06-15T10:26:54.903Z',
         },
         body: JSON.stringify({
           newVin: 'newVin',
@@ -49,20 +54,20 @@ describe('Test updateVin Validators', () => {
       } as unknown as APIGatewayProxyEvent;
     });
     it('should return an error when missing a systemNumber from path', () => {
-      delete request.pathParameters!.systemNumber;
+      mockValidateGetErrors.mockReturnValueOnce({ statusCode: 400, body: 'Missing system number', headers });
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: JSON.stringify({ error: 'missing systemNumber from path' }),
+        body: 'Missing system number',
         headers,
       });
     });
     it('should return an error when missing a createdTimestamp from path', () => {
-      delete request.pathParameters!.createdTimestamp;
+      mockValidateGetErrors.mockReturnValueOnce({ statusCode: 400, body: 'Missing created timestamp', headers });
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: JSON.stringify({ error: 'missing createdTimestamp from path' }),
+        body: 'Missing created timestamp',
         headers,
       });
     });
@@ -71,7 +76,7 @@ describe('Test updateVin Validators', () => {
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: JSON.stringify({ error: 'invalid request' }),
+        body: 'invalid request',
         headers,
       });
     });
@@ -80,7 +85,7 @@ describe('Test updateVin Validators', () => {
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: JSON.stringify({ error: 'You must provide a new VIN' }),
+        body: 'You must provide a new VIN',
         headers,
       });
     });
@@ -89,7 +94,7 @@ describe('Test updateVin Validators', () => {
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: JSON.stringify({ error: 'Missing authorization header' }),
+        body: 'Missing authorization header',
         headers,
       });
     });
@@ -100,7 +105,7 @@ describe('Test updateVin Validators', () => {
       const result = validateVins(currentRecord, 'TO');
       expect(result).toEqual({
         statusCode: 400,
-        body: JSON.stringify({ error: 'New VIN is invalid' }),
+        body: 'New VIN is invalid',
         headers,
       });
     });
@@ -108,7 +113,7 @@ describe('Test updateVin Validators', () => {
       const result = validateVins(currentRecord, 'TOTOTOTOTOTOTOTOTOTOTO');
       expect(result).toEqual({
         statusCode: 400,
-        body: JSON.stringify({ error: 'New VIN is invalid' }),
+        body: 'New VIN is invalid',
         headers,
       });
     });

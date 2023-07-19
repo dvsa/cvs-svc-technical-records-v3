@@ -1,34 +1,28 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { addHttpHeaders } from '../util/httpHeaders';
 import { TechrecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
+import { validateGetErrors } from './get';
 
 export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
-  if (!event.pathParameters?.systemNumber) {
-    return addHttpHeaders({
-      statusCode: 400,
-      body: JSON.stringify({ error: 'missing systemNumber from path' }),
-    });
-  }
+  // requires the same path params as GET
+  const isPathInvalid: APIGatewayProxyResult | undefined = validateGetErrors(event);
 
-  if (!event.pathParameters?.createdTimestamp) {
-    return addHttpHeaders({
-      statusCode: 400,
-      body: JSON.stringify({ error: 'missing createdTimestamp from path' }),
-    });
+  if (isPathInvalid) {
+    return isPathInvalid;
   }
 
   if (!event.body) {
     return addHttpHeaders({
       statusCode: 400,
-      body: JSON.stringify({ error: 'invalid request' }),
+      body: 'invalid request',
     });
   }
 
   if (!event.headers.Authorization) {
     return addHttpHeaders({
       statusCode: 400,
-      body: JSON.stringify({ error: 'Missing authorization header' }),
+      body: 'Missing authorization header',
     });
   }
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -37,7 +31,7 @@ export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
   if (!newVin) {
     return addHttpHeaders({
       statusCode: 400,
-      body: JSON.stringify({ error: 'You must provide a new VIN' }),
+      body: 'You must provide a new VIN',
     });
   }
   return undefined;
@@ -52,7 +46,7 @@ export const validateVins = (currentRecord: TechrecordGet, newVin: string) => {
   ) {
     return addHttpHeaders({
       statusCode: 400,
-      body: JSON.stringify({ error: 'New VIN is invalid' }),
+      body: 'New VIN is invalid',
     });
   }
   if (newVin === currentRecord.vin) {

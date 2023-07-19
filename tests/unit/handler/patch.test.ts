@@ -48,6 +48,10 @@ describe('Test Patch Lambda Function', () => {
           Authorization:
             'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
         },
+        pathParameters: {
+          systemNumber: '123456',
+          createdTimestamp: '2019-06-15T10:26:54.903Z',
+        },
         body: JSON.stringify({
           newVin: 'newVin',
         }),
@@ -59,7 +63,7 @@ describe('Test Patch Lambda Function', () => {
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: JSON.stringify({ error: 'Missing authorization header' }),
+        body: 'Missing authorization header',
         headers,
       });
     });
@@ -71,7 +75,7 @@ describe('Test Patch Lambda Function', () => {
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: JSON.stringify({ error: 'New VIN is invalid' }),
+        body: 'New VIN is invalid',
         headers,
       });
     });
@@ -107,8 +111,8 @@ describe('Test Patch Lambda Function', () => {
             'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
         },
         pathParameters: {
-          systemNumber: 'testNumber',
-          createdTimestamp: 'testTimeStamp',
+          systemNumber: '123456',
+          createdTimestamp: '2019-06-15T10:26:54.903Z',
         },
         body: JSON.stringify({
           newVin: 'newVin',

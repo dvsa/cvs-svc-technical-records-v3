@@ -1,6 +1,13 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { validateGetErrors } from '../../../src/validators/get';
 
+const headers = {
+  'Access-Control-Allow-Headers':
+    'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
+  'Access-Control-Allow-Origin': '*',
+};
+
 describe('test the get error validator', () => {
   it('should return missing system number', () => {
     const event = { pathParameters: { createdTimestamp: '12345' } };
@@ -8,6 +15,7 @@ describe('test the get error validator', () => {
     expect(res).toEqual({
       statusCode: 400,
       body: 'Missing system number',
+      headers,
     });
   });
 
@@ -17,6 +25,7 @@ describe('test the get error validator', () => {
     expect(res).toEqual({
       statusCode: 400,
       body: 'Missing created timestamp',
+      headers,
     });
   });
 
@@ -26,6 +35,7 @@ describe('test the get error validator', () => {
     expect(res).toEqual({
       statusCode: 400,
       body: 'The system number should be between 3 and 21 characters.',
+      headers,
     });
   });
 
@@ -35,6 +45,7 @@ describe('test the get error validator', () => {
     expect(res).toEqual({
       statusCode: 400,
       body: 'The system number should be between 3 and 21 characters.',
+      headers,
     });
   });
 
@@ -44,6 +55,7 @@ describe('test the get error validator', () => {
     expect(res).toEqual({
       statusCode: 400,
       body: 'Invalid created timestamp',
+      headers,
     });
   });
 
