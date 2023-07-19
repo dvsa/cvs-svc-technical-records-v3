@@ -21,12 +21,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug('Request is Valid');
 
-  const systemNumber: string = decodeURIComponent(
-    event.pathParameters?.systemNumber as string,
-  );
-  const createdTimestamp: string = decodeURIComponent(
-    event.pathParameters?.createdTimestamp as string,
-  );
+  const systemNumber: string = event.pathParameters?.systemNumber as string;
+  const createdTimestamp: string = event.pathParameters?.createdTimestamp as string;
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const newVin: string = JSON.parse(event.body!).newVin! as string;
 
@@ -59,7 +55,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     return addHttpHeaders({
       statusCode: 200,
-      body: patchRequest,
+      body: JSON.stringify(newRecord),
     });
   } catch (error) {
     return addHttpHeaders({ statusCode: 500, body: JSON.stringify(error) });

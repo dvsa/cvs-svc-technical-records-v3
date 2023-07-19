@@ -1,15 +1,21 @@
 /* eslint-disable import/first */
 const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockArchiveOldCreateCurrentRecord = jest.fn();
+const mockProcessPatchVinRequest = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/patch';
 import carPostRecord from '../../resources/techRecordCarPost.json';
+import { TechrecordGet } from '../../../src/models/post';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp:
     mockGetBySystemNumberAndCreatedTimestamp,
   archiveOldCreateCurrentRecord: mockArchiveOldCreateCurrentRecord,
+}));
+
+jest.mock('../../../src/processors/processPatchVinRequest', () => ({
+  processPatchVinRequest: mockProcessPatchVinRequest,
 }));
 
 const headers = {
@@ -18,6 +24,12 @@ const headers = {
   'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
   'Access-Control-Allow-Origin': '*',
 };
+
+const recordToArchive: TechrecordGet = carPostRecord as TechrecordGet;
+const recordToCreate: TechrecordGet = carPostRecord as TechrecordGet;
+
+recordToArchive.techRecord_statusCode = 'archived';
+recordToCreate.createdTimestamp = 'timenow';
 
 describe('Test Patch Lambda Function', () => {
   describe('Error handling', () => {
@@ -69,6 +81,7 @@ describe('Test Patch Lambda Function', () => {
       mockArchiveOldCreateCurrentRecord.mockRejectedValueOnce({
         error: 'Transact Write Items Failed',
       });
+      mockProcessPatchVinRequest.mockReturnValueOnce([recordToArchive, recordToCreate]);
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 500,
@@ -107,6 +120,7 @@ describe('Test Patch Lambda Function', () => {
       mockArchiveOldCreateCurrentRecord.mockReturnValue({
         message: 'records updated',
       });
+      mockProcessPatchVinRequest.mockReturnValueOnce([recordToArchive, recordToCreate]);
 
       const result = await handler(request as unknown as APIGatewayProxyEvent);
 
@@ -117,11 +131,12 @@ describe('Test Patch Lambda Function', () => {
       mockArchiveOldCreateCurrentRecord.mockReturnValue({
         message: 'records updated',
       });
+      mockProcessPatchVinRequest.mockReturnValueOnce([recordToArchive, recordToCreate]);
       const result = await handler(request as unknown as APIGatewayProxyEvent);
 
       expect(result).toEqual({
         statusCode: 200,
-        body: { message: 'records updated' },
+        body: JSON.stringify(recordToCreate),
         headers,
       });
     });

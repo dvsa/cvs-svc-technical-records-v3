@@ -92,8 +92,8 @@ describe('Test updateVin Validators', () => {
     it('should return an error if new VIN is the same as the old VIN', () => {
       const result = validateVins('samevin', 'samevin');
       expect(result).toEqual({
-        statusCode: 400,
-        body: JSON.stringify({ error: 'New VIN must be different to the current VIN' }),
+        statusCode: 200,
+        body: JSON.stringify({ error: 'This VIN already exists on this vehicle' }),
         headers,
       });
     });

@@ -41,9 +41,9 @@ export function validateVins(oldVin: string, newVin: string) {
   }
   if (newVin === oldVin) {
     return addHttpHeaders({
-      statusCode: 400,
+      statusCode: 200,
       body: JSON.stringify({
-        error: 'New VIN must be different to the current VIN',
+        error: 'This VIN already exists on this vehicle',
       }),
     });
   }
