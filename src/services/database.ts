@@ -102,8 +102,8 @@ export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string,
     const data = await ddbClient.send(new GetItemCommand(command));
     logger.debug(JSON.stringify(data));
     return unmarshall(data.Item || {});
-  } catch (e: any) {
-    logger.error(`Error in search by sysnum and time: ${JSON.stringify(e)}`);
+  } catch (error) {
+    logger.error(`Error in search by sysnum and time: ${JSON.stringify(error)}`);
     throw new Error(`database client failed getting data by ${systemNumber} and ${createdTimestamp}`);
   }
 };
