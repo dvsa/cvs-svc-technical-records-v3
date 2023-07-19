@@ -144,7 +144,7 @@ describe('archiveOldCreateCurrentRecord', () => {
 
     const res = await archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1]);
 
-    expect(res).toBe('records updated');
+    expect(res).toBeUndefined();
   });
   it('should return an error message if the transact fails', async () => {
     const event = {

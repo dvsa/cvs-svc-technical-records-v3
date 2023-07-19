@@ -25,7 +25,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
   const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const newVin: string = JSON.parse(event.body!).newVin! as string;
+  const newVin: string = JSON.parse(event.body ?? '').newVin as string ?? '';
 
   const currentRecord: TechrecordGet = await getBySystemNumberAndCreatedTimestamp(
     systemNumber,
@@ -46,10 +46,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   );
 
   try {
-    const patchRequest: string = await archiveOldCreateCurrentRecord(
+    await archiveOldCreateCurrentRecord(
       recordToArchive,
       newRecord,
-    ) as string;
+    );
 
     return addHttpHeaders({
       statusCode: 200,
