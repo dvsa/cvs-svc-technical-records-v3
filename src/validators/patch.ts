@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { addHttpHeaders } from '../util/httpHeaders';
 import { TechrecordGet } from '../models/post';
+import { formatTechRecord } from '../util/formatTechRecord';
 
 export function validateUpdateVinRequest(event: APIGatewayProxyEvent) {
   if (!event.body) {
@@ -41,9 +42,10 @@ export function validateVins(currentRecord: TechrecordGet, newVin: string) {
     });
   }
   if (newVin === currentRecord.vin) {
+    const formattedRecord = formatTechRecord(currentRecord)
     return addHttpHeaders({
       statusCode: 200,
-      body: JSON.stringify(currentRecord),
+      body: JSON.stringify(formattedRecord),
     });
   }
   return undefined;

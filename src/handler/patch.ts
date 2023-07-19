@@ -9,6 +9,7 @@ import {
 import { validateUpdateVinRequest, validateVins } from '../validators/patch';
 import { processPatchVinRequest } from '../processors/processPatchVinRequest';
 import { TechrecordGet } from '../models/post';
+import { formatTechRecord } from '../util/formatTechRecord';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Amend VIN Called');
@@ -49,6 +50,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       recordToArchive,
       newRecord,
     ) as string;
+
+    const formattedRecord = formatTechRecord(newRecord)
 
     return addHttpHeaders({
       statusCode: 200,
