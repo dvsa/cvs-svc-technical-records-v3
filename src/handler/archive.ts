@@ -11,21 +11,14 @@ import { ArchiveRecord, ArchiveRecordRequestBody } from '../models/archive';
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Archive end point called');
 
-  const archiveErrors = validateArchiveErrors(event);
-
-  if (archiveErrors) {
-    return addHttpHeaders(archiveErrors);
-  }
-
   try {
-    const body: ArchiveRecordRequestBody = JSON.parse(event.body as string) as ArchiveRecordRequestBody;
+    const archiveErrors = validateArchiveErrors(event);
 
-    if (!body.reasonForArchiving) {
-      return {
-        statusCode: 400,
-        body: 'Reason for archiving not provided',
-      };
+    if (archiveErrors) {
+      return addHttpHeaders(archiveErrors);
     }
+
+    const body: ArchiveRecordRequestBody = JSON.parse(event.body as string) as ArchiveRecordRequestBody;
 
     const systemNumber = event?.pathParameters?.systemNumber ?? '';
     const createdTimestamp = event?.pathParameters?.createdTimestamp ?? '';

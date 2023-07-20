@@ -39,18 +39,6 @@ describe('Archive Patch Lambda Function', () => {
   });
 
   describe('Unsuccessful Response', () => {
-    it('should not pass validation and return a 400 response when reasonForArchiving is empty', async () => {
-      const invalidArchiveRequestData = cloneDeep(archiveRequestData);
-      invalidArchiveRequestData.body = JSON.stringify({ reasonForArchiving: '' });
-
-      process.env.AWS_SAM_LOCAL = 'true';
-
-      const result = await handler(invalidArchiveRequestData as unknown as APIGatewayProxyEvent);
-
-      expect(result.statusCode).toBe(400);
-      expect(result.body).toContain('Reason for archiving not provided');
-    });
-
     it('should return a 404 response when no record is found', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
 

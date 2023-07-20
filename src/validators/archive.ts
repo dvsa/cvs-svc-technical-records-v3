@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { DateTime } from 'luxon';
+import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
+import { ArchiveRecordRequestBody } from '../models/archive';
 
 export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
   if (!event.headers.Authorization) {
@@ -9,39 +10,27 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
     };
   }
 
-  if (!event.pathParameters?.systemNumber) {
+  const isPathInvalid: APIGatewayProxyResult | undefined = validateSysNumTimestampPathParams(event);
+
+  if (isPathInvalid) {
+    return isPathInvalid;
+  }
+
+  if (!event.body || !Object.keys(event.body).length) {
     return {
       statusCode: 400,
-      body: 'Missing system number',
+      body: 'invalid request',
     };
   }
 
-  if (!event.pathParameters?.createdTimestamp) {
-    return {
-      statusCode: 400,
-      body: 'Missing created timestamp',
-    };
-  }
+  const body: ArchiveRecordRequestBody = JSON.parse(event.body as string) as ArchiveRecordRequestBody;
 
-  const systemNumber: string = event.pathParameters?.systemNumber;
-  if (systemNumber.length < 3 || systemNumber.length > 21) {
+  if (!body.reasonForArchiving) {
     return {
       statusCode: 400,
-      body: 'The system number should be between 3 and 21 characters.',
-    };
-  }
-
-  const createdTimestamp = event.pathParameters?.createdTimestamp;
-  if (!isISO8601Date(createdTimestamp)) {
-    return {
-      statusCode: 400,
-      body: 'Invalid created timestamp',
+      body: 'Reason for archiving not provided',
     };
   }
 
   return;
-
-  function isISO8601Date(input: string): boolean {
-    return DateTime.fromISO(input).isValid;
-  }
 };

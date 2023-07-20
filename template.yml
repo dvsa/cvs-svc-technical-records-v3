@@ -39,7 +39,7 @@ Resources:
             Properties:
               Path: /v3/technical-records
               Method: post
-    PatchLambdaFunction:
+    ArchiveLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
