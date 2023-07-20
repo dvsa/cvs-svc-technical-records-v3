@@ -4,8 +4,9 @@ import { TechrecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
 
+// eslint-disable-next-line consistent-return
 export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
-  const isPathInvalid: APIGatewayProxyResult | undefined = validateSysNumTimestampPathParams(event);
+  const isPathInvalid = validateSysNumTimestampPathParams(event);
 
   if (isPathInvalid) {
     return isPathInvalid;
@@ -33,9 +34,9 @@ export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
       body: 'You must provide a new VIN',
     });
   }
-  return undefined;
 };
 
+// eslint-disable-next-line consistent-return
 export const validateVins = (currentRecord: TechrecordGet, newVin: string) => {
   if (
     !newVin
@@ -54,5 +55,4 @@ export const validateVins = (currentRecord: TechrecordGet, newVin: string) => {
       body: JSON.stringify(formatTechRecord(currentRecord)),
     });
   }
-  return undefined;
 };
