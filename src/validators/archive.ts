@@ -23,7 +23,8 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
     };
   }
 
-  const body: ArchiveRecordRequestBody = JSON.parse(event.body as string);
+  // eslint-disable-next-line  @typescript-eslint/no-unnecessary-type-assertion
+  const body: ArchiveRecordRequestBody = JSON.parse(event.body as string) as ArchiveRecordRequestBody;
 
   if (!body.reasonForArchiving) {
     return {
