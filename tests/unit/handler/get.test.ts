@@ -1,12 +1,12 @@
 /* eslint-disable import/first */
 const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
-const mockValidateGetErrors = jest.fn();
+const mockValidateSysNumTimestampPathParams = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/get';
 
-jest.mock('../../../src/validators/get.ts', () => ({
-  validateGetErrors: mockValidateGetErrors,
+jest.mock('../../../src/validators/sysNumTimestamp.ts', () => ({
+  validateSysNumTimestampPathParams: mockValidateSysNumTimestampPathParams,
 }));
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
@@ -17,19 +17,19 @@ const headers = { 'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Autho
 describe('Test Get Lambda Function', () => {
   describe('Error handling', () => {
     it('should return an error when missing the system number', async () => {
-      mockValidateGetErrors.mockReturnValueOnce({ statusCode: 400, body: 'Missing system number' });
+      mockValidateSysNumTimestampPathParams.mockReturnValueOnce({ statusCode: 400, body: 'Missing system number' });
       const result = await handler({ pathParameters: { foo: 'undefined' } } as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({ statusCode: 400, body: 'Missing system number', headers });
     });
 
     it('should return an error when missing the created timestamp', async () => {
-      mockValidateGetErrors.mockReturnValueOnce({ statusCode: 400, body: 'Missing created timestamp' });
+      mockValidateSysNumTimestampPathParams.mockReturnValueOnce({ statusCode: 400, body: 'Missing created timestamp' });
       const result = await handler({ pathParameters: { foo: 'undefined' } } as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({ statusCode: 400, body: 'Missing created timestamp', headers });
     });
 
     it('should return a 404 if no results are found', async () => {
-      mockValidateGetErrors.mockReturnValueOnce(null);
+      mockValidateSysNumTimestampPathParams.mockReturnValueOnce(null);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({});
       const result = await handler({ pathParameters: { systemNumber: '123456', createdTimestamp: '12345' } } as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({ statusCode: 404, body: 'No record found matching sysNum 123456 and timestamp 12345', headers });
@@ -38,7 +38,7 @@ describe('Test Get Lambda Function', () => {
 
   describe('Successful calls', () => {
     it('should return 200 and a record', async () => {
-      mockValidateGetErrors.mockReturnValueOnce(null);
+      mockValidateSysNumTimestampPathParams.mockReturnValueOnce(null);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ foo: 'bar' });
       const result = await handler({ pathParameters: { systemNumber: '123456', createdTimestamp: '12345' } } as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({ statusCode: 200, body: '{"foo":"bar"}', headers });
