@@ -34,9 +34,10 @@
     "@aws-sdk/client-lambda": "^3.362.0",
     "@aws-sdk/lib-dynamodb": "^3.341.0",
     "@aws-sdk/util-dynamodb": "^3.362.0",
+    "@types/luxon": "^3.3.0",
     "jwt-decode": "^3.1.2",
-    "polly-js": "^1.8.3",
-    "update": "^0.7.4"
+    "luxon": "^3.3.0",
+    "polly-js": "^1.8.3"
   },
   "devDependencies": {
     "@aws-sdk/smithy-client": "^3.341.0",
@@ -45,6 +46,7 @@
     "@dvsa/eslint-config-ts": "^3.0.0",
     "@types/aws-lambda": "^8.10.114",
     "@types/jest": "^28.1.8",
+    "@types/lodash": "^4.14.195",
     "@types/node": "^16.18.34",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.57.1",

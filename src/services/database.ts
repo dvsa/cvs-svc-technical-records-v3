@@ -1,11 +1,13 @@
 import {
+  AttributeValue,
   DynamoDBClient,
   GetItemCommand,
   GetItemCommandInput,
-  PutItemCommand,
   PutItemCommandInput,
-  QueryCommand,
-  QueryInput, TransactWriteItemsCommand,
+  PutItemCommand, QueryCommand,
+  QueryInput,
+  TransactWriteItemsCommand,
+  TransactWriteItemsInput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { DynamoDBDocumentClient, TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
@@ -14,9 +16,24 @@ import { dynamoDBClientConfig, tableName } from '../config';
 import { TechrecordGet, TechrecordPut } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
+import { ArchiveRecord } from '../models/archive';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 const docClient = DynamoDBDocumentClient.from(ddbClient);
+
+export const archiveRecord = async (record: ArchiveRecord) : Promise<object> => {
+  const command = {
+    TableName: tableName,
+    Item: marshall(record as unknown as Record<string, AttributeValue>, { removeUndefinedValues: true }),
+  };
+
+  try {
+    return await ddbClient.send(new PutItemCommand(command));
+  } catch (e) {
+    logger.error('Error in archive record: ', e);
+    throw new Error(`database client failed in archiving the record with systemNumber ${record.systemNumber} and createdTimestamp ${record.createdTimestamp} `);
+  }
+};
 
 export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
   const query: QueryInput = {
@@ -90,8 +107,8 @@ export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string,
     const data = await ddbClient.send(new GetItemCommand(command));
     // logger.debug(JSON.stringify(data));
     return unmarshall(data.Item || {});
-  } catch (e: any) {
-    logger.error(`Error in search by sysnum and time: ${JSON.stringify(e)}`);
+  } catch (error) {
+    logger.error(`Error in search by sysnum and time: ${JSON.stringify(error)}`);
     throw new Error(`database client failed getting data by ${systemNumber} and ${createdTimestamp}`);
   }
 };
@@ -116,7 +133,7 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
         '#systemNumber': 'systemNumber',
       },
       ExpressionAttributeValues: {
-        ':createdTimestamp': { S: request.createdTimestamp! },
+        ':createdTimestamp': { S: request.createdTimestamp as string },
         ':systemNumber': { S: request.systemNumber },
       },
       Item: marshall(request, { removeUndefinedValues: true }),
@@ -128,6 +145,36 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     logger.error(`Error: ${err}`);
     throw new Error('database client failed getting data');
+  }
+};
+export const archiveOldCreateCurrentRecord = async (recordToArchive: TechrecordGet, recordToCreate: TechrecordGet): Promise<undefined | Error> => {
+  logger.info('Preparing Transact Items');
+
+  const transactParams: TransactWriteItemsInput = {
+    TransactItems: [
+      {
+        Put: {
+          TableName: tableName,
+          Item: marshall(recordToArchive),
+          ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
+        },
+      },
+      {
+        Put: {
+          TableName: tableName,
+          Item: marshall(recordToCreate),
+        },
+      },
+    ],
+  };
+
+  try {
+    await ddbClient.send(new TransactWriteItemsCommand(transactParams));
+    return undefined;
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    logger.error(`Error: ${error}`);
+    throw new Error('Transact Write Items Failed');
   }
 };
 
