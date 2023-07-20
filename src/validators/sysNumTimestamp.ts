@@ -1,9 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { add } from 'winston';
 import { addHttpHeaders } from '../util/httpHeaders';
 
 // eslint-disable-next-line consistent-return
-export const validateGetErrors = (event: APIGatewayProxyEvent) => {
+export const validateSysNumTimestampPathParams = (event: APIGatewayProxyEvent) => {
   if (!event.pathParameters?.systemNumber) {
     return addHttpHeaders({
       statusCode: 400,

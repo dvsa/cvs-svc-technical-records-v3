@@ -2,11 +2,10 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { addHttpHeaders } from '../util/httpHeaders';
 import { TechrecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
-import { validateGetErrors } from './get';
+import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
 
 export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
-  // requires the same path params as GET
-  const isPathInvalid: APIGatewayProxyResult | undefined = validateGetErrors(event);
+  const isPathInvalid: APIGatewayProxyResult | undefined = validateSysNumTimestampPathParams(event);
 
   if (isPathInvalid) {
     return isPathInvalid;

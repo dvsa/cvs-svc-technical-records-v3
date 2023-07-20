@@ -1,6 +1,6 @@
 /* eslint-disable import/first */
 const mockSearchByCriteria = jest.fn();
-const mockValidateGetErrors = jest.fn();
+const mockValidateSysNumTimestampPathParams = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import {
@@ -22,8 +22,8 @@ jest.mock('../../../src/services/database.ts', () => ({
   searchByCriteria: mockSearchByCriteria,
 }));
 
-jest.mock('../../../src/validators/get.ts', () => ({
-  validateGetErrors: mockValidateGetErrors,
+jest.mock('../../../src/validators/sysNumTimestamp.ts', () => ({
+  validateSysNumTimestampPathParams: mockValidateSysNumTimestampPathParams,
 }));
 
 const currentRecord = carPostRecord as TechrecordGet;
@@ -54,7 +54,7 @@ describe('Test updateVin Validators', () => {
       } as unknown as APIGatewayProxyEvent;
     });
     it('should return an error when missing a systemNumber from path', () => {
-      mockValidateGetErrors.mockReturnValueOnce({ statusCode: 400, body: 'Missing system number', headers });
+      mockValidateSysNumTimestampPathParams.mockReturnValueOnce({ statusCode: 400, body: 'Missing system number', headers });
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
@@ -63,7 +63,7 @@ describe('Test updateVin Validators', () => {
       });
     });
     it('should return an error when missing a createdTimestamp from path', () => {
-      mockValidateGetErrors.mockReturnValueOnce({ statusCode: 400, body: 'Missing created timestamp', headers });
+      mockValidateSysNumTimestampPathParams.mockReturnValueOnce({ statusCode: 400, body: 'Missing created timestamp', headers });
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
