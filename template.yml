@@ -32,6 +32,7 @@ Resources:
         CodeUri: src/handler/
         Handler: post.handler
         Runtime: nodejs18.x
+        Timeout: 20
         Events:
           PostLambdaApi:
             Type: Api
@@ -49,4 +50,17 @@ Resources:
             Type: Api
             Properties:
               Path: /v3/technical-records/archive/{systemNumber}/{createdTimestamp}
+              Method: patch
+    PatchLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: patch.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PatchLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
               Method: patch

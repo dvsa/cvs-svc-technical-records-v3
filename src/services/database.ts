@@ -6,6 +6,8 @@ import {
   PutItemCommandInput,
   PutItemCommand, QueryCommand,
   QueryInput,
+  TransactWriteItemsCommand,
+  TransactWriteItemsInput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { dynamoDBClientConfig, tableName } from '../config';
@@ -140,5 +142,35 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     logger.error(`Error: ${err}`);
     throw new Error('database client failed getting data');
+  }
+};
+export const archiveOldCreateCurrentRecord = async (recordToArchive: TechrecordGet, recordToCreate: TechrecordGet): Promise<undefined | Error> => {
+  logger.info('Preparing Transact Items');
+
+  const transactParams: TransactWriteItemsInput = {
+    TransactItems: [
+      {
+        Put: {
+          TableName: tableName,
+          Item: marshall(recordToArchive),
+          ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
+        },
+      },
+      {
+        Put: {
+          TableName: tableName,
+          Item: marshall(recordToCreate),
+        },
+      },
+    ],
+  };
+
+  try {
+    await ddbClient.send(new TransactWriteItemsCommand(transactParams));
+    return undefined;
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    logger.error(`Error: ${error}`);
+    throw new Error('Transact Write Items Failed');
   }
 };
