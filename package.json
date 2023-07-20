@@ -20,7 +20,8 @@
     "dynamo:reset": "docker compose down --volumes && npm run dynamo:start",
     "tools-setup": "echo 'move on'",
     "test-i": "echo 'no integration tests'",
-    "package": "npm run build:prod"
+    "package": "npm run build:prod",
+    "swagger:open": "docker run --name swagger -d -p 80:8080 -v $(pwd)/docs:/tmp -e SWAGGER_FILE=/tmp/spec.yml swaggerapi/swagger-editor"
   },
   "contributors": [
     {

@@ -54,6 +54,9 @@ A local DynamoDB table is available for local testing. [DynamoDB Admin](https://
     - The coverage requirements can be set in `jest.config.js`
 
 
+**Documentation** 
+An OpenAPI Specification is found in [/docs/spec.yml](/docs/spec.yml)
+
 **Logging**
 
 Logging is handled by `https://github.com/winstonjs/winston`. A pre-configured logger is available, and can be used like so:
