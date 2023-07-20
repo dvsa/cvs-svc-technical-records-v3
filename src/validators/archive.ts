@@ -23,7 +23,7 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
     };
   }
 
-  const body: ArchiveRecordRequestBody = JSON.parse(event.body as string) as ArchiveRecordRequestBody;
+  const body: ArchiveRecordRequestBody = JSON.parse(event.body as string);
 
   if (!body.reasonForArchiving) {
     return {
@@ -32,5 +32,5 @@ export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayPr
     };
   }
 
-  return;
+  return undefined;
 };
