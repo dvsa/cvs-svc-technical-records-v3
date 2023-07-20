@@ -12,7 +12,7 @@ export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
     return isPathInvalid;
   }
 
-  if (!event.body) {
+  if (!event.body || !Object.keys(event.body).length) {
     return addHttpHeaders({
       statusCode: 400,
       body: 'invalid request',

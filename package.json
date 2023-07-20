@@ -33,14 +33,17 @@
     "@aws-sdk/client-dynamodb": "^3.341.0",
     "@aws-sdk/client-lambda": "^3.362.0",
     "@aws-sdk/util-dynamodb": "^3.362.0",
-    "jwt-decode": "^3.1.2"
+    "@types/luxon": "^3.3.0",
+    "jwt-decode": "^3.1.2",
+    "luxon": "^3.3.0"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.341.0",
-    "@dvsa/eslint-config-ts": "^3.0.0",
     "@dvsa/cvs-type-definitions": "^2.0.19",
+    "@dvsa/eslint-config-ts": "^3.0.0",
     "@types/aws-lambda": "^8.10.114",
     "@types/jest": "^28.1.8",
+    "@types/lodash": "^4.14.195",
     "@types/node": "^16.18.34",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.57.1",

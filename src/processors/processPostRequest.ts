@@ -85,7 +85,7 @@ const generalErrors = (input: TechrecordPut) => {
   if (!input.techRecord_vehicleType) {
     return 'Missing vehicle type';
   }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unnecessary-type-assertion
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unnecessary-type-assertion
   if ((input as any).techRecord_hiddenInVta) {
     return 'skeleton';
   }

@@ -2,7 +2,6 @@
 const mockSend = jest.fn();
 const mockQueryCommand = jest.fn();
 const mockGetItemCommand = jest.fn();
-const mockGenerateNewNumber = jest.fn();
 const mockLambdaSend = jest.fn();
 const mockTransactWriteItemsCommand = jest.fn();
 

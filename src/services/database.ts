@@ -1,10 +1,10 @@
 import {
+  AttributeValue,
   DynamoDBClient,
   GetItemCommand,
   GetItemCommandInput,
-  PutItemCommand,
   PutItemCommandInput,
-  QueryCommand,
+  PutItemCommand, QueryCommand,
   QueryInput,
   TransactWriteItemsCommand,
   TransactWriteItemsInput,
@@ -14,8 +14,23 @@ import { dynamoDBClientConfig, tableName } from '../config';
 import { TechrecordGet } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
+import { ArchiveRecord } from '../models/archive';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
+
+export const archiveRecord = async (record: ArchiveRecord) : Promise<object> => {
+  const command = {
+    TableName: tableName,
+    Item: marshall(record as unknown as Record<string, AttributeValue>, { removeUndefinedValues: true }),
+  };
+
+  try {
+    return await ddbClient.send(new PutItemCommand(command));
+  } catch (e) {
+    logger.error('Error in archive record: ', e);
+    throw new Error(`database client failed in archiving the record with systemNumber ${record.systemNumber} and createdTimestamp ${record.createdTimestamp} `);
+  }
+};
 
 export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
   const query: QueryInput = {
@@ -89,8 +104,8 @@ export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string,
     const data = await ddbClient.send(new GetItemCommand(command));
     logger.debug(JSON.stringify(data));
     return unmarshall(data.Item || {});
-  } catch (e: any) {
-    logger.error(`Error in search by sysnum and time: ${JSON.stringify(e)}`);
+  } catch (error) {
+    logger.error(`Error in search by sysnum and time: ${JSON.stringify(error)}`);
     throw new Error(`database client failed getting data by ${systemNumber} and ${createdTimestamp}`);
   }
 };
@@ -115,7 +130,7 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
         '#systemNumber': 'systemNumber',
       },
       ExpressionAttributeValues: {
-        ':createdTimestamp': { S: request.createdTimestamp! },
+        ':createdTimestamp': { S: request.createdTimestamp as string },
         ':systemNumber': { S: request.systemNumber },
       },
       Item: marshall(request, { removeUndefinedValues: true }),
