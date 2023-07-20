@@ -55,7 +55,11 @@ A local DynamoDB table is available for local testing. [DynamoDB Admin](https://
 
 
 **Documentation** 
-An OpenAPI Specification is found in [/docs/spec.yml](/docs/spec.yml)
+
+An OpenAPI Specification can be found under [docs/spec.yml](docs/spec.yml). 
+
+An `npm run swagger:open`, can be used to open the file in the [Swagger editor](https://swagger.io/tools/swagger-editor/) running in a container. 
+> Note that any updates made to the file in the editor will not be reflected in the local version of the file. The file has to be downloaded and then updated manually.
 
 **Logging**
 
