@@ -71,12 +71,12 @@ export const flattenArrays = <T>(input: T): Promise<FlattenArrays<T>> => {
   const flattenArray = <U>(obj: U, path: string): FlattenArrays<U> => {
     if (Array.isArray(obj)) {
       return obj.reduce<FlattenArrays<U>>((acc, curr, index) => {
-        const key: string = path && !path.includes('secondaryVrms') ? `techRecord_${path}_${index}` : `${index}`;
+        const key: string = path && !path.includes('secondaryVrms') ? `${path}_${index}` : `${index}`;
         return {
           ...acc,
           ...flattenArray(curr, key),
         } as FlattenArrays<U>;
-      }, [] as FlattenArrays<U>);
+      }, [] as unknown as FlattenArrays<U>);
     }
     if (typeof obj === 'object' && obj !== null) {
       return Object.entries(obj).reduce((acc, [key, value]) => {
@@ -87,7 +87,7 @@ export const flattenArrays = <T>(input: T): Promise<FlattenArrays<T>> => {
         } as FlattenArrays<U>;
       }, {} as FlattenArrays<U>);
     }
-    return { [path]: obj } as FlattenArrays<U>;
+    return { [path]: obj } as unknown as FlattenArrays<U>;
   };
   return Promise.resolve(flattenArray(input, '')) as Promise<FlattenArrays<T>>;
 };

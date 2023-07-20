@@ -63,11 +63,11 @@
     "techRecord_vehicleClass_description": null,
     "techRecord_vehicleConfiguration": null,
     "techRecord_vehicleType": "car",
-    "vehicleSubclass": ["a"],
+    "techRecord_vehicleSubclass": ["a"],
     "vin": "DP76UMK4DQLTOT"
   },
   {
-    "axles" : [
+    "techRecord_axles" : [
       {
         "axleNumber": 1,
         "parkingBrakeMrk": false,
@@ -156,11 +156,11 @@
     "techRecord_vehicleClass_description": null,
     "techRecord_vehicleConfiguration": null,
     "techRecord_vehicleType": "car",
-    "vehicleSubclass": ["a"],
+    "techRecord_vehicleSubclass": ["a"],
     "vin": "DP76UMK4DQLTOT"
   },
   {
-    "axles": [
+    "techRecord_axles": [
       {
         "axleNumber": 1,
         "parkingBrakeMrk": false,
@@ -261,12 +261,12 @@
     "techRecord_vehicleClass_description": null,
     "techRecord_vehicleConfiguration": null,
     "techRecord_vehicleType": "car",
-    "vehicleSubclass": ["a"],
+    "techRecord_vehicleSubclass": ["a"],
     "vin": "DP76UMK4DQLTOT"
   },
   {
-    "vehicleSubclass": ["a"],
-    "axles": [
+    "techRecord_vehicleSubclass": ["a"],
+    "techRecord_axles": [
       {
         "axleNumber": 1,
         "parkingBrakeMrk": false,
@@ -304,7 +304,7 @@
         "weights_gbWeight": null
       }
     ],
-    "plates": [
+    "techRecord_plates": [
       {
         "extraInfo": "more info",
         "info": "info"
