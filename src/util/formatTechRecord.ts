@@ -7,7 +7,7 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
       const splitKey = key.split('_');
 
       if (parseInt(splitKey[2], 10) === arrayIndex) {
-        splitKey.splice(1, 2);
+        splitKey.splice(0, 3);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
@@ -15,7 +15,7 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
         arrayToAdd.push(objectToAdd);
         arrayIndex = parseInt(splitKey[2], 10);
         objectToAdd = {};
-        splitKey.splice(1, 2);
+        splitKey.splice(0, 3);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
@@ -45,7 +45,7 @@ export const formatTechRecord = (techRecordWithoutArrays: object) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
       formattedTechRecord[key] = value;
     } else {
-      arrayNames.push(key.split('_')[1]);
+      arrayNames.push(`${key.split('_')[0]}_${key.split('_')[1]}`);
     }
   });
   const valuesToArrayify = [...new Set(arrayNames)];
