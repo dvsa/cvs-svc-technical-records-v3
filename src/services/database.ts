@@ -3,18 +3,19 @@ import {
   DynamoDBClient,
   GetItemCommand,
   GetItemCommandInput,
+  PutItemCommand,
   PutItemCommandInput,
-  PutItemCommand, QueryCommand,
+  QueryCommand,
   QueryInput,
   TransactWriteItemsCommand,
   TransactWriteItemsInput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { dynamoDBClientConfig, tableName } from '../config';
-import { TechrecordGet } from '../models/post';
+import { ArchiveRecord } from '../models/archive';
+import { TechRecordGet } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
-import { ArchiveRecord } from '../models/archive';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
@@ -118,7 +119,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 
-export const postTechRecord = async (request: TechrecordGet): Promise <TechrecordGet> => {
+export const postTechRecord = async (request: TechRecordGet): Promise <TechRecordGet> => {
   logger.info('about to post');
 
   try {
@@ -144,7 +145,7 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
     throw new Error('database client failed getting data');
   }
 };
-export const archiveOldCreateCurrentRecord = async (recordToArchive: TechrecordGet, recordToCreate: TechrecordGet): Promise<undefined | Error> => {
+export const archiveOldCreateCurrentRecord = async (recordToArchive: TechRecordGet, recordToCreate: TechRecordGet, secondaryRecordToArchive?: TechRecordGet): Promise<undefined | Error> => {
   logger.info('Preparing Transact Items');
 
   const transactParams: TransactWriteItemsInput = {
@@ -164,6 +165,16 @@ export const archiveOldCreateCurrentRecord = async (recordToArchive: TechrecordG
       },
     ],
   };
+
+  if (secondaryRecordToArchive) {
+    transactParams.TransactItems?.push({
+      Put: {
+        TableName: tableName,
+        Item: marshall(secondaryRecordToArchive),
+        ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
+      },
+    });
+  }
 
   try {
     await ddbClient.send(new TransactWriteItemsCommand(transactParams));
