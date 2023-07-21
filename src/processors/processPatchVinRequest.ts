@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getUserDetails, UserDetails } from '../services/user';
+import { UserDetails } from '../services/user';
 import { TechrecordGet } from '../models/post';
 
 export const processPatchVinRequest = (currentRecord: TechrecordGet, event: APIGatewayProxyEvent, userDetails: UserDetails): Array<TechrecordGet> => {

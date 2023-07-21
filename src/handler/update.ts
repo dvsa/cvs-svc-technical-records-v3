@@ -74,7 +74,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       body: JSON.stringify(record),
     });
   } catch (error) {
-    logger.error(error);
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    logger.error(`${error}`);
     return addHttpHeaders({
       statusCode: 500,
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

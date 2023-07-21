@@ -42,7 +42,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     logger.debug("Vin's have been validated");
 
     const userDetails = getUserDetails(event.headers.Authorization!);
-
     const [recordToArchive, newRecord] = processPatchVinRequest(currentRecord, event, userDetails);
     await archiveOldCreateCurrentRecord(
       recordToArchive,
@@ -54,9 +53,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       body: JSON.stringify(formatTechRecord(newRecord)),
     });
   } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    logger.error((`${error}`));
     return addHttpHeaders({
       statusCode: 500,
-      body: JSON.stringify(error),
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      body: JSON.stringify({ error: `Failed to update record : ${error}` }),
     });
   }
 };
