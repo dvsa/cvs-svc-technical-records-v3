@@ -51,6 +51,18 @@ Resources:
             Properties:
               Path: /v3/technical-records/archive/{systemNumber}/{createdTimestamp}
               Method: patch
+      PromoteLambdaFunction:
+        Type: 'AWS::Serverless::Function'
+        Properties:
+          CodeUri: src/handler/
+          Handler: promote.handler
+          Runtime: nodejs18.x
+          Events:
+            PromoteLambdaApi:
+              Type: Api
+              Properties:
+                Path: /v3/technical-records/promote/{systemNumber}/{createdTimestamp}
+                Method: patch
     PatchLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -64,3 +76,4 @@ Resources:
             Properties:
               Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
               Method: patch
+
