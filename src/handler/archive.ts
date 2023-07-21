@@ -28,7 +28,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const record: ArchiveRecord = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as ArchiveRecord;
 
-    logger.debug(`result is: ${JSON.stringify(record)}`);
+    // logger.debug(`result is: ${JSON.stringify(record)}`);
 
     if (!record || !Object.keys(record).length) {
       return addHttpHeaders({

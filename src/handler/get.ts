@@ -22,18 +22,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const record = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
-  logger.debug(`result is: ${JSON.stringify(record)}`);
+  // logger.debug(`result is: ${JSON.stringify(record)}`);
 
   if (!record || !Object.keys(record).length) {
     return addHttpHeaders({
       statusCode: 404,
-      body: `No record found matching sysNum ${systemNumber} and timestamp ${createdTimestamp}`,
+      body: `No record found matching systemNumber ${systemNumber} and timestamp ${createdTimestamp}`,
     });
   }
 
   const formattedRecord = formatTechRecord(record);
 
-  logger.debug(`formatted record is: ${JSON.stringify(formattedRecord)}`);
+  // logger.debug(`formatted record is: ${JSON.stringify(formattedRecord)}`);
 
   return addHttpHeaders({
     statusCode: 200,

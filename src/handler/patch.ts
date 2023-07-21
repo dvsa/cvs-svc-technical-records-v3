@@ -21,7 +21,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return isRequestInvalid;
     }
 
-    logger.debug('Request is Valid');
+    // logger.debug('Request is Valid');
 
     const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
     const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
@@ -58,7 +58,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders({
       statusCode: 500,
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      body: JSON.stringify({ error: `Failed to update record : ${error}` }),
+      body: JSON.stringify({ error: `Failed to update VIN : ${error}` }),
     });
   }
 };

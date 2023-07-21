@@ -84,14 +84,14 @@ describe('Test Patch Lambda Function', () => {
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce(
         carPostRecord,
       );
-      mockArchiveOldCreateCurrentRecord.mockRejectedValueOnce({
-        error: 'Transact Write Items Failed',
-      });
+      mockArchiveOldCreateCurrentRecord.mockRejectedValueOnce(
+        'Transact Write Items Failed',
+      );
       mockProcessPatchVinRequest.mockReturnValueOnce([recordToArchive, recordToCreate]);
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 500,
-        body: JSON.stringify({ error: 'Transact Write Items Failed' }),
+        body: JSON.stringify({ error: 'Failed to update VIN : Transact Write Items Failed' }),
         headers,
       });
     });

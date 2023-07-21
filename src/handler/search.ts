@@ -21,7 +21,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const searchResult = searchCriteria === SearchCriteria.ALL
     ? await searchByAll(searchIdentifier) : await searchByCriteria(searchCriteria, searchIdentifier);
 
-  logger.debug(JSON.stringify(searchResult));
+  // logger.debug(JSON.stringify(searchResult));
 
   if (!searchResult.length) {
     return addHttpHeaders({

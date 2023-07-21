@@ -50,7 +50,7 @@ export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, S
 
   try {
     const data = await ddbClient.send(new QueryCommand(query));
-    logger.debug(JSON.stringify(data));
+    // logger.debug(JSON.stringify(data));
     return (data.Items?.map((item) => unmarshall(item)) ?? []) as SearchResult[];
   } catch (e) {
     logger.error('Error in search by criteria: ', e);
@@ -75,7 +75,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
 
     const queryPromise = new Promise<SearchResult[]>((resolve, reject) => {
       ddbClient.send(new QueryCommand(query)).then((data) => {
-        logger.debug(`data for ${searchCriteria}: ${JSON.stringify(data)}`);
+        // logger.debug(`data for ${searchCriteria}: ${JSON.stringify(data)}`);
         resolve((data.Items?.map((item) => unmarshall(item)) ?? []) as SearchResult[]);
       }).catch((e) => {
         logger.error('Error in search by criteria: ', e);

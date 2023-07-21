@@ -42,7 +42,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (!recordFromDB || !Object.keys(recordFromDB).length) {
       return addHttpHeaders({
         statusCode: 404,
-        body: `No record found matching system number ${systemNumber} and timestamp ${createdTimestamp}`,
+        body: `No record found matching systemNumber ${systemNumber} and timestamp ${createdTimestamp}`,
       });
     }
     const statusCodeErrors = checkStatusCodeValidity(recordFromDB.techRecord_statusCode, requestBody.techRecord_statusCode);
