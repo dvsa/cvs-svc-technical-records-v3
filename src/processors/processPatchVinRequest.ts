@@ -1,9 +1,8 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getUserDetails } from '../services/user';
+import { getUserDetails, UserDetails } from '../services/user';
 import { TechrecordGet } from '../models/post';
 
-export const processPatchVinRequest = (currentRecord: TechrecordGet, event: APIGatewayProxyEvent): Array<TechrecordGet> => {
-  const userDetails = getUserDetails(event.headers.Authorization!);
+export const processPatchVinRequest = (currentRecord: TechrecordGet, event: APIGatewayProxyEvent, userDetails: UserDetails): Array<TechrecordGet> => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const newVin: string = JSON.parse(event.body!).newVin as string;
 

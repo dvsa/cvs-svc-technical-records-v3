@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
 import carPostData from '../../resources/techRecordCarPost.json';
 import { TechrecordGet } from '../../../src/models/post';
+import { getUserDetails } from '../../../src/services/user';
 
 describe('processPatchVinrequest', () => {
   it('should format the objects correctly', () => {
@@ -21,9 +22,11 @@ describe('processPatchVinrequest', () => {
         newVin: 'newVin',
       }),
     };
+    const userDetails = getUserDetails(event.headers.Authorization);
     const patchRequest: Array<TechrecordGet> = processPatchVinRequest(
       carPostData as TechrecordGet,
       event as unknown as APIGatewayProxyEvent,
+      userDetails,
     );
 
     expect(patchRequest[1]).not.toEqual(patchRequest[0]);

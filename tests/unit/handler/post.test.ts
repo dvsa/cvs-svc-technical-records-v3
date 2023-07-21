@@ -11,6 +11,7 @@ import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/post';
 import postTrlData from '../../resources/techRecordsTrlPost.json';
 import postCarData from '../../resources/techRecordCarPost.json';
+import { ERRORS } from '../../../src/util/enum';
 
 describe('Test Post Lambda Function', () => {
   beforeEach(() => {
@@ -63,7 +64,7 @@ describe('Test Post Lambda Function', () => {
     it('should return 400 when event has no body', async () => {
       const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toContain('Body is not a valid TechRecord');
+      expect(result.body).toContain(JSON.stringify({ error: ERRORS.MISSING_PAYLOAD }));
     });
     it('should return 500 when error is thrown', async () => {
       postTrlData.techRecord_statusCode = 'foo';
