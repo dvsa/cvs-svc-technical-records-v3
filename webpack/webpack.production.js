@@ -7,7 +7,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const AwsSamPlugin = require("aws-sam-webpack-plugin");
 
 
-const LAMBDA_NAMES = ['SearchLambdaFunction', 'GetLambdaFunction', 'PostLambdaFunction', 'PatchLambdaFunction', 'ArchiveLambdaFunction'];
+const LAMBDA_NAMES = ['SearchLambdaFunction', 'GetLambdaFunction', 'PostLambdaFunction', 'PatchLambdaFunction', 'ArchiveLambdaFunction', 'UpdateLambdaFunction'];
 const OUTPUT_FOLDER = './'
 const REPO_NAME = 'cvs-svc-technical-records-v3';
 const BRANCH_NAME = branchName().replace(/\//g, "-");

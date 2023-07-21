@@ -75,5 +75,5 @@ Resources:
           UpdateLambda:
             Type: Api
             Properties:
-              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
+              Path: /v3/technical-records/update/{systemNumber}/{createdTimestamp}
               Method: post
