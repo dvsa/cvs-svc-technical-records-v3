@@ -1,15 +1,15 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getUserDetails } from '../services/user';
-import { TechrecordGet } from '../models/post';
+import { TechRecordGet } from '../models/post';
 
-export const processPatchVinRequest = (currentRecord: TechrecordGet, event: APIGatewayProxyEvent): Array<TechrecordGet> => {
+export const processPatchVinRequest = (currentRecord: TechRecordGet, event: APIGatewayProxyEvent): Array<TechRecordGet> => {
   const userDetails = getUserDetails(event.headers.Authorization!);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const newVin: string = JSON.parse(event.body!).newVin as string;
 
-  const recordToArchive: TechrecordGet = { ...currentRecord };
+  const recordToArchive: TechRecordGet = { ...currentRecord };
 
-  const newRecord: TechrecordGet = { ...currentRecord };
+  const newRecord: TechRecordGet = { ...currentRecord };
 
   const date: string = new Date().toISOString();
 

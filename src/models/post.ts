@@ -31,7 +31,7 @@ export type TechrecordPut = TechRecordPUTRequestCompleteCarSchema | TechRecordPU
 | POSTPSVTechnicalRecordV3Complete | POSTPSVTechnicalRecordV3Testable | POSTPSVTechnicalRecordV3Skeleton
 | PUTTRLTechnicalRecordV3Complete | GETTRLTechnicalRecordV3Testable | GETTRLTechnicalRecordV3Skeleton;
 
-export type TechrecordGet = TechRecordCompleteCarSchema | TechRecordSkeletonCarSchema
+export type TechRecordGet = TechRecordCompleteCarSchema | TechRecordSkeletonCarSchema
 | GETHGVTechnicalRecordV3Complete | GETHGVTechnicalRecordV3Testable | GETHGVTechnicalRecordV3Skeleton
 | TechRecordCompleteMotorcycleSchema
 | GETPSVTechnicalRecordV3Complete | GETPSVTechnicalRecordV3Testable | GETPSVTechnicalRecordV3Skeleton

@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
 import carPostData from '../../resources/techRecordCarPost.json';
-import { TechrecordGet } from '../../../src/models/post';
+import { TechRecordGet } from '../../../src/models/post';
 
 describe('processPatchVinrequest', () => {
   it('should format the objects correctly', () => {
@@ -21,8 +21,8 @@ describe('processPatchVinrequest', () => {
         newVin: 'newVin',
       }),
     };
-    const patchRequest: Array<TechrecordGet> = processPatchVinRequest(
-      carPostData as TechrecordGet,
+    const patchRequest: Array<TechRecordGet> = processPatchVinRequest(
+      carPostData as TechRecordGet,
       event as unknown as APIGatewayProxyEvent,
     );
 

@@ -6,7 +6,7 @@ const mockProcessPatchVinRequest = jest.fn();
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/patch';
 import carPostRecord from '../../resources/techRecordCarPost.json';
-import { TechrecordGet } from '../../../src/models/post';
+import { TechRecordGet } from '../../../src/models/post';
 import { formatTechRecord } from '../../../src/util/formatTechRecord';
 
 jest.mock('../../../src/services/database.ts', () => ({
@@ -26,8 +26,8 @@ const headers = {
   'Access-Control-Allow-Origin': '*',
 };
 
-const recordToArchive: TechrecordGet = carPostRecord as TechrecordGet;
-const recordToCreate: TechrecordGet = carPostRecord as TechrecordGet;
+const recordToArchive: TechRecordGet = carPostRecord as TechRecordGet;
+const recordToCreate: TechRecordGet = carPostRecord as TechRecordGet;
 
 recordToArchive.techRecord_statusCode = 'archived';
 recordToCreate.createdTimestamp = 'timenow';
@@ -129,7 +129,7 @@ describe('Test Patch Lambda Function', () => {
 
       const result = await handler(request as unknown as APIGatewayProxyEvent);
 
-      expect(mockGetBySystemNumberAndCreatedTimestamp).toBeCalledWith(request.pathParameters!.systemNumber, request.pathParameters!.createdTimestamp);
+      expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledWith(request.pathParameters!.systemNumber, request.pathParameters!.createdTimestamp);
     });
     it('should return 200 and success message', async () => {
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValue(carPostRecord);

@@ -8,7 +8,7 @@ import {
 } from '../services/database';
 import { validateUpdateVinRequest, validateVins } from '../validators/patch';
 import { processPatchVinRequest } from '../processors/processPatchVinRequest';
-import { TechrecordGet } from '../models/post';
+import { TechRecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -27,10 +27,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const newVin: string = JSON.parse(event.body ?? '').newVin as string ?? '';
 
-  const currentRecord: TechrecordGet = await getBySystemNumberAndCreatedTimestamp(
+  const currentRecord: TechRecordGet = await getBySystemNumberAndCreatedTimestamp(
     systemNumber,
     createdTimestamp,
-  ) as TechrecordGet;
+  ) as TechRecordGet;
 
   const isVinInvalid: APIGatewayProxyResult | undefined = validateVins(currentRecord, newVin.toUpperCase());
 

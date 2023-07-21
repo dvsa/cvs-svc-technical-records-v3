@@ -8,7 +8,7 @@ import {
   validateVins,
 } from '../../../src/validators/patch';
 import carPostRecord from '../../resources/techRecordCarPost.json';
-import { TechrecordGet } from '../../../src/models/post';
+import { TechRecordGet } from '../../../src/models/post';
 import { formatTechRecord } from '../../../src/util/formatTechRecord';
 
 const headers = {
@@ -26,7 +26,7 @@ jest.mock('../../../src/validators/sysNumTimestamp.ts', () => ({
   validateSysNumTimestampPathParams: mockValidateSysNumTimestampPathParams,
 }));
 
-const currentRecord = carPostRecord as TechrecordGet;
+const currentRecord = carPostRecord as TechRecordGet;
 
 describe('Test updateVin Validators', () => {
   describe('validateUpdateVinRequest', () => {

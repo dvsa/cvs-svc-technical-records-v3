@@ -26,7 +26,7 @@ import {
 } from '../../../src/services/database';
 import postCarData from '../../resources/techRecordCarPost.json';
 import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
-import { TechrecordGet } from '../../../src/models/post';
+import { TechRecordGet } from '../../../src/models/post';
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
@@ -138,7 +138,7 @@ describe('archiveOldCreateCurrentRecord', () => {
         newVin: 'newVin',
       }),
     };
-    const patchRecords: Array<TechrecordGet> = processPatchVinRequest(postCarData as TechrecordGet, event as unknown as APIGatewayProxyEvent);
+    const patchRecords: Array<TechRecordGet> = processPatchVinRequest(postCarData as TechRecordGet, event as unknown as APIGatewayProxyEvent);
     mockSend.mockReturnValueOnce({});
 
     const res = await archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1]);
@@ -155,7 +155,7 @@ describe('archiveOldCreateCurrentRecord', () => {
         newVin: 'newVin',
       }),
     };
-    const patchRecords: Array<TechrecordGet> = processPatchVinRequest(postCarData as TechrecordGet, event as unknown as APIGatewayProxyEvent);
+    const patchRecords: Array<TechRecordGet> = processPatchVinRequest(postCarData as TechRecordGet, event as unknown as APIGatewayProxyEvent);
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
     await expect(archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1])).rejects.toThrow();
