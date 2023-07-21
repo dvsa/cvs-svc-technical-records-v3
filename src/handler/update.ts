@@ -1,15 +1,16 @@
-import 'dotenv/config';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import 'dotenv/config';
 
-import logger from '../util/logger';
-import { addHttpHeaders } from '../util/httpHeaders';
-import { getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';
-import { formatTechRecord, flattenArrays } from '../util/formatTechRecord';
-import { checkStatusCodeValidity, validateUpdateErrors } from '../validators/update';
-import { getUserDetails } from '../services/user';
 import { TechrecordGet, TechrecordPut } from '../models/post';
-import { computeRecordCompleteness } from '../processors/processPostRequest';
 import { getUpdateType, setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../processors/processUpdateRequest';
+import { getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';
+import { getUserDetails } from '../services/user';
+import { ERRORS } from '../util/enum';
+import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
+import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
+import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
+import { checkStatusCodeValidity, validateUpdateErrors } from '../validators/update';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Update end point called');
@@ -17,7 +18,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   if (!event.headers.Authorization) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Missing authorization header' }),
+      body: JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }),
     };
   }
 
@@ -33,26 +34,19 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const putBody = JSON.parse(event.body ?? '') as TechrecordPut;
 
   const formattedRecordFromDB = formatTechRecord(recordFromDB);
-  // logger.debug(formattedRecordFromDB);
-  // TODO: uncomment later
-  // const statusErrors = checkStatusCodeValidity(recordFromDB.techRecord_statusCode, putBody.techRecord_statusCode);
-  // if (statusErrors) {
-  //   return addHttpHeaders(statusErrors);
-  // }
 
-  // techRecToArchive - not required
-  // validateVrmWithHistory(); check if any current record has same vrm as the one being changed - not required
-  // updateVehicleIdentifiers - not required
-  // capitaliseGeneralVehicleAttributes - not required
+  const statusErrors = checkStatusCodeValidity(recordFromDB.techRecord_statusCode, putBody.techRecord_statusCode);
+  if (statusErrors) {
+    return addHttpHeaders(statusErrors);
+  }
 
   const newRecord = { ...formattedRecordFromDB, ...putBody } as TechrecordGet;
+  newRecord.techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechrecordPut);
+
   const flattenedNewRecord = await flattenArrays(newRecord) as TechrecordGet;
 
-  flattenedNewRecord.techRecord_recordCompleteness = computeRecordCompleteness(flattenedNewRecord as TechrecordPut);
-
-  // TODO: uncomment
-  // const updateType = getUpdateType(newRecord, recordFromDB);
-  // recordFromDB.techRecord_updateType = updateType;
+  const updateType = getUpdateType(flattenedNewRecord, recordFromDB);
+  recordFromDB.techRecord_updateType = updateType;
 
   const userDetails = getUserDetails(event.headers.Authorization);
   const date = new Date().toISOString();
@@ -60,7 +54,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const updatedNewRecord = setCreatedAuditDetails(flattenedNewRecord, userDetails.username, userDetails.msOid, date);
 
   try {
-    // logger.debug(flattenedNewRecord);
+    // logger.debug(updatedRecordFromDB);
     const record = await updateVehicle(updatedRecordFromDB, updatedNewRecord);
     logger.debug('updated details');
     // const formattedRecord = formatTechRecord(record);

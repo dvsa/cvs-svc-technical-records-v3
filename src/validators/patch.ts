@@ -3,6 +3,7 @@ import { addHttpHeaders } from '../util/httpHeaders';
 import { TechrecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
+import { ERRORS } from '../util/enum';
 
 // eslint-disable-next-line consistent-return
 export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
@@ -22,7 +23,7 @@ export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
   if (!event.headers.Authorization) {
     return addHttpHeaders({
       statusCode: 400,
-      body: 'Missing authorization header',
+      body: ERRORS.MISSING_AUTH_HEADER,
     });
   }
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

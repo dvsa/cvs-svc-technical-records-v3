@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import {
-  TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordCar, TechrecordPsv, TechrecordTrl,
+  TechrecordCar, TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordPsv, TechrecordTrl,
 } from '../models/post';
 import { ERRORS, STATUS } from '../util/enum';
 
@@ -81,11 +81,12 @@ export const checkStatusCodeValidity = (oldStatus: string | undefined, newStatus
       body: ERRORS.CANNOT_USE_UPDATE_TO_ARCHIVE,
     };
   }
-  // if (oldStatus === STATUS.CURRENT && newStatus === STATUS.PROVISIONAL) {
-  //   return {
-  //     statusCode: 400,
-  //     body: ERRORS.CANNOT_CHANGE_CURRENT_TO_PROVISIONAL,
-  //   };
-  // }
+  // TODO: check this criteria
+  if (oldStatus === STATUS.CURRENT && newStatus === STATUS.PROVISIONAL) {
+    return {
+      statusCode: 400,
+      body: ERRORS.CANNOT_CHANGE_CURRENT_TO_PROVISIONAL,
+    };
+  }
   return undefined;
 };

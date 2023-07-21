@@ -53,6 +53,7 @@ export enum ERRORS {
   INVALID_BODY_TYPE = 'Invalid body type code',
   INVALID_VEHICLE_CLASS = 'Invalid vehicle class code',
   INVALID_VEHICLE_TYPE = '"vehicleType" must be one of [hgv, psv, trl, lgv, car, motorcycle]',
+  MISSING_AUTH_HEADER = 'Missing authorization header',
 }
 
 export enum UpdateType {

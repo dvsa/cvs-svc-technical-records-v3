@@ -10,6 +10,7 @@ import {
 import carPostRecord from '../../resources/techRecordCarPost.json';
 import { TechrecordGet } from '../../../src/models/post';
 import { formatTechRecord } from '../../../src/util/formatTechRecord';
+import { ERRORS } from '../../../src/util/enum';
 
 const headers = {
   'Access-Control-Allow-Headers':
@@ -94,7 +95,7 @@ describe('Test updateVin Validators', () => {
       const result = validateUpdateVinRequest(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: 'Missing authorization header',
+        body: ERRORS.MISSING_AUTH_HEADER,
         headers,
       });
     });

@@ -20,14 +20,16 @@ export const setCreatedAuditDetails = (techRecord: TechrecordGet, createdByName:
   return techRecord as TechrecordPut;
 };
 
-export const getUpdateType = (oldRecord: TechrecordGet, newRecord: TechrecordGet) => {
-  const updateType = UpdateType.TECH_RECORD_UPDATE;
+export const getUpdateType = (oldRecord: TechrecordGet, newRecord: TechrecordGet): UpdateType => {
+  let updateType = UpdateType.TECH_RECORD_UPDATE;
   Object.entries(newRecord).forEach(([key, value]) => {
     if (/techRecord_adrDetails_[a-zA-Z]+/.test(key)) {
-      // if (value !== oldRecord[key]) {
-      //   updateType = UpdateType.ADR;
-      // }
+      if (value !== oldRecord[key as keyof TechrecordGet]) {
+        updateType = UpdateType.ADR;
+        return updateType;
+      }
     }
+    return updateType;
   });
   return updateType;
 };

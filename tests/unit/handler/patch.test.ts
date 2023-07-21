@@ -8,6 +8,7 @@ import { handler } from '../../../src/handler/patch';
 import carPostRecord from '../../resources/techRecordCarPost.json';
 import { TechrecordGet } from '../../../src/models/post';
 import { formatTechRecord } from '../../../src/util/formatTechRecord';
+import { ERRORS } from '../../../src/util/enum';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp:
@@ -63,7 +64,7 @@ describe('Test Patch Lambda Function', () => {
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result).toEqual({
         statusCode: 400,
-        body: 'Missing authorization header',
+        body: ERRORS.MISSING_AUTH_HEADER,
         headers,
       });
     });
@@ -129,7 +130,7 @@ describe('Test Patch Lambda Function', () => {
 
       const result = await handler(request as unknown as APIGatewayProxyEvent);
 
-      expect(mockGetBySystemNumberAndCreatedTimestamp).toBeCalledWith(request.pathParameters!.systemNumber, request.pathParameters!.createdTimestamp);
+      expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledWith(request.pathParameters!.systemNumber, request.pathParameters!.createdTimestamp);
     });
     it('should return 200 and success message', async () => {
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValue(carPostRecord);
