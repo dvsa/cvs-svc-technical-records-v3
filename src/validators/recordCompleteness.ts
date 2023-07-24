@@ -41,6 +41,7 @@ const validateCompleteSchema = (input: TechrecordPut): boolean => {
   }
   return false;
 };
+
 const validateTestableSchema = (input: TechrecordPut): boolean => {
   const isTestableSchema = input.techRecord_vehicleType === (VehicleType.TRL || VehicleType.PSV || VehicleType.HGV)
     ? identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, HttpMethod.PUT) : '';

@@ -2,9 +2,10 @@ import {
   TechrecordCar, TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordPsv, TechrecordTrl,
 } from '../models/post';
 import { ERRORS, STATUS } from '../util/enum';
+import { isObjectEmpty } from './emptyObject';
 
 export const validateUpdateErrors = (requestBody: string | null) => {
-  if (!requestBody) {
+  if (!requestBody || isObjectEmpty(JSON.parse(requestBody))) {
     return {
       statusCode: 400,
       body: ERRORS.MISSING_PAYLOAD,

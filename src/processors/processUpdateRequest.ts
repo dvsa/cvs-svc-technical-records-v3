@@ -22,6 +22,7 @@ export const processUpdateRequest = async (recordFromDB: TechrecordGet, requestB
 
   return [updatedRecordFromDB, updatedNewRecord];
 };
+
 export const setLastUpdatedAuditDetails = (techRecord: TechrecordGet, createdByName: string, createdById: string, date: string) => {
   techRecord.techRecord_lastUpdatedAt = date;
   techRecord.techRecord_lastUpdatedByName = createdByName;

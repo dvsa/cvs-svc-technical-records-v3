@@ -21,6 +21,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         body: JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }),
       });
     }
+
     const isRequestInvalid = validateSysNumTimestampPathParams(event);
     if (isRequestInvalid) {
       return isRequestInvalid;
