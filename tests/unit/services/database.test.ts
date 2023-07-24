@@ -32,16 +32,19 @@ import { SearchCriteria } from '../../../src/models/search';
 import {
   searchByCriteria,
   searchByAll,
-  getBySystemNumberAndCreatedTimestamp, postTechRecord, archiveOldCreateCurrentRecord,
+  getBySystemNumberAndCreatedTimestamp, archiveOldCreateCurrentRecord,
   updateVehicle,
 
 } from '../../../src/services/database';
 import postCarData from '../../resources/techRecordCarPost.json';
 import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
 import { TechrecordGet } from '../../../src/models/post';
-import { getUserDetails } from '../../../src/services/user';
+import * as UserDetails from '../../../src/services/user';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/processors/processUpdateRequest';
 
+const mockUserDetails = {
+  username: 'Test User', msOid: 'QWERTY', email: 'testUser@test.com',
+};
 describe('searchByCriteria', () => {
   beforeEach(() => {
     jest.resetAllMocks();
@@ -145,8 +148,8 @@ describe('archiveOldCreateCurrentRecord', () => {
         newVin: 'newVin',
       }),
     };
-    const userDetails = getUserDetails(event.headers.Authorization);
-    const patchRecords: Array<TechrecordGet> = processPatchVinRequest(postCarData as TechrecordGet, event as unknown as APIGatewayProxyEvent, userDetails);
+    jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
+    const patchRecords: Array<TechrecordGet> = processPatchVinRequest(postCarData as TechrecordGet, event as unknown as APIGatewayProxyEvent, mockUserDetails);
     mockSend.mockReturnValueOnce({});
 
     const res = await archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1]);
@@ -163,8 +166,8 @@ describe('archiveOldCreateCurrentRecord', () => {
         newVin: 'newVin',
       }),
     };
-    const userDetails = getUserDetails(event.headers.Authorization);
-    const patchRecords: Array<TechrecordGet> = processPatchVinRequest(postCarData as TechrecordGet, event as unknown as APIGatewayProxyEvent, userDetails);
+    jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
+    const patchRecords: Array<TechrecordGet> = processPatchVinRequest(postCarData as TechrecordGet, event as unknown as APIGatewayProxyEvent, mockUserDetails);
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
     await expect(archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1])).rejects.toThrow();
@@ -182,12 +185,12 @@ describe('updateVehcile', () => {
         techRecord_reasonForCreation: 'TEST update',
       }),
     };
-    const userDetails = getUserDetails(event.headers.Authorization);
+    jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
     const recordFromDB = postCarData as TechrecordGet;
     const newRecord = { ...(postCarData as TechrecordGet), ...JSON.parse(event.body) } as TechrecordGet;
     const date = new Date().toISOString();
-    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, userDetails.username, userDetails.msOid, date);
-    const updatedNewRecord = setCreatedAuditDetails(newRecord, userDetails.username, userDetails.msOid, date);
+    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date);
+    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date);
     mockSend.mockImplementation(() => Promise.resolve({}));
 
     const res = await updateVehicle(updatedRecordFromDB, updatedNewRecord);
@@ -204,12 +207,12 @@ describe('updateVehcile', () => {
         techRecord_reasonForCreation: 'TEST update',
       }),
     };
-    const userDetails = getUserDetails(event.headers.Authorization);
+    jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
     const recordFromDB = postCarData as TechrecordGet;
     const newRecord = { ...(postCarData as TechrecordGet), ...JSON.parse(event.body) } as TechrecordGet;
     const date = new Date().toISOString();
-    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, userDetails.username, userDetails.msOid, date);
-    const updatedNewRecord = setCreatedAuditDetails(newRecord, userDetails.username, userDetails.msOid, date);
+    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date);
+    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date);
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
     await expect(updateVehicle(updatedRecordFromDB, updatedNewRecord)).rejects.toBe('error');

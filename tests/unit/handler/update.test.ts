@@ -18,7 +18,7 @@ jest.mock('../../../src/services/database.ts', () => ({
 jest.mock('../../../src/processors/processUpdateRequest', () => ({
   processUpdateRequest: mockProcessUpdateRequest,
 }));
-const userDetails = {
+const mockUserDetails = {
   username: 'Test User', msOid: 'QWERTY', email: 'testUser@test.com',
 };
 
@@ -47,7 +47,7 @@ describe('update handler', () => {
     it('should pass validation and return a 200 response', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
 
-      jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(userDetails);
+      jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
       const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechrecordPut;
       mockProcessUpdateRequest.mockResolvedValueOnce([hgvData, newRecord]);
@@ -87,7 +87,7 @@ describe('update handler', () => {
     it('should throw error if transaction fails', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
 
-      jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(userDetails);
+      jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
       const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechrecordPut;
       mockProcessUpdateRequest.mockResolvedValueOnce([hgvData, newRecord]);
