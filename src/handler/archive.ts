@@ -1,12 +1,12 @@
-import 'dotenv/config';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import logger from '../util/logger';
-import { validateArchiveErrors } from '../validators/archive';
-import { addHttpHeaders } from '../util/httpHeaders';
+import 'dotenv/config';
+import { ArchiveRecord, ArchiveRecordRequestBody } from '../models/archive';
 import { archiveRecord, getBySystemNumberAndCreatedTimestamp } from '../services/database';
 import { getUserDetails } from '../services/user';
 import { formatTechRecord } from '../util/formatTechRecord';
-import { ArchiveRecord, ArchiveRecordRequestBody } from '../models/archive';
+import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
+import { validateArchiveErrors } from '../validators/archive';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Archive end point called');

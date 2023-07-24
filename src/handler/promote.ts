@@ -1,5 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
+import 'dotenv/config';
+import { cloneDeep } from 'lodash';
 import { TechRecordGet } from '../models/post';
+import { PromoteRecordRequestBody } from '../models/promote';
 import { SearchCriteria } from '../models/search';
 import { archiveOldCreateCurrentRecord, getBySystemNumberAndCreatedTimestamp, searchByCriteria } from '../services/database';
 import { getUserDetails } from '../services/user';
@@ -16,11 +19,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders(promoteErrors);
   }
 
-  const systemNumber = event?.pathParameters?.systemNumber ?? '';
-  const createdTimestamp = event?.pathParameters?.createdTimestamp ?? '';
+  const systemNumber = decodeURIComponent(event?.pathParameters?.systemNumber as string ?? '');
+  const createdTimestamp = decodeURIComponent(event?.pathParameters?.createdTimestamp as string ?? '');
   const userDetails = getUserDetails(event.headers.Authorization ?? '');
+  const { reasonForPromoting } = JSON.parse(event.body as string) as PromoteRecordRequestBody;
 
-  logger.debug(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
+  logger.info(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
 
   const provisionalRecord: TechRecordGet = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechRecordGet;
 
@@ -57,12 +61,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     logger.debug(`Old current record after update ${JSON.stringify(currentRecord)}`);
   }
 
-  const newCurrentRecord = provisionalRecord;
+  const newCurrentRecord = cloneDeep(provisionalRecord);
 
   newCurrentRecord.techRecord_statusCode = 'current';
-  newCurrentRecord.techRecord_lastUpdatedAt = new Date().toISOString();
-  newCurrentRecord.techRecord_lastUpdatedByName = userDetails.username;
-  newCurrentRecord.techRecord_lastUpdatedById = userDetails.msOid;
+  newCurrentRecord.createdTimestamp = new Date().toISOString();
+  delete newCurrentRecord.techRecord_lastUpdatedAt;
+  newCurrentRecord.techRecord_createdByName = userDetails.username;
+  newCurrentRecord.techRecord_createdById = userDetails.msOid;
+  newCurrentRecord.techRecord_reasonForCreation = reasonForPromoting;
 
   logger.debug(`New current record after update ${JSON.stringify(newCurrentRecord)}`);
 
