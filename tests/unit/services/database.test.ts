@@ -15,6 +15,17 @@ jest.mock('@aws-sdk/client-lambda', () => ({
   })),
   InvokeCommand: jest.fn(),
 }));
+jest.mock('@aws-sdk/client-dynamodb', () => ({
+  DynamoDBClient: mockDynamoDBClient,
+  QueryCommand: mockQueryCommand,
+  GetItemCommand: mockGetItemCommand,
+  TransactWriteItemsCommand: mockTransactWriteItemsCommand,
+}));
+jest.mock('@aws-sdk/lib-dynamodb', () => ({
+  DynamoDBDocumentClient: {
+    from: jest.fn().mockImplementation(() => ({ send: mockSend })),
+  },
+}));
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { SearchCriteria } from '../../../src/models/search';
@@ -22,19 +33,14 @@ import {
   searchByCriteria,
   searchByAll,
   getBySystemNumberAndCreatedTimestamp, postTechRecord, archiveOldCreateCurrentRecord,
+  updateVehicle,
 
 } from '../../../src/services/database';
 import postCarData from '../../resources/techRecordCarPost.json';
 import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
 import { TechrecordGet } from '../../../src/models/post';
 import { getUserDetails } from '../../../src/services/user';
-
-jest.mock('@aws-sdk/client-dynamodb', () => ({
-  DynamoDBClient: mockDynamoDBClient,
-  QueryCommand: mockQueryCommand,
-  GetItemCommand: mockGetItemCommand,
-  TransactWriteItemsCommand: mockTransactWriteItemsCommand,
-}));
+import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/processors/processUpdateRequest';
 
 describe('searchByCriteria', () => {
   beforeEach(() => {
@@ -162,5 +168,50 @@ describe('archiveOldCreateCurrentRecord', () => {
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
     await expect(archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1])).rejects.toThrow();
+  });
+});
+
+describe('updateVehcile', () => {
+  it('should return a success message if the transaction is successful', async () => {
+    const event = {
+      headers: {
+        Authorization:
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+      },
+      body: JSON.stringify({
+        techRecord_reasonForCreation: 'TEST update',
+      }),
+    };
+    const userDetails = getUserDetails(event.headers.Authorization);
+    const recordFromDB = postCarData as TechrecordGet;
+    const newRecord = { ...(postCarData as TechrecordGet), ...JSON.parse(event.body) } as TechrecordGet;
+    const date = new Date().toISOString();
+    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, userDetails.username, userDetails.msOid, date);
+    const updatedNewRecord = setCreatedAuditDetails(newRecord, userDetails.username, userDetails.msOid, date);
+    mockSend.mockImplementation(() => Promise.resolve({}));
+
+    const res = await updateVehicle(updatedRecordFromDB, updatedNewRecord);
+
+    expect((res as TechrecordGet).techRecord_reasonForCreation).toBe('TEST update');
+  });
+  it('should return an error message if the transaction fails', async () => {
+    const event = {
+      headers: {
+        Authorization:
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+      },
+      body: JSON.stringify({
+        techRecord_reasonForCreation: 'TEST update',
+      }),
+    };
+    const userDetails = getUserDetails(event.headers.Authorization);
+    const recordFromDB = postCarData as TechrecordGet;
+    const newRecord = { ...(postCarData as TechrecordGet), ...JSON.parse(event.body) } as TechrecordGet;
+    const date = new Date().toISOString();
+    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, userDetails.username, userDetails.msOid, date);
+    const updatedNewRecord = setCreatedAuditDetails(newRecord, userDetails.username, userDetails.msOid, date);
+    mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
+
+    await expect(updateVehicle(updatedRecordFromDB, updatedNewRecord)).rejects.toBe('error');
   });
 });

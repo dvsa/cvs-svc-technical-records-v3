@@ -13,7 +13,7 @@ export const validateUpdateErrors = (requestBody: string | null) => {
 
   const techRec = JSON.parse(requestBody) as TechrecordGet;
 
-  if (techRec.vin || techRec.partialVin) {
+  if (techRec.vin) {
     return {
       statusCode: 400,
       body: ERRORS.INVALID_VIN_UPDATE,

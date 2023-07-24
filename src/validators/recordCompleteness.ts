@@ -5,7 +5,7 @@ import logger from '../util/logger';
 import { identifySchema } from './post';
 
 /**
- * This function validates and changes the input in place and also returns the RecordCompleteness.
+ * This function validates and changes the input in place and returns the RecordCompleteness.
  * @param input: TechrecordPut
  * @returns RecordCompleteness
  *

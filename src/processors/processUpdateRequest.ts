@@ -1,6 +1,27 @@
 import { TechrecordGet, TechrecordPut } from '../models/post';
+import { UserDetails } from '../services/user';
 import { STATUS, UpdateType } from '../util/enum';
+import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
+import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
+export const processUpdateRequest = async (recordFromDB: TechrecordGet, requestBody: TechrecordPut, userDetails: UserDetails): Promise<(TechrecordGet | TechrecordPut)[]> => {
+  const formattedRecordFromDB = formatTechRecord(recordFromDB);
+
+  const newRecord = { ...formattedRecordFromDB, ...requestBody } as TechrecordGet;
+
+  newRecord.techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechrecordPut);
+
+  const flattenedNewRecord = await flattenArrays(newRecord) as TechrecordGet;
+
+  const updateType = getUpdateType(flattenedNewRecord, recordFromDB);
+  recordFromDB.techRecord_updateType = updateType;
+
+  const date = new Date().toISOString();
+  const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, userDetails.username, userDetails.msOid, date);
+  const updatedNewRecord = setCreatedAuditDetails(flattenedNewRecord, userDetails.username, userDetails.msOid, date);
+
+  return [updatedRecordFromDB, updatedNewRecord];
+};
 export const setLastUpdatedAuditDetails = (techRecord: TechrecordGet, createdByName: string, createdById: string, date: string) => {
   techRecord.techRecord_lastUpdatedAt = date;
   techRecord.techRecord_lastUpdatedByName = createdByName;
