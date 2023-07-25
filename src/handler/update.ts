@@ -34,8 +34,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const userDetails = getUserDetails(event.headers.Authorization);
 
-    const systemNumber = decodeURIComponent(event.pathParameters?.systemNumber as string);
-    const createdTimestamp = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
+    const systemNumber = decodeURIComponent(event.pathParameters?.systemNumber ?? '');
+    const createdTimestamp = decodeURIComponent(event.pathParameters?.createdTimestamp ?? '');
     const requestBody = JSON.parse(event.body ?? '') as TechrecordPut;
 
     const recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechrecordGet;
