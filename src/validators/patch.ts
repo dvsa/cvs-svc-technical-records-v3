@@ -42,14 +42,14 @@ export const validateVins = (currentRecord: TechrecordGet, newVin: string) => {
     !newVin
     || newVin.length < 3
     || newVin.length > 21
+    || !(/^[0-9a-z]+$/i).test(newVin)
     || typeof newVin !== 'string'
   ) {
     return addHttpHeaders({
       statusCode: 400,
       body: 'New VIN is invalid',
     });
-  }
-  if (newVin === currentRecord.vin) {
+  } if (newVin === currentRecord.vin) {
     return addHttpHeaders({
       statusCode: 200,
       body: JSON.stringify(formatTechRecord(currentRecord)),
