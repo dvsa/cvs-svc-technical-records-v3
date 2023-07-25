@@ -22,7 +22,7 @@ export const processPatchVinRequest = (currentRecord: TechrecordGet, event: APIG
   if (newVin.length < 6) {
     newRecord.partialVin = newVin.toUpperCase();
   } else {
-    newRecord.partialVin = newVin.substring(newVin.length - 6).toUpperCase();
+    newRecord.partialVin = newVin.substring(Math.max(newVin.length - 6)).toUpperCase();
   }
 
   recordToArchive.techRecord_statusCode = 'archived';
