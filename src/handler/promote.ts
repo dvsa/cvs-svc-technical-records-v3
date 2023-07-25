@@ -88,10 +88,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     });
   } catch (error) {
     logger.error(`Error has been thrown with ${JSON.stringify(error)}`);
-    return {
+    return addHttpHeaders({
       statusCode: 500,
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      body: JSON.stringify({ error: `Failed to archive record: ${error}` }),
-    };
+      body: JSON.stringify({ error: `Failed to promote record: ${error}` }),
+    });
   }
 };

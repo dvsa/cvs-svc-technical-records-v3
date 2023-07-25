@@ -17,16 +17,17 @@ jest.mock('@aws-sdk/client-lambda', () => ({
 }));
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { TechRecordGet } from '../../../src/models/post';
 import { SearchCriteria } from '../../../src/models/search';
+import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
 import {
-  searchByCriteria,
+  archiveOldCreateCurrentRecord,
+  getBySystemNumberAndCreatedTimestamp,
   searchByAll,
-  getBySystemNumberAndCreatedTimestamp, postTechRecord, archiveOldCreateCurrentRecord,
-
+  searchByCriteria,
 } from '../../../src/services/database';
 import postCarData from '../../resources/techRecordCarPost.json';
-import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
-import { TechRecordGet } from '../../../src/models/post';
+import promoteRecords from '../../resources/techRecordPromoteRecord.json';
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
@@ -142,6 +143,13 @@ describe('archiveOldCreateCurrentRecord', () => {
     mockSend.mockReturnValueOnce({});
 
     const res = await archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1]);
+
+    expect(res).toBeUndefined();
+  });
+  it('should return when passed 3 records', async () => {
+    mockSend.mockReturnValueOnce({});
+
+    const res = await archiveOldCreateCurrentRecord(promoteRecords[0] as unknown as TechRecordGet, promoteRecords[1] as unknown as TechRecordGet, promoteRecords[2] as unknown as TechRecordGet);
 
     expect(res).toBeUndefined();
   });
