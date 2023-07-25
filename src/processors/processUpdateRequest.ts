@@ -9,7 +9,7 @@ import { validateAndComputeRecordCompleteness } from '../validators/recordComple
 export const processUpdateRequest = async (recordFromDB: TechrecordGet, requestBody: TechrecordPut, userDetails: UserDetails): Promise<(TechrecordGet | TechrecordPut)[]> => {
   const formattedRecordFromDB = formatTechRecord(recordFromDB);
 
-  const updatedRequest = replaceVRMTrailerIdInRequest(recordFromDB, requestBody);
+  const updatedRequest = processVehicleIdentifiers(recordFromDB, requestBody);
 
   const newRecord = { ...formattedRecordFromDB, ...updatedRequest } as TechrecordGet;
 
@@ -60,13 +60,22 @@ export const getUpdateType = (oldRecord: TechrecordGet, newRecord: TechrecordGet
   return updateType;
 };
 
-export const replaceVRMTrailerIdInRequest = (recordFromDB: TechrecordGet, requestBody: TechrecordPut) => {
-  const techRecord: TechrecordPut = { ...requestBody };
+export const processVehicleIdentifiers = (recordFromDB: TechrecordGet, requestBody: TechrecordPut) => {
+  const techRecord = { ...requestBody } as TechrecordGet;
   if ((techRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm !== (recordFromDB as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm) {
     (techRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm = (recordFromDB as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm;
   }
   if ((techRecord as TechrecordTrl).trailerId !== (recordFromDB as TechrecordTrl).trailerId) {
     (techRecord as TechrecordTrl).trailerId = (recordFromDB as TechrecordTrl).trailerId;
+  }
+  const newVin = techRecord.vin;
+  if ((newVin !== undefined && newVin !== null) && newVin !== recordFromDB.vin) {
+    techRecord.vin = newVin.toUpperCase();
+    if (newVin.length < 6) {
+      techRecord.partialVin = newVin.toUpperCase();
+    } else {
+      techRecord.partialVin = newVin.substring(newVin.length - 6).toUpperCase();
+    }
   }
   return techRecord;
 };

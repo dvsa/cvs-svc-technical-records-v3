@@ -32,12 +32,11 @@ import { SearchCriteria } from '../../../src/models/search';
 import {
   searchByCriteria,
   searchByAll,
-  getBySystemNumberAndCreatedTimestamp, archiveOldCreateCurrentRecord,
+  getBySystemNumberAndCreatedTimestamp,
   updateVehicle,
 
 } from '../../../src/services/database';
 import postCarData from '../../resources/techRecordCarPost.json';
-import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
 import { TechrecordGet } from '../../../src/models/post';
 import * as UserDetails from '../../../src/services/user';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/processors/processUpdateRequest';
@@ -134,43 +133,6 @@ describe('getBySystemNumberAndCreatedTimestamp', () => {
   it('should catch an error', async () => {
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
     await expect(getBySystemNumberAndCreatedTimestamp('ABC123', '1234')).rejects.toThrow();
-  });
-});
-
-describe('archiveOldCreateCurrentRecord', () => {
-  it('should return a success message if the transact is successful', async () => {
-    const event = {
-      headers: {
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
-      },
-      body: JSON.stringify({
-        newVin: 'newVin',
-      }),
-    };
-    jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
-    const patchRecords: Array<TechrecordGet> = processPatchVinRequest(postCarData as TechrecordGet, event as unknown as APIGatewayProxyEvent, mockUserDetails);
-    mockSend.mockReturnValueOnce({});
-
-    const res = await archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1]);
-
-    expect(res).toBeUndefined();
-  });
-  it('should return an error message if the transact fails', async () => {
-    const event = {
-      headers: {
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
-      },
-      body: JSON.stringify({
-        newVin: 'newVin',
-      }),
-    };
-    jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
-    const patchRecords: Array<TechrecordGet> = processPatchVinRequest(postCarData as TechrecordGet, event as unknown as APIGatewayProxyEvent, mockUserDetails);
-    mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
-
-    await expect(archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1])).rejects.toThrow();
   });
 });
 

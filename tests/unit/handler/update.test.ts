@@ -79,10 +79,25 @@ describe('update handler', () => {
       expect(result.statusCode).toBe(400);
       expect(result.body).toEqual(ERRORS.MISSING_PAYLOAD);
     });
-    it('should return error when event has no Authorisation header', async () => {
+    it('should return error when event is invalid', async () => {
       const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(500);
       expect(result.body).toContain('Failed to update record');
+    });
+    it('should return an error when request has no auth header', async () => {
+      request.headers.Authorization = undefined;
+      const result = await handler(request as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toEqual(JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }));
+    });
+    it('should return an error when VINs are invalid', async () => {
+      request.body = JSON.stringify({ vin: 'to' });
+      mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
+        vin: 'testVin',
+      });
+      const result = await handler(request as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toEqual(ERRORS.VIN_ERROR);
     });
     it('should throw error if transaction fails', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
