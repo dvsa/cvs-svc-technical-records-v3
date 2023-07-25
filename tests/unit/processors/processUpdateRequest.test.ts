@@ -1,8 +1,11 @@
-import { TechrecordGet } from '../../../src/models/post';
-import { processUpdateRequest, getUpdateType } from '../../../src/processors/processUpdateRequest';
+import {
+  TechrecordGet, TechrecordHgv, TechrecordPut, TechrecordTrl,
+} from '../../../src/models/post';
+import { processUpdateRequest, getUpdateType, processVehicleIdentifiers } from '../../../src/processors/processUpdateRequest';
 import { UserDetails } from '../../../src/services/user';
 import { UpdateType } from '../../../src/util/enum';
 import hgvData from '../../resources/techRecordHGVPost.json';
+import trailerData from '../../resources/techRecordsTrlPost.json';
 
 describe('getUpdateType', () => {
   it('returns updateType for the record', () => {
@@ -46,5 +49,40 @@ describe('processUpdateRequest', () => {
       techRecord_createdById: 'QWERTY',
       techRecord_axles_0_tyres_tyreCode: 428,
     }));
+  });
+});
+
+describe('processVehicleIdentifiers', () => {
+  it('should replace the vrm if present in request', () => {
+    const mockRecordFromDb = hgvData;
+    const mockRequest = { techRecord_reasonForCreation: 'Test Update', primaryVrm: 1234 };
+    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechrecordGet, mockRequest as unknown as TechrecordPut);
+    expect((updatedRequest as TechrecordHgv).primaryVrm).toBe('GB02DAN');
+  });
+  it('should replace the trailer id if present in request', () => {
+    const mockRecordFromDb = trailerData;
+    const mockRequest = { techRecord_reasonForCreation: 'Test Update', trailerId: 1234 };
+    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechrecordGet, mockRequest as unknown as TechrecordPut);
+    expect((updatedRequest as TechrecordTrl).trailerId).toBe('C000001');
+  });
+  it('should calculate partialVin if a new VIN is in the request', () => {
+    const mockRecordFromDb = hgvData;
+    const mockRequest = { techRecord_reasonForCreation: 'Test Update', vin: 'Abc123456' };
+    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechrecordGet, mockRequest as unknown as TechrecordPut);
+    expect((updatedRequest as TechrecordHgv).vin).toBe('ABC123456');
+    expect((updatedRequest as TechrecordHgv).partialVin).toBe('123456');
+  });
+  it('should use same partialVin as new VIN if VIN is less than 6 characters', () => {
+    const mockRecordFromDb = hgvData;
+    const mockRequest = { techRecord_reasonForCreation: 'Test Update', vin: 'abc123' };
+    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechrecordGet, mockRequest as unknown as TechrecordPut);
+    expect((updatedRequest as TechrecordHgv).vin).toBe('ABC123');
+    expect((updatedRequest as TechrecordHgv).partialVin).toBe('ABC123');
+  });
+  it('should make no changes if vehicle identifiers do not change', () => {
+    const mockRecordFromDb = hgvData;
+    const mockRequest = { techRecord_reasonForCreation: 'Test Update' };
+    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechrecordGet, mockRequest as unknown as TechrecordPut);
+    expect(updatedRequest).toEqual(mockRequest);
   });
 });

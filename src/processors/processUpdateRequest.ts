@@ -62,19 +62,24 @@ export const getUpdateType = (oldRecord: TechrecordGet, newRecord: TechrecordGet
 
 export const processVehicleIdentifiers = (recordFromDB: TechrecordGet, requestBody: TechrecordPut) => {
   const techRecord = { ...requestBody } as TechrecordGet;
-  if ((techRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm !== (recordFromDB as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm) {
-    (techRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm = (recordFromDB as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm;
+
+  const newVrm = (techRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm;
+  const existingVrm = (recordFromDB as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm;
+  if (newVrm !== undefined && newVrm !== null && newVrm !== existingVrm) {
+    (techRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm = existingVrm;
   }
-  if ((techRecord as TechrecordTrl).trailerId !== (recordFromDB as TechrecordTrl).trailerId) {
+
+  const newTrailerId = (techRecord as TechrecordTrl).trailerId;
+  if (newTrailerId !== undefined && newTrailerId !== null && newTrailerId !== (recordFromDB as TechrecordTrl).trailerId) {
     (techRecord as TechrecordTrl).trailerId = (recordFromDB as TechrecordTrl).trailerId;
   }
   const newVin = techRecord.vin;
-  if ((newVin !== undefined && newVin !== null) && newVin !== recordFromDB.vin) {
+  if (newVin !== undefined && newVin !== null && newVin !== recordFromDB.vin) {
     techRecord.vin = newVin.toUpperCase();
     if (newVin.length < 6) {
       techRecord.partialVin = newVin.toUpperCase();
     } else {
-      techRecord.partialVin = newVin.substring(newVin.length - 6).toUpperCase();
+      techRecord.partialVin = newVin.substring(Math.max(newVin.length - 6)).toUpperCase();
     }
   }
   return techRecord;
