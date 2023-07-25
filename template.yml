@@ -55,7 +55,7 @@ Resources:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
-        Handler: patch.handler
+        Handler: update.handler
         Runtime: nodejs18.x
         Timeout: 20
         Events:
@@ -64,16 +64,3 @@ Resources:
             Properties:
               Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
               Method: patch
-    UpdateLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: update.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          UpdateLambda:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/update/{systemNumber}/{createdTimestamp}
-              Method: post

@@ -10,7 +10,7 @@ import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateSysNumTimestampPathParams } from '../validators/sysNumTimestamp';
-import { checkStatusCodeValidity, validateUpdateErrors } from '../validators/update';
+import { checkStatusCodeValidity, checkVinValidity, validateUpdateErrors } from '../validators/update';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Update end point called');
@@ -49,6 +49,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const statusCodeErrors = checkStatusCodeValidity(recordFromDB.techRecord_statusCode, requestBody.techRecord_statusCode);
     if (statusCodeErrors) {
       return addHttpHeaders(statusCodeErrors);
+    }
+
+    const vinErrors = checkVinValidity(recordFromDB.vin, requestBody.vin);
+    if (vinErrors) {
+      return addHttpHeaders(vinErrors);
     }
 
     const [updatedRecordFromDB, updatedNewRecord] = await processUpdateRequest(recordFromDB, requestBody, userDetails);

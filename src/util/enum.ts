@@ -39,7 +39,7 @@ export enum ERRORS {
   MISSING_REASON_FOR_ARCHIVING = 'Reason for archiving not provided',
   VEHICLE_TYPE_ERROR = '"vehicleType" must be one of [hgv, psv, trl, lgv, car, motorcycle]',
   MISSING_AUTH_HEADER = 'Missing authorization header',
-  INVALID_VIN_UPDATE = 'Cannot use update API to update the VIN',
+  VIN_ERROR = 'New VIN is invalid',
   INVALID_VRM_UPDATE = 'Cannot use update API to update the VRM',
   INVALID_TRAILER_ID_UPDATE = 'Cannot use update API to update the trailer ID',
 }

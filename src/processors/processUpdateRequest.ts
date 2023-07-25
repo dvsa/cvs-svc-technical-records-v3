@@ -1,4 +1,6 @@
-import { TechrecordGet, TechrecordPut } from '../models/post';
+import {
+  TechrecordCar, TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordPsv, TechrecordPut, TechrecordTrl,
+} from '../models/post';
 import { UserDetails } from '../services/user';
 import { STATUS, UpdateType } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
@@ -7,7 +9,9 @@ import { validateAndComputeRecordCompleteness } from '../validators/recordComple
 export const processUpdateRequest = async (recordFromDB: TechrecordGet, requestBody: TechrecordPut, userDetails: UserDetails): Promise<(TechrecordGet | TechrecordPut)[]> => {
   const formattedRecordFromDB = formatTechRecord(recordFromDB);
 
-  const newRecord = { ...formattedRecordFromDB, ...requestBody } as TechrecordGet;
+  const updatedRequest = replaceVRMTrailerIdInRequest(recordFromDB, requestBody);
+
+  const newRecord = { ...formattedRecordFromDB, ...updatedRequest } as TechrecordGet;
 
   newRecord.techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechrecordPut);
 
@@ -54,4 +58,15 @@ export const getUpdateType = (oldRecord: TechrecordGet, newRecord: TechrecordGet
     return updateType;
   });
   return updateType;
+};
+
+export const replaceVRMTrailerIdInRequest = (recordFromDB: TechrecordGet, requestBody: TechrecordPut) => {
+  const techRecord: TechrecordPut = { ...requestBody };
+  if ((techRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm !== (recordFromDB as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm) {
+    (techRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm = (recordFromDB as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm;
+  }
+  if ((techRecord as TechrecordTrl).trailerId !== (recordFromDB as TechrecordTrl).trailerId) {
+    (techRecord as TechrecordTrl).trailerId = (recordFromDB as TechrecordTrl).trailerId;
+  }
+  return techRecord;
 };

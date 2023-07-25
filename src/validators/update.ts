@@ -1,6 +1,3 @@
-import {
-  TechrecordCar, TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordPsv, TechrecordTrl,
-} from '../models/post';
 import { ERRORS, STATUS } from '../util/enum';
 import { isObjectEmpty } from './emptyObject';
 
@@ -9,29 +6,6 @@ export const validateUpdateErrors = (requestBody: string | null) => {
     return {
       statusCode: 400,
       body: ERRORS.MISSING_PAYLOAD,
-    };
-  }
-
-  const techRec = JSON.parse(requestBody) as TechrecordGet;
-
-  if (techRec.vin) {
-    return {
-      statusCode: 400,
-      body: ERRORS.INVALID_VIN_UPDATE,
-    };
-  }
-
-  if ((techRec as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm) {
-    return {
-      statusCode: 400,
-      body: ERRORS.INVALID_VRM_UPDATE,
-    };
-  }
-
-  if ((techRec as TechrecordTrl).trailerId) {
-    return {
-      statusCode: 400,
-      body: ERRORS.INVALID_TRAILER_ID_UPDATE,
     };
   }
 
@@ -57,6 +31,21 @@ export const checkStatusCodeValidity = (oldStatus: string | undefined, newStatus
       statusCode: 400,
       body: ERRORS.CANNOT_CHANGE_CURRENT_TO_PROVISIONAL,
     };
+  }
+  return false;
+};
+
+export const checkVinValidity = (currentVin: string, newVin: (string | undefined | null)) => {
+  if ((newVin !== undefined && newVin !== null) && newVin !== currentVin) {
+    if (newVin.length < 3
+      || newVin.length > 21
+      || typeof newVin !== 'string'
+    ) {
+      return ({
+        statusCode: 400,
+        body: ERRORS.VIN_ERROR,
+      });
+    }
   }
   return false;
 };

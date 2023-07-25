@@ -1,28 +1,11 @@
 import { ERRORS, STATUS } from '../../../src/util/enum';
-import { checkStatusCodeValidity, validateUpdateErrors } from '../../../src/validators/update';
+import { checkStatusCodeValidity, checkVinValidity, validateUpdateErrors } from '../../../src/validators/update';
 
 describe('validateUpdateErrors', () => {
   it('throws error if request body is empty', () => {
     expect(validateUpdateErrors('{}')).toEqual({
       statusCode: 400,
       body: ERRORS.MISSING_PAYLOAD,
-    });
-  });
-  it('throws error if trying to update VIN', () => {
-    const result = validateUpdateErrors(JSON.stringify({ vin: 'TestVin' }));
-    expect(result).toEqual({
-      statusCode: 400,
-      body: ERRORS.INVALID_VIN_UPDATE,
-    });
-  });
-  it('throws error if trying to update VRM or TrailerID', () => {
-    expect(validateUpdateErrors(JSON.stringify({ primaryVrm: '132421' }))).toEqual({
-      statusCode: 400,
-      body: ERRORS.INVALID_VRM_UPDATE,
-    });
-    expect(validateUpdateErrors(JSON.stringify({ trailerId: '132421' }))).toEqual({
-      statusCode: 400,
-      body: ERRORS.INVALID_TRAILER_ID_UPDATE,
     });
   });
   it('returns false if no errors', () => {
@@ -53,5 +36,28 @@ describe('checkStatusCodeValidity', () => {
     expect(checkStatusCodeValidity(STATUS.CURRENT, STATUS.CURRENT)).toBe(false);
     expect(checkStatusCodeValidity(STATUS.PROVISIONAL, STATUS.CURRENT)).toBe(false);
     expect(checkStatusCodeValidity(STATUS.PROVISIONAL, STATUS.PROVISIONAL)).toBe(false);
+  });
+});
+
+describe('checkVinValidity', () => {
+  it('throws error if new vin is invalid', () => {
+    expect(checkVinValidity('1234', '12')).toEqual({
+      statusCode: 400,
+      body: ERRORS.VIN_ERROR,
+    });
+    expect(checkVinValidity('1234', '123456789123456789123456789')).toEqual({
+      statusCode: 400,
+      body: ERRORS.VIN_ERROR,
+    });
+    expect(checkVinValidity('1234', '')).toEqual({
+      statusCode: 400,
+      body: ERRORS.VIN_ERROR,
+    });
+  });
+  it('returns false if no errors', () => {
+    expect(checkVinValidity('1234', '1234')).toBe(false);
+    expect(checkVinValidity('1234', '12345')).toBe(false);
+    expect(checkVinValidity('1234', undefined)).toBe(false);
+    expect(checkVinValidity('1234', null)).toBe(false);
   });
 });
