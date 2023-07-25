@@ -19,6 +19,12 @@ export const processPatchVinRequest = (currentRecord: TechRecordGet, event: APIG
   newRecord.techRecord_createdByName = userDetails.username;
   newRecord.techRecord_createdById = userDetails.msOid;
 
+  if (newVin.length < 6) {
+    newRecord.partialVin = newVin.toUpperCase();
+  } else {
+    newRecord.partialVin = newVin.substring(Math.max(newVin.length - 6)).toUpperCase();
+  }
+
   recordToArchive.techRecord_statusCode = 'archived';
   recordToArchive.techRecord_lastUpdatedAt = date;
   recordToArchive.techRecord_lastUpdatedByName = userDetails.username;

@@ -1,7 +1,7 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { addHttpHeaders } from '../util/httpHeaders';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { TechRecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
+import { addHttpHeaders } from '../util/httpHeaders';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
 
 // eslint-disable-next-line consistent-return
