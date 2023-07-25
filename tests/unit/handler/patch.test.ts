@@ -5,9 +5,10 @@ const mockProcessPatchVinRequest = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/patch';
-import carPostRecord from '../../resources/techRecordCarPost.json';
+import { StatusCode } from '../../../src/models/StatusCode.enum';
 import { TechRecordGet } from '../../../src/models/post';
 import { formatTechRecord } from '../../../src/util/formatTechRecord';
+import carPostRecord from '../../resources/techRecordCarPost.json';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp:
@@ -29,7 +30,7 @@ const headers = {
 const recordToArchive: TechRecordGet = carPostRecord as TechRecordGet;
 const recordToCreate: TechRecordGet = carPostRecord as TechRecordGet;
 
-recordToArchive.techRecord_statusCode = 'archived';
+recordToArchive.techRecord_statusCode = StatusCode.ARCHIVED;
 recordToCreate.createdTimestamp = 'timenow';
 
 describe('Test Patch Lambda Function', () => {

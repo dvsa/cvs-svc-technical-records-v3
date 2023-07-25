@@ -13,6 +13,7 @@ jest.mock('../../../src/services/database.ts', () => ({
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { cloneDeep } from 'lodash';
 import { handler } from '../../../src/handler/archive';
+import { StatusCode } from '../../../src/models/StatusCode.enum';
 import archivePatchData from '../../resources/techRecordArchiveRecord.json';
 import archiveRequestData from '../../resources/techRecordArchiveRequest.json';
 
@@ -55,7 +56,7 @@ describe('Archive Patch Lambda Function', () => {
     it('should return a 400 response when record is already archived', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
       const invalidRecordData = cloneDeep(archivePatchData);
-      invalidRecordData.techRecord_statusCode = 'archived';
+      invalidRecordData.techRecord_statusCode = StatusCode.ARCHIVED;
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(invalidRecordData);
 
       const result = await handler(archiveRequestData as unknown as APIGatewayProxyEvent);

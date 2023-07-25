@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
 import { cloneDeep } from 'lodash';
+import { StatusCode } from '../models/StatusCode.enum';
 import { TechRecordGet } from '../models/post';
 import { PromoteRecordRequestBody } from '../models/promote';
 import { SearchCriteria } from '../models/search';
@@ -37,7 +38,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     });
   }
 
-  if (provisionalRecord.techRecord_statusCode !== 'provisional') {
+  if (provisionalRecord.techRecord_statusCode !== StatusCode.PROVISIONAL) {
     return addHttpHeaders({
       statusCode: 400,
       body: 'Record provided is not a provisional record so cannot be promoted.',
@@ -45,7 +46,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   const allVehicleRecords = await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, provisionalRecord.systemNumber);
-  const currentResult = allVehicleRecords.filter((searchResult) => searchResult.techRecord_statusCode === 'current');
+  const currentResult = allVehicleRecords.filter((searchResult) => searchResult.techRecord_statusCode === StatusCode.CURRENT);
 
   logger.debug(`Current result ${JSON.stringify(currentResult)}`);
 
@@ -53,7 +54,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   if (currentResult.length > 0) {
     const currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult[0].systemNumber, currentResult[0].createdTimestamp) as TechRecordGet;
-    currentRecord.techRecord_statusCode = 'archived';
+    currentRecord.techRecord_statusCode = StatusCode.ARCHIVED;
     currentRecord.techRecord_lastUpdatedAt = new Date().toISOString();
     currentRecord.techRecord_lastUpdatedByName = userDetails.username;
     currentRecord.techRecord_lastUpdatedById = userDetails.msOid;
@@ -64,7 +65,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   const newCurrentRecord = cloneDeep(provisionalRecord);
 
-  newCurrentRecord.techRecord_statusCode = 'current';
+  newCurrentRecord.techRecord_statusCode = StatusCode.CURRENT;
   newCurrentRecord.createdTimestamp = new Date().toISOString();
   delete newCurrentRecord.techRecord_lastUpdatedAt;
   newCurrentRecord.techRecord_createdByName = userDetails.username;
@@ -73,7 +74,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug(`New current record after update ${JSON.stringify(newCurrentRecord)}`);
 
-  provisionalRecord.techRecord_statusCode = 'archived';
+  provisionalRecord.techRecord_statusCode = StatusCode.ARCHIVED;
   provisionalRecord.techRecord_lastUpdatedAt = new Date().toISOString();
   provisionalRecord.techRecord_lastUpdatedByName = userDetails.username;
   provisionalRecord.techRecord_lastUpdatedById = userDetails.msOid;

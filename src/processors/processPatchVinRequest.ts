@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getUserDetails } from '../services/user';
+import { StatusCode } from '../models/StatusCode.enum';
 import { TechRecordGet } from '../models/post';
+import { getUserDetails } from '../services/user';
 
 export const processPatchVinRequest = (currentRecord: TechRecordGet, event: APIGatewayProxyEvent): Array<TechRecordGet> => {
   const userDetails = getUserDetails(event.headers.Authorization!);
@@ -25,7 +26,7 @@ export const processPatchVinRequest = (currentRecord: TechRecordGet, event: APIG
     newRecord.partialVin = newVin.substring(Math.max(newVin.length - 6)).toUpperCase();
   }
 
-  recordToArchive.techRecord_statusCode = 'archived';
+  recordToArchive.techRecord_statusCode = StatusCode.ARCHIVED;
   recordToArchive.techRecord_lastUpdatedAt = date;
   recordToArchive.techRecord_lastUpdatedByName = userDetails.username;
   recordToArchive.techRecord_lastUpdatedById = userDetails.msOid;

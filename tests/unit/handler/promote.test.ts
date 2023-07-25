@@ -7,6 +7,7 @@ const mockGetUserDetails = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/promote';
+import { StatusCode } from '../../../src/models/StatusCode.enum';
 
 jest.mock('../../../src/validators/promote', () => ({
   validatePromoteErrors: mockValidatePromoteErrors,
@@ -40,14 +41,14 @@ describe('Promote endpoint', () => {
 
   it('should return 200 when given a provisional', async () => {
     mockValidatePromoteErrors.mockReturnValueOnce(undefined);
-    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'provisional' });
+    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: StatusCode.PROVISIONAL });
     mockSearchByCriteria.mockResolvedValueOnce([]);
     mockArchiveOldCreateCurrentRecord.mockResolvedValueOnce(undefined);
     mockGetUserDetails.mockReturnValueOnce({ username: 'user', msOid: '123' });
 
     const result = await handler(mockEvent as unknown as APIGatewayProxyEvent);
     const expectedBody = {
-      techRecord_statusCode: 'current',
+      techRecord_statusCode: StatusCode.CURRENT,
       createdTimestamp: mockedDate.toISOString(),
       techRecord_createdByName: 'user',
       techRecord_createdById: '123',
@@ -59,14 +60,14 @@ describe('Promote endpoint', () => {
 
   it('should return 200 when given a provisional and there is a current', async () => {
     mockValidatePromoteErrors.mockReturnValueOnce(undefined);
-    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'provisional' }).mockResolvedValueOnce({ techRecord_statusCode: 'current' });
-    mockSearchByCriteria.mockResolvedValueOnce([{ techRecord_statusCode: 'current' }]);
+    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: StatusCode.PROVISIONAL }).mockResolvedValueOnce({ techRecord_statusCode: StatusCode.CURRENT });
+    mockSearchByCriteria.mockResolvedValueOnce([{ techRecord_statusCode: StatusCode.CURRENT }]);
     mockArchiveOldCreateCurrentRecord.mockResolvedValueOnce(undefined);
     mockGetUserDetails.mockReturnValueOnce({ username: 'user', msOid: '123' });
 
     const result = await handler(mockEvent as unknown as APIGatewayProxyEvent);
     const expectedBody = {
-      techRecord_statusCode: 'current',
+      techRecord_statusCode: StatusCode.CURRENT,
       createdTimestamp: mockedDate.toISOString(),
       techRecord_createdByName: 'user',
       techRecord_createdById: '123',
@@ -87,7 +88,7 @@ describe('Promote endpoint', () => {
 
   it('should return 400 if record is not a provisional', async () => {
     mockValidatePromoteErrors.mockReturnValueOnce(undefined);
-    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'current' });
+    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: StatusCode.CURRENT });
 
     const result = await handler(mockEvent as unknown as APIGatewayProxyEvent);
 
