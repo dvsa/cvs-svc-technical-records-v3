@@ -117,11 +117,19 @@ describe('Test updateVin Validators', () => {
         headers,
       });
     });
-    it('should return an error if new VIN is the same as the old VIN', () => {
+    it('should return original record if new VIN is the same as the old VIN', () => {
       const result = validateVins(currentRecord, 'AA11100851');
       expect(result).toEqual({
         statusCode: 200,
         body: JSON.stringify(formatTechRecord(currentRecord)),
+        headers,
+      });
+    });
+    it('should return an error if newVin contains special characters', () => {
+      const result = validateVins(currentRecord, '!newvin');
+      expect(result).toEqual({
+        statusCode: 400,
+        body: 'New VIN is invalid',
         headers,
       });
     });

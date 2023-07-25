@@ -38,18 +38,19 @@ export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
 
 // eslint-disable-next-line consistent-return
 export const validateVins = (currentRecord: TechrecordGet, newVin: string) => {
+  console.log((/^[0-9A-Z]+$/).test(newVin));
   if (
     !newVin
     || newVin.length < 3
     || newVin.length > 21
+    || !(/^[0-9a-z]+$/i).test(newVin)
     || typeof newVin !== 'string'
   ) {
     return addHttpHeaders({
       statusCode: 400,
       body: 'New VIN is invalid',
     });
-  }
-  if (newVin === currentRecord.vin) {
+  } if (newVin === currentRecord.vin) {
     return addHttpHeaders({
       statusCode: 200,
       body: JSON.stringify(formatTechRecord(currentRecord)),
