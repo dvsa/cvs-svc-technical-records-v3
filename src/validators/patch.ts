@@ -38,7 +38,6 @@ export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
 
 // eslint-disable-next-line consistent-return
 export const validateVins = (currentRecord: TechrecordGet, newVin: string) => {
-  console.log((/^[0-9A-Z]+$/).test(newVin));
   if (
     !newVin
     || newVin.length < 3
