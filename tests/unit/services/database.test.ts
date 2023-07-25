@@ -142,14 +142,14 @@ describe('archiveOldCreateCurrentRecord', () => {
     const patchRecords: Array<TechRecordGet> = processPatchVinRequest(postCarData as TechRecordGet, event as unknown as APIGatewayProxyEvent);
     mockSend.mockReturnValueOnce({});
 
-    const res = await archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1]);
+    const res = await archiveOldCreateCurrentRecord([patchRecords[0]], patchRecords[1]);
 
     expect(res).toBeUndefined();
   });
   it('should return when passed 3 records', async () => {
     mockSend.mockReturnValueOnce({});
 
-    const res = await archiveOldCreateCurrentRecord(promoteRecords[0] as unknown as TechRecordGet, promoteRecords[1] as unknown as TechRecordGet, promoteRecords[2] as unknown as TechRecordGet);
+    const res = await archiveOldCreateCurrentRecord([promoteRecords[0] as unknown as TechRecordGet, promoteRecords[2] as unknown as TechRecordGet], promoteRecords[1] as unknown as TechRecordGet);
 
     expect(res).toBeUndefined();
   });
@@ -166,6 +166,6 @@ describe('archiveOldCreateCurrentRecord', () => {
     const patchRecords: Array<TechRecordGet> = processPatchVinRequest(postCarData as TechRecordGet, event as unknown as APIGatewayProxyEvent);
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
-    await expect(archiveOldCreateCurrentRecord(patchRecords[0], patchRecords[1])).rejects.toThrow();
+    await expect(archiveOldCreateCurrentRecord([patchRecords[0]], patchRecords[1])).rejects.toThrow();
   });
 });

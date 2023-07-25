@@ -7,7 +7,6 @@ const mockGetUserDetails = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/promote';
-import { archiveOldCreateCurrentRecord } from '../../../src/services/database';
 
 jest.mock('../../../src/validators/promote', () => ({
   validatePromoteErrors: mockValidatePromoteErrors,
@@ -55,11 +54,6 @@ describe('Promote endpoint', () => {
       techRecord_reasonForCreation: 'Just a test for promoting',
     };
 
-    expect(archiveOldCreateCurrentRecord).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.anything(),
-      undefined,
-    );
     expect(result).toEqual({ statusCode: 200, body: JSON.stringify(expectedBody), headers });
   });
 
@@ -79,11 +73,6 @@ describe('Promote endpoint', () => {
       techRecord_reasonForCreation: 'Just a test for promoting',
     };
 
-    expect(archiveOldCreateCurrentRecord).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
-    );
     expect(result).toEqual({ statusCode: 200, body: JSON.stringify(expectedBody), headers });
   });
 

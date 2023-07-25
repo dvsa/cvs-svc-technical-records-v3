@@ -145,18 +145,11 @@ export const postTechRecord = async (request: TechRecordGet): Promise <TechRecor
     throw new Error('database client failed getting data');
   }
 };
-export const archiveOldCreateCurrentRecord = async (recordToArchive: TechRecordGet, recordToCreate: TechRecordGet, secondaryRecordToArchive?: TechRecordGet): Promise<undefined | Error> => {
+export const archiveOldCreateCurrentRecord = async (recordsToArchive: TechRecordGet[], recordToCreate: TechRecordGet): Promise<undefined | Error> => {
   logger.info('Preparing Transact Items');
 
   const transactParams: TransactWriteItemsInput = {
     TransactItems: [
-      {
-        Put: {
-          TableName: tableName,
-          Item: marshall(recordToArchive),
-          ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
-        },
-      },
       {
         Put: {
           TableName: tableName,
@@ -166,15 +159,15 @@ export const archiveOldCreateCurrentRecord = async (recordToArchive: TechRecordG
     ],
   };
 
-  if (secondaryRecordToArchive) {
-    transactParams.TransactItems?.push({
+  recordsToArchive.forEach((record) => transactParams.TransactItems?.push(
+    {
       Put: {
         TableName: tableName,
-        Item: marshall(secondaryRecordToArchive),
+        Item: marshall(record),
         ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
       },
-    });
-  }
+    },
+  ));
 
   try {
     await ddbClient.send(new TransactWriteItemsCommand(transactParams));

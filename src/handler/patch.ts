@@ -1,15 +1,15 @@
-import 'dotenv/config';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import logger from '../util/logger';
-import { addHttpHeaders } from '../util/httpHeaders';
+import 'dotenv/config';
+import { TechRecordGet } from '../models/post';
+import { processPatchVinRequest } from '../processors/processPatchVinRequest';
 import {
   archiveOldCreateCurrentRecord,
   getBySystemNumberAndCreatedTimestamp,
 } from '../services/database';
-import { validateUpdateVinRequest, validateVins } from '../validators/patch';
-import { processPatchVinRequest } from '../processors/processPatchVinRequest';
-import { TechRecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
+import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
+import { validateUpdateVinRequest, validateVins } from '../validators/patch';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Amend VIN Called');
@@ -47,7 +47,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   try {
     await archiveOldCreateCurrentRecord(
-      recordToArchive,
+      [recordToArchive],
       newRecord,
     );
 

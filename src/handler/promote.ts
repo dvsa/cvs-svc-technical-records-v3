@@ -19,8 +19,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders(promoteErrors);
   }
 
-  const systemNumber = decodeURIComponent(event?.pathParameters?.systemNumber as string ?? '');
-  const createdTimestamp = decodeURIComponent(event?.pathParameters?.createdTimestamp as string ?? '');
+  const systemNumber = decodeURIComponent(event?.pathParameters?.systemNumber ?? '');
+  const createdTimestamp = decodeURIComponent(event?.pathParameters?.createdTimestamp ?? '');
   const userDetails = getUserDetails(event.headers.Authorization ?? '');
   const { reasonForPromoting } = JSON.parse(event.body as string) as PromoteRecordRequestBody;
 
@@ -49,14 +49,15 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug(`Current result ${JSON.stringify(currentResult)}`);
 
-  let currentRecord: TechRecordGet | undefined;
+  const recordsToArchive: TechRecordGet[] = [];
 
   if (currentResult.length > 0) {
-    currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult[0].systemNumber, currentResult[0].createdTimestamp) as TechRecordGet;
+    const currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult[0].systemNumber, currentResult[0].createdTimestamp) as TechRecordGet;
     currentRecord.techRecord_statusCode = 'archived';
     currentRecord.techRecord_lastUpdatedAt = new Date().toISOString();
     currentRecord.techRecord_lastUpdatedByName = userDetails.username;
     currentRecord.techRecord_lastUpdatedById = userDetails.msOid;
+    recordsToArchive.push(currentRecord);
 
     logger.debug(`Old current record after update ${JSON.stringify(currentRecord)}`);
   }
@@ -76,10 +77,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   provisionalRecord.techRecord_lastUpdatedAt = new Date().toISOString();
   provisionalRecord.techRecord_lastUpdatedByName = userDetails.username;
   provisionalRecord.techRecord_lastUpdatedById = userDetails.msOid;
+  recordsToArchive.push(provisionalRecord);
 
   logger.debug(`Old provisional record after update ${JSON.stringify(provisionalRecord)}`);
 
-  await archiveOldCreateCurrentRecord(provisionalRecord, newCurrentRecord, currentRecord);
+  await archiveOldCreateCurrentRecord(recordsToArchive, newCurrentRecord);
 
   try {
     return addHttpHeaders({
