@@ -28,25 +28,16 @@ export function validateAndComputeRecordCompleteness(input: TechrecordPut): Reco
 
 const validateSkeletonSchema = (input: TechrecordPut): boolean => {
   const isSkeletonSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
-  if (isSkeletonSchema) {
-    return isValidObject(isSkeletonSchema, input);
-  }
-  return false;
+  return isSkeletonSchema ? isValidObject(isSkeletonSchema, input) : false;
 };
 
 const validateCompleteSchema = (input: TechrecordPut): boolean => {
   const isCompleteSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.COMPLETE, HttpMethod.PUT);
-  if (isCompleteSchema) {
-    if (isValidObject(isCompleteSchema, input)) return true;
-  }
-  return false;
+  return isCompleteSchema ? (isValidObject(isCompleteSchema, input)) : false;
 };
 
 const validateTestableSchema = (input: TechrecordPut): boolean => {
   const isTestableSchema = input.techRecord_vehicleType === (VehicleType.TRL || VehicleType.PSV || VehicleType.HGV)
     ? identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, HttpMethod.PUT) : '';
-  if (isTestableSchema) {
-    if (isValidObject(isTestableSchema, input)) return true;
-  }
-  return false;
+  return isTestableSchema ? (isValidObject(isTestableSchema, input)) : false;
 };

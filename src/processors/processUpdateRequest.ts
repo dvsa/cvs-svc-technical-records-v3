@@ -47,17 +47,8 @@ export const setCreatedAuditDetails = (techRecord: TechrecordGet, createdByName:
 };
 
 export const getUpdateType = (oldRecord: TechrecordGet, newRecord: TechrecordGet): UpdateType => {
-  let updateType = UpdateType.TECH_RECORD_UPDATE;
-  Object.entries(newRecord).forEach(([key, value]) => {
-    if (/techRecord_adrDetails_[a-zA-Z]+/.test(key)) {
-      if (value !== oldRecord[key as keyof TechrecordGet]) {
-        updateType = UpdateType.ADR;
-        return updateType;
-      }
-    }
-    return updateType;
-  });
-  return updateType;
+  const isAdrUpdate = Object.entries(newRecord).some(([key, value]) => /techRecord_adrDetails_[a-zA-Z]+/.test(key) && oldRecord[key as keyof TechrecordGet] !== value);
+  return isAdrUpdate ? UpdateType.ADR : UpdateType.TECH_RECORD_UPDATE;
 };
 
 export const processVehicleIdentifiers = (recordFromDB: TechrecordGet, requestBody: TechrecordPut) => {
