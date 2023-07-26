@@ -1,7 +1,7 @@
 import {
   TechrecordCar, TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordPut, TechrecordTrl,
 } from '../models/post';
-import { generateNewNumber, NumberTypes } from '../services/testNumber';
+import { NumberTypes, generateNewNumber } from '../services/testNumber';
 import { UserDetails } from '../services/user';
 import { ERRORS, HttpMethod } from '../util/enum';
 import { flattenArrays } from '../util/formatTechRecord';

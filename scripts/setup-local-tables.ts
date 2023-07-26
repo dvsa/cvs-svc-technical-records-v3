@@ -1,10 +1,13 @@
 import {
-  CreateTableCommandOutput, CreateTableInput, DynamoDB, DynamoDBClient, BatchWriteItemCommand, BatchWriteItemCommandInput, WriteRequest, DynamoDBClientConfig,
+  BatchWriteItemCommand, BatchWriteItemCommandInput,
+  CreateTableCommandOutput, CreateTableInput, DynamoDB, DynamoDBClient,
+  DynamoDBClientConfig,
+  WriteRequest,
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
-import techRecordData from '../tests/resources/technical-records-v3.json';
-import { SearchResult } from '../src/models/search';
 import { dynamoDBClientConfig, tableName } from '../src/config';
+import { SearchResult } from '../src/models/search';
+import techRecordData from '../tests/resources/technical-records-v3.json';
 import { TableSeedRequest } from './setup-local-tables.model';
 
 type SearchResultKeys = keyof SearchResult;
@@ -20,6 +23,7 @@ const flatTechRecordNonKeyAttributes: SearchResultKeys[] = [
   'techRecord_chassisModel',
   'techRecord_make',
   'techRecord_model',
+  'techRecord_statusCode',
 ];
 
 const tablesToSetup: CreateTableInput[] = [

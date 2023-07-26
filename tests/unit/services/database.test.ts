@@ -27,19 +27,17 @@ jest.mock('@aws-sdk/lib-dynamodb', () => ({
   },
 }));
 
-import { APIGatewayProxyEvent } from 'aws-lambda';
-import { SearchCriteria } from '../../../src/models/search';
-import {
-  searchByCriteria,
-  searchByAll,
-  getBySystemNumberAndCreatedTimestamp,
-  updateVehicle,
-
-} from '../../../src/services/database';
-import postCarData from '../../resources/techRecordCarPost.json';
 import { TechrecordGet } from '../../../src/models/post';
-import * as UserDetails from '../../../src/services/user';
+import { SearchCriteria } from '../../../src/models/search';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/processors/processUpdateRequest';
+import {
+  getBySystemNumberAndCreatedTimestamp,
+  searchByAll,
+  searchByCriteria,
+  updateVehicle,
+} from '../../../src/services/database';
+import * as UserDetails from '../../../src/services/user';
+import postCarData from '../../resources/techRecordCarPost.json';
 
 const mockUserDetails = {
   username: 'Test User', msOid: 'QWERTY', email: 'testUser@test.com',
@@ -136,7 +134,7 @@ describe('getBySystemNumberAndCreatedTimestamp', () => {
   });
 });
 
-describe('updateVehcile', () => {
+describe('updateVehicle', () => {
   it('should return a success message if the transaction is successful', async () => {
     const event = {
       headers: {
@@ -155,7 +153,7 @@ describe('updateVehcile', () => {
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date);
     mockSend.mockImplementation(() => Promise.resolve({}));
 
-    const res = await updateVehicle(updatedRecordFromDB, updatedNewRecord);
+    const res = await updateVehicle([updatedRecordFromDB], updatedNewRecord);
 
     expect((res as TechrecordGet).techRecord_reasonForCreation).toBe('TEST update');
   });
@@ -177,6 +175,6 @@ describe('updateVehcile', () => {
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date);
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
-    await expect(updateVehicle(updatedRecordFromDB, updatedNewRecord)).rejects.toBe('error');
+    await expect(updateVehicle([updatedRecordFromDB], updatedNewRecord)).rejects.toBe('error');
   });
 });
