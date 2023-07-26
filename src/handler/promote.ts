@@ -5,7 +5,7 @@ import { StatusCode } from '../models/StatusCode.enum';
 import { TechrecordGet } from '../models/post';
 import { PromoteRecordRequestBody } from '../models/promote';
 import { SearchCriteria } from '../models/search';
-import { archiveOldCreateCurrentRecord, getBySystemNumberAndCreatedTimestamp, searchByCriteria } from '../services/database';
+import { getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle } from '../services/database';
 import { getUserDetails } from '../services/user';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
@@ -82,7 +82,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug(`Old provisional record after update ${JSON.stringify(provisionalRecord)}`);
 
-  await archiveOldCreateCurrentRecord(recordsToArchive, newCurrentRecord);
+  await updateVehicle(recordsToArchive, newCurrentRecord);
 
   try {
     return addHttpHeaders({

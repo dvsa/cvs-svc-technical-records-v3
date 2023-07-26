@@ -134,7 +134,7 @@ describe('getBySystemNumberAndCreatedTimestamp', () => {
   });
 });
 
-describe('updateVehcile', () => {
+describe('updateVehicle', () => {
   it('should return a success message if the transaction is successful', async () => {
     const event = {
       headers: {
@@ -153,7 +153,7 @@ describe('updateVehcile', () => {
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date);
     mockSend.mockImplementation(() => Promise.resolve({}));
 
-    const res = await updateVehicle(updatedRecordFromDB, updatedNewRecord);
+    const res = await updateVehicle([updatedRecordFromDB], updatedNewRecord);
 
     expect((res as TechrecordGet).techRecord_reasonForCreation).toBe('TEST update');
   });
@@ -175,6 +175,6 @@ describe('updateVehcile', () => {
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date);
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
-    await expect(updateVehicle(updatedRecordFromDB, updatedNewRecord)).rejects.toBe('error');
+    await expect(updateVehicle([updatedRecordFromDB], updatedNewRecord)).rejects.toBe('error');
   });
 });

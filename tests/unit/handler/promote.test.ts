@@ -2,7 +2,7 @@
 const mockValidatePromoteErrors = jest.fn();
 const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockSearchByCriteria = jest.fn();
-const mockArchiveOldCreateCurrentRecord = jest.fn();
+const mockUpdateVehicle = jest.fn();
 const mockGetUserDetails = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
@@ -15,7 +15,7 @@ jest.mock('../../../src/validators/promote', () => ({
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
   searchByCriteria: mockSearchByCriteria,
-  archiveOldCreateCurrentRecord: mockArchiveOldCreateCurrentRecord,
+  updateVehicle: mockUpdateVehicle,
 }));
 jest.mock('../../../src/services/user', () => ({
   getUserDetails: mockGetUserDetails,
@@ -43,7 +43,7 @@ describe('Promote endpoint', () => {
     mockValidatePromoteErrors.mockReturnValueOnce(undefined);
     mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: StatusCode.PROVISIONAL });
     mockSearchByCriteria.mockResolvedValueOnce([]);
-    mockArchiveOldCreateCurrentRecord.mockResolvedValueOnce(undefined);
+    mockUpdateVehicle.mockResolvedValueOnce(undefined);
     mockGetUserDetails.mockReturnValueOnce({ username: 'user', msOid: '123' });
 
     const result = await handler(mockEvent as unknown as APIGatewayProxyEvent);
@@ -62,7 +62,7 @@ describe('Promote endpoint', () => {
     mockValidatePromoteErrors.mockReturnValueOnce(undefined);
     mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: StatusCode.PROVISIONAL }).mockResolvedValueOnce({ techRecord_statusCode: StatusCode.CURRENT });
     mockSearchByCriteria.mockResolvedValueOnce([{ techRecord_statusCode: StatusCode.CURRENT }]);
-    mockArchiveOldCreateCurrentRecord.mockResolvedValueOnce(undefined);
+    mockUpdateVehicle.mockResolvedValueOnce(undefined);
     mockGetUserDetails.mockReturnValueOnce({ username: 'user', msOid: '123' });
 
     const result = await handler(mockEvent as unknown as APIGatewayProxyEvent);
