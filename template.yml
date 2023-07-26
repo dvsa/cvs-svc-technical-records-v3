@@ -55,7 +55,7 @@ Resources:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
-        Handler: patch.handler
+        Handler: update.handler
         Runtime: nodejs18.x
         Timeout: 20
         Events:

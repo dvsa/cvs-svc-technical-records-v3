@@ -10,7 +10,7 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
       const splitKey = key.split('_');
 
       if (parseInt(splitKey[2], 10) === arrayIndex) {
-        splitKey.splice(1, 2);
+        splitKey.splice(0, 3);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
@@ -18,7 +18,7 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
         arrayToAdd.push(objectToAdd);
         arrayIndex = parseInt(splitKey[2], 10);
         objectToAdd = {};
-        splitKey.splice(1, 2);
+        splitKey.splice(0, 3);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
@@ -49,7 +49,7 @@ export const formatTechRecord = (techRecordWithoutArrays: object) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
       formattedTechRecord[key] = value;
     } else {
-      arrayNames.push(key.split('_')[1]);
+      arrayNames.push(`${key.split('_')[0]}_${key.split('_')[1]}`);
     }
   });
   const valuesToArrayify = [...new Set(arrayNames)];
@@ -75,12 +75,12 @@ export const flattenArrays = <T>(input: T): Promise<FlattenArrays<T>> => {
   const flattenArray = <U>(obj: U, path: string): FlattenArrays<U> => {
     if (Array.isArray(obj)) {
       return obj.reduce<FlattenArrays<U>>((acc, curr, index) => {
-        const key: string = path && !path.includes('secondaryVrms') ? `techRecord_${path}_${index}` : `${index}`;
+        const key: string = path && !path.includes('secondaryVrms') ? `${path}_${index}` : `${index}`;
         return {
           ...acc,
           ...flattenArray(curr, key),
         } as FlattenArrays<U>;
-      }, [] as FlattenArrays<U>);
+      }, [] as unknown as FlattenArrays<U>);
     }
     if (typeof obj === 'object' && obj !== null) {
       return Object.entries(obj).reduce((acc, [key, value]) => {
@@ -91,7 +91,7 @@ export const flattenArrays = <T>(input: T): Promise<FlattenArrays<T>> => {
         } as FlattenArrays<U>;
       }, {} as FlattenArrays<U>);
     }
-    return { [path]: obj } as FlattenArrays<U>;
+    return { [path]: obj } as unknown as FlattenArrays<U>;
   };
   return Promise.resolve(flattenArray(input, '')) as Promise<FlattenArrays<T>>;
 };

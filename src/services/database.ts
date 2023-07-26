@@ -7,16 +7,18 @@ import {
   PutItemCommand, QueryCommand,
   QueryInput,
   TransactWriteItemsCommand,
-  TransactWriteItemsInput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { DynamoDBDocumentClient, TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
+import polly from 'polly-js';
 import { dynamoDBClientConfig, tableName } from '../config';
-import { TechrecordGet } from '../models/post';
+import { TechrecordGet, TechrecordPut } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
 import { ArchiveRecord } from '../models/archive';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
+const docClient = DynamoDBDocumentClient.from(ddbClient);
 
 export const archiveRecord = async (record: ArchiveRecord) : Promise<object> => {
   const command = {
@@ -144,33 +146,36 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
     throw new Error('database client failed getting data');
   }
 };
-export const archiveOldCreateCurrentRecord = async (recordToArchive: TechrecordGet, recordToCreate: TechrecordGet): Promise<undefined | Error> => {
-  logger.info('Preparing Transact Items');
 
-  const transactParams: TransactWriteItemsInput = {
+export const updateVehicle = async (oldRecord: TechrecordGet, newRecord: TechrecordPut): Promise<object> => {
+  logger.info('inside updateVehicle');
+
+  const transactWriteParams: TransactWriteCommandInput = {
     TransactItems: [
       {
         Put: {
           TableName: tableName,
-          Item: marshall(recordToArchive),
+          Item: marshall(oldRecord, { removeUndefinedValues: true }),
           ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
         },
       },
       {
         Put: {
           TableName: tableName,
-          Item: marshall(recordToCreate),
+          Item: marshall(newRecord, { removeUndefinedValues: true }),
         },
       },
     ],
   };
+  const sendTransaction = new Promise<object>((resolve, reject) => {
+    docClient.send(new TransactWriteItemsCommand(transactWriteParams)).then(() => {
+      logger.debug('Resolving with success');
+      resolve(newRecord);
+    }).catch((error: Error) => {
+      logger.error('Rejecting with an error', error);
+      reject(error.message);
+    });
+  });
 
-  try {
-    await ddbClient.send(new TransactWriteItemsCommand(transactParams));
-    return undefined;
-  } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    logger.error(`Error: ${error}`);
-    throw new Error('Transact Write Items Failed');
-  }
+  return polly().waitAndRetry(3).executeForPromise(() => sendTransaction);
 };

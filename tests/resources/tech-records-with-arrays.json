@@ -63,34 +63,34 @@
     "techRecord_vehicleClass_description": null,
     "techRecord_vehicleConfiguration": null,
     "techRecord_vehicleType": "car",
-    "vehicleSubclass": ["a"],
+    "techRecord_vehicleSubclass": ["a"],
     "vin": "DP76UMK4DQLTOT"
   },
   {
-    "axles" : [
+    "techRecord_axles" : [
       {
-        "techRecord_axleNumber": 1,
-        "techRecord_parkingBrakeMrk": false,
-        "techRecord_tyres_dataTrAxles": null,
-        "techRecord_tyres_fitmentCode": null,
-        "techRecord_tyres_plyRating": null,
-        "techRecord_tyres_speedCategorySymbol": "a7",
-        "techRecord_tyres_tyreCode": null,
-        "techRecord_tyres_tyreSize": null,
-        "techRecord_weights_designWeight": null,
-        "techRecord_weights_gbWeight": null
+        "axleNumber": 1,
+        "parkingBrakeMrk": false,
+        "tyres_dataTrAxles": null,
+        "tyres_fitmentCode": null,
+        "tyres_plyRating": null,
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": null,
+        "tyres_tyreSize": null,
+        "weights_designWeight": null,
+        "weights_gbWeight": null
       },
       {
-        "techRecord_axleNumber": 2,
-        "techRecord_parkingBrakeMrk": null,
-        "techRecord_tyres_dataTrAxles": 345,
-        "techRecord_tyres_fitmentCode": "single",
-        "techRecord_tyres_plyRating": "AB",
-        "techRecord_tyres_speedCategorySymbol": "a7",
-        "techRecord_tyres_tyreCode": 5678,
-        "techRecord_tyres_tyreSize": "295/80-22.5",
-        "techRecord_weights_designWeight": null,
-        "techRecord_weights_gbWeight": null
+        "axleNumber": 2,
+        "parkingBrakeMrk": null,
+        "tyres_dataTrAxles": 345,
+        "tyres_fitmentCode": "single",
+        "tyres_plyRating": "AB",
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": 5678,
+        "tyres_tyreSize": "295/80-22.5",
+        "weights_designWeight": null,
+        "weights_gbWeight": null
       }
     ],
     "systemNumber": "XYZEP5JYOMM00020",
@@ -156,46 +156,46 @@
     "techRecord_vehicleClass_description": null,
     "techRecord_vehicleConfiguration": null,
     "techRecord_vehicleType": "car",
-    "vehicleSubclass": ["a"],
+    "techRecord_vehicleSubclass": ["a"],
     "vin": "DP76UMK4DQLTOT"
   },
   {
-    "axles": [
+    "techRecord_axles": [
       {
-        "techRecord_axleNumber": 1,
-        "techRecord_parkingBrakeMrk": false,
-        "techRecord_tyres_dataTrAxles": null,
-        "techRecord_tyres_fitmentCode": null,
-        "techRecord_tyres_plyRating": null,
-        "techRecord_tyres_speedCategorySymbol": "a7",
-        "techRecord_tyres_tyreCode": null,
-        "techRecord_tyres_tyreSize": null,
-        "techRecord_weights_designWeight": null,
-        "techRecord_weights_gbWeight": null
+        "axleNumber": 1,
+        "parkingBrakeMrk": false,
+        "tyres_dataTrAxles": null,
+        "tyres_fitmentCode": null,
+        "tyres_plyRating": null,
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": null,
+        "tyres_tyreSize": null,
+        "weights_designWeight": null,
+        "weights_gbWeight": null
       },
       {
-        "techRecord_axleNumber": 2,
-        "techRecord_parkingBrakeMrk": null,
-        "techRecord_tyres_dataTrAxles": 345,
-        "techRecord_tyres_fitmentCode": "single",
-        "techRecord_tyres_plyRating": "AB",
-        "techRecord_tyres_speedCategorySymbol": "a7",
-        "techRecord_tyres_tyreCode": 5678,
-        "techRecord_tyres_tyreSize": "295/80-22.5",
-        "techRecord_weights_designWeight": null,
-        "techRecord_weights_gbWeight": null
+        "axleNumber": 2,
+        "parkingBrakeMrk": null,
+        "tyres_dataTrAxles": 345,
+        "tyres_fitmentCode": "single",
+        "tyres_plyRating": "AB",
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": 5678,
+        "tyres_tyreSize": "295/80-22.5",
+        "weights_designWeight": null,
+        "weights_gbWeight": null
       },
       {
-        "techRecord_axleNumber": 3,
-        "techRecord_parkingBrakeMrk": null,
-        "techRecord_tyres_dataTrAxles": 345,
-        "techRecord_tyres_fitmentCode": "single",
-        "techRecord_tyres_plyRating": "AB",
-        "techRecord_tyres_speedCategorySymbol": "a7",
-        "techRecord_tyres_tyreCode": 5678,
-        "techRecord_tyres_tyreSize": "295/80-22.5",
-        "techRecord_weights_designWeight": null,
-        "techRecord_weights_gbWeight": null
+        "axleNumber": 3,
+        "parkingBrakeMrk": null,
+        "tyres_dataTrAxles": 345,
+        "tyres_fitmentCode": "single",
+        "tyres_plyRating": "AB",
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": 5678,
+        "tyres_tyreSize": "295/80-22.5",
+        "weights_designWeight": null,
+        "weights_gbWeight": null
       }
     ],
     "systemNumber": "XYZEP5JYOMM00020",
@@ -261,58 +261,58 @@
     "techRecord_vehicleClass_description": null,
     "techRecord_vehicleConfiguration": null,
     "techRecord_vehicleType": "car",
-    "vehicleSubclass": ["a"],
+    "techRecord_vehicleSubclass": ["a"],
     "vin": "DP76UMK4DQLTOT"
   },
   {
-    "vehicleSubclass": ["a"],
-    "axles": [
+    "techRecord_vehicleSubclass": ["a"],
+    "techRecord_axles": [
       {
-        "techRecord_axleNumber": 1,
-        "techRecord_parkingBrakeMrk": false,
-        "techRecord_tyres_dataTrAxles": null,
-        "techRecord_tyres_fitmentCode": null,
-        "techRecord_tyres_plyRating": null,
-        "techRecord_tyres_speedCategorySymbol": "a7",
-        "techRecord_tyres_tyreCode": null,
-        "techRecord_tyres_tyreSize": null,
-        "techRecord_weights_designWeight": null,
-        "techRecord_weights_gbWeight": null
+        "axleNumber": 1,
+        "parkingBrakeMrk": false,
+        "tyres_dataTrAxles": null,
+        "tyres_fitmentCode": null,
+        "tyres_plyRating": null,
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": null,
+        "tyres_tyreSize": null,
+        "weights_designWeight": null,
+        "weights_gbWeight": null
       },
       {
-        "techRecord_axleNumber": 2,
-        "techRecord_parkingBrakeMrk": null,
-        "techRecord_tyres_dataTrAxles": 345,
-        "techRecord_tyres_fitmentCode": "single",
-        "techRecord_tyres_plyRating": "AB",
-        "techRecord_tyres_speedCategorySymbol": "a7",
-        "techRecord_tyres_tyreCode": 5678,
-        "techRecord_tyres_tyreSize": "295/80-22.5",
-        "techRecord_weights_designWeight": null,
-        "techRecord_weights_gbWeight": null
+        "axleNumber": 2,
+        "parkingBrakeMrk": null,
+        "tyres_dataTrAxles": 345,
+        "tyres_fitmentCode": "single",
+        "tyres_plyRating": "AB",
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": 5678,
+        "tyres_tyreSize": "295/80-22.5",
+        "weights_designWeight": null,
+        "weights_gbWeight": null
       },
       {
-        "techRecord_axleNumber": 3,
-        "techRecord_parkingBrakeMrk": null,
-        "techRecord_tyres_dataTrAxles": 345,
-        "techRecord_tyres_fitmentCode": "single",
-        "techRecord_tyres_plyRating": "AB",
-        "techRecord_tyres_speedCategorySymbol": "a7",
-        "techRecord_tyres_tyreCode": 5678,
-        "techRecord_tyres_tyreSize": "295/80-22.5",
-        "techRecord_weights_designWeight": null,
-        "techRecord_weights_gbWeight": null
+        "axleNumber": 3,
+        "parkingBrakeMrk": null,
+        "tyres_dataTrAxles": 345,
+        "tyres_fitmentCode": "single",
+        "tyres_plyRating": "AB",
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": 5678,
+        "tyres_tyreSize": "295/80-22.5",
+        "weights_designWeight": null,
+        "weights_gbWeight": null
       }
     ],
-    "plates": [
+    "techRecord_plates": [
       {
-        "techRecord_extraInfo": "more info",
-        "techRecord_info": "info"
+        "extraInfo": "more info",
+        "info": "info"
 
       },
       {
-        "techRecord_extraInfo": "more info",
-        "techRecord_info": "info"
+        "extraInfo": "more info",
+        "info": "info"
       }
     ],
     "systemNumber": "XYZEP5JYOMM00020",

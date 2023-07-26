@@ -1,12 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
 import { ArchiveRecordRequestBody } from '../models/archive';
+import { ERRORS } from '../util/enum';
 
 export const validateArchiveErrors = (event: APIGatewayProxyEvent): APIGatewayProxyResult | undefined => {
   if (!event.headers.Authorization) {
     return {
       statusCode: 400,
-      body: 'Missing authorization header',
+      body: ERRORS.MISSING_AUTH_HEADER,
     };
   }
 
