@@ -54,6 +54,13 @@ describe('checkVinValidity', () => {
       body: ERRORS.VIN_ERROR,
     });
   });
+  it('should return an error if newVin contains special characters', () => {
+    const result = checkVinValidity('12345', '!newvin');
+    expect(result).toEqual({
+      statusCode: 400,
+      body: ERRORS.VIN_ERROR,
+    });
+  });
   it('returns false if no errors', () => {
     expect(checkVinValidity('1234', '1234')).toBe(false);
     expect(checkVinValidity('1234', '12345')).toBe(false);
