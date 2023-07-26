@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { TechRecordGet } from '../models/post';
+import { TechrecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
@@ -37,7 +37,7 @@ export const validateUpdateVinRequest = (event: APIGatewayProxyEvent) => {
 };
 
 // eslint-disable-next-line consistent-return
-export const validateVins = (currentRecord: TechRecordGet, newVin: string) => {
+export const validateVins = (currentRecord: TechrecordGet, newVin: string) => {
   if (
     !newVin
     || newVin.length < 3

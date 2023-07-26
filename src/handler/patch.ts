@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
-import { TechRecordGet } from '../models/post';
+import { TechrecordGet } from '../models/post';
 import { processPatchVinRequest } from '../processors/processPatchVinRequest';
 import {
   archiveOldCreateCurrentRecord,
@@ -27,10 +27,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const newVin: string = JSON.parse(event.body ?? '').newVin as string ?? '';
 
-  const currentRecord: TechRecordGet = await getBySystemNumberAndCreatedTimestamp(
+  const currentRecord: TechrecordGet = await getBySystemNumberAndCreatedTimestamp(
     systemNumber,
     createdTimestamp,
-  ) as TechRecordGet;
+  ) as TechrecordGet;
 
   const isVinInvalid: APIGatewayProxyResult | undefined = validateVins(currentRecord, newVin.toUpperCase());
 

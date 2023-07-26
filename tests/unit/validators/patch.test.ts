@@ -3,13 +3,13 @@ const mockSearchByCriteria = jest.fn();
 const mockValidateSysNumTimestampPathParams = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
+import { TechrecordGet } from '../../../src/models/post';
+import { formatTechRecord } from '../../../src/util/formatTechRecord';
 import {
-  validateUpdateVinRequest,
-  validateVins,
+    validateUpdateVinRequest,
+    validateVins,
 } from '../../../src/validators/patch';
 import carPostRecord from '../../resources/techRecordCarPost.json';
-import { TechRecordGet } from '../../../src/models/post';
-import { formatTechRecord } from '../../../src/util/formatTechRecord';
 
 const headers = {
   'Access-Control-Allow-Headers':
@@ -26,7 +26,7 @@ jest.mock('../../../src/validators/sysNumTimestamp.ts', () => ({
   validateSysNumTimestampPathParams: mockValidateSysNumTimestampPathParams,
 }));
 
-const currentRecord = carPostRecord as TechRecordGet;
+const currentRecord = carPostRecord as TechrecordGet;
 
 describe('Test updateVin Validators', () => {
   describe('validateUpdateVinRequest', () => {

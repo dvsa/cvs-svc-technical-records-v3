@@ -5,26 +5,26 @@
 import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
 import {
   TechrecordCar,
-  TechRecordGet,
+  TechrecordGet,
   TechrecordHgv,
   TechrecordMotorcycle,
   TechrecordPut, TechrecordTrl,
 } from '../models/post';
-import { generateNewNumber, NumberTypes } from '../services/testNumber';
+import { NumberTypes, generateNewNumber } from '../services/testNumber';
 import { UserDetails } from '../services/user';
 import { HttpMethod, RecordCompleteness, VehicleType } from '../util/enum';
+import { flattenArrays } from '../util/formatTechRecord';
 import logger from '../util/logger';
 import { identifySchema } from '../validators/post';
-import { flattenArrays } from '../util/formatTechRecord';
 
-export const processPostRequest = async (input: unknown, userDetails: UserDetails): Promise<TechRecordGet> => {
+export const processPostRequest = async (input: unknown, userDetails: UserDetails): Promise<TechrecordGet> => {
   // we should be validating it's a valid technical record HERE.)
   if (isObjectEmpty(input)) {
     throw new Error('Invalid Technical Record');
   }
   const request: TechrecordPut = await flattenArrays(input) as TechrecordPut;
   logger.info('processing request');
-  (request as TechRecordGet).techRecord_recordCompleteness = computeRecordCompleteness(request);
+  (request as TechrecordGet).techRecord_recordCompleteness = computeRecordCompleteness(request);
   // helper method for handler
   const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -39,14 +39,14 @@ export const processPostRequest = async (input: unknown, userDetails: UserDetail
   if (request.techRecord_vehicleType === 'trl' && !request.trailerId) {
     (request as TechrecordTrl).trailerId = await generateNewNumber(NumberTypes.TrailerId);
   }
-  (request as TechRecordGet).systemNumber = systemNumber;
-  (request as TechRecordGet).createdTimestamp = new Date().toISOString();
+  (request as TechrecordGet).systemNumber = systemNumber;
+  (request as TechrecordGet).createdTimestamp = new Date().toISOString();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-  (request as TechRecordGet).partialVin = request.vin.length < 6 ? request.vin : request.vin.substring(request.vin.length - 6);
-  (request as TechRecordGet).techRecord_createdByName = userDetails.username;
-  (request as TechRecordGet).techRecord_createdById = userDetails.msOid;
+  (request as TechrecordGet).partialVin = request.vin.length < 6 ? request.vin : request.vin.substring(request.vin.length - 6);
+  (request as TechrecordGet).techRecord_createdByName = userDetails.username;
+  (request as TechrecordGet).techRecord_createdById = userDetails.msOid;
   logger.info('Successfully Processed Record');
-  return request as TechRecordGet;
+  return request as TechrecordGet;
 };
 
 export function computeRecordCompleteness(input: TechrecordPut): RecordCompleteness {

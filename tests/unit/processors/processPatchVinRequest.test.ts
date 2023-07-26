@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { TechRecordGet } from '../../../src/models/post';
+import { TechrecordGet } from '../../../src/models/post';
 import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
 import carPostData from '../../resources/techRecordCarPost.json';
 
@@ -24,8 +24,8 @@ describe('processPatchVinrequest', () => {
     } as unknown as APIGatewayProxyEvent;
   });
   it('should format the objects correctly', () => {
-    const patchRequest: Array<TechRecordGet> = processPatchVinRequest(
-      carPostData as TechRecordGet,
+    const patchRequest: Array<TechrecordGet> = processPatchVinRequest(
+      carPostData as TechrecordGet,
       event as unknown as APIGatewayProxyEvent,
     );
 
@@ -40,8 +40,8 @@ describe('processPatchVinrequest', () => {
   });
   it('should populate partial vin with full vin if less than 6 characters', () => {
     event.body = JSON.stringify({ newVin: 'newVin' });
-    const patchRequest: Array<TechRecordGet> = processPatchVinRequest(
-      carPostData as TechRecordGet,
+    const patchRequest: Array<TechrecordGet> = processPatchVinRequest(
+      carPostData as TechrecordGet,
       event as unknown as APIGatewayProxyEvent,
     );
     expect(patchRequest[1].vin).toBe('NEWVIN');

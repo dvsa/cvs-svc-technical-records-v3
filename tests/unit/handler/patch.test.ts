@@ -6,7 +6,7 @@ const mockProcessPatchVinRequest = jest.fn();
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/patch';
 import { StatusCode } from '../../../src/models/StatusCode.enum';
-import { TechRecordGet } from '../../../src/models/post';
+import { TechrecordGet } from '../../../src/models/post';
 import { formatTechRecord } from '../../../src/util/formatTechRecord';
 import carPostRecord from '../../resources/techRecordCarPost.json';
 
@@ -27,8 +27,8 @@ const headers = {
   'Access-Control-Allow-Origin': '*',
 };
 
-const recordToArchive: TechRecordGet = carPostRecord as TechRecordGet;
-const recordToCreate: TechRecordGet = carPostRecord as TechRecordGet;
+const recordToArchive: TechrecordGet = carPostRecord as TechrecordGet;
+const recordToCreate: TechrecordGet = carPostRecord as TechrecordGet;
 
 recordToArchive.techRecord_statusCode = StatusCode.ARCHIVED;
 recordToCreate.createdTimestamp = 'timenow';

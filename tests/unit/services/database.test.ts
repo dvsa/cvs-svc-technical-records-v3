@@ -17,14 +17,14 @@ jest.mock('@aws-sdk/client-lambda', () => ({
 }));
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { TechRecordGet } from '../../../src/models/post';
+import { TechrecordGet } from '../../../src/models/post';
 import { SearchCriteria } from '../../../src/models/search';
 import { processPatchVinRequest } from '../../../src/processors/processPatchVinRequest';
 import {
-  archiveOldCreateCurrentRecord,
-  getBySystemNumberAndCreatedTimestamp,
-  searchByAll,
-  searchByCriteria,
+    archiveOldCreateCurrentRecord,
+    getBySystemNumberAndCreatedTimestamp,
+    searchByAll,
+    searchByCriteria,
 } from '../../../src/services/database';
 import postCarData from '../../resources/techRecordCarPost.json';
 import promoteRecords from '../../resources/techRecordPromoteRecord.json';
@@ -139,7 +139,7 @@ describe('archiveOldCreateCurrentRecord', () => {
         newVin: 'newVin',
       }),
     };
-    const patchRecords: Array<TechRecordGet> = processPatchVinRequest(postCarData as TechRecordGet, event as unknown as APIGatewayProxyEvent);
+    const patchRecords: Array<TechrecordGet> = processPatchVinRequest(postCarData as TechrecordGet, event as unknown as APIGatewayProxyEvent);
     mockSend.mockReturnValueOnce({});
 
     const res = await archiveOldCreateCurrentRecord([patchRecords[0]], patchRecords[1]);
@@ -149,7 +149,7 @@ describe('archiveOldCreateCurrentRecord', () => {
   it('should return when passed 3 records', async () => {
     mockSend.mockReturnValueOnce({});
 
-    const res = await archiveOldCreateCurrentRecord([promoteRecords[0] as unknown as TechRecordGet, promoteRecords[2] as unknown as TechRecordGet], promoteRecords[1] as unknown as TechRecordGet);
+    const res = await archiveOldCreateCurrentRecord([promoteRecords[0] as unknown as TechrecordGet, promoteRecords[2] as unknown as TechrecordGet], promoteRecords[1] as unknown as TechrecordGet);
 
     expect(res).toBeUndefined();
   });
@@ -163,7 +163,7 @@ describe('archiveOldCreateCurrentRecord', () => {
         newVin: 'newVin',
       }),
     };
-    const patchRecords: Array<TechRecordGet> = processPatchVinRequest(postCarData as TechRecordGet, event as unknown as APIGatewayProxyEvent);
+    const patchRecords: Array<TechrecordGet> = processPatchVinRequest(postCarData as TechrecordGet, event as unknown as APIGatewayProxyEvent);
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
     await expect(archiveOldCreateCurrentRecord([patchRecords[0]], patchRecords[1])).rejects.toThrow();

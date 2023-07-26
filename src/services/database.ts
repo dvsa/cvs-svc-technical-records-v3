@@ -1,19 +1,19 @@
 import {
-  AttributeValue,
-  DynamoDBClient,
-  GetItemCommand,
-  GetItemCommandInput,
-  PutItemCommand,
-  PutItemCommandInput,
-  QueryCommand,
-  QueryInput,
-  TransactWriteItemsCommand,
-  TransactWriteItemsInput,
+    AttributeValue,
+    DynamoDBClient,
+    GetItemCommand,
+    GetItemCommandInput,
+    PutItemCommand,
+    PutItemCommandInput,
+    QueryCommand,
+    QueryInput,
+    TransactWriteItemsCommand,
+    TransactWriteItemsInput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { dynamoDBClientConfig, tableName } from '../config';
 import { ArchiveRecord } from '../models/archive';
-import { TechRecordGet } from '../models/post';
+import { TechrecordGet } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
 
@@ -119,7 +119,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 
-export const postTechRecord = async (request: TechRecordGet): Promise <TechRecordGet> => {
+export const postTechRecord = async (request: TechrecordGet): Promise <TechrecordGet> => {
   logger.info('about to post');
 
   try {
@@ -145,7 +145,7 @@ export const postTechRecord = async (request: TechRecordGet): Promise <TechRecor
     throw new Error('database client failed getting data');
   }
 };
-export const archiveOldCreateCurrentRecord = async (recordsToArchive: TechRecordGet[], recordToCreate: TechRecordGet): Promise<undefined | Error> => {
+export const archiveOldCreateCurrentRecord = async (recordsToArchive: TechrecordGet[], recordToCreate: TechrecordGet): Promise<undefined | Error> => {
   logger.info('Preparing Transact Items');
 
   const transactParams: TransactWriteItemsInput = {
