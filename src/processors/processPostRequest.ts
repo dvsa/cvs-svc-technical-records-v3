@@ -3,7 +3,7 @@ import {
 } from '../models/post';
 import { generateNewNumber, NumberTypes } from '../services/testNumber';
 import { UserDetails } from '../services/user';
-import { ERRORS } from '../util/enum';
+import { ERRORS, HttpMethod } from '../util/enum';
 import { flattenArrays } from '../util/formatTechRecord';
 import logger from '../util/logger';
 import { isObjectEmpty } from '../validators/emptyObject';
@@ -15,7 +15,7 @@ export const processPostRequest = async (input: TechrecordPut, userDetails: User
     throw new Error(ERRORS.MISSING_PAYLOAD);
   }
 
-  (input as TechrecordGet).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(input);
+  (input as TechrecordGet).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(input, HttpMethod.PUT);
 
   const request: TechrecordPut = await flattenArrays(input) as TechrecordPut;
   // helper method for handler

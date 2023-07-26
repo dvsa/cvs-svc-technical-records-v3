@@ -15,6 +15,7 @@ export enum RecordCompleteness {
 
 export enum HttpMethod {
   PUT = 'put',
+  GET = 'get',
 }
 
 export enum STATUS {

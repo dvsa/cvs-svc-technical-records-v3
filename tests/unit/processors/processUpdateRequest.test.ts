@@ -31,7 +31,7 @@ describe('getUpdateType', () => {
 describe('processUpdateRequest', () => {
   it('returns updated records to archive and to add', async () => {
     const mockRecordFromDb = hgvData as TechrecordGet;
-    const mockRequest = { techRecord_reasonForCreation: 'Test Update', techRecord_emissionsLimit: 3 } as TechrecordGet;
+    const mockRequest = { techRecord_reasonForCreation: 'Test Update', techRecord_emissionsLimit: 3 } as TechrecordPut;
     const mockUserDetails: UserDetails = {
       username: 'UpdateUser', msOid: 'QWERTY', email: 'UpdateUser@test.com',
     };

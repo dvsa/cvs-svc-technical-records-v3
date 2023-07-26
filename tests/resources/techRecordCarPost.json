@@ -27,6 +27,7 @@
   "techRecord_vehicleConfiguration": "other",
   "techRecord_vehicleSize": null,
   "techRecord_vehicleType": "car",
+  "techRecord_vehicleSubclass": ["a"],
   "vin": "AA11100851",
   "vehicleSubclass": [
     "r"
