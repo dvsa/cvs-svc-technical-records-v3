@@ -4,7 +4,7 @@ import { GETHGVTechnicalRecordV3Complete } from '@dvsa/cvs-type-definitions/type
 import { GETHGVTechnicalRecordV3Skeleton } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/skeleton';
 import { GETHGVTechnicalRecordV3Testable } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/testable';
 import {
-    TechRecordCompleteMotorcycleSchema,
+  TechRecordCompleteMotorcycleSchema,
 } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/motorcycle/complete';
 import { GETPSVTechnicalRecordV3Complete } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/psv/complete';
 import { GETPSVTechnicalRecordV3Skeleton } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/psv/skeleton';
@@ -13,10 +13,10 @@ import { GETTRLTechnicalRecordV3Complete } from '@dvsa/cvs-type-definitions/type
 import { GETTRLTechnicalRecordV3Skeleton } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/trl/skeleton';
 import { GETTRLTechnicalRecordV3Testable } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/trl/testable';
 import {
-    TechRecordPUTRequestCompleteCarSchema,
+  TechRecordPUTRequestCompleteCarSchema,
 } from '@dvsa/cvs-type-definitions/types/v3/tech-record/put/car/complete';
 import {
-    TechRecordPUTRequestSkeletonCarSchema,
+  TechRecordPUTRequestSkeletonCarSchema,
 } from '@dvsa/cvs-type-definitions/types/v3/tech-record/put/car/skeleton';
 import { PUTHGVTechnicalRecordV3Complete } from '@dvsa/cvs-type-definitions/types/v3/tech-record/put/hgv/complete';
 import { PUTHGVTechnicalRecordV3Skeleton } from '@dvsa/cvs-type-definitions/types/v3/tech-record/put/hgv/skeleton';
