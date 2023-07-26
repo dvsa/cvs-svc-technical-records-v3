@@ -2,7 +2,7 @@ import {
   TechrecordCar, TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordPsv, TechrecordPut, TechrecordTrl,
 } from '../models/post';
 import { UserDetails } from '../services/user';
-import { STATUS, UpdateType } from '../util/enum';
+import { HttpMethod, STATUS, UpdateType } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
@@ -13,7 +13,7 @@ export const processUpdateRequest = async (recordFromDB: TechrecordGet, requestB
 
   const newRecord = { ...formattedRecordFromDB, ...updatedRequest } as TechrecordGet;
 
-  newRecord.techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechrecordPut);
+  newRecord.techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord, HttpMethod.GET);
 
   const flattenedNewRecord = await flattenArrays(newRecord) as TechrecordGet;
 
@@ -43,7 +43,7 @@ export const setCreatedAuditDetails = (techRecord: TechrecordGet, createdByName:
   delete techRecord.techRecord_lastUpdatedAt;
   delete techRecord.techRecord_lastUpdatedById;
   delete techRecord.techRecord_lastUpdatedByName;
-  return techRecord as TechrecordPut;
+  return techRecord;
 };
 
 export const getUpdateType = (oldRecord: TechrecordGet, newRecord: TechrecordGet): UpdateType => {

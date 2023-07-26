@@ -147,7 +147,7 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
   }
 };
 
-export const updateVehicle = async (oldRecord: TechrecordGet, newRecord: TechrecordPut): Promise<object> => {
+export const updateVehicle = async (oldRecord: TechrecordGet, newRecord: TechrecordGet): Promise<object> => {
   logger.info('inside updateVehicle');
 
   const transactWriteParams: TransactWriteCommandInput = {
