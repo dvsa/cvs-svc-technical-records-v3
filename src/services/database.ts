@@ -9,7 +9,7 @@ import {
   QueryInput,
   TransactWriteItemsCommand,
 } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
+import { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import polly from 'polly-js';
 import { dynamoDBClientConfig, tableName } from '../config';
@@ -19,7 +19,6 @@ import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
-const docClient = DynamoDBDocumentClient.from(ddbClient);
 
 export const archiveRecord = async (record: ArchiveRecord) : Promise<object> => {
   const command = {
