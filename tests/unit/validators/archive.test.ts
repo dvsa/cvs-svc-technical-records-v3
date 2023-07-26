@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { ERRORS } from '../../../src/util/enum';
 import { validateArchiveErrors } from '../../../src/validators/archive';
 
 describe('test the archive error validator', () => {
@@ -11,7 +12,7 @@ describe('test the archive error validator', () => {
     const res = validateArchiveErrors(event as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
-      body: 'Missing authorization header',
+      body: ERRORS.MISSING_AUTH_HEADER,
     });
   });
 

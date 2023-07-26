@@ -27,7 +27,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   if (!record || !Object.keys(record).length) {
     return addHttpHeaders({
       statusCode: 404,
-      body: `No record found matching sysNum ${systemNumber} and timestamp ${createdTimestamp}`,
+      body: `No record found matching systemNumber ${systemNumber} and timestamp ${createdTimestamp}`,
     });
   }
 

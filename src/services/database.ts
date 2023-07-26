@@ -1,16 +1,17 @@
 import {
-    AttributeValue,
-    DynamoDBClient,
-    GetItemCommand,
-    GetItemCommandInput,
-    PutItemCommand,
-    PutItemCommandInput,
-    QueryCommand,
-    QueryInput,
-    TransactWriteItemsCommand,
-    TransactWriteItemsInput,
+  AttributeValue,
+  DynamoDBClient,
+  GetItemCommand,
+  GetItemCommandInput,
+  PutItemCommand,
+  PutItemCommandInput,
+  QueryCommand,
+  QueryInput,
+  TransactWriteItemsCommand,
 } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import polly from 'polly-js';
 import { dynamoDBClientConfig, tableName } from '../config';
 import { ArchiveRecord } from '../models/archive';
 import { TechrecordGet } from '../models/post';
@@ -18,6 +19,7 @@ import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
+const docClient = DynamoDBDocumentClient.from(ddbClient);
 
 export const archiveRecord = async (record: ArchiveRecord) : Promise<object> => {
   const command = {
@@ -145,36 +147,36 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
     throw new Error('database client failed getting data');
   }
 };
-export const archiveOldCreateCurrentRecord = async (recordsToArchive: TechrecordGet[], recordToCreate: TechrecordGet): Promise<undefined | Error> => {
-  logger.info('Preparing Transact Items');
 
-  const transactParams: TransactWriteItemsInput = {
+export const updateVehicle = async (oldRecord: TechrecordGet, newRecord: TechrecordGet): Promise<object> => {
+  logger.info('inside updateVehicle');
+
+  const transactWriteParams: TransactWriteCommandInput = {
     TransactItems: [
       {
         Put: {
           TableName: tableName,
-          Item: marshall(recordToCreate),
+          Item: marshall(oldRecord, { removeUndefinedValues: true }),
+          ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
+        },
+      },
+      {
+        Put: {
+          TableName: tableName,
+          Item: marshall(newRecord, { removeUndefinedValues: true }),
         },
       },
     ],
   };
+  const sendTransaction = new Promise<object>((resolve, reject) => {
+    ddbClient.send(new TransactWriteItemsCommand(transactWriteParams)).then(() => {
+      logger.debug('Resolving with success');
+      resolve(newRecord);
+    }).catch((error: Error) => {
+      logger.error('Rejecting with an error', error);
+      reject(error.message);
+    });
+  });
 
-  recordsToArchive.forEach((record) => transactParams.TransactItems?.push(
-    {
-      Put: {
-        TableName: tableName,
-        Item: marshall(record),
-        ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
-      },
-    },
-  ));
-
-  try {
-    await ddbClient.send(new TransactWriteItemsCommand(transactParams));
-    return undefined;
-  } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    logger.error(`Error: ${error}`);
-    throw new Error('Transact Write Items Failed');
-  }
+  return polly().waitAndRetry(3).executeForPromise(() => sendTransaction);
 };

@@ -4,6 +4,8 @@ import { postTechRecord } from '../services/database';
 import logger from '../util/logger';
 import { processPostRequest } from '../processors/processPostRequest';
 import { getUserDetails } from '../services/user';
+import { TechrecordPut } from '../models/post';
+import { ERRORS } from '../util/enum';
 
 export const handler = async (
   event: APIGatewayProxyEvent,
@@ -13,17 +15,23 @@ export const handler = async (
     if (!event.body) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Body is not a valid TechRecord' }),
+        body: JSON.stringify({ error: ERRORS.MISSING_PAYLOAD }),
       };
     }
     if (!event.headers.Authorization) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Missing authorization header' }),
+        body: JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }),
       };
     }
     const userDetails = getUserDetails(event.headers.Authorization);
-    const body: unknown = await JSON.parse(event.body);
+    const body = await JSON.parse(event.body) as TechrecordPut;
+    if (!body.techRecord_vehicleType) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: ERRORS.VEHICLE_TYPE_ERROR }),
+      };
+    }
     const requestBody = await processPostRequest(body, userDetails);
     if (!requestBody) {
       return {
