@@ -74,7 +74,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await updateVehicle(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      recordToArchive,
+      [recordToArchive],
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       newRecord,
     );
