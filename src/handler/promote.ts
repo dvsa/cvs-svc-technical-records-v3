@@ -4,9 +4,11 @@ import { cloneDeep } from 'lodash';
 import { TechRecordGet } from '../models/post';
 import { PromoteRecordRequestBody } from '../models/promote';
 import { SearchCriteria } from '../models/search';
+import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
 import { getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle } from '../services/database';
 import { getUserDetails } from '../services/user';
 import { StatusCode } from '../util/enum';
+import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validatePromoteErrors } from '../validators/promote';
@@ -55,39 +57,24 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     if (currentResult.length > 0) {
       const currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult[0].systemNumber, currentResult[0].createdTimestamp) as TechRecordGet;
-      currentRecord.techRecord_statusCode = StatusCode.ARCHIVED;
-      currentRecord.techRecord_lastUpdatedAt = new Date().toISOString();
-      currentRecord.techRecord_lastUpdatedByName = userDetails.username;
-      currentRecord.techRecord_lastUpdatedById = userDetails.msOid;
-      recordsToArchive.push(currentRecord);
-
-      logger.debug(`Old current record after update ${JSON.stringify(currentRecord)}`);
+      const currentNowArchived = setLastUpdatedAuditDetails(currentRecord, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED);
+      recordsToArchive.push(currentNowArchived);
+      logger.debug(`Old current record after update ${JSON.stringify(currentNowArchived)}`);
     }
 
-    const newCurrentRecord = cloneDeep(provisionalRecord);
+    const provisionalNowArchived = setLastUpdatedAuditDetails(cloneDeep(provisionalRecord), userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED);
+    recordsToArchive.push(provisionalNowArchived);
+    logger.debug(`Old provisional record after update ${JSON.stringify(provisionalNowArchived)}`);
 
-    newCurrentRecord.techRecord_statusCode = StatusCode.CURRENT;
-    newCurrentRecord.createdTimestamp = new Date().toISOString();
-    delete newCurrentRecord.techRecord_lastUpdatedAt;
-    newCurrentRecord.techRecord_createdByName = userDetails.username;
-    newCurrentRecord.techRecord_createdById = userDetails.msOid;
-    newCurrentRecord.techRecord_reasonForCreation = reasonForPromoting;
+    const newCurrent = setCreatedAuditDetails(provisionalRecord, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.CURRENT);
+    newCurrent.techRecord_reasonForCreation = reasonForPromoting;
+    logger.debug(`New current record after update ${JSON.stringify(newCurrent)}`);
 
-    logger.debug(`New current record after update ${JSON.stringify(newCurrentRecord)}`);
-
-    provisionalRecord.techRecord_statusCode = StatusCode.ARCHIVED;
-    provisionalRecord.techRecord_lastUpdatedAt = new Date().toISOString();
-    provisionalRecord.techRecord_lastUpdatedByName = userDetails.username;
-    provisionalRecord.techRecord_lastUpdatedById = userDetails.msOid;
-    recordsToArchive.push(provisionalRecord);
-
-    logger.debug(`Old provisional record after update ${JSON.stringify(provisionalRecord)}`);
-
-    await updateVehicle(recordsToArchive, newCurrentRecord);
+    await updateVehicle(recordsToArchive, newCurrent);
 
     return addHttpHeaders({
       statusCode: 200,
-      body: JSON.stringify(newCurrentRecord),
+      body: JSON.stringify(formatTechRecord(newCurrent)),
     });
   } catch (error) {
     logger.error(`Error has been thrown with ${JSON.stringify(error)}`);

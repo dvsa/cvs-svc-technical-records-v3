@@ -1,6 +1,7 @@
 import {
   TechRecordCar, TechRecordGet, TechRecordHgv, TechRecordMotorcycle, TechRecordPsv, TechRecordPut, TechRecordTrl,
 } from '../models/post';
+import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
 import { UserDetails } from '../services/user';
 import { HttpMethod, StatusCode, UpdateType } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
@@ -21,29 +22,22 @@ export const processUpdateRequest = async (recordFromDB: TechRecordGet, requestB
   recordFromDB.techRecord_updateType = updateType;
 
   const date = new Date().toISOString();
-  const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, userDetails.username, userDetails.msOid, date);
-  const updatedNewRecord = setCreatedAuditDetails(flattenedNewRecord, userDetails.username, userDetails.msOid, date);
+  const updatedRecordFromDB = setLastUpdatedAuditDetails(
+    recordFromDB,
+    userDetails.username,
+    userDetails.msOid,
+    date,
+    StatusCode.ARCHIVED,
+  );
+  const updatedNewRecord = setCreatedAuditDetails(
+    flattenedNewRecord,
+    userDetails.username,
+    userDetails.msOid,
+    date,
+    flattenedNewRecord.techRecord_statusCode as StatusCode,
+  );
 
   return [updatedRecordFromDB, updatedNewRecord];
-};
-
-export const setLastUpdatedAuditDetails = (techRecord: TechRecordGet, createdByName: string, createdById: string, date: string) => {
-  techRecord.techRecord_lastUpdatedAt = date;
-  techRecord.techRecord_lastUpdatedByName = createdByName;
-  techRecord.techRecord_lastUpdatedById = createdById;
-  techRecord.techRecord_statusCode = StatusCode.ARCHIVED;
-  return techRecord;
-};
-
-export const setCreatedAuditDetails = (techRecord: TechRecordGet, createdByName: string, createdById: string, date: string) => {
-  techRecord.techRecord_createdAt = date;
-  techRecord.techRecord_createdByName = createdByName;
-  techRecord.techRecord_createdById = createdById;
-  techRecord.createdTimestamp = date;
-  delete techRecord.techRecord_lastUpdatedAt;
-  delete techRecord.techRecord_lastUpdatedById;
-  delete techRecord.techRecord_lastUpdatedByName;
-  return techRecord;
 };
 
 export const getUpdateType = (oldRecord: TechRecordGet, newRecord: TechRecordGet): UpdateType => {

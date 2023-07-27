@@ -29,14 +29,15 @@ jest.mock('@aws-sdk/lib-dynamodb', () => ({
 
 import { TechRecordGet } from '../../../src/models/post';
 import { SearchCriteria } from '../../../src/models/search';
-import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/processors/processUpdateRequest';
+import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/services/audit';
 import {
-    getBySystemNumberAndCreatedTimestamp,
-    searchByAll,
-    searchByCriteria,
-    updateVehicle,
+  getBySystemNumberAndCreatedTimestamp,
+  searchByAll,
+  searchByCriteria,
+  updateVehicle,
 } from '../../../src/services/database';
 import * as UserDetails from '../../../src/services/user';
+import { StatusCode } from '../../../src/util/enum';
 import postCarData from '../../resources/techRecordCarPost.json';
 
 const mockUserDetails = {
@@ -149,8 +150,8 @@ describe('updateVehicle', () => {
     const recordFromDB = postCarData as TechRecordGet;
     const newRecord = { ...(postCarData as TechRecordGet), ...JSON.parse(event.body) } as TechRecordGet;
     const date = new Date().toISOString();
-    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date);
-    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date);
+    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date, StatusCode.ARCHIVED);
+    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
     mockSend.mockImplementation(() => Promise.resolve({}));
 
     const res = await updateVehicle([updatedRecordFromDB], updatedNewRecord);
@@ -171,8 +172,8 @@ describe('updateVehicle', () => {
     const recordFromDB = postCarData as TechRecordGet;
     const newRecord = { ...(postCarData as TechRecordGet), ...JSON.parse(event.body) } as TechRecordGet;
     const date = new Date().toISOString();
-    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date);
-    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date);
+    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date, StatusCode.ARCHIVED);
+    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
     await expect(updateVehicle([updatedRecordFromDB], updatedNewRecord)).rejects.toBe('error');
