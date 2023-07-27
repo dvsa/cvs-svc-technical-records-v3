@@ -1,21 +1,21 @@
 import {
-  TechrecordCar, TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordPsv, TechrecordPut, TechrecordTrl,
+    TechRecordCar, TechRecordGet, TechRecordHgv, TechRecordMotorcycle, TechRecordPsv, TechRecordPut, TechRecordTrl,
 } from '../models/post';
 import { UserDetails } from '../services/user';
 import { HttpMethod, STATUS, UpdateType } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
-export const processUpdateRequest = async (recordFromDB: TechrecordGet, requestBody: TechrecordPut, userDetails: UserDetails): Promise<(TechrecordGet | TechrecordPut)[]> => {
+export const processUpdateRequest = async (recordFromDB: TechRecordGet, requestBody: TechRecordPut, userDetails: UserDetails): Promise<(TechRecordGet | TechRecordPut)[]> => {
   const formattedRecordFromDB = formatTechRecord(recordFromDB);
 
   const updatedRequest = processVehicleIdentifiers(recordFromDB, requestBody);
 
-  const newRecord = { ...formattedRecordFromDB, ...updatedRequest } as TechrecordGet;
+  const newRecord = { ...formattedRecordFromDB, ...updatedRequest } as TechRecordGet;
 
   newRecord.techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord, HttpMethod.GET);
 
-  const flattenedNewRecord = await flattenArrays(newRecord) as TechrecordGet;
+  const flattenedNewRecord = await flattenArrays(newRecord) as TechRecordGet;
 
   const updateType = getUpdateType(flattenedNewRecord, recordFromDB);
   recordFromDB.techRecord_updateType = updateType;
@@ -27,7 +27,7 @@ export const processUpdateRequest = async (recordFromDB: TechrecordGet, requestB
   return [updatedRecordFromDB, updatedNewRecord];
 };
 
-export const setLastUpdatedAuditDetails = (techRecord: TechrecordGet, createdByName: string, createdById: string, date: string) => {
+export const setLastUpdatedAuditDetails = (techRecord: TechRecordGet, createdByName: string, createdById: string, date: string) => {
   techRecord.techRecord_lastUpdatedAt = date;
   techRecord.techRecord_lastUpdatedByName = createdByName;
   techRecord.techRecord_lastUpdatedById = createdById;
@@ -35,7 +35,7 @@ export const setLastUpdatedAuditDetails = (techRecord: TechrecordGet, createdByN
   return techRecord;
 };
 
-export const setCreatedAuditDetails = (techRecord: TechrecordGet, createdByName: string, createdById: string, date: string) => {
+export const setCreatedAuditDetails = (techRecord: TechRecordGet, createdByName: string, createdById: string, date: string) => {
   techRecord.techRecord_createdAt = date;
   techRecord.techRecord_createdByName = createdByName;
   techRecord.techRecord_createdById = createdById;
@@ -46,23 +46,23 @@ export const setCreatedAuditDetails = (techRecord: TechrecordGet, createdByName:
   return techRecord;
 };
 
-export const getUpdateType = (oldRecord: TechrecordGet, newRecord: TechrecordGet): UpdateType => {
-  const isAdrUpdate = Object.entries(newRecord).some(([key, value]) => /techRecord_adrDetails_[a-zA-Z]+/.test(key) && oldRecord[key as keyof TechrecordGet] !== value);
+export const getUpdateType = (oldRecord: TechRecordGet, newRecord: TechRecordGet): UpdateType => {
+  const isAdrUpdate = Object.entries(newRecord).some(([key, value]) => /techRecord_adrDetails_[a-zA-Z]+/.test(key) && oldRecord[key as keyof TechRecordGet] !== value);
   return isAdrUpdate ? UpdateType.ADR : UpdateType.TECH_RECORD_UPDATE;
 };
 
-export const processVehicleIdentifiers = (recordFromDB: TechrecordGet, requestBody: TechrecordPut) => {
-  const techRecord = { ...requestBody } as TechrecordGet;
+export const processVehicleIdentifiers = (recordFromDB: TechRecordGet, requestBody: TechRecordPut) => {
+  const techRecord = { ...requestBody } as TechRecordGet;
 
-  const newVrm = (techRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm;
-  const existingVrm = (recordFromDB as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm;
+  const newVrm = (techRecord as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm;
+  const existingVrm = (recordFromDB as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm;
   if (newVrm !== undefined && newVrm !== null && newVrm !== existingVrm) {
-    (techRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm = existingVrm;
+    (techRecord as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm = existingVrm;
   }
 
-  const newTrailerId = (techRecord as TechrecordTrl).trailerId;
-  if (newTrailerId !== undefined && newTrailerId !== null && newTrailerId !== (recordFromDB as TechrecordTrl).trailerId) {
-    (techRecord as TechrecordTrl).trailerId = (recordFromDB as TechrecordTrl).trailerId;
+  const newTrailerId = (techRecord as TechRecordTrl).trailerId;
+  if (newTrailerId !== undefined && newTrailerId !== null && newTrailerId !== (recordFromDB as TechRecordTrl).trailerId) {
+    (techRecord as TechRecordTrl).trailerId = (recordFromDB as TechRecordTrl).trailerId;
   }
   const newVin = techRecord.vin;
   if (newVin !== undefined && newVin !== null && newVin !== recordFromDB.vin) {

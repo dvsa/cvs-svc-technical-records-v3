@@ -5,10 +5,10 @@ const mockProcessUpdateRequest = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/update';
-import hgvData from '../../resources/techRecordHGVPost.json';
+import { TechRecordPut } from '../../../src/models/post';
 import * as UserDetails from '../../../src/services/user';
-import { TechrecordPut } from '../../../src/models/post';
 import { ERRORS } from '../../../src/util/enum';
+import hgvData from '../../resources/techRecordHGVPost.json';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
@@ -49,7 +49,7 @@ describe('update handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
-      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechrecordPut;
+      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordPut;
       mockProcessUpdateRequest.mockResolvedValueOnce([hgvData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       const result = await handler(request);
@@ -104,7 +104,7 @@ describe('update handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
-      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechrecordPut;
+      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordPut;
       mockProcessUpdateRequest.mockResolvedValueOnce([hgvData, newRecord]);
       mockUpdateVehicle.mockRejectedValueOnce('Error');
       const result = await handler(request);

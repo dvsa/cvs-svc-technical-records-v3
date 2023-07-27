@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/
 import 'dotenv/config';
 import { cloneDeep } from 'lodash';
 import { StatusCode } from '../models/StatusCode.enum';
-import { TechrecordGet } from '../models/post';
+import { TechRecordGet } from '../models/post';
 import { PromoteRecordRequestBody } from '../models/promote';
 import { SearchCriteria } from '../models/search';
 import { getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle } from '../services/database';
@@ -28,7 +28,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     logger.info(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
 
-    const provisionalRecord: TechrecordGet = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechrecordGet;
+    const provisionalRecord: TechRecordGet = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechRecordGet;
 
     logger.debug(`result is: ${JSON.stringify(provisionalRecord)}`);
 
@@ -51,10 +51,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     logger.debug(`Current result ${JSON.stringify(currentResult)}`);
 
-    const recordsToArchive: TechrecordGet[] = [];
+    const recordsToArchive: TechRecordGet[] = [];
 
     if (currentResult.length > 0) {
-      const currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult[0].systemNumber, currentResult[0].createdTimestamp) as TechrecordGet;
+      const currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult[0].systemNumber, currentResult[0].createdTimestamp) as TechRecordGet;
       currentRecord.techRecord_statusCode = StatusCode.ARCHIVED;
       currentRecord.techRecord_lastUpdatedAt = new Date().toISOString();
       currentRecord.techRecord_lastUpdatedByName = userDetails.username;

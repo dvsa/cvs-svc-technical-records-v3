@@ -1,11 +1,11 @@
-import 'dotenv/config';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { postTechRecord } from '../services/database';
-import logger from '../util/logger';
+import 'dotenv/config';
+import { TechRecordPut } from '../models/post';
 import { processPostRequest } from '../processors/processPostRequest';
+import { postTechRecord } from '../services/database';
 import { getUserDetails } from '../services/user';
-import { TechrecordPut } from '../models/post';
 import { ERRORS } from '../util/enum';
+import logger from '../util/logger';
 
 export const handler = async (
   event: APIGatewayProxyEvent,
@@ -25,7 +25,7 @@ export const handler = async (
       };
     }
     const userDetails = getUserDetails(event.headers.Authorization);
-    const body = await JSON.parse(event.body) as TechrecordPut;
+    const body = await JSON.parse(event.body) as TechRecordPut;
     if (!body.techRecord_vehicleType) {
       return {
         statusCode: 400,

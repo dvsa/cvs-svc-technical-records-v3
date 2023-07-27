@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 
-import { TechrecordGet, TechrecordPut } from '../models/post';
+import { TechRecordGet, TechRecordPut } from '../models/post';
 import { processUpdateRequest } from '../processors/processUpdateRequest';
 import { getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';
 import { getUserDetails } from '../services/user';
@@ -36,9 +36,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const systemNumber = decodeURIComponent(event.pathParameters?.systemNumber ?? '');
     const createdTimestamp = decodeURIComponent(event.pathParameters?.createdTimestamp ?? '');
-    const requestBody = JSON.parse(event.body ?? '') as TechrecordPut;
+    const requestBody = JSON.parse(event.body ?? '') as TechRecordPut;
 
-    const recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechrecordGet;
+    const recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechRecordGet;
     if (!recordFromDB || !Object.keys(recordFromDB).length) {
       return addHttpHeaders({
         statusCode: 404,
@@ -58,7 +58,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const [updatedRecordFromDB, updatedNewRecord] = await processUpdateRequest(recordFromDB, requestBody, userDetails);
 
-    const record = await updateVehicle([updatedRecordFromDB] as TechrecordGet[], updatedNewRecord as TechrecordGet);
+    const record = await updateVehicle([updatedRecordFromDB] as TechRecordGet[], updatedNewRecord as TechRecordGet);
 
     const formattedRecord = formatTechRecord(record);
 

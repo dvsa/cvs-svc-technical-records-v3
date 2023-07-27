@@ -1,20 +1,20 @@
 import {
-  AttributeValue,
-  DynamoDBClient,
-  GetItemCommand,
-  GetItemCommandInput,
-  PutItemCommand,
-  PutItemCommandInput,
-  QueryCommand,
-  QueryInput,
-  TransactWriteItemsCommand,
+    AttributeValue,
+    DynamoDBClient,
+    GetItemCommand,
+    GetItemCommandInput,
+    PutItemCommand,
+    PutItemCommandInput,
+    QueryCommand,
+    QueryInput,
+    TransactWriteItemsCommand,
 } from '@aws-sdk/client-dynamodb';
 import { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import polly from 'polly-js';
 import { dynamoDBClientConfig, tableName } from '../config';
 import { ArchiveRecord } from '../models/archive';
-import { TechrecordGet } from '../models/post';
+import { TechRecordGet } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
 
@@ -120,7 +120,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 
-export const postTechRecord = async (request: TechrecordGet): Promise <TechrecordGet> => {
+export const postTechRecord = async (request: TechRecordGet): Promise <TechRecordGet> => {
   logger.info('about to post');
 
   try {
@@ -147,7 +147,7 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
   }
 };
 
-export const updateVehicle = async (recordsToArchive: TechrecordGet[], newRecord: TechrecordGet): Promise<object> => {
+export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord: TechRecordGet): Promise<object> => {
   logger.info('inside updateVehicle');
 
   const transactWriteParams: TransactWriteCommandInput = {
