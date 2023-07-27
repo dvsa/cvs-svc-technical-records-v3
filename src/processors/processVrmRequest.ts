@@ -6,11 +6,8 @@ export const processPatchVrmRequest = (currentRecord: TechrecordGet, event: APIG
   const userDetails = getUserDetails(event.headers.Authorization!);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const newIdentifier: string = JSON.parse(event.body!).newIdentifier as string;
-
   const recordToArchive: TechrecordGet = { ...currentRecord };
-
   const newRecord: TechrecordGet = { ...currentRecord };
-
   const date: string = new Date().toISOString();
 
   if ('primaryVrm' in newRecord) {
@@ -19,6 +16,7 @@ export const processPatchVrmRequest = (currentRecord: TechrecordGet, event: APIG
   if ('trailerId' in newRecord) {
     newRecord.trailerId = newIdentifier.toUpperCase();
   }
+
   newRecord.createdTimestamp = date;
   delete newRecord.techRecord_lastUpdatedAt;
   newRecord.techRecord_createdByName = userDetails.username;

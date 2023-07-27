@@ -1,8 +1,9 @@
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { ERRORS, STATUS } from '../util/enum';
 import { isObjectEmpty } from './emptyObject';
-import {formatTechRecord} from "../util/formatTechRecord";
-import {validateSysNumTimestampPathParams} from "./sysNumTimestamp";
-import {APIGatewayProxyEvent} from "aws-lambda";
+import { formatTechRecord } from '../util/formatTechRecord';
+import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
+import { TechrecordGet, TechrecordTrl } from '../models/post';
 
 export const validateUpdateErrors = (requestBody: string | null) => {
   if (!requestBody || isObjectEmpty(JSON.parse(requestBody))) {
@@ -54,16 +55,11 @@ export const checkVinValidity = (currentVin: string, newVin: (string | undefined
   return false;
 };
 
-// eslint-disable-next-line consistent-return
 export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-argument
   const isPathInvalid = validateSysNumTimestampPathParams(event);
-
   if (isPathInvalid) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return isPathInvalid;
   }
-
   if (!event.body || !Object.keys(event.body).length) {
     return {
       statusCode: 400,
@@ -86,38 +82,40 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
       body: 'You must provide a new VRM',
     };
   }
+  return false;
 };
+
 // eslint-disable-next-line consistent-return
-export const validateVrm = (currentRecord: any, newIdentifier: string) => {
+export const validateVrm = (currentRecord: TechrecordGet, newIdentifier: string) => {
   if (!newIdentifier) {
     return {
       statusCode: 400,
       body: 'New Identifier is invalid',
     };
   }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  if ((newIdentifier === currentRecord.primaryVrm || newIdentifier === currentRecord.trailerId) && currentRecord.techRecord_statusCode !== 'archived') {
+  if ((('primaryVrm' in currentRecord && newIdentifier === currentRecord.primaryVrm)
+    || ('trailerId' in currentRecord && newIdentifier === currentRecord.trailerId))
+    && currentRecord.techRecord_statusCode !== 'archived') {
     return {
       statusCode: 200,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       body: JSON.stringify(formatTechRecord(currentRecord)),
     };
   }
+  return false;
 };
-// eslint-disable-next-line consistent-return
-export const validateTrailerId = (currentRecord: any, trailerId: string) => {
+export const validateTrailerId = (currentRecord: TechrecordGet, trailerId: string) => {
   if (!trailerId) {
     return {
       statusCode: 400,
       body: 'New Trailer id is invalid',
     };
   }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  if (trailerId === currentRecord.trailerId && currentRecord.techRecord_statusCode !== 'archived') {
+  if ('trailerId' in currentRecord && trailerId === currentRecord.trailerId
+    && currentRecord.techRecord_statusCode !== 'archived') {
     return {
       statusCode: 200,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       body: JSON.stringify(formatTechRecord(currentRecord)),
     };
   }
+  return false;
 };
