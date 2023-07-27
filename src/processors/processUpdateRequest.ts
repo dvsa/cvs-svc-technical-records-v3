@@ -1,8 +1,8 @@
 import {
-    TechRecordCar, TechRecordGet, TechRecordHgv, TechRecordMotorcycle, TechRecordPsv, TechRecordPut, TechRecordTrl,
+  TechRecordCar, TechRecordGet, TechRecordHgv, TechRecordMotorcycle, TechRecordPsv, TechRecordPut, TechRecordTrl,
 } from '../models/post';
 import { UserDetails } from '../services/user';
-import { HttpMethod, STATUS, UpdateType } from '../util/enum';
+import { HttpMethod, StatusCode, UpdateType } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
@@ -31,7 +31,7 @@ export const setLastUpdatedAuditDetails = (techRecord: TechRecordGet, createdByN
   techRecord.techRecord_lastUpdatedAt = date;
   techRecord.techRecord_lastUpdatedByName = createdByName;
   techRecord.techRecord_lastUpdatedById = createdById;
-  techRecord.techRecord_statusCode = STATUS.ARCHIVED;
+  techRecord.techRecord_statusCode = StatusCode.ARCHIVED;
   return techRecord;
 };
 

@@ -13,7 +13,7 @@ jest.mock('../../../src/services/database.ts', () => ({
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { cloneDeep } from 'lodash';
 import { handler } from '../../../src/handler/archive';
-import { StatusCode } from '../../../src/models/StatusCode.enum';
+import { StatusCode } from '../../../src/util/enum';
 import archivePatchData from '../../resources/techRecordArchiveRecord.json';
 import archiveRequestData from '../../resources/techRecordArchiveRequest.json';
 

@@ -1,12 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
 import { cloneDeep } from 'lodash';
-import { StatusCode } from '../models/StatusCode.enum';
 import { TechRecordGet } from '../models/post';
 import { PromoteRecordRequestBody } from '../models/promote';
 import { SearchCriteria } from '../models/search';
 import { getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle } from '../services/database';
 import { getUserDetails } from '../services/user';
+import { StatusCode } from '../util/enum';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validatePromoteErrors } from '../validators/promote';

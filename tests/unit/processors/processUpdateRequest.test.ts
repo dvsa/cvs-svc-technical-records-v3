@@ -1,9 +1,9 @@
 import {
-    TechRecordGet, TechRecordHgv, TechRecordPut, TechRecordTrl,
+  TechRecordGet, TechRecordHgv, TechRecordPut, TechRecordTrl,
 } from '../../../src/models/post';
 import { getUpdateType, processUpdateRequest, processVehicleIdentifiers } from '../../../src/processors/processUpdateRequest';
 import { UserDetails } from '../../../src/services/user';
-import { UpdateType } from '../../../src/util/enum';
+import { StatusCode, UpdateType } from '../../../src/util/enum';
 import hgvData from '../../resources/techRecordHGVPost.json';
 import trailerData from '../../resources/techRecordsTrlPost.json';
 
@@ -37,7 +37,7 @@ describe('processUpdateRequest', () => {
     };
     const [updatedRecordFromDB, updatedNewRecord] = await processUpdateRequest(mockRecordFromDb, mockRequest, mockUserDetails);
     expect(updatedRecordFromDB).toEqual(expect.objectContaining({
-      techRecord_statusCode: 'archived',
+      techRecord_statusCode: StatusCode.ARCHIVED,
       techRecord_lastUpdatedByName: 'UpdateUser',
       techRecord_lastUpdatedById: 'QWERTY',
       techRecord_createdByName: 'Test User',

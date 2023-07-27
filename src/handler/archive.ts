@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { ArchiveRecord, ArchiveRecordRequestBody } from '../models/archive';
 import { archiveRecord, getBySystemNumberAndCreatedTimestamp } from '../services/database';
 import { getUserDetails } from '../services/user';
+import { StatusCode } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
@@ -37,14 +38,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       });
     }
 
-    if (record.techRecord_statusCode === 'archived') {
+    if (record.techRecord_statusCode === StatusCode.ARCHIVED) {
       return addHttpHeaders({
         statusCode: 400,
         body: 'Cannot archive an archived record',
       });
     }
 
-    record.techRecord_statusCode = 'archived';
+    record.techRecord_statusCode = StatusCode.ARCHIVED;
     record.techRecord_lastUpdatedAt = new Date().toISOString();
     record.techRecord_lastUpdatedByName = userDetails.username;
     record.techRecord_lastUpdatedById = userDetails.msOid;

@@ -7,7 +7,7 @@ const mockGetUserDetails = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/promote';
-import { StatusCode } from '../../../src/models/StatusCode.enum';
+import { StatusCode } from '../../../src/util/enum';
 
 jest.mock('../../../src/validators/promote', () => ({
   validatePromoteErrors: mockValidatePromoteErrors,

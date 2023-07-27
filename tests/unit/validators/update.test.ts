@@ -1,4 +1,4 @@
-import { ERRORS, STATUS } from '../../../src/util/enum';
+import { ERRORS, StatusCode } from '../../../src/util/enum';
 import { checkStatusCodeValidity, checkVinValidity, validateUpdateErrors } from '../../../src/validators/update';
 
 describe('validateUpdateErrors', () => {
@@ -15,27 +15,27 @@ describe('validateUpdateErrors', () => {
 
 describe('checkStatusCodeValidity', () => {
   it('throws error if trying to update archived record', () => {
-    expect(checkStatusCodeValidity(STATUS.ARCHIVED)).toEqual({
+    expect(checkStatusCodeValidity(StatusCode.ARCHIVED)).toEqual({
       statusCode: 400,
       body: ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD,
     });
   });
   it('throws error if trying to archive a record', () => {
-    expect(checkStatusCodeValidity(undefined, STATUS.ARCHIVED)).toEqual({
+    expect(checkStatusCodeValidity(undefined, StatusCode.ARCHIVED)).toEqual({
       statusCode: 400,
       body: ERRORS.CANNOT_USE_UPDATE_TO_ARCHIVE,
     });
   });
   it('throws error if trying make current record provisional', () => {
-    expect(checkStatusCodeValidity(STATUS.CURRENT, STATUS.PROVISIONAL)).toEqual({
+    expect(checkStatusCodeValidity(StatusCode.CURRENT, StatusCode.PROVISIONAL)).toEqual({
       statusCode: 400,
       body: ERRORS.CANNOT_CHANGE_CURRENT_TO_PROVISIONAL,
     });
   });
   it('returns false if there are no errors', () => {
-    expect(checkStatusCodeValidity(STATUS.CURRENT, STATUS.CURRENT)).toBe(false);
-    expect(checkStatusCodeValidity(STATUS.PROVISIONAL, STATUS.CURRENT)).toBe(false);
-    expect(checkStatusCodeValidity(STATUS.PROVISIONAL, STATUS.PROVISIONAL)).toBe(false);
+    expect(checkStatusCodeValidity(StatusCode.CURRENT, StatusCode.CURRENT)).toBe(false);
+    expect(checkStatusCodeValidity(StatusCode.PROVISIONAL, StatusCode.CURRENT)).toBe(false);
+    expect(checkStatusCodeValidity(StatusCode.PROVISIONAL, StatusCode.PROVISIONAL)).toBe(false);
   });
 });
 
