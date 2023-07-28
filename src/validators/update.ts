@@ -3,7 +3,8 @@ import { ERRORS, STATUS } from '../util/enum';
 import { isObjectEmpty } from './emptyObject';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
-import { TechrecordGet, TechrecordTrl } from '../models/post';
+import { TechrecordGet } from '../models/post';
+import { UpdateVrmRequestBody } from '../models/updateVrm';
 
 export const validateUpdateErrors = (requestBody: string | null) => {
   if (!requestBody || isObjectEmpty(JSON.parse(requestBody))) {
@@ -73,9 +74,7 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
       body: 'Missing authorization header',
     };
   }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const newVrm: string = JSON.parse(event.body).newVrm as string;
-
+  const { newVrm } = JSON.parse(event.body) as UpdateVrmRequestBody;
   if (!newVrm) {
     return {
       statusCode: 400,
@@ -93,9 +92,13 @@ export const validateVrm = (currentRecord: TechrecordGet, newVrm: string) => {
       body: 'New Identifier is invalid',
     };
   }
-  if ((('primaryVrm' in currentRecord && newVrm === currentRecord.primaryVrm)
-    || ('trailerId' in currentRecord && newVrm === currentRecord.trailerId))
-    && currentRecord.techRecord_statusCode !== 'archived') {
+  if (!(/^[0-9a-z]+$/i).test(newVrm)) {
+    return {
+      statusCode: 400,
+      body: 'Invalid VRM',
+    };
+  }
+  if (('primaryVrm' in currentRecord && newVrm === currentRecord.primaryVrm) && currentRecord.techRecord_statusCode !== 'archived') {
     return {
       statusCode: 200,
       body: JSON.stringify(formatTechRecord(currentRecord)),

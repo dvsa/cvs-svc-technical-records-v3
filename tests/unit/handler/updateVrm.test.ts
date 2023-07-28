@@ -1,8 +1,9 @@
 /* eslint-disable import/first */
+
 const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockUpdateVehicle = jest.fn();
 const mockProcessPatchVrmRequest = jest.fn();
-const mockSearchByAll = jest.fn();
+const mockSearchByCriteria = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
@@ -14,7 +15,7 @@ import { ERRORS } from '../../../src/util/enum';
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
   updateVehicle: mockUpdateVehicle,
-  searchByAll: mockSearchByAll,
+  searchByCriteria: mockSearchByCriteria,
 }));
 
 jest.mock('../../../src/processors/processVrmRequest', () => ({
@@ -23,7 +24,6 @@ jest.mock('../../../src/processors/processVrmRequest', () => ({
 const mockUserDetails = {
   username: 'Test User', msOid: 'QWERTY', email: 'testUser@test.com',
 };
-
 describe('update vrm handler', () => {
   let request: APIGatewayProxyEvent;
   beforeEach(() => {
@@ -47,13 +47,12 @@ describe('update vrm handler', () => {
   describe('Successful Response', () => {
     it('should pass validation and return a 200 response', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
-
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
       const newRecord = { ...carData, ...JSON.parse(request.body!) } as TechrecordPut;
       mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
-      mockSearchByAll.mockReturnValueOnce([{
+      mockSearchByCriteria.mockReturnValueOnce([{
         techRecord_manufactureYear: 'null',
         primaryVrm: 'SJG1020',
         techRecord_make: 'null',
@@ -66,9 +65,9 @@ describe('update vrm handler', () => {
       }]);
       const result = await handler(request);
 
-      // expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
-      // expect(mockProcessPatchVrmRequest).toHaveBeenCalledTimes(1);
-      // expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
+      expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
+      expect(mockProcessPatchVrmRequest).toHaveBeenCalledTimes(1);
+      expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
       expect(result.statusCode).toBe(200);
       expect(result.body).not.toBeNull();
     });
@@ -102,13 +101,47 @@ describe('update vrm handler', () => {
       expect(result.body).toEqual(ERRORS.MISSING_AUTH_HEADER);
     });
     it('should return an error when VINs are invalid', async () => {
-      request.body = JSON.stringify({ newIdentifier: null });
+      request.body = JSON.stringify({ newVrm: null });
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
         vin: 'testVin',
       });
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe('You must provide a new VRM');
+    });
+    it('should return the current record when there is a duplicate vrm', async () => {
+      request.body = JSON.stringify({ newVrm: 'SJG1020' });
+      mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
+        techRecord_manufactureYear: 'null',
+        primaryVrm: 'SJG1020',
+        techRecord_make: 'null',
+        vin: 'DP76UMK4DQLTOT400021',
+        techRecord_statusCode: 'current',
+        systemNumber: 'XYZEP5JYOMM00020',
+        techRecord_vehicleType: 'car',
+        createdTimestamp: '2019-06-24T10:26:54.903Z',
+        techRecord_model: 'null',
+      });
+      const result = await handler(request as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(200);
+      expect(result.body).not.toBeNull();
+    });
+    it('should return an error when the vrm contains special characters', async () => {
+      request.body = JSON.stringify({ newVrm: 'S!@£JG1020' });
+      mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
+        techRecord_manufactureYear: 'null',
+        primaryVrm: 'SJG1020',
+        techRecord_make: 'null',
+        vin: 'DP76UMK4DQLTOT400021',
+        techRecord_statusCode: 'current',
+        systemNumber: 'XYZEP5JYOMM00020',
+        techRecord_vehicleType: 'car',
+        createdTimestamp: '2019-06-24T10:26:54.903Z',
+        techRecord_model: 'null',
+      });
+      const result = await handler(request as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toBe('Invalid VRM');
     });
   });
 });
