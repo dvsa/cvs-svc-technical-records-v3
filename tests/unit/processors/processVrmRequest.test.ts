@@ -36,7 +36,7 @@ describe('processVrmRequest', () => {
       multiValueQueryStringParameters: null,
       pathParameters: null,
       stageVariables: null,
-      body: JSON.stringify({ newIdentifier: 'foo' }),
+      body: JSON.stringify({ newVrm: 'foo' }),
       isBase64Encoded: false,
     };
     const mockRecordFromDb = postCarData as TechrecordGet;
