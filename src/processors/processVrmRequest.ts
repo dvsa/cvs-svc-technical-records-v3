@@ -1,14 +1,14 @@
 import { UserDetails } from '../services/user';
-import { TechrecordGet } from '../models/post';
+import {
+  TechrecordCar, TechrecordGet, TechrecordHgv, TechrecordMotorcycle, TechrecordPsv,
+} from '../models/post';
 
 export const processPatchVrmRequest = (currentRecord: TechrecordGet, userDetails: UserDetails, newVrm: string): Array<TechrecordGet> => {
   const recordToArchive: TechrecordGet = { ...currentRecord };
   const newRecord: TechrecordGet = { ...currentRecord };
   const date: string = new Date().toISOString();
 
-  if ('primaryVrm' in newRecord) {
-    newRecord.primaryVrm = newVrm.toUpperCase();
-  }
+  (newRecord as TechrecordHgv | TechrecordMotorcycle | TechrecordCar | TechrecordPsv).primaryVrm = newVrm.toUpperCase();
   newRecord.createdTimestamp = date;
   delete newRecord.techRecord_lastUpdatedAt;
   newRecord.techRecord_createdByName = userDetails.username;
