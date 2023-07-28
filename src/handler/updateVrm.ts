@@ -28,6 +28,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     createdTimestamp,
   ) as TechrecordGet;
   const techRecords: SearchResult[] = await searchByAll(newVrm);
+  logger.info(techRecords);
   const letFilteredVrm = techRecords.filter((x) => x.primaryVrm === newVrm);
   if (letFilteredVrm.length !== 0) {
     return addHttpHeaders({

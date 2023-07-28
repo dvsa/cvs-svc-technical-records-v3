@@ -74,9 +74,9 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
     };
   }
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const newIdentifier: string = JSON.parse(event.body).newIdentifier as string;
+  const newVrm: string = JSON.parse(event.body).newVrm as string;
 
-  if (!newIdentifier) {
+  if (!newVrm) {
     return {
       statusCode: 400,
       body: 'You must provide a new VRM',
@@ -86,15 +86,15 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
 };
 
 // eslint-disable-next-line consistent-return
-export const validateVrm = (currentRecord: TechrecordGet, newIdentifier: string) => {
-  if (!newIdentifier) {
+export const validateVrm = (currentRecord: TechrecordGet, newVrm: string) => {
+  if (!newVrm) {
     return {
       statusCode: 400,
       body: 'New Identifier is invalid',
     };
   }
-  if ((('primaryVrm' in currentRecord && newIdentifier === currentRecord.primaryVrm)
-    || ('trailerId' in currentRecord && newIdentifier === currentRecord.trailerId))
+  if ((('primaryVrm' in currentRecord && newVrm === currentRecord.primaryVrm)
+    || ('trailerId' in currentRecord && newVrm === currentRecord.trailerId))
     && currentRecord.techRecord_statusCode !== 'archived') {
     return {
       statusCode: 200,
