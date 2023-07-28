@@ -1,7 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
 import { cloneDeep } from 'lodash';
-import { TechRecordGet } from '../models/post';
 import { PromoteRecordRequestBody } from '../models/promote';
 import { SearchCriteria } from '../models/search';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
@@ -30,7 +29,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     logger.info(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
 
-    const provisionalRecord: TechRecordGet = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
+    const provisionalRecord = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
     logger.debug(`result is: ${JSON.stringify(provisionalRecord)}`);
 
@@ -49,14 +48,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     const allVehicleRecords = await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, provisionalRecord.systemNumber);
-    const currentResult = allVehicleRecords.filter((searchResult) => searchResult.techRecord_statusCode === StatusCode.CURRENT);
+    const currentResult = allVehicleRecords.find((searchResult) => searchResult.techRecord_statusCode === StatusCode.CURRENT);
 
     logger.debug(`Current result ${JSON.stringify(currentResult)}`);
 
-    const recordsToArchive: TechRecordGet[] = [];
+    const recordsToArchive = [];
 
-    if (currentResult.length > 0) {
-      const currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult[0].systemNumber, currentResult[0].createdTimestamp);
+    if (currentResult) {
+      const currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult.systemNumber, currentResult.createdTimestamp);
       const currentNowArchived = setLastUpdatedAuditDetails(currentRecord, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED);
       recordsToArchive.push(currentNowArchived);
       logger.debug(`Old current record after update ${JSON.stringify(currentNowArchived)}`);
