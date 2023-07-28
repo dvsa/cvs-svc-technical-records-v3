@@ -1,5 +1,5 @@
 import {
-    TechRecordCar, TechRecordGet, TechRecordHgv, TechRecordMotorcycle, TechRecordPut, TechRecordTrl,
+  TechRecordCar, TechRecordGet, TechRecordHgv, TechRecordMotorcycle, TechRecordPut, TechRecordTrl,
 } from '../models/post';
 import { NumberTypes, generateNewNumber } from '../services/testNumber';
 import { UserDetails } from '../services/user';
