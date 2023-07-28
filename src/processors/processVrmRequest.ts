@@ -9,7 +9,6 @@ export const processPatchVrmRequest = (currentRecord: TechrecordGet, userDetails
   if ('primaryVrm' in newRecord) {
     newRecord.primaryVrm = newVrm.toUpperCase();
   }
-
   newRecord.createdTimestamp = date;
   delete newRecord.techRecord_lastUpdatedAt;
   newRecord.techRecord_createdByName = userDetails.username;

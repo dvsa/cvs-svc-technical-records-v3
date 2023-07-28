@@ -98,10 +98,16 @@ export const validateVrm = (currentRecord: TechrecordGet, newVrm: string) => {
       body: 'Invalid VRM',
     };
   }
-  if (('primaryVrm' in currentRecord && newVrm === currentRecord.primaryVrm) && currentRecord.techRecord_statusCode !== 'archived') {
+  if ('primaryVrm' in currentRecord && newVrm === currentRecord.primaryVrm) {
     return {
       statusCode: 200,
       body: JSON.stringify(formatTechRecord(currentRecord)),
+    };
+  }
+  if (currentRecord.techRecord_statusCode === 'archived') {
+    return {
+      statusCode: 400,
+      body: 'Cannot update the vrm of an archived record',
     };
   }
   return false;
