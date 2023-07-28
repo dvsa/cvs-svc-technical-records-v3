@@ -2,31 +2,8 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import {
   TechrecordGet,
 } from '../../../src/models/post';
-import { getUpdateType } from '../../../src/processors/processUpdateRequest';
-import { UpdateType } from '../../../src/util/enum';
 import { processPatchVrmRequest } from '../../../src/processors/processVrmRequest';
 import postCarData from '../../resources/techRecordCarPost.json';
-
-describe('getUpdateType', () => {
-  it('returns updateType for the record', () => {
-    const mockRecord = {
-      techRecord_adrDetails_vehicleDetails_type: 'testType',
-    };
-    const mockRequest1 = {
-      techRecord_adrDetails_vehicleDetails_type: 'testTypeChnage',
-    };
-    const mockRequest2 = {
-      techRecord_vehicleType: 'trl',
-    };
-    const mockRequest3 = {
-      techRecord_vehicleType: 'trl',
-      techRecord_adrDetails_vehicleDetails_type: 'testType',
-    };
-    expect(getUpdateType(mockRecord as TechrecordGet, mockRequest1 as TechrecordGet)).toEqual(UpdateType.ADR);
-    expect(getUpdateType(mockRecord as TechrecordGet, mockRequest2 as TechrecordGet)).toEqual(UpdateType.TECH_RECORD_UPDATE);
-    expect(getUpdateType(mockRecord as TechrecordGet, mockRequest3 as TechrecordGet)).toEqual(UpdateType.TECH_RECORD_UPDATE);
-  });
-});
 
 describe('processVrmRequest', () => {
   it('returns updated records to archive and to add', () => {

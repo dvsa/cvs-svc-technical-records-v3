@@ -5,16 +5,13 @@ import { TechrecordGet } from '../models/post';
 export const processPatchVrmRequest = (currentRecord: TechrecordGet, event: APIGatewayProxyEvent): Array<TechrecordGet> => {
   const userDetails = getUserDetails(event.headers.Authorization!);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const newIdentifier: string = JSON.parse(event.body!).newIdentifier as string;
+  const newVrm: string = JSON.parse(event.body!).newIdentifier as string;
   const recordToArchive: TechrecordGet = { ...currentRecord };
   const newRecord: TechrecordGet = { ...currentRecord };
   const date: string = new Date().toISOString();
 
   if ('primaryVrm' in newRecord) {
-    newRecord.primaryVrm = newIdentifier.toUpperCase();
-  }
-  if ('trailerId' in newRecord) {
-    newRecord.trailerId = newIdentifier.toUpperCase();
+    newRecord.primaryVrm = newVrm.toUpperCase();
   }
 
   newRecord.createdTimestamp = date;

@@ -24,7 +24,7 @@ const mockUserDetails = {
   username: 'Test User', msOid: 'QWERTY', email: 'testUser@test.com',
 };
 
-describe('update handler', () => {
+describe('update vrm handler', () => {
   let request: APIGatewayProxyEvent;
   beforeEach(() => {
     request = {

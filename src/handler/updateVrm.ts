@@ -10,7 +10,7 @@ import { TechrecordGet } from '../models/post';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { SearchResult } from '../models/search';
 import { processPatchVrmRequest } from '../processors/processVrmRequest';
-import { validateTrailerId, validateUpdateVrmRequest, validateVrm } from '../validators/update';
+import { validateUpdateVrmRequest } from '../validators/update';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Amend VRM Called');
@@ -22,37 +22,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
   const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const newIdentifier: string = JSON.parse(event.body ?? '').newIdentifier as string;
+  const newVrm: string = JSON.parse(event.body ?? '').newVrm as string;
   const currentRecord: TechrecordGet = await getBySystemNumberAndCreatedTimestamp(
     systemNumber,
     createdTimestamp,
   ) as TechrecordGet;
-  let filtered: SearchResult[];
-  const techRecords: SearchResult[] = await searchByAll(newIdentifier);
-  if (currentRecord.techRecord_vehicleType === 'trl') {
-    filtered = techRecords.filter((x) => x.trailerId === newIdentifier);
-    if (filtered.length !== 0) {
-      return addHttpHeaders({
-        statusCode: 400,
-        body: JSON.stringify(`Trailer id ${newIdentifier} already exists`),
-      });
-    }
-    const isVrmInvalid: APIGatewayProxyResult | boolean = validateVrm(currentRecord, newIdentifier.toUpperCase());
-    if (isVrmInvalid) {
-      return isVrmInvalid;
-    }
-  } else {
-    const letFilteredVrm = techRecords.filter((x) => x.primaryVrm === newIdentifier);
-    if (letFilteredVrm.length !== 0) {
-      return addHttpHeaders({
-        statusCode: 400,
-        body: JSON.stringify(`Primary VRM ${newIdentifier} already exists`),
-      });
-    }
-    const isTrailerIdInvalid: APIGatewayProxyResult | boolean = validateTrailerId(currentRecord, newIdentifier.toUpperCase());
-    if (isTrailerIdInvalid) {
-      return isTrailerIdInvalid;
-    }
+  const techRecords: SearchResult[] = await searchByAll(newVrm);
+  const letFilteredVrm = techRecords.filter((x) => x.primaryVrm === newVrm);
+  if (letFilteredVrm.length !== 0) {
+    return addHttpHeaders({
+      statusCode: 400,
+      body: JSON.stringify(`Primary VRM ${newVrm} already exists`),
+    });
   }
   logger.debug('identifier has been validated');
   try {
