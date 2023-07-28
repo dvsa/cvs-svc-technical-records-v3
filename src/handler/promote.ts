@@ -30,7 +30,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     logger.info(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
 
-    const provisionalRecord: TechRecordGet = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechRecordGet;
+    const provisionalRecord: TechRecordGet = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
     logger.debug(`result is: ${JSON.stringify(provisionalRecord)}`);
 
@@ -56,7 +56,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const recordsToArchive: TechRecordGet[] = [];
 
     if (currentResult.length > 0) {
-      const currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult[0].systemNumber, currentResult[0].createdTimestamp) as TechRecordGet;
+      const currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult[0].systemNumber, currentResult[0].createdTimestamp);
       const currentNowArchived = setLastUpdatedAuditDetails(currentRecord, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED);
       recordsToArchive.push(currentNowArchived);
       logger.debug(`Old current record after update ${JSON.stringify(currentNowArchived)}`);

@@ -1,5 +1,5 @@
 import {
-    TechRecordCar, TechRecordGet, TechRecordHgv, TechRecordMotorcycle, TechRecordPsv,
+  TechRecordCar, TechRecordGet, TechRecordHgv, TechRecordMotorcycle, TechRecordPsv,
 } from '../models/post';
 import { UserDetails } from '../services/user';
 

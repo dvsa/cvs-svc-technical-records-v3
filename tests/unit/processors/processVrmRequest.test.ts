@@ -1,5 +1,5 @@
 import {
-    TechRecordGet,
+  TechRecordGet,
 } from '../../../src/models/post';
 import { processPatchVrmRequest } from '../../../src/processors/processVrmRequest';
 import postCarData from '../../resources/techRecordCarPost.json';
