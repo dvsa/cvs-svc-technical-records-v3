@@ -76,3 +76,16 @@ Resources:
             Properties:
               Path: /v3/technical-records/promote/{systemNumber}/{createdTimestamp}
               Method: patch
+    UpdateVrmFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: updateVrm.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PatchLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/updateVrm/{systemNumber}/{createdTimestamp}
+              Method: patch

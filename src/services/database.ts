@@ -93,7 +93,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
   }
 };
 
-export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<object> => {
+export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<TechRecordGet> => {
   const command: GetItemCommandInput = {
     TableName: tableName,
     Key: marshall({
@@ -105,7 +105,7 @@ export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string,
   try {
     const data = await ddbClient.send(new GetItemCommand(command));
     logger.debug(JSON.stringify(data));
-    return unmarshall(data.Item || {});
+    return unmarshall(data.Item || {}) as TechRecordGet;
   } catch (error) {
     logger.error(`Error in search by sysnum and time: ${JSON.stringify(error)}`);
     throw new Error(`database client failed getting data by ${systemNumber} and ${createdTimestamp}`);

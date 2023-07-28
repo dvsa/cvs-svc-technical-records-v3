@@ -39,7 +39,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const createdTimestamp = decodeURIComponent(event.pathParameters?.createdTimestamp ?? '');
     const requestBody = JSON.parse(event.body ?? '') as TechRecordPut;
 
-    const recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechRecordGet;
+    const recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
     if (!recordFromDB || !Object.keys(recordFromDB).length) {
       return addHttpHeaders({
         statusCode: 404,
