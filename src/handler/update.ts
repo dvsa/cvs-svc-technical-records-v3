@@ -10,7 +10,8 @@ import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateSysNumTimestampPathParams } from '../validators/sysNumTimestamp';
-import { checkStatusCodeValidity, checkVinValidity, validateUpdateErrors } from '../validators/update';
+import { checkStatusCodeValidity, validateUpdateErrors } from '../validators/update';
+import { checkVinValidity } from '../validators/vinValidity';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Update end point called');
