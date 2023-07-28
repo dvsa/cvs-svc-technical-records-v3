@@ -37,6 +37,13 @@ describe('update handler', () => {
       body: JSON.stringify({
         techRecord_reasonForCreation: 'Test Update',
         techRecord_approvalType: 'Test',
+        techRecord_statusCode: 'provisional',
+        techRecord_vehicleClass_code: 't',
+        techRecord_vehicleClass_description: 'trailer',
+        techRecord_vehicleConfiguration: 'rigid',
+        techRecord_vehicleType: 'trl',
+        trailerId: 'C530005',
+        vin: '9080977997',
       }),
     } as unknown as APIGatewayProxyEvent;
     jest.resetAllMocks();
@@ -91,7 +98,17 @@ describe('update handler', () => {
       expect(result.body).toEqual(JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }));
     });
     it('should return an error when VINs are invalid', async () => {
-      request.body = JSON.stringify({ vin: 'to' });
+      request.body = JSON.stringify({
+        techRecord_reasonForCreation: 'Test Update',
+        techRecord_approvalType: 'Test',
+        techRecord_statusCode: 'provisional',
+        techRecord_vehicleClass_code: 't',
+        techRecord_vehicleClass_description: 'trailer',
+        techRecord_vehicleConfiguration: 'rigid',
+        techRecord_vehicleType: 'trl',
+        trailerId: 'C530005',
+        vin: 'to',
+      });
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
         vin: 'testVin',
       });

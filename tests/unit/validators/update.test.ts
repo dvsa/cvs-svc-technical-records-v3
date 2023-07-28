@@ -1,5 +1,18 @@
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { ERRORS, StatusCode } from '../../../src/util/enum';
 import { checkStatusCodeValidity, validateUpdateErrors } from '../../../src/validators/update';
+
+const trlPayload = {
+  techRecord_reasonForCreation: 'Test Update',
+  techRecord_approvalType: 'Test',
+  techRecord_statusCode: 'provisional',
+  techRecord_vehicleClass_code: 't',
+  techRecord_vehicleClass_description: 'trailer',
+  techRecord_vehicleConfiguration: 'rigid',
+  techRecord_vehicleType: 'trl',
+  trailerId: 'C530005',
+  vin: '9080977997',
+};
 
 describe('validateUpdateErrors', () => {
   it('throws error if request body is empty', () => {
@@ -8,8 +21,22 @@ describe('validateUpdateErrors', () => {
       body: ERRORS.MISSING_PAYLOAD,
     });
   });
+  it('should error if the object is invalid', () => {
+    const event = { body: JSON.stringify({ techRecord_vehicleType: 'lol' }) } as unknown as APIGatewayProxyEvent;
+
+    const res = validateUpdateErrors(event.body);
+
+    expect(res).toEqual({
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Payload is invalid' }),
+    });
+  });
   it('returns false if no errors', () => {
-    expect(validateUpdateErrors(JSON.stringify({ techRecord_emissionsLimit: '12' }))).toBe(false);
+    const event = { body: JSON.stringify(trlPayload) } as unknown as APIGatewayProxyEvent;
+
+    const res = validateUpdateErrors(event.body);
+
+    expect(res).toBe(false);
   });
 });
 
