@@ -103,19 +103,3 @@ export const validateVrm = (currentRecord: TechrecordGet, newIdentifier: string)
   }
   return false;
 };
-export const validateTrailerId = (currentRecord: TechrecordGet, trailerId: string) => {
-  if (!trailerId) {
-    return {
-      statusCode: 400,
-      body: 'New Trailer id is invalid',
-    };
-  }
-  if ('trailerId' in currentRecord && trailerId === currentRecord.trailerId
-    && currentRecord.techRecord_statusCode !== 'archived') {
-    return {
-      statusCode: 200,
-      body: JSON.stringify(formatTechRecord(currentRecord)),
-    };
-  }
-  return false;
-};
