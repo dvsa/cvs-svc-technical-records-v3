@@ -75,15 +75,10 @@ describe('checkStatusCodeValidity', () => {
       body: ERRORS.CANNOT_USE_UPDATE_TO_ARCHIVE,
     });
   });
-  it('throws error if trying make current record provisional', () => {
-    expect(checkStatusCodeValidity(StatusCode.CURRENT, StatusCode.PROVISIONAL)).toEqual({
-      statusCode: 400,
-      body: ERRORS.CANNOT_CHANGE_CURRENT_TO_PROVISIONAL,
-    });
-  });
   it('returns false if there are no errors', () => {
     expect(checkStatusCodeValidity(StatusCode.CURRENT, StatusCode.CURRENT)).toBe(false);
     expect(checkStatusCodeValidity(StatusCode.PROVISIONAL, StatusCode.CURRENT)).toBe(false);
     expect(checkStatusCodeValidity(StatusCode.PROVISIONAL, StatusCode.PROVISIONAL)).toBe(false);
+    expect(checkStatusCodeValidity(StatusCode.CURRENT, StatusCode.PROVISIONAL)).toBe(false);
   });
 });

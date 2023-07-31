@@ -1,11 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
-
 import { TechRecordGet, TechRecordPut } from '../models/post';
 import { processUpdateRequest } from '../processors/processUpdateRequest';
 import { getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';
 import { getUserDetails } from '../services/user';
-import { ERRORS } from '../util/enum';
+import { ERRORS, StatusCode } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
@@ -57,9 +56,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return addHttpHeaders(vinErrors);
     }
 
+    const archiveNeeded = !(recordFromDB.techRecord_statusCode === StatusCode.CURRENT && requestBody.techRecord_statusCode === StatusCode.PROVISIONAL);
     const [updatedRecordFromDB, updatedNewRecord] = await processUpdateRequest(recordFromDB, requestBody, userDetails);
 
-    const record = await updateVehicle([updatedRecordFromDB] as TechRecordGet[], updatedNewRecord as TechRecordGet);
+    const recordsToArchive = archiveNeeded ? [updatedRecordFromDB] as TechRecordGet[] : [];
+
+    const record = await updateVehicle(recordsToArchive, updatedNewRecord as TechRecordGet);
 
     const formattedRecord = formatTechRecord(record);
 
