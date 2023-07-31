@@ -27,6 +27,9 @@ jest.mock('@aws-sdk/lib-dynamodb', () => ({
   },
 }));
 
+import { TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
+import { tableName } from '../../../src/config';
 import { TechRecordGet } from '../../../src/models/post';
 import { SearchCriteria } from '../../../src/models/search';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/services/audit';
@@ -156,6 +159,40 @@ describe('updateVehicle', () => {
 
     const res = await updateVehicle([updatedRecordFromDB], updatedNewRecord);
 
+    expect((res as TechRecordGet).techRecord_reasonForCreation).toBe('TEST update');
+  });
+  it('should return a success message if the transaction is successful with archive needed as false', async () => {
+    const event = {
+      headers: {
+        Authorization:
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+      },
+      body: JSON.stringify({
+        techRecord_reasonForCreation: 'TEST update',
+      }),
+    };
+    jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
+    const recordFromDB = postCarData as TechRecordGet;
+    const newRecord = { ...(postCarData as TechRecordGet), ...JSON.parse(event.body) } as TechRecordGet;
+    const date = new Date().toISOString();
+    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date, StatusCode.ARCHIVED);
+    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
+    mockSend.mockImplementation(() => Promise.resolve({}));
+
+    const res = await updateVehicle([updatedRecordFromDB], updatedNewRecord, false);
+
+    const mockSendParam = new TransactWriteItemsCommand({
+      TransactItems: [
+        {
+          Put: {
+            TableName: tableName,
+            Item: marshall(updatedNewRecord, { removeUndefinedValues: true }),
+          },
+        },
+      ],
+    });
+
+    expect(mockSend).toHaveBeenCalledWith(mockSendParam);
     expect((res as TechRecordGet).techRecord_reasonForCreation).toBe('TEST update');
   });
   it('should return an error message if the transaction fails', async () => {
