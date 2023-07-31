@@ -45,13 +45,6 @@ export const checkStatusCodeValidity = (oldStatus: string | undefined, newStatus
       body: ERRORS.CANNOT_USE_UPDATE_TO_ARCHIVE,
     };
   }
-  // TODO: check this criteria
-  if (oldStatus === StatusCode.CURRENT && newStatus === StatusCode.PROVISIONAL) {
-    return {
-      statusCode: 400,
-      body: ERRORS.CANNOT_CHANGE_CURRENT_TO_PROVISIONAL,
-    };
-  }
   return false;
 };
 
