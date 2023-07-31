@@ -22,6 +22,26 @@ export const formatValidationErrors = (errors: ErrorObject[]) => {
   return JSON.stringify({ error: errorMessage });
 };
 
+export const validateAgainstSkeletonSchema = (body: TechRecordPut) => {
+  const schema = identifySchema(body.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
+
+  if (!schema) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Payload is invalid' }),
+    };
+  }
+  const validationErrors = isValidObject(schema, body, true);
+  if (Array.isArray(validationErrors)) {
+    const errors = formatValidationErrors(validationErrors);
+    return {
+      statusCode: 400,
+      body: errors,
+    };
+  }
+  return undefined;
+};
+
 export const validatePostErrors = (event: APIGatewayProxyEvent) => {
   if (!event.body) {
     return {
@@ -44,21 +64,5 @@ export const validatePostErrors = (event: APIGatewayProxyEvent) => {
     };
   }
 
-  const schema = identifySchema(body.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
-
-  if (!schema) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Payload is invalid' }),
-    };
-  }
-  const validations = isValidObject(schema, body, true);
-  if (Array.isArray(validations)) {
-    const errors = formatValidationErrors(validations);
-    return {
-      statusCode: 400,
-      body: errors,
-    };
-  }
-  return undefined;
+  return validateAgainstSkeletonSchema(body);
 };

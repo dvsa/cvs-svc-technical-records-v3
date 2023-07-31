@@ -1,13 +1,12 @@
-import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { TechRecordGet, TechRecordPut } from '../models/post';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
 import {
-  ERRORS, HttpMethod, RecordCompleteness, StatusCode, VehicleType,
+  ERRORS, StatusCode,
 } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { isObjectEmpty } from './emptyObject';
-import { formatValidationErrors, identifySchema } from './post';
+import { validateAgainstSkeletonSchema } from './post';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
 
 export const validateUpdateErrors = (requestBody: string | null) => {
@@ -20,24 +19,7 @@ export const validateUpdateErrors = (requestBody: string | null) => {
 
   const body = JSON.parse(requestBody ?? '') as TechRecordPut;
 
-  const schema = identifySchema(body.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
-
-  if (!schema) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Payload is invalid' }),
-    };
-  }
-  const validations = isValidObject(schema, body, true);
-  if (Array.isArray(validations)) {
-    const errors = formatValidationErrors(validations);
-    return {
-      statusCode: 400,
-      body: errors,
-    };
-  }
-
-  return false;
+  return validateAgainstSkeletonSchema(body) ?? false;
 };
 
 export const checkStatusCodeValidity = (oldStatus: string | undefined, newStatus?: string | undefined) => {

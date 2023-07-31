@@ -53,7 +53,7 @@ describe('validateUpdateErrors', () => {
         'techRecord_plates/0/reasonForIssue must be equal to one of the allowed values']),
     }));
   });
-  it('returns undefined if no errors', () => {
+  it('returns false if no errors', () => {
     const event = { body: JSON.stringify(trlPayload) } as unknown as APIGatewayProxyEvent;
 
     const res = validateUpdateErrors(event.body);

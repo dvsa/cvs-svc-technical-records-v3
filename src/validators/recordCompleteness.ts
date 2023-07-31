@@ -28,19 +28,16 @@ export function validateAndComputeRecordCompleteness(input: (TechRecordPut | Tec
 
 const validateSkeletonSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
   const isSkeletonSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, method);
-  const isValid = isSkeletonSchema ? isValidObject(isSkeletonSchema, input) : false;
-  return Array.isArray(isValid) ? false : isValid;
+  return isSkeletonSchema ? isValidObject(isSkeletonSchema, input) as boolean : false;
 };
 
 const validateCompleteSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
   const isCompleteSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.COMPLETE, method);
-  const isValid = isCompleteSchema ? isValidObject(isCompleteSchema, input) : false;
-  return Array.isArray(isValid) ? false : isValid;
+  return isCompleteSchema ? isValidObject(isCompleteSchema, input) as boolean : false;
 };
 
 const validateTestableSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
   const isTestableSchema = input.techRecord_vehicleType === (VehicleType.TRL || VehicleType.PSV || VehicleType.HGV)
     ? identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, method) : '';
-  const isValid = isTestableSchema ? isValidObject(isTestableSchema, input) : false;
-  return Array.isArray(isValid) ? false : isValid;
+  return isTestableSchema ? isValidObject(isTestableSchema, input) as boolean : false;
 };
