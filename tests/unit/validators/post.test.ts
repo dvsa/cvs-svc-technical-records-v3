@@ -54,7 +54,7 @@ describe('Test post errors', () => {
     });
   });
   it('should error if there is no schema found', () => {
-    const event = { body: JSON.stringify({ techRecord_vehicleType: 'psv' }), headers: { Authorization: 'Bearer 123' } } as unknown as APIGatewayProxyEvent;
+    const event = { body: JSON.stringify({ techRecord_vehicleType: 'random' }), headers: { Authorization: 'Bearer 123' } } as unknown as APIGatewayProxyEvent;
 
     const res = validatePostErrors(event);
 
@@ -68,12 +68,13 @@ describe('Test post errors', () => {
 
     const event = { body: JSON.stringify({ techRecord_vehicleType: 'trl' }), headers: { Authorization: 'Bearer 123' } } as unknown as APIGatewayProxyEvent;
 
-    const res = validatePostErrors(event);
+    const res = validatePostErrors(event) as { statusCode: number;body: string; };
 
-    expect(res).toEqual({
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Payload is invalid' }),
-    });
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body ?? '')).toEqual(expect.objectContaining({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      error: expect.arrayContaining(["must have required property 'techRecord_reasonForCreation'"]),
+    }));
   });
   it('should return undefined as no errors', () => {
     const event = { body: JSON.stringify(trlPayload), headers: { Authorization: 'Bearer 123' } } as unknown as APIGatewayProxyEvent;

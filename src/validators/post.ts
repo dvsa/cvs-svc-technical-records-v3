@@ -15,7 +15,8 @@ export const formatValidationErrors = (errors: ErrorObject[]) => {
   const errorMessage: string[] = [];
   errors.forEach((element) => {
     if (element.message) {
-      errorMessage.push(`${element.instancePath} ${element.message}`);
+      const error = element.instancePath ? `${element.instancePath.substring(1)} ${element.message}` : `${element.message}`;
+      errorMessage.push(error);
     }
   });
   return JSON.stringify({ error: errorMessage });
