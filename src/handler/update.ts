@@ -56,10 +56,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return addHttpHeaders(vinErrors);
     }
 
-    const archiveNeeded = !((recordFromDB.techRecord_statusCode === StatusCode.CURRENT && requestBody.techRecord_statusCode === StatusCode.PROVISIONAL));
+    const archiveNeeded = !(recordFromDB.techRecord_statusCode === StatusCode.CURRENT && requestBody.techRecord_statusCode === StatusCode.PROVISIONAL);
     const [updatedRecordFromDB, updatedNewRecord] = await processUpdateRequest(recordFromDB, requestBody, userDetails);
 
-    const record = await updateVehicle(archiveNeeded ? [updatedRecordFromDB] as TechRecordGet[] : [], updatedNewRecord as TechRecordGet);
+    const recordsToArchive = archiveNeeded ? [updatedRecordFromDB] as TechRecordGet[] : [];
+
+    const record = await updateVehicle(recordsToArchive, updatedNewRecord as TechRecordGet);
 
     const formattedRecord = formatTechRecord(record);
 
