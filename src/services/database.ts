@@ -147,7 +147,7 @@ export const postTechRecord = async (request: TechRecordGet): Promise <TechRecor
   }
 };
 
-export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord: TechRecordGet, archiveNeeded = true): Promise<object> => {
+export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord: TechRecordGet): Promise<object> => {
   logger.info('inside updateVehicle');
 
   const transactWriteParams: TransactWriteCommandInput = {
@@ -161,19 +161,17 @@ export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord
     ],
   };
 
-  if (archiveNeeded) {
-    recordsToArchive.forEach((record) => {
-      transactWriteParams.TransactItems?.push(
-        {
-          Put: {
-            TableName: tableName,
-            Item: marshall(record, { removeUndefinedValues: true }),
-            ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
-          },
+  recordsToArchive.forEach((record) => {
+    transactWriteParams.TransactItems?.push(
+      {
+        Put: {
+          TableName: tableName,
+          Item: marshall(record, { removeUndefinedValues: true }),
+          ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
         },
-      );
-    });
-  }
+      },
+    );
+  });
 
   const sendTransaction = new Promise<object>((resolve, reject) => {
     ddbClient.send(new TransactWriteItemsCommand(transactWriteParams)).then(() => {

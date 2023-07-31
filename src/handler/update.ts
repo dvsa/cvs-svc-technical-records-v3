@@ -59,7 +59,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const archiveNeeded = !((recordFromDB.techRecord_statusCode === StatusCode.CURRENT && requestBody.techRecord_statusCode === StatusCode.PROVISIONAL));
     const [updatedRecordFromDB, updatedNewRecord] = await processUpdateRequest(recordFromDB, requestBody, userDetails);
 
-    const record = await updateVehicle([updatedRecordFromDB] as TechRecordGet[], updatedNewRecord as TechRecordGet, archiveNeeded);
+    const record = await updateVehicle(archiveNeeded ? [updatedRecordFromDB] as TechRecordGet[] : [], updatedNewRecord as TechRecordGet);
 
     const formattedRecord = formatTechRecord(record);
 

@@ -161,7 +161,7 @@ describe('updateVehicle', () => {
 
     expect((res as TechRecordGet).techRecord_reasonForCreation).toBe('TEST update');
   });
-  it('should return a success message if the transaction is successful with archive needed as false', async () => {
+  it('should return a success message if the transaction only has a new record given', async () => {
     const event = {
       headers: {
         Authorization:
@@ -172,14 +172,12 @@ describe('updateVehicle', () => {
       }),
     };
     jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
-    const recordFromDB = postCarData as TechRecordGet;
     const newRecord = { ...(postCarData as TechRecordGet), ...JSON.parse(event.body) } as TechRecordGet;
     const date = new Date().toISOString();
-    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date, StatusCode.ARCHIVED);
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
     mockSend.mockImplementation(() => Promise.resolve({}));
 
-    const res = await updateVehicle([updatedRecordFromDB], updatedNewRecord, false);
+    const res = await updateVehicle([], updatedNewRecord);
 
     const mockSendParam = new TransactWriteItemsCommand({
       TransactItems: [
