@@ -7,7 +7,7 @@ import {
 } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { isObjectEmpty } from './emptyObject';
-import { identifySchema } from './post';
+import { formatValidationErrors, identifySchema } from './post';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
 
 export const validateUpdateErrors = (requestBody: string | null) => {
@@ -22,10 +22,18 @@ export const validateUpdateErrors = (requestBody: string | null) => {
 
   const schema = identifySchema(body.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
 
-  if (!schema || !isValidObject(schema, body)) {
+  if (!schema) {
     return {
       statusCode: 400,
       body: JSON.stringify({ error: 'Payload is invalid' }),
+    };
+  }
+  const validations = isValidObject(schema, body, true);
+  if (Array.isArray(validations)) {
+    const errors = formatValidationErrors(validations);
+    return {
+      statusCode: 400,
+      body: errors,
     };
   }
 
