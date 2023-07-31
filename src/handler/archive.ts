@@ -1,8 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 import { ArchiveRecord, ArchiveRecordRequestBody } from '../models/archive';
+import { setLastUpdatedAuditDetails } from '../services/audit';
 import { archiveRecord, getBySystemNumberAndCreatedTimestamp } from '../services/database';
 import { getUserDetails } from '../services/user';
+import { StatusCode } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
@@ -37,26 +39,23 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       });
     }
 
-    if (record.techRecord_statusCode === 'archived') {
+    if (record.techRecord_statusCode === StatusCode.ARCHIVED) {
       return addHttpHeaders({
         statusCode: 400,
         body: 'Cannot archive an archived record',
       });
     }
 
-    record.techRecord_statusCode = 'archived';
-    record.techRecord_lastUpdatedAt = new Date().toISOString();
-    record.techRecord_lastUpdatedByName = userDetails.username;
-    record.techRecord_lastUpdatedById = userDetails.msOid;
+    const updatedRecord = setLastUpdatedAuditDetails(record, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED) as ArchiveRecord;
 
-    record.techRecord_notes = record.techRecord_notes
+    updatedRecord.techRecord_notes = record.techRecord_notes
       ? `${record.techRecord_notes} \n${body.reasonForArchiving}`
       : body.reasonForArchiving;
-    await archiveRecord(record);
+    await archiveRecord(updatedRecord);
 
     return addHttpHeaders({
       statusCode: 200,
-      body: JSON.stringify(formatTechRecord(record)),
+      body: JSON.stringify(formatTechRecord(updatedRecord)),
     });
   } catch (error) {
     logger.error(`Error has been thrown with ${JSON.stringify(error)}`);

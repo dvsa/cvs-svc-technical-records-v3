@@ -7,10 +7,10 @@ const mockSearchByCriteria = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
-import carData from '../../resources/techRecordCarPost.json';
+import { TechRecordPut } from '../../../src/models/post';
 import * as UserDetails from '../../../src/services/user';
-import { TechrecordPut } from '../../../src/models/post';
 import { ERRORS } from '../../../src/util/enum';
+import carData from '../../resources/techRecordCarPost.json';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
@@ -49,7 +49,7 @@ describe('update vrm handler', () => {
       process.env.AWS_SAM_LOCAL = 'true';
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      const newRecord = { ...carData, ...JSON.parse(request.body!) } as TechrecordPut;
+      const newRecord = { ...carData, ...JSON.parse(request.body!) } as TechRecordPut;
       mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       mockSearchByCriteria.mockReturnValueOnce([{

@@ -18,7 +18,7 @@ export enum HttpMethod {
   GET = 'get',
 }
 
-export enum STATUS {
+export enum StatusCode {
   ARCHIVED = 'archived',
   CURRENT = 'current',
   PROVISIONAL = 'provisional',

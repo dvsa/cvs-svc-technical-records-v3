@@ -14,7 +14,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import polly from 'polly-js';
 import { dynamoDBClientConfig, tableName } from '../config';
 import { ArchiveRecord } from '../models/archive';
-import { TechrecordGet } from '../models/post';
+import { TechRecordGet } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
 
@@ -93,7 +93,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
   }
 };
 
-export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<TechrecordGet> => {
+export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<TechRecordGet> => {
   const command: GetItemCommandInput = {
     TableName: tableName,
     Key: marshall({
@@ -105,7 +105,7 @@ export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string,
   try {
     const data = await ddbClient.send(new GetItemCommand(command));
     logger.debug(JSON.stringify(data));
-    return unmarshall(data.Item || {}) as TechrecordGet;
+    return unmarshall(data.Item || {}) as TechRecordGet;
   } catch (error) {
     logger.error(`Error in search by sysnum and time: ${JSON.stringify(error)}`);
     throw new Error(`database client failed getting data by ${systemNumber} and ${createdTimestamp}`);
@@ -120,7 +120,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 
-export const postTechRecord = async (request: TechrecordGet): Promise <TechrecordGet> => {
+export const postTechRecord = async (request: TechRecordGet): Promise <TechRecordGet> => {
   logger.info('about to post');
 
   try {
@@ -147,7 +147,7 @@ export const postTechRecord = async (request: TechrecordGet): Promise <Techrecor
   }
 };
 
-export const updateVehicle = async (recordsToArchive: TechrecordGet[], newRecord: TechrecordGet): Promise<object> => {
+export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord: TechRecordGet): Promise<object> => {
   logger.info('inside updateVehicle');
 
   const transactWriteParams: TransactWriteCommandInput = {

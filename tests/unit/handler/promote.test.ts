@@ -7,7 +7,7 @@ const mockGetUserDetails = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/promote';
-import { StatusCode } from '../../../src/models/StatusCode.enum';
+import { StatusCode } from '../../../src/util/enum';
 
 jest.mock('../../../src/validators/promote', () => ({
   validatePromoteErrors: mockValidatePromoteErrors,
@@ -48,11 +48,12 @@ describe('Promote endpoint', () => {
 
     const result = await handler(mockEvent as unknown as APIGatewayProxyEvent);
     const expectedBody = {
-      techRecord_statusCode: StatusCode.CURRENT,
       createdTimestamp: mockedDate.toISOString(),
-      techRecord_createdByName: 'user',
+      techRecord_createdAt: mockedDate.toISOString(),
       techRecord_createdById: '123',
+      techRecord_createdByName: 'user',
       techRecord_reasonForCreation: 'Just a test for promoting',
+      techRecord_statusCode: StatusCode.CURRENT,
     };
 
     expect(result).toEqual({ statusCode: 200, body: JSON.stringify(expectedBody), headers });
@@ -67,11 +68,12 @@ describe('Promote endpoint', () => {
 
     const result = await handler(mockEvent as unknown as APIGatewayProxyEvent);
     const expectedBody = {
-      techRecord_statusCode: StatusCode.CURRENT,
       createdTimestamp: mockedDate.toISOString(),
-      techRecord_createdByName: 'user',
+      techRecord_createdAt: mockedDate.toISOString(),
       techRecord_createdById: '123',
+      techRecord_createdByName: 'user',
       techRecord_reasonForCreation: 'Just a test for promoting',
+      techRecord_statusCode: StatusCode.CURRENT,
     };
 
     expect(result).toEqual({ statusCode: 200, body: JSON.stringify(expectedBody), headers });

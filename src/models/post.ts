@@ -26,19 +26,19 @@ import { POSTPSVTechnicalRecordV3Skeleton } from '@dvsa/cvs-type-definitions/typ
 import { POSTPSVTechnicalRecordV3Testable } from '@dvsa/cvs-type-definitions/types/v3/tech-record/put/psv/testable';
 import { PUTTRLTechnicalRecordV3Complete } from '@dvsa/cvs-type-definitions/types/v3/tech-record/put/trl/complete';
 
-export type TechrecordPut = TechRecordPUTRequestCompleteCarSchema | TechRecordPUTRequestSkeletonCarSchema
+export type TechRecordPut = TechRecordPUTRequestCompleteCarSchema | TechRecordPUTRequestSkeletonCarSchema
 | PUTHGVTechnicalRecordV3Complete | PUTHGVTechnicalRecordV3Testable | PUTHGVTechnicalRecordV3Skeleton
 | POSTPSVTechnicalRecordV3Complete | POSTPSVTechnicalRecordV3Testable | POSTPSVTechnicalRecordV3Skeleton
 | PUTTRLTechnicalRecordV3Complete | GETTRLTechnicalRecordV3Testable | GETTRLTechnicalRecordV3Skeleton;
 
-export type TechrecordGet = TechRecordCompleteCarSchema | TechRecordSkeletonCarSchema
+export type TechRecordGet = TechRecordCompleteCarSchema | TechRecordSkeletonCarSchema
 | GETHGVTechnicalRecordV3Complete | GETHGVTechnicalRecordV3Testable | GETHGVTechnicalRecordV3Skeleton
 | TechRecordCompleteMotorcycleSchema
 | GETPSVTechnicalRecordV3Complete | GETPSVTechnicalRecordV3Testable | GETPSVTechnicalRecordV3Skeleton
 | GETTRLTechnicalRecordV3Complete | GETTRLTechnicalRecordV3Testable | GETTRLTechnicalRecordV3Skeleton;
 
-export type TechrecordCar = TechRecordCompleteCarSchema | TechRecordSkeletonCarSchema;
-export type TechrecordHgv = PUTHGVTechnicalRecordV3Complete | PUTHGVTechnicalRecordV3Testable | PUTHGVTechnicalRecordV3Skeleton;
-export type TechrecordPsv = POSTPSVTechnicalRecordV3Complete | POSTPSVTechnicalRecordV3Testable | POSTPSVTechnicalRecordV3Skeleton;
-export type TechrecordMotorcycle = TechRecordCompleteMotorcycleSchema;
-export type TechrecordTrl = PUTTRLTechnicalRecordV3Complete | GETTRLTechnicalRecordV3Testable | GETTRLTechnicalRecordV3Skeleton;
+export type TechRecordCar = TechRecordCompleteCarSchema | TechRecordSkeletonCarSchema;
+export type TechRecordHgv = PUTHGVTechnicalRecordV3Complete | PUTHGVTechnicalRecordV3Testable | PUTHGVTechnicalRecordV3Skeleton;
+export type TechRecordPsv = POSTPSVTechnicalRecordV3Complete | POSTPSVTechnicalRecordV3Testable | POSTPSVTechnicalRecordV3Skeleton;
+export type TechRecordMotorcycle = TechRecordCompleteMotorcycleSchema;
+export type TechRecordTrl = PUTTRLTechnicalRecordV3Complete | GETTRLTechnicalRecordV3Testable | GETTRLTechnicalRecordV3Skeleton;

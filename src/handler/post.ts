@@ -1,55 +1,48 @@
-import 'dotenv/config';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { postTechRecord } from '../services/database';
-import logger from '../util/logger';
+import 'dotenv/config';
+import { TechRecordPut } from '../models/post';
 import { processPostRequest } from '../processors/processPostRequest';
+import { postTechRecord } from '../services/database';
 import { getUserDetails } from '../services/user';
-import { TechrecordPut } from '../models/post';
-import { ERRORS } from '../util/enum';
+import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
+import { validatePostErrors } from '../validators/post';
 
 export const handler = async (
   event: APIGatewayProxyEvent,
 ): Promise<{ body: unknown; statusCode: number }> => {
   logger.info('Post end point called');
   try {
-    if (!event.body) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: ERRORS.MISSING_PAYLOAD }),
-      };
+    const postErrors = validatePostErrors(event);
+
+    if (postErrors) {
+      return addHttpHeaders(postErrors);
     }
-    if (!event.headers.Authorization) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }),
-      };
-    }
-    const userDetails = getUserDetails(event.headers.Authorization);
-    const body = await JSON.parse(event.body) as TechrecordPut;
-    if (!body.techRecord_vehicleType) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: ERRORS.VEHICLE_TYPE_ERROR }),
-      };
-    }
+
+    const userDetails = getUserDetails(event.headers.Authorization ?? '');
+    const body = await JSON.parse(event.body ?? '') as TechRecordPut;
+
     const requestBody = await processPostRequest(body, userDetails);
+
     if (!requestBody) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Invalid Technical Record' }),
       };
     }
+
     const postResponse = await postTechRecord(requestBody);
-    return {
+
+    return addHttpHeaders({
       statusCode: 200,
       body: JSON.stringify(postResponse),
-    };
+    });
   } catch (error) {
     logger.error(`Error has been thrown with ${JSON.stringify(error)}`);
-    return {
+    return addHttpHeaders({
       statusCode: 500,
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       body: JSON.stringify({ error: `Failed to add record to DynamoDB: ${error}` }),
-    };
+    });
   }
 };

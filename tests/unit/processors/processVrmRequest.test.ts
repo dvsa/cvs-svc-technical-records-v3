@@ -1,5 +1,5 @@
 import {
-  TechrecordGet,
+  TechRecordGet,
 } from '../../../src/models/post';
 import { processPatchVrmRequest } from '../../../src/processors/processVrmRequest';
 import postCarData from '../../resources/techRecordCarPost.json';
@@ -17,7 +17,7 @@ describe('processVrmRequest', () => {
     jest.resetModules();
   });
   it('returns updated records to archive and to add', () => {
-    const mockRecordFromDb = postCarData as TechrecordGet;
+    const mockRecordFromDb = postCarData as TechRecordGet;
     const [recordToArchive, updatedNewRecord] = processPatchVrmRequest(mockRecordFromDb, mockUserDetails, 'FOO');
     expect(updatedNewRecord).toEqual(expect.objectContaining({
       primaryVrm: 'FOO',

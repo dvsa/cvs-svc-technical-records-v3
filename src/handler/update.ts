@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 
-import { TechrecordGet, TechrecordPut } from '../models/post';
+import { TechRecordGet, TechRecordPut } from '../models/post';
 import { processUpdateRequest } from '../processors/processUpdateRequest';
 import { getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';
 import { getUserDetails } from '../services/user';
@@ -10,7 +10,8 @@ import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateSysNumTimestampPathParams } from '../validators/sysNumTimestamp';
-import { checkStatusCodeValidity, checkVinValidity, validateUpdateErrors } from '../validators/update';
+import { checkStatusCodeValidity, validateUpdateErrors } from '../validators/update';
+import { checkVinValidity } from '../validators/vinValidity';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Update end point called');
@@ -36,7 +37,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const systemNumber = decodeURIComponent(event.pathParameters?.systemNumber ?? '');
     const createdTimestamp = decodeURIComponent(event.pathParameters?.createdTimestamp ?? '');
-    const requestBody = JSON.parse(event.body ?? '') as TechrecordPut;
+    const requestBody = JSON.parse(event.body ?? '') as TechRecordPut;
 
     const recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
     if (!recordFromDB || !Object.keys(recordFromDB).length) {
@@ -58,7 +59,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const [updatedRecordFromDB, updatedNewRecord] = await processUpdateRequest(recordFromDB, requestBody, userDetails);
 
-    const record = await updateVehicle([updatedRecordFromDB] as TechrecordGet[], updatedNewRecord as TechrecordGet);
+    const record = await updateVehicle([updatedRecordFromDB] as TechRecordGet[], updatedNewRecord as TechRecordGet);
 
     const formattedRecord = formatTechRecord(record);
 

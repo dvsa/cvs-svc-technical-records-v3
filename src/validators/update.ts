@@ -1,10 +1,14 @@
+import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { ERRORS, STATUS } from '../util/enum';
-import { isObjectEmpty } from './emptyObject';
-import { formatTechRecord } from '../util/formatTechRecord';
-import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
-import { TechrecordGet } from '../models/post';
+import { TechRecordGet, TechRecordPut } from '../models/post';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
+import {
+  ERRORS, HttpMethod, RecordCompleteness, StatusCode, VehicleType,
+} from '../util/enum';
+import { formatTechRecord } from '../util/formatTechRecord';
+import { isObjectEmpty } from './emptyObject';
+import { identifySchema } from './post';
+import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
 
 export const validateUpdateErrors = (requestBody: string | null) => {
   if (!requestBody || isObjectEmpty(JSON.parse(requestBody))) {
@@ -14,44 +18,39 @@ export const validateUpdateErrors = (requestBody: string | null) => {
     };
   }
 
+  const body = JSON.parse(requestBody ?? '') as TechRecordPut;
+
+  const schema = identifySchema(body.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
+
+  if (!schema || !isValidObject(schema, body)) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Payload is invalid' }),
+    };
+  }
+
   return false;
 };
 
 export const checkStatusCodeValidity = (oldStatus: string | undefined, newStatus?: string | undefined) => {
-  if (oldStatus === STATUS.ARCHIVED) {
+  if (oldStatus === StatusCode.ARCHIVED) {
     return {
       statusCode: 400,
       body: ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD,
     };
   }
-  if (newStatus === STATUS.ARCHIVED) {
+  if (newStatus === StatusCode.ARCHIVED) {
     return {
       statusCode: 400,
       body: ERRORS.CANNOT_USE_UPDATE_TO_ARCHIVE,
     };
   }
   // TODO: check this criteria
-  if (oldStatus === STATUS.CURRENT && newStatus === STATUS.PROVISIONAL) {
+  if (oldStatus === StatusCode.CURRENT && newStatus === StatusCode.PROVISIONAL) {
     return {
       statusCode: 400,
       body: ERRORS.CANNOT_CHANGE_CURRENT_TO_PROVISIONAL,
     };
-  }
-  return false;
-};
-
-export const checkVinValidity = (currentVin: string, newVin: (string | undefined | null)) => {
-  if ((newVin !== undefined && newVin !== null) && newVin !== currentVin) {
-    if (newVin.length < 3
-      || newVin.length > 21
-      || typeof newVin !== 'string'
-      || !(/^[0-9a-z]+$/i).test(newVin)
-    ) {
-      return ({
-        statusCode: 400,
-        body: ERRORS.VIN_ERROR,
-      });
-    }
   }
   return false;
 };
@@ -85,7 +84,7 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
 };
 
 // eslint-disable-next-line consistent-return
-export const validateVrm = (currentRecord: TechrecordGet, newVrm: string) => {
+export const validateVrm = (currentRecord: TechRecordGet, newVrm: string) => {
   if (!newVrm) {
     return {
       statusCode: 400,

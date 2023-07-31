@@ -27,9 +27,9 @@ jest.mock('@aws-sdk/lib-dynamodb', () => ({
   },
 }));
 
-import { TechrecordGet } from '../../../src/models/post';
+import { TechRecordGet } from '../../../src/models/post';
 import { SearchCriteria } from '../../../src/models/search';
-import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/processors/processUpdateRequest';
+import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/services/audit';
 import {
   getBySystemNumberAndCreatedTimestamp,
   searchByAll,
@@ -37,6 +37,7 @@ import {
   updateVehicle,
 } from '../../../src/services/database';
 import * as UserDetails from '../../../src/services/user';
+import { StatusCode } from '../../../src/util/enum';
 import postCarData from '../../resources/techRecordCarPost.json';
 
 const mockUserDetails = {
@@ -146,16 +147,16 @@ describe('updateVehicle', () => {
       }),
     };
     jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
-    const recordFromDB = postCarData as TechrecordGet;
-    const newRecord = { ...(postCarData as TechrecordGet), ...JSON.parse(event.body) } as TechrecordGet;
+    const recordFromDB = postCarData as TechRecordGet;
+    const newRecord = { ...(postCarData as TechRecordGet), ...JSON.parse(event.body) } as TechRecordGet;
     const date = new Date().toISOString();
-    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date);
-    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date);
+    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date, StatusCode.ARCHIVED);
+    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
     mockSend.mockImplementation(() => Promise.resolve({}));
 
     const res = await updateVehicle([updatedRecordFromDB], updatedNewRecord);
 
-    expect((res as TechrecordGet).techRecord_reasonForCreation).toBe('TEST update');
+    expect((res as TechRecordGet).techRecord_reasonForCreation).toBe('TEST update');
   });
   it('should return an error message if the transaction fails', async () => {
     const event = {
@@ -168,11 +169,11 @@ describe('updateVehicle', () => {
       }),
     };
     jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
-    const recordFromDB = postCarData as TechrecordGet;
-    const newRecord = { ...(postCarData as TechrecordGet), ...JSON.parse(event.body) } as TechrecordGet;
+    const recordFromDB = postCarData as TechRecordGet;
+    const newRecord = { ...(postCarData as TechRecordGet), ...JSON.parse(event.body) } as TechRecordGet;
     const date = new Date().toISOString();
-    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date);
-    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date);
+    const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date, StatusCode.ARCHIVED);
+    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
     await expect(updateVehicle([updatedRecordFromDB], updatedNewRecord)).rejects.toBe('error');
