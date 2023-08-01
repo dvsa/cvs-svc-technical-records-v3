@@ -33,6 +33,8 @@ jobs:
       #   run: npm run build:prod
       - name: Setup dotenv
         run: cp .env.example .env
+      - name: Replace docker network
+        run: sed -i "s/dynamo/$(docker network ls | grep github_network | awk '{print $2}')" .env
       - name: Start ci
         run: npm run test-i
         env:
