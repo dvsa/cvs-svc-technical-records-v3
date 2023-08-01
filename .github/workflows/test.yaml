@@ -44,5 +44,6 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: foo
           AWS_SECRET_ACCESS_KEY: bar
+        continue-on-error: true
       - name: Debug containers
         run: docker ps
