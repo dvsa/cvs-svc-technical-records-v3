@@ -28,16 +28,16 @@ export function validateAndComputeRecordCompleteness(input: (TechRecordPut | Tec
 
 const validateSkeletonSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
   const isSkeletonSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, method);
-  return isSkeletonSchema ? isValidObject(isSkeletonSchema, input) as boolean : false;
+  return isSkeletonSchema ? isValidObject(isSkeletonSchema, input) : false;
 };
 
 const validateCompleteSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
   const isCompleteSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.COMPLETE, method);
-  return isCompleteSchema ? isValidObject(isCompleteSchema, input) as boolean : false;
+  return isCompleteSchema ? isValidObject(isCompleteSchema, input) : false;
 };
 
 const validateTestableSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
   const isTestableSchema = input.techRecord_vehicleType === (VehicleType.TRL || VehicleType.PSV || VehicleType.HGV)
     ? identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, method) : '';
-  return isTestableSchema ? isValidObject(isTestableSchema, input) as boolean : false;
+  return isTestableSchema ? isValidObject(isTestableSchema, input) : false;
 };
