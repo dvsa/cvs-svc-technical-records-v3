@@ -33,5 +33,7 @@ jobs:
       #   run: npm run test:ci
       # - name: Build
       #   run: npm run build:prod
+      - name: Setup dotenv
+        run: cp .env.example .env
       - name: Start ci
         run: npm run test-i
