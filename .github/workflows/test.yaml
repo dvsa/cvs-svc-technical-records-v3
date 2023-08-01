@@ -46,4 +46,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: bar
         continue-on-error: true
       - name: Debug containers
-        run: docker ps
+        run: |
+          docker ps
+          docker network ls
+
