@@ -32,6 +32,7 @@ module.exports = async () => {
   try {
     console.log('\nSetting up Integration tests...\n');
     const server = spawnSync('npm', ['run', 'start:ci', '--', '--warm-containers', 'EAGER'], {});
+    console.log(Buffer.from(server.stdout).toString());
     // const instance = await setupServer(server);
     // const { pid } = instance;
     const pid = 'foo';
