@@ -1,10 +1,10 @@
-import 'dotenv/config';
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import logger from '../util/logger';
+import 'dotenv/config';
 import { SearchCriteria } from '../models/search';
 import { searchByAll, searchByCriteria } from '../services/database';
-import { validateSearchErrors } from '../validators/search';
 import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
+import { validateSearchErrors } from '../validators/search';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Search end point called');
@@ -21,7 +21,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const searchResult = searchCriteria === SearchCriteria.ALL
     ? await searchByAll(searchIdentifier) : await searchByCriteria(searchCriteria, searchIdentifier);
 
-  logger.debug(JSON.stringify(searchResult));
+  logger.info(JSON.stringify(searchResult));
 
   if (!searchResult.length) {
     return addHttpHeaders({
