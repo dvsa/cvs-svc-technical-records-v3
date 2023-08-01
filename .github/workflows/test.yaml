@@ -11,6 +11,11 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - '8000:8000'
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node
@@ -26,7 +31,7 @@ jobs:
       #   run: npm run lint:ci
       # - name: Run tests
       #   run: npm run test:ci
-      - name: Build
-        run: npm run build:prod
+      # - name: Build
+      #   run: npm run build:prod
       - name: Start ci
-        run: npm run start:ci
+        run: npm run test-i
