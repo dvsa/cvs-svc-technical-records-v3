@@ -31,6 +31,28 @@ describe('validateUpdateErrors', () => {
       body: JSON.stringify({ error: 'Payload is invalid' }),
     });
   });
+  it('should error if a field is invalid', () => {
+    const event = {
+      body: JSON.stringify({
+        techRecord_vehicleType: 'trl',
+        techRecord_statusCode: 'random',
+        techRecord_plates: [{
+          reasonForIssue: 'random',
+        }],
+      }),
+      headers: { Authorization: 'Bearer 123' },
+    } as unknown as APIGatewayProxyEvent;
+
+    const res = validateUpdateErrors(event.body) as { statusCode: number;body: string; };
+
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body ?? '')).toEqual(expect.objectContaining({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      error: expect.arrayContaining(["must have required property 'techRecord_reasonForCreation'",
+        'techRecord_statusCode must be equal to one of the allowed values',
+        'techRecord_plates/0/reasonForIssue must be equal to one of the allowed values']),
+    }));
+  });
   it('returns false if no errors', () => {
     const event = { body: JSON.stringify(trlPayload) } as unknown as APIGatewayProxyEvent;
 

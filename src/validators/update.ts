@@ -1,13 +1,12 @@
-import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { TechRecordGet, TechRecordPut } from '../models/post';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
 import {
-  ERRORS, HttpMethod, RecordCompleteness, StatusCode, VehicleType,
+  ERRORS, StatusCode,
 } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { isObjectEmpty } from './emptyObject';
-import { identifySchema } from './post';
+import { validateAgainstSkeletonSchema } from './post';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
 
 export const validateUpdateErrors = (requestBody: string | null) => {
@@ -20,16 +19,7 @@ export const validateUpdateErrors = (requestBody: string | null) => {
 
   const body = JSON.parse(requestBody ?? '') as TechRecordPut;
 
-  const schema = identifySchema(body.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
-
-  if (!schema || !isValidObject(schema, body)) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Payload is invalid' }),
-    };
-  }
-
-  return false;
+  return validateAgainstSkeletonSchema(body) ?? false;
 };
 
 export const checkStatusCodeValidity = (oldStatus: string | undefined, newStatus?: string | undefined) => {

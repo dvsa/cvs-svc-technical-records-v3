@@ -58,6 +58,15 @@ export const processVehicleIdentifiers = (recordFromDB: TechRecordGet, requestBo
   if (newTrailerId !== undefined && newTrailerId !== null && newTrailerId !== (recordFromDB as TechRecordTrl).trailerId) {
     (techRecord as TechRecordTrl).trailerId = (recordFromDB as TechRecordTrl).trailerId;
   }
+
+  if (techRecord.systemNumber) {
+    techRecord.systemNumber = recordFromDB.systemNumber;
+  }
+
+  if (techRecord.partialVin) {
+    techRecord.partialVin = recordFromDB.partialVin;
+  }
+
   const newVin = techRecord.vin;
   if (newVin !== undefined && newVin !== null && newVin !== recordFromDB.vin) {
     techRecord.vin = newVin.toUpperCase();
