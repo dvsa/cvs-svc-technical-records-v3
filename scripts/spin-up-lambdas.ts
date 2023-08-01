@@ -7,6 +7,7 @@ const setupServer = (process: ChildProcessWithoutNullStreams) => new Promise<Chi
   process.stdout.setEncoding('utf-8').on('data', (stream: string) => {
     console.log(stream);
     if (stream.includes(SERVER_OK)) {
+      console.log('Process resolving...');
       resolve(process);
     }
   });
