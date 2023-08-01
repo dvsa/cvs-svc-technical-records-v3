@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-import-module-exports
-import { ChildProcessWithoutNullStreams, spawnSync } from 'child_process';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 
 const SERVER_OK = 'Press CTRL+C to quit';
 
@@ -9,8 +9,6 @@ const setupServer = (proc: ChildProcessWithoutNullStreams) => new Promise<ChildP
       resolve(proc);
     }
   });
-
-  proc.stdout.pipe(process.stdout);
 
   proc.stderr.setEncoding('utf-8').on('data', (stream: string) => {
     if (stream.includes(SERVER_OK)) {
@@ -27,15 +25,13 @@ const setupServer = (proc: ChildProcessWithoutNullStreams) => new Promise<ChildP
   });
 });
 
-// eslint-disable-next-line @typescript-eslint/require-await
+const server = spawn('npm', ['run', 'start:ci', '--', '--warm-containers', 'EAGER'], {});
+
 module.exports = async () => {
   try {
     console.log('\nSetting up Integration tests...\n');
-    const server = spawnSync('npm', ['run', 'start:ci', '--', '--warm-containers', 'EAGER'], { timeout: 20000 });
-    console.log(Buffer.from(server.stdout).toString());
-    // const instance = await setupServer(server);
-    // const { pid } = instance;
-    const pid = 'foo';
+    const instance = await setupServer(server);
+    const { pid } = instance;
     console.info(`
     start script running ✅ ...
     on pid: ${pid ?? ''}
