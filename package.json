@@ -15,13 +15,14 @@
     "build:prod": "webpack-cli --config webpack/webpack.production.js",
     "start:dev": "npm run dynamo:start && sam local start-api --docker-network dynamo_net",
     "invoke": "sam local invoke --docker-network dynamo_net",
-    "dynamo:start": " docker compose up -d && ts-node scripts/setup-local-tables.ts",
+    "dynamo:start": " docker compose up -d && npm run  dynamo:seed",
     "dynamo:stop": "docker compose down",
     "dynamo:reset": "docker compose down --volumes && npm run dynamo:start",
+    "dynamo:seed": "ts-node scripts/setup-local-tables.ts",
     "tools-setup": "echo 'move on'",
     "test-i": "npm run build:dev && jest int --globalSetup='./scripts/spin-up-lambdas.ts' --globalTeardown='./scripts/destroy-lambdas.ts' --testTimeout 10000",
     "package": "npm run build:prod",
-    "start:ci": "ts-node scripts/setup-local-tables.ts && sam local start-api",
+    "start:ci": "npm run dynamo: seed && sam local start-api",
     "swagger:open": "docker run --name swagger -d -p 80:8080 -v $(pwd)/docs:/tmp -e SWAGGER_FILE=/tmp/spec.yml swaggerapi/swagger-editor"
   },
   "contributors": [
