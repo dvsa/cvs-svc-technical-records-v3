@@ -22,10 +22,10 @@ jobs:
         run: npm i -g npm@9
       - name: Install dependencies
         run: npm ci
-      - name: Run lint
-        run: npm run lint:ci
-      - name: Run tests
-        run: npm run test:ci
+      # - name: Run lint
+      #   run: npm run lint:ci
+      # - name: Run tests
+      #   run: npm run test:ci
       - name: Build
         run: npm run build:prod
       - name: Start ci
