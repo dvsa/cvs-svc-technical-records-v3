@@ -49,4 +49,7 @@ jobs:
         run: |
           docker ps
           docker network ls
+          echo "####################################"
+          docker network inspect $(docker network ls | grep github_network | awk '{print $2}') 
+
 
