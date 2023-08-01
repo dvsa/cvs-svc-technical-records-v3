@@ -26,7 +26,7 @@ const setupServer = (process: ChildProcessWithoutNullStreams) => new Promise<Chi
   });
 });
 
-const server = spawn('npm', ['run', 'start:dev', '--', '--warm-containers', 'EAGER'], {});
+const server = spawn('npm', ['run', 'start:ci', '--', '--warm-containers', 'EAGER'], {});
 
 module.exports = async () => {
   try {
