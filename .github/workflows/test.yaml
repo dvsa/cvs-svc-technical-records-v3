@@ -36,7 +36,9 @@ jobs:
       - name: Replace docker network
         run: |
           echo "$(docker network ls | grep github_network | awk '{print $2}')"
-          sed -i "s/dynamo/$(docker network ls | grep github_network | awk '{print $2}')/" .env
+          # sed -i "s/dynamo/$(docker network ls | grep github_network | awk '{print $2}')/" .env
+          # sed -i "s/dynamo/localhost/" .env
+          cat .env
       - name: Start ci
         run: npm run test-i
         env:
