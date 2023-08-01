@@ -1,0 +1,35 @@
+{
+  "createdTimestamp": "2023-02-07T10:39:47.000000Z",
+  "partialVin": "100851",
+  "primaryVrm": "991234Z",
+  "secondaryVrms": [
+    " "
+  ],
+  "techRecord_createdByName":"foo",
+  "techRecord_createdById":"foo",
+  "systemNumber": "5976221",
+  "techRecord_bodyType_code": null,
+  "techRecord_bodyType_description": null,
+  "techRecord_createdAt": "2023-02-07T10:39:47.000000Z",
+  "techRecord_euVehicleCategory": "m1",
+  "techRecord_lastUpdatedAt": "2023-02-09T20:45:45.000000Z",
+  "techRecord_make": "HONDA",
+  "techRecord_manufactureYear": null,
+  "techRecord_model": " ",
+  "techRecord_noOfAxles": 0,
+  "techRecord_numberOfWheelsDriven": "2",
+  "techRecord_reasonForCreation": " ",
+  "techRecord_recordCompleteness": "complete",
+  "techRecord_regnDate": null,
+  "techRecord_statusCode": "current",
+  "techRecord_vehicleClass_code": "4",
+  "techRecord_vehicleClass_description": "MOT class 4",
+  "techRecord_vehicleConfiguration": "other",
+  "techRecord_vehicleSize": null,
+  "techRecord_vehicleType": "car",
+  "techRecord_vehicleSubclass": ["a"],
+  "vin": "AA11100851",
+  "vehicleSubclass": [
+    "r"
+  ]
+}

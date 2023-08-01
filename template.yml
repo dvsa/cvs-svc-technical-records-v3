@@ -14,11 +14,78 @@ Resources:
             Properties:
               Path: /v3/technical-records/search/{searchIdentifier}
               Method: get
-
-Outputs:
-  SearchLambdaApi:
-    Description: "API Gateway endpoint URL for SearchLambdaFunction on dev stage"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Dev/"
-  SearchLambdaFunction:
-    Description: "Search Lambda Function ARN"
-    Value: !GetAtt GetLambdaFunction.Arn
+    GetLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: get.handler
+        Runtime: nodejs18.x
+        Events:
+          GetLambdaApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
+              Method: get
+    PostLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: post.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PostLambdaApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records
+              Method: post
+    ArchiveLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: archive.handler
+        Runtime: nodejs18.x
+        Events:
+          ArchiveLambdaApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/archive/{systemNumber}/{createdTimestamp}
+              Method: patch
+    PatchLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: update.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PatchLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
+              Method: patch
+    PromoteLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: promote.handler
+        Runtime: nodejs18.x
+        Events:
+          PromoteLambdaApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/promote/{systemNumber}/{createdTimestamp}
+              Method: patch
+    UpdateVrmFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: updateVrm.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PatchLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/updateVrm/{systemNumber}/{createdTimestamp}
+              Method: patch

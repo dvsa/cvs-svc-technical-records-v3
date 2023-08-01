@@ -1,4 +1,5 @@
 {
+  "type": "commonjs",
   "name": "technical-records-v3",
   "version": "1.2.0",
   "description": "An API to access flat technical records",
@@ -20,7 +21,8 @@
     "tools-setup": "echo 'move on'",
     "test-i": "npm run build:dev && jest int --globalSetup='./scripts/spin-up-lambdas.ts' --globalTeardown='./scripts/destroy-lambdas.ts' --testTimeout 10000",
     "package": "npm run build:prod",
-    "start:ci": "sam local start-api"
+    "start:ci": "sam local start-api",
+    "swagger:open": "docker run --name swagger -d -p 80:8080 -v $(pwd)/docs:/tmp -e SWAGGER_FILE=/tmp/spec.yml swaggerapi/swagger-editor"
   },
   "contributors": [
     {
@@ -31,19 +33,29 @@
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.341.0",
-    "@aws-sdk/util-dynamodb": "^3.341.0"
+    "@aws-sdk/client-lambda": "^3.362.0",
+    "@aws-sdk/lib-dynamodb": "^3.341.0",
+    "@aws-sdk/util-dynamodb": "^3.362.0",
+    "@types/luxon": "^3.3.0",
+    "jwt-decode": "^3.1.2",
+    "luxon": "^3.3.0",
+    "polly-js": "^1.8.3"
   },
   "devDependencies": {
+    "@aws-sdk/smithy-client": "^3.341.0",
     "@aws-sdk/types": "^3.341.0",
+    "@dvsa/cvs-type-definitions": "^2.1.0",
     "@dvsa/eslint-config-ts": "^3.0.0",
     "@types/aws-lambda": "^8.10.114",
     "@types/axios": "^0.14.0",
     "@types/jest": "^28.1.8",
+    "@types/lodash": "^4.14.195",
     "@types/node": "^16.18.34",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
     "archiver": "^5.3.1",
+    "ajv": "^8.12.0",
     "aws-sam-webpack-plugin": "^0.13.0",
     "axios": "^1.4.0",
     "copy-webpack-plugin": "^11.0.0",
@@ -58,6 +70,7 @@
     "source-map-support": "^0.5.21",
     "ts-jest": "^28.0.8",
     "ts-loader": "^9.4.2",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.5",
     "uuid": "^8.3.2",
     "webpack": "^5.78.0",
