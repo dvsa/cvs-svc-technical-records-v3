@@ -3,22 +3,22 @@ import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 
 const SERVER_OK = 'Press CTRL+C to quit';
 
-const setupServer = (process: ChildProcessWithoutNullStreams) => new Promise<ChildProcessWithoutNullStreams>((resolve: (test: ChildProcessWithoutNullStreams) => void) => {
-  process.stdout.setEncoding('utf-8').on('data', (stream: string) => {
-    console.log(stream);
+const setupServer = (proc: ChildProcessWithoutNullStreams) => new Promise<ChildProcessWithoutNullStreams>((resolve: (test: ChildProcessWithoutNullStreams) => void) => {
+  proc.stdout.setEncoding('utf-8').on('data', (stream: string) => {
     if (stream.includes(SERVER_OK)) {
-      console.log('Process resolving...');
-      resolve(process);
+      resolve(proc);
     }
   });
 
-  process.stderr.setEncoding('utf-8').on('data', (stream: string) => {
+  proc.stdout.pipe(process.stdout);
+
+  proc.stderr.setEncoding('utf-8').on('data', (stream: string) => {
     if (stream.includes(SERVER_OK)) {
-      resolve(process);
+      resolve(proc);
     }
   });
 
-  process.on('exit', (code: number, signal: string) => {
+  proc.on('exit', (code: number, signal: string) => {
     if (code !== 137) {
       console.info(
         `process terminated with code: ${code} and signal: ${signal}`,
