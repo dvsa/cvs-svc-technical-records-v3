@@ -31,7 +31,7 @@ const setupServer = (proc: ChildProcessWithoutNullStreams) => new Promise<ChildP
 module.exports = async () => {
   try {
     console.log('\nSetting up Integration tests...\n');
-    const server = spawnSync('npm', ['run', 'start:ci', '--', '--warm-containers', 'EAGER'], {});
+    const server = spawnSync('npm', ['run', 'start:ci', '--', '--warm-containers', 'EAGER'], { timeout: 2000 });
     console.log(Buffer.from(server.stdout).toString());
     // const instance = await setupServer(server);
     // const { pid } = instance;
