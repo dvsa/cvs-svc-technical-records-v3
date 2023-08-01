@@ -32,7 +32,7 @@ export const validateAgainstSkeletonSchema = (body: TechRecordPut) => {
     };
   }
   const validationErrors = isValidObject(schema, body, true);
-  if (validationErrors.length > 0) {
+  if (validationErrors.length) {
     const errors = formatValidationErrors(validationErrors);
     return {
       statusCode: 400,
