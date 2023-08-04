@@ -28,7 +28,7 @@ export function validateAndComputeRecordCompleteness(input: (TechRecordPut | Tec
 
 const validateSkeletonSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
   let vehicleType = input.techRecord_vehicleType as VehicleType
-  if(input.techRecord_vehicleType === VehicleType.LGV){
+  if(vehicleType === VehicleType.LGV){
    vehicleType = VehicleType.CAR
   }
   const isSkeletonSchema = identifySchema(vehicleType, RecordCompleteness.SKELETON, method);
@@ -37,7 +37,7 @@ const validateSkeletonSchema = (input: (TechRecordPut | TechRecordGet), method: 
 
 const validateCompleteSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
   let vehicleType = input.techRecord_vehicleType as VehicleType
-  if(input.techRecord_vehicleType === VehicleType.LGV){
+  if(vehicleType === VehicleType.LGV){
    vehicleType = VehicleType.CAR
   }
     const isCompleteSchema = identifySchema(vehicleType, RecordCompleteness.COMPLETE, method);
@@ -46,7 +46,7 @@ const validateCompleteSchema = (input: (TechRecordPut | TechRecordGet), method: 
 
 const validateTestableSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
   let vehicleType = input.techRecord_vehicleType as VehicleType
-  if(input.techRecord_vehicleType === VehicleType.LGV){
+  if(vehicleType === VehicleType.LGV){
    vehicleType = VehicleType.CAR
   }
   const isTestableSchema = input.techRecord_vehicleType === (VehicleType.TRL || VehicleType.PSV || VehicleType.HGV)
