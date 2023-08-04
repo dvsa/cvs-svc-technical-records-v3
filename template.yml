@@ -89,3 +89,16 @@ Resources:
             Properties:
               Path: /v3/technical-records/updateVrm/{systemNumber}/{createdTimestamp}
               Method: patch
+    GeneratePlateFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: plate.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PlateLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/plate/{systemNumber}/{createdTimestamp}
+              Method: post

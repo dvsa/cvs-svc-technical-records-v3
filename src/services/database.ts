@@ -185,3 +185,19 @@ export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord
 
   return polly().waitAndRetry(3).executeForPromise(() => sendTransaction);
 };
+// WARNING: This will update a record in place and not archive, do not abuse this and only use when needed
+export const inPlaceRecordUpdate = async (updatedRecord: TechRecordGet) => {
+  const command = {
+    TableName: tableName,
+    Item: marshall(updatedRecord as unknown as Record<string, AttributeValue>),
+    ConditionExpression: 'attribute_exists(systemNumber) AND attribute_exists(createdTimestamp)',
+  };
+
+  try {
+    return await ddbClient.send(new PutItemCommand(command));
+  } catch (e) {
+    logger.error('Error in record in place update: ', e);
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    throw new Error(`database client failed in updating in place the record with systemNumber ${updatedRecord.systemNumber} and createdTimestamp ${updatedRecord.createdTimestamp} `);
+  }
+};

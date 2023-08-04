@@ -1,10 +1,10 @@
-import 'dotenv/config';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import logger from '../util/logger';
-import { addHttpHeaders } from '../util/httpHeaders';
-import { validateSysNumTimestampPathParams } from '../validators/sysNumTimestamp';
+import 'dotenv/config';
 import { getBySystemNumberAndCreatedTimestamp } from '../services/database';
 import { formatTechRecord } from '../util/formatTechRecord';
+import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
+import { validateSysNumTimestampPathParams } from '../validators/sysNumTimestamp';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Get end point called');
@@ -18,8 +18,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
   logger.info(`Get from database with sysNum ${systemNumber} and timestamp ${createdTimestamp}`);
 
-  // TODO: make this a proper type when we have it
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const record = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
   logger.debug(`result is: ${JSON.stringify(record)}`);
