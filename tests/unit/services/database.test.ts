@@ -4,6 +4,7 @@ const mockQueryCommand = jest.fn();
 const mockGetItemCommand = jest.fn();
 const mockLambdaSend = jest.fn();
 const mockTransactWriteItemsCommand = jest.fn();
+const mockPutItemCommand = jest.fn();
 
 const mockDynamoDBClient = jest.fn(() => ({
   send: mockSend,
@@ -20,6 +21,7 @@ jest.mock('@aws-sdk/client-dynamodb', () => ({
   QueryCommand: mockQueryCommand,
   GetItemCommand: mockGetItemCommand,
   TransactWriteItemsCommand: mockTransactWriteItemsCommand,
+  PutItemCommand: mockPutItemCommand
 }));
 jest.mock('@aws-sdk/lib-dynamodb', () => ({
   DynamoDBDocumentClient: {
@@ -27,13 +29,14 @@ jest.mock('@aws-sdk/lib-dynamodb', () => ({
   },
 }));
 
-import { TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
+import { PutItemCommand, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { tableName } from '../../../src/config';
-import { TechRecordGet } from '../../../src/models/post';
+import { TechRecordCar, TechRecordGet, TechRecordPut } from '../../../src/models/post';
 import { SearchCriteria } from '../../../src/models/search';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/services/audit';
 import {
+  correctVrm,
   getBySystemNumberAndCreatedTimestamp,
   searchByAll,
   searchByCriteria,
@@ -213,7 +216,36 @@ describe('updateVehicle', () => {
 
     await expect(updateVehicle([updatedRecordFromDB], updatedNewRecord)).rejects.toBe('error');
   });
-  describe('correctVrm', () => {
 
+  describe('correctVrm', () => {
+    it('should return a success message if the transaction is successful', async () => {
+      const newRecord = {...postCarData}
+      newRecord.primaryVrm = 'FOO'
+      const mockPutCommand = new PutItemCommand({
+        TableName: tableName,
+        Item: marshall(newRecord)
+      })
+
+      mockSend.mockImplementation(() => Promise.resolve({...newRecord}));
+
+      const send = await correctVrm(newRecord as TechRecordGet)
+      console.log(send)
+      expect(mockSend).toHaveBeenCalledWith(mockPutCommand);
+      expect((send as TechRecordCar).primaryVrm).toBe('FOO')
+    });
+  })
+  it('should reject with an error if the put fails',async () => {
+    const newRecord = {...postCarData}
+    newRecord.primaryVrm = 'FOO'
+    const mockPutCommand = new PutItemCommand({
+      TableName: tableName,
+      Item: marshall(newRecord)
+    })
+
+    mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
+
+    const send = correctVrm(newRecord as TechRecordGet)
+
+    await expect(send).rejects.toBe('error');
   })
 });
