@@ -32,7 +32,7 @@ jest.mock('@aws-sdk/lib-dynamodb', () => ({
 import { PutItemCommand, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { tableName } from '../../../src/config';
-import { TechRecordCar, TechRecordGet, TechRecordPut } from '../../../src/models/post';
+import { TechRecordCar, TechRecordGet } from '../../../src/models/post';
 import { SearchCriteria } from '../../../src/models/search';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/services/audit';
 import {
