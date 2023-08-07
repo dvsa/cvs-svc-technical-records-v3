@@ -2,7 +2,9 @@ import 'dotenv/config';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import logger from '../util/logger';
 import { addHttpHeaders } from '../util/httpHeaders';
-import { correctVrm, getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle } from '../services/database';
+import {
+  correctVrm, getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle,
+} from '../services/database';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { SearchCriteria, SearchResult } from '../models/search';
 import { processPatchVrmRequest } from '../processors/processVrmRequest';
@@ -42,21 +44,19 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     logger.debug('identifier has been validated');
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
     const [recordToArchive, newRecord] = processPatchVrmRequest(currentRecord, userDetails, newVrm, isCherishedTransfer);
-    logger.info("look here")
-    logger.info(newRecord)
 
-    if(isCherishedTransfer) {
+    if (isCherishedTransfer) {
       await updateVehicle(
-      [recordToArchive],
-      newRecord,
-    );
-  } else {
-    await correctVrm(newRecord)
-  }
-  return addHttpHeaders({
-    statusCode: 200,
-    body: JSON.stringify(formatTechRecord(newRecord)),
-  });
+        [recordToArchive],
+        newRecord,
+      );
+    } else {
+      await correctVrm(newRecord);
+    }
+    return addHttpHeaders({
+      statusCode: 200,
+      body: JSON.stringify(formatTechRecord(newRecord)),
+    });
   } catch (error) {
     console.log(error);
     return addHttpHeaders({

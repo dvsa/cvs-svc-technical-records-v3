@@ -33,7 +33,7 @@ describe('processVrmRequest', () => {
         techRecord_lastUpdatedById: 'QWERTY',
         techRecord_lastUpdatedAt: mockedDate.toISOString(),
       }));
-    })
+    });
   });
   describe('correcting an error', () => {
     it('returns a new record and an undefined record to archive', () => {
@@ -45,6 +45,6 @@ describe('processVrmRequest', () => {
         techRecord_lastUpdatedByName: 'Test User',
         techRecord_lastUpdatedById: 'QWERTY',
       }));
-    })
-  })
+    });
+  });
 });

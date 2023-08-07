@@ -4,7 +4,7 @@ const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockUpdateVehicle = jest.fn();
 const mockProcessPatchVrmRequest = jest.fn();
 const mockSearchByCriteria = jest.fn();
-const mockCorrectVrm = jest.fn()
+const mockCorrectVrm = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
@@ -17,7 +17,7 @@ jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
   updateVehicle: mockUpdateVehicle,
   searchByCriteria: mockSearchByCriteria,
-  correctVrm: mockCorrectVrm
+  correctVrm: mockCorrectVrm,
 }));
 
 jest.mock('../../../src/processors/processVrmRequest', () => ({
@@ -40,7 +40,7 @@ describe('update vrm handler', () => {
       },
       body: JSON.stringify({
         newVrm: 'foo',
-        isCherishedTransfer: true
+        isCherishedTransfer: true,
       }),
     } as unknown as APIGatewayProxyEvent;
     jest.resetAllMocks();
@@ -52,7 +52,7 @@ describe('update vrm handler', () => {
       process.env.AWS_SAM_LOCAL = 'true';
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      const newRecord = { ...carData, newVrm: JSON.parse(request.body!).newVrm } as TechRecordPut;
+      const newRecord = { ...carData, newVrm: 'foo' } as TechRecordPut;
       mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       mockSearchByCriteria.mockReturnValueOnce([{
@@ -79,13 +79,15 @@ describe('update vrm handler', () => {
   describe('Successful correct error response', () => {
     it('should pass validation and return a 200 response', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
-      request.body = JSON.stringify({
+      const newBody = JSON.stringify({
         newVrm: 'foo',
-        isCherishedTransfer: false
-      }),
+        isCherishedTransfer: false,
+      });
+      request.body = newBody;
+
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      const newRecord = { ...carData, newVrm: JSON.parse(request.body!).newVrm } as TechRecordPut;
+      const newRecord = { ...carData, newVrm: 'foo' } as TechRecordPut;
       mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       mockSearchByCriteria.mockReturnValueOnce([{

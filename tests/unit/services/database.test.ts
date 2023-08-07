@@ -21,7 +21,7 @@ jest.mock('@aws-sdk/client-dynamodb', () => ({
   QueryCommand: mockQueryCommand,
   GetItemCommand: mockGetItemCommand,
   TransactWriteItemsCommand: mockTransactWriteItemsCommand,
-  PutItemCommand: mockPutItemCommand
+  PutItemCommand: mockPutItemCommand,
 }));
 jest.mock('@aws-sdk/lib-dynamodb', () => ({
   DynamoDBDocumentClient: {
@@ -219,33 +219,33 @@ describe('updateVehicle', () => {
 
   describe('correctVrm', () => {
     it('should return a success message if the transaction is successful', async () => {
-      const newRecord = {...postCarData}
-      newRecord.primaryVrm = 'FOO'
+      const newRecord = { ...postCarData };
+      newRecord.primaryVrm = 'FOO';
       const mockPutCommand = new PutItemCommand({
         TableName: tableName,
-        Item: marshall(newRecord)
-      })
+        Item: marshall(newRecord),
+      });
 
-      mockSend.mockImplementation(() => Promise.resolve({...newRecord}));
+      mockSend.mockImplementation(() => Promise.resolve({ ...newRecord }));
 
-      const send = await correctVrm(newRecord as TechRecordGet)
-      console.log(send)
+      const send = await correctVrm(newRecord as TechRecordGet);
+      console.log(send);
       expect(mockSend).toHaveBeenCalledWith(mockPutCommand);
-      expect((send as TechRecordCar).primaryVrm).toBe('FOO')
+      expect((send as TechRecordCar).primaryVrm).toBe('FOO');
     });
-  })
-  it('should reject with an error if the put fails',async () => {
-    const newRecord = {...postCarData}
-    newRecord.primaryVrm = 'FOO'
+  });
+  it('should reject with an error if the put fails', async () => {
+    const newRecord = { ...postCarData };
+    newRecord.primaryVrm = 'FOO';
     const mockPutCommand = new PutItemCommand({
       TableName: tableName,
-      Item: marshall(newRecord)
-    })
+      Item: marshall(newRecord),
+    });
 
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
-    const send = correctVrm(newRecord as TechRecordGet)
+    const send = correctVrm(newRecord as TechRecordGet);
 
     await expect(send).rejects.toBe('error');
-  })
+  });
 });

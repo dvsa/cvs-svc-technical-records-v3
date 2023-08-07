@@ -187,20 +187,19 @@ export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord
 };
 
 export const correctVrm = async (newRecord: TechRecordGet): Promise<object> => {
-  logger.info(newRecord)
-  const putItemInput: PutItemCommandInput =  {
-      TableName: tableName,
-      Item: marshall(newRecord)
-    }
-    const sendPutRequest = new Promise<object>((resolve, reject) => {
-      ddbClient.send(new PutItemCommand(putItemInput)).then(record => {
-        logger.debug('Resolving with success');
-        resolve(record)
-      }).catch((error: Error) => {
-        logger.error('Rejecting with an error', error);
+  logger.info('correcting a VRM');
+  const putItemInput: PutItemCommandInput = {
+    TableName: tableName,
+    Item: marshall(newRecord),
+  };
+  const sendPutRequest = new Promise<object>((resolve, reject) => {
+    ddbClient.send(new PutItemCommand(putItemInput)).then((record) => {
+      logger.debug('Resolving with success');
+      resolve(record);
+    }).catch((error: Error) => {
+      logger.error('Rejecting with an error', error);
       reject(error.message);
-      })
-    })
-    return sendPutRequest
-  }
-
+    });
+  });
+  return sendPutRequest;
+};
