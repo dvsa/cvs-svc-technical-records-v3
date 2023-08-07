@@ -213,4 +213,7 @@ describe('updateVehicle', () => {
 
     await expect(updateVehicle([updatedRecordFromDB], updatedNewRecord)).rejects.toBe('error');
   });
+  describe('correctVrm', () => {
+
+  })
 });

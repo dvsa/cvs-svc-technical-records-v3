@@ -4,6 +4,7 @@ const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockUpdateVehicle = jest.fn();
 const mockProcessPatchVrmRequest = jest.fn();
 const mockSearchByCriteria = jest.fn();
+const mockCorrectVrm = jest.fn()
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
@@ -16,6 +17,7 @@ jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
   updateVehicle: mockUpdateVehicle,
   searchByCriteria: mockSearchByCriteria,
+  correctVrm: mockCorrectVrm
 }));
 
 jest.mock('../../../src/processors/processVrmRequest', () => ({
@@ -38,18 +40,19 @@ describe('update vrm handler', () => {
       },
       body: JSON.stringify({
         newVrm: 'foo',
+        isCherishedTransfer: true
       }),
     } as unknown as APIGatewayProxyEvent;
     jest.resetAllMocks();
     jest.resetModules();
   });
 
-  describe('Successful Response', () => {
+  describe('Successful cherished transfer response', () => {
     it('should pass validation and return a 200 response', async () => {
       process.env.AWS_SAM_LOCAL = 'true';
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      const newRecord = { ...carData, ...JSON.parse(request.body!) } as TechRecordPut;
+      const newRecord = { ...carData, newVrm: JSON.parse(request.body!).newVrm } as TechRecordPut;
       mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       mockSearchByCriteria.mockReturnValueOnce([{
@@ -68,6 +71,39 @@ describe('update vrm handler', () => {
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
       expect(mockProcessPatchVrmRequest).toHaveBeenCalledTimes(1);
       expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
+      expect(result.statusCode).toBe(200);
+      expect(result.body).not.toBeNull();
+    });
+  });
+
+  describe('Successful correct error response', () => {
+    it('should pass validation and return a 200 response', async () => {
+      process.env.AWS_SAM_LOCAL = 'true';
+      request.body = JSON.stringify({
+        newVrm: 'foo',
+        isCherishedTransfer: false
+      }),
+      jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
+      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
+      const newRecord = { ...carData, newVrm: JSON.parse(request.body!).newVrm } as TechRecordPut;
+      mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
+      mockUpdateVehicle.mockResolvedValueOnce(newRecord);
+      mockSearchByCriteria.mockReturnValueOnce([{
+        techRecord_manufactureYear: 'null',
+        primaryVrm: 'SJG1020',
+        techRecord_make: 'null',
+        vin: 'DP76UMK4DQLTOT400021',
+        techRecord_statusCode: 'provisional',
+        systemNumber: 'XYZEP5JYOMM00020',
+        techRecord_vehicleType: 'car',
+        createdTimestamp: '2019-06-24T10:26:54.903Z',
+        techRecord_model: 'null',
+      }]);
+      const result = await handler(request);
+
+      expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
+      expect(mockProcessPatchVrmRequest).toHaveBeenCalledTimes(1);
+      expect(mockCorrectVrm).toHaveBeenCalledTimes(1);
       expect(result.statusCode).toBe(200);
       expect(result.body).not.toBeNull();
     });
