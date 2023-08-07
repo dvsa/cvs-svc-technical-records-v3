@@ -5,6 +5,7 @@ import {
   TechRecordGet, TechRecordHgv,
   TechRecordTrl,
 } from '../models/post';
+import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
 import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';
 import { addToSqs } from '../services/sqs';
 import { NumberTypes, generateNewNumber } from '../services/testNumber';
@@ -74,10 +75,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   const normalisedRecord = await flattenArrays(arrayifiedRecord) as TechRecordGet;
-
   await inPlaceRecordUpdate(normalisedRecord);
 
-  await addToSqs(normalisedRecord, process.env.DOCUMENT_GEN_SQS ?? '');
+  const plateSqsPayload: SQSRequestBody = {
+    techRecord: arrayifiedRecord,
+    plate: newPlate,
+    documentName: DocumentName.MINISTRY,
+    recipientEmailAddress: body.recipientEmailAddress,
+  };
+
+  logger.info(JSON.stringify(plateSqsPayload));
+
+  await addToSqs(plateSqsPayload, process.env.DOCUMENT_GEN_SQS ?? '');
 
   try {
     return addHttpHeaders({
