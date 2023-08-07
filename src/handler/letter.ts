@@ -1,11 +1,15 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
-import { LetterRequestBody } from '../models/letter';
+import { LetterRequestBody, LetterType, ParagraphId } from '../models/letter';
 import {
+  TechRecordGet,
   TechRecordTrl,
 } from '../models/post';
-import { getBySystemNumberAndCreatedTimestamp } from '../services/database';
+import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
+import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';
+import { addToSqs } from '../services/sqs';
 import { StatusCode, VehicleType } from '../util/enum';
+import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateLetterErrors } from '../validators/letter';
@@ -59,21 +63,21 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const letterSqsPayload: SQSRequestBody = {
     techRecord: formatTechRecord(record),
     letter: {
-      letterType: record.techRecord_letterOfAuth_letterType,
-      paragraphId: record.techRecord_letterOfAuth_paragraphId,
-      letterIssuer: record.techRecord_letterOfAuth_letterIssuer,
-      letterDateRequested: record.techRecord_letterOfAuth_letterDateRequested,
+      letterType: record.techRecord_letterOfAuth_letterType as LetterType,
+      paragraphId: record.techRecord_letterOfAuth_paragraphId as ParagraphId,
+      letterIssuer: record.techRecord_letterOfAuth_letterIssuer as string,
+      letterDateRequested: record.techRecord_letterOfAuth_letterDateRequested as string,
     },
     documentName: DocumentName.TRL_INTO_SERVICE,
     recipientEmailAddress: body.recipientEmailAddress,
   };
 
-  await addToSqs(letterSqsPayload, process.env.DOCUMENT_GEN_SQS ?? '');
+  await addToSqs(letterSqsPayload, process.env.DOC_GEN_SQS_QUEUE ?? '');
 
   try {
     return addHttpHeaders({
       statusCode: 200,
-      body: 'LEtter generation successful',
+      body: 'Letter generation successful',
     });
   } catch (err) {
     logger.error(`Error has been thrown with ${JSON.stringify(err)}`);

@@ -84,7 +84,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     recipientEmailAddress: body.recipientEmailAddress,
   };
 
-  logger.info(JSON.stringify(plateSqsPayload));
+  logger.debug(JSON.stringify(plateSqsPayload));
 
   await addToSqs(plateSqsPayload, process.env.DOCUMENT_GEN_SQS ?? '');
 
