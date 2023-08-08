@@ -2,7 +2,9 @@ import 'dotenv/config';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import logger from '../util/logger';
 import { addHttpHeaders } from '../util/httpHeaders';
-import { getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle } from '../services/database';
+import {
+  correctVrm, getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle,
+} from '../services/database';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { SearchCriteria, SearchResult } from '../models/search';
 import { processPatchVrmRequest } from '../processors/processVrmRequest';
@@ -20,7 +22,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     logger.debug('Request is Valid');
     const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
     const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
-    const { newVrm } = JSON.parse(event.body as string) as UpdateVrmRequestBody;
+    const { newVrm, isCherishedTransfer } = JSON.parse(event.body as string) as UpdateVrmRequestBody;
     const currentRecord = await getBySystemNumberAndCreatedTimestamp(
       systemNumber,
       createdTimestamp,
@@ -41,12 +43,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
     logger.debug('identifier has been validated');
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
-    const [recordToArchive, newRecord] = processPatchVrmRequest(currentRecord, userDetails, newVrm);
+    const [recordToArchive, newRecord] = processPatchVrmRequest(currentRecord, userDetails, newVrm, isCherishedTransfer);
 
-    await updateVehicle(
-      [recordToArchive],
-      newRecord,
-    );
+    if (isCherishedTransfer) {
+      await updateVehicle(
+        [recordToArchive],
+        newRecord,
+      );
+    } else {
+      await correctVrm(newRecord);
+    }
     return addHttpHeaders({
       statusCode: 200,
       body: JSON.stringify(formatTechRecord(newRecord)),
