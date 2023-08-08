@@ -1,16 +1,17 @@
-import 'dotenv/config';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import logger from '../util/logger';
-import { addHttpHeaders } from '../util/httpHeaders';
+import 'dotenv/config';
+import { SearchCriteria, SearchResult } from '../models/search';
+import { UpdateVrmRequestBody } from '../models/updateVrm';
+import { processPatchVrmRequest } from '../processors/processVrmRequest';
 import {
   correctVrm, getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle,
 } from '../services/database';
-import { formatTechRecord } from '../util/formatTechRecord';
-import { SearchCriteria, SearchResult } from '../models/search';
-import { processPatchVrmRequest } from '../processors/processVrmRequest';
-import { validateUpdateVrmRequest, validateVrm } from '../validators/update';
-import { UpdateVrmRequestBody } from '../models/updateVrm';
 import { getUserDetails } from '../services/user';
+import { StatusCode } from '../util/enum';
+import { formatTechRecord } from '../util/formatTechRecord';
+import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
+import { validateUpdateVrmRequest, validateVrm } from '../validators/update';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Amend VRM Called');
@@ -34,7 +35,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const techRecords: SearchResult[] = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm);
     logger.debug('Get Tech record returned: ', techRecords);
-    const letFilteredVrm = techRecords.filter((x) => x.primaryVrm === newVrm);
+    const letFilteredVrm = techRecords.filter((x) => x.primaryVrm === newVrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
     if (letFilteredVrm.length) {
       return addHttpHeaders({
         statusCode: 400,
