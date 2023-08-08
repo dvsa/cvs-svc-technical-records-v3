@@ -147,19 +147,19 @@ export const postTechRecord = async (request: TechRecordGet): Promise <TechRecor
   }
 };
 
-export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord: TechRecordGet): Promise<object> => {
+export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecords: TechRecordGet[]): Promise<object> => {
   logger.info('inside updateVehicle');
 
-  const transactWriteParams: TransactWriteCommandInput = {
-    TransactItems: [
-      {
-        Put: {
-          TableName: tableName,
-          Item: marshall(newRecord, { removeUndefinedValues: true }),
-        },
+  const transactWriteParams: TransactWriteCommandInput = { TransactItems: [] };
+
+  newRecords.forEach((record) => {
+    transactWriteParams.TransactItems?.push({
+      Put: {
+        TableName: tableName,
+        Item: marshall(record, { removeUndefinedValues: true }),
       },
-    ],
-  };
+    });
+  });
 
   recordsToArchive.forEach((record) => {
     transactWriteParams.TransactItems?.push(
@@ -176,7 +176,7 @@ export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord
   const sendTransaction = new Promise<object>((resolve, reject) => {
     ddbClient.send(new TransactWriteItemsCommand(transactWriteParams)).then(() => {
       logger.debug('Resolving with success');
-      resolve(newRecord);
+      resolve(newRecords);
     }).catch((error: Error) => {
       logger.error('Rejecting with an error', error);
       reject(error.message);
