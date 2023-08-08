@@ -1,8 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 import { TechRecordGet, TechRecordPut } from '../models/post';
+import { SearchCriteria } from '../models/search';
 import { processUpdateRequest } from '../processors/processUpdateRequest';
-import { getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';
+import { getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle } from '../services/database';
 import { getUserDetails } from '../services/user';
 import { ERRORS, StatusCode } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
@@ -38,7 +39,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const createdTimestamp = decodeURIComponent(event.pathParameters?.createdTimestamp ?? '');
     const requestBody = JSON.parse(event.body ?? '') as TechRecordPut;
 
-    const recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
+    let recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
     if (!recordFromDB || !Object.keys(recordFromDB).length) {
       return addHttpHeaders({
         statusCode: 404,
@@ -56,7 +57,17 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return addHttpHeaders(vinErrors);
     }
 
-    const archiveNeeded = !(recordFromDB.techRecord_statusCode === StatusCode.CURRENT && requestBody.techRecord_statusCode === StatusCode.PROVISIONAL);
+    let archiveNeeded = true;
+    if (recordFromDB.techRecord_statusCode === StatusCode.CURRENT && requestBody.techRecord_statusCode === StatusCode.PROVISIONAL) {
+      const allRecords = await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, recordFromDB.systemNumber);
+      const provisionalRecord = allRecords.find((record) => record.techRecord_statusCode === StatusCode.PROVISIONAL);
+      if (!provisionalRecord) {
+        archiveNeeded = false;
+      } else {
+        recordFromDB = await getBySystemNumberAndCreatedTimestamp(provisionalRecord.systemNumber, provisionalRecord.createdTimestamp);
+      }
+    }
+
     const [updatedRecordFromDB, updatedNewRecord] = await processUpdateRequest(recordFromDB, requestBody, userDetails);
 
     const recordsToArchive = archiveNeeded ? [updatedRecordFromDB] as TechRecordGet[] : [];

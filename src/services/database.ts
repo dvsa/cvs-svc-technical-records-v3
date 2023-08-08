@@ -201,3 +201,21 @@ export const inPlaceRecordUpdate = async (updatedRecord: TechRecordGet) => {
     throw new Error(`database client failed in updating in place the record with systemNumber ${updatedRecord.systemNumber} and createdTimestamp ${updatedRecord.createdTimestamp} `);
   }
 };
+
+export const correctVrm = async (newRecord: TechRecordGet): Promise<object> => {
+  logger.info('correcting a VRM');
+  const putItemInput: PutItemCommandInput = {
+    TableName: tableName,
+    Item: marshall(newRecord),
+  };
+  const sendPutRequest = new Promise<object>((resolve, reject) => {
+    ddbClient.send(new PutItemCommand(putItemInput)).then((record) => {
+      logger.debug('Resolving with success');
+      resolve(record);
+    }).catch((error: Error) => {
+      logger.error('Rejecting with an error', error);
+      reject(error.message);
+    });
+  });
+  return sendPutRequest;
+};
