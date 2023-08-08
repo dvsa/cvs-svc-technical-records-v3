@@ -65,8 +65,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     letter: {
       letterType: record.techRecord_letterOfAuth_letterType as LetterType,
       paragraphId: record.techRecord_letterOfAuth_paragraphId as ParagraphId,
-      letterIssuer: record.techRecord_letterOfAuth_letterIssuer as string,
-      letterDateRequested: record.techRecord_letterOfAuth_letterDateRequested as string,
+      letterIssuer: record.techRecord_letterOfAuth_letterIssuer,
+      letterDateRequested: record.techRecord_letterOfAuth_letterDateRequested,
     },
     documentName: DocumentName.TRL_INTO_SERVICE,
     recipientEmailAddress: body.recipientEmailAddress,

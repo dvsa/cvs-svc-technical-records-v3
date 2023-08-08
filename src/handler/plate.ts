@@ -86,7 +86,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug(JSON.stringify(plateSqsPayload));
 
-  await addToSqs(plateSqsPayload, process.env.DOCUMENT_GEN_SQS ?? '');
+  await addToSqs(plateSqsPayload, process.env.DOC_GEN_SQS_QUEUE ?? '');
 
   try {
     return addHttpHeaders({
