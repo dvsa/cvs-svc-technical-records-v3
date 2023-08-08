@@ -49,10 +49,14 @@ describe('update vrm handler', () => {
 
   describe('Successful cherished transfer response', () => {
     it('should pass validation and return a 200 response', async () => {
+      request.body = JSON.stringify({
+        newVrm: 'SJG1020',
+        isCherishedTransfer: true,
+      }),
       process.env.AWS_SAM_LOCAL = 'true';
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      const newRecord = { ...carData, newVrm: 'foo' } as TechRecordPut;
+      const newRecord = { ...carData, newVrm: 'SJG1020' } as TechRecordPut;
       mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       mockSearchByCriteria.mockReturnValueOnce([{
@@ -60,7 +64,7 @@ describe('update vrm handler', () => {
         primaryVrm: 'SJG1020',
         techRecord_make: 'null',
         vin: 'DP76UMK4DQLTOT400021',
-        techRecord_statusCode: 'provisional',
+        techRecord_statusCode: 'archived',
         systemNumber: 'XYZEP5JYOMM00020',
         techRecord_vehicleType: 'car',
         createdTimestamp: '2019-06-24T10:26:54.903Z',
@@ -181,5 +185,25 @@ describe('update vrm handler', () => {
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe('Invalid VRM');
     });
+    it('should return 400 if the vrm exists on a non archived record', async () => {
+      request.body = JSON.stringify({ newVrm: 'SJG1020' });
+      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
+      mockSearchByCriteria.mockReturnValueOnce([
+        {
+          techRecord_manufactureYear: 'null',
+          primaryVrm: 'SJG1020',
+          techRecord_make: 'null',
+          vin: 'DP76UMK4DQLTOT400021',
+          techRecord_statusCode: 'current',
+          systemNumber: 'XYZEP5JYOMM00020',
+          techRecord_vehicleType: 'car',
+          createdTimestamp: '2019-06-24T10:26:54.903Z',
+          techRecord_model: 'null',
+        }
+      ])
+      const result = await handler(request as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toBe(JSON.stringify('Primary VRM SJG1020 already exists'));
+    })
   });
 });

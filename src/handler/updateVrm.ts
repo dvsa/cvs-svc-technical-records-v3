@@ -34,9 +34,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     const techRecords: SearchResult[] = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm);
-    logger.debug('Get Tech record returned: ', techRecords);
-    const letFilteredVrm = techRecords.filter((x) => x.primaryVrm === newVrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
-    if (letFilteredVrm.length) {
+    logger.debug('Tech record search returned: ', techRecords);
+    const filteredVrm = techRecords.filter((x) => x.primaryVrm === newVrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
+    if (filteredVrm.length) {
       return addHttpHeaders({
         statusCode: 400,
         body: JSON.stringify(`Primary VRM ${newVrm} already exists`),
