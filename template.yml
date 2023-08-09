@@ -89,3 +89,16 @@ Resources:
             Properties:
               Path: /v3/technical-records/updateVrm/{systemNumber}/{createdTimestamp}
               Method: patch
+    SyncTestResultInfoFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: sync-test-result-info.handler
+        Runtime: nodejs18.x
+        Timeout: 40
+        Events:
+          PatchLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/sync-test-result-info
+              Method: patch
