@@ -28,6 +28,9 @@ export const syncTestResultInfo = async (
   );
 
   const allRecords = await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, systemNumber);
+  if (!allRecords.length) {
+    throw new Error(`${ERRORS.CANNOT_FIND_RECORD} with systemNumber ${systemNumber}`);
+  }
   const nonArchivedRecords = allRecords.filter((record) => record.techRecord_statusCode !== StatusCode.ARCHIVED);
   if (!nonArchivedRecords.length) {
     throw new Error(ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD);
@@ -39,14 +42,8 @@ export const syncTestResultInfo = async (
   const provisionalRecord = nonArchivedRecords.find((record) => record.techRecord_statusCode === StatusCode.PROVISIONAL);
   const currentRecord = nonArchivedRecords.find((record) => record.techRecord_statusCode === StatusCode.CURRENT);
 
-  let completeProvisionalRecord: TechRecordGet | undefined;
-  let completeCurrentRecord :TechRecordGet | undefined;
-  if (provisionalRecord) {
-    completeProvisionalRecord = await getBySystemNumberAndCreatedTimestamp(provisionalRecord.systemNumber, provisionalRecord.createdTimestamp);
-  }
-  if (currentRecord) {
-    completeCurrentRecord = await getBySystemNumberAndCreatedTimestamp(currentRecord.systemNumber, currentRecord.createdTimestamp);
-  }
+  const completeProvisionalRecord = provisionalRecord ? await getBySystemNumberAndCreatedTimestamp(provisionalRecord.systemNumber, provisionalRecord.createdTimestamp) : undefined;
+  const completeCurrentRecord = currentRecord ? await getBySystemNumberAndCreatedTimestamp(currentRecord.systemNumber, currentRecord.createdTimestamp) : undefined;
 
   if (euVehicleCategory) {
     if (completeProvisionalRecord && completeCurrentRecord) {
@@ -60,7 +57,7 @@ export const syncTestResultInfo = async (
   const newRecords = [];
   if (statusUpdateNeeded && completeProvisionalRecord) {
     updateNeeded = true;
-    logger.debug('Tech record status update');
+    logger.info('Tech record status update');
     newRecords.push({ ...completeProvisionalRecord });
     recordsToArchive.push({ ...completeProvisionalRecord });
     if (completeCurrentRecord) recordsToArchive.push({ ...completeCurrentRecord });
@@ -68,13 +65,13 @@ export const syncTestResultInfo = async (
     newRecords[0].techRecord_statusCode = StatusCode.CURRENT;
     newRecords[0].techRecord_reasonForCreation = ReasonForCreation.RECORD_PROMOTED;
     if (EuVehicleCategoryUpdateNeeded && euVehicleCategory) {
-      logger.debug('EU vehicle category update');
+      logger.info('EU vehicle category update');
       newRecords[0].techRecord_euVehicleCategory = euVehicleCategory;
       newRecords[0].techRecord_reasonForCreation = `${newRecords[0].techRecord_reasonForCreation} ${ReasonForCreation.EU_VEHICLE_CATEGORY_UPDATE}`;
     }
   } else if (EuVehicleCategoryUpdateNeeded && euVehicleCategory) {
     updateNeeded = true;
-    logger.debug('EU vehicle category update');
+    logger.info('EU vehicle category update');
     if (completeCurrentRecord) {
       recordsToArchive.push({ ...completeCurrentRecord });
       newRecords.push({ ...completeCurrentRecord, techRecord_euVehicleCategory: euVehicleCategory, techRecord_reasonForCreation: ReasonForCreation.EU_VEHICLE_CATEGORY_UPDATE });
@@ -101,6 +98,6 @@ export const syncTestResultInfo = async (
       updatedNewRecords,
     );
   }
-  logger.debug('Update not required');
+  logger.info('Update not required');
   return undefined;
 };

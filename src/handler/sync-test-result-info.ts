@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import 'dotenv/config';
 import { SQSEvent, SQSRecord } from 'aws-lambda';
+import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/complete';
 import { processRecord } from '../processors/processSQSRecord';
 import { syncTestResultInfo } from '../processors/processSyncTestResultInfo';
 import { ERRORS } from '../util/enum';
 import logger from '../util/logger';
+import { TestResult, TestType } from '../models/testResult';
 
-export const handler = async (event :SQSEvent) => {
-  logger.debug('sync test result info called');
+export const handler = async (event: SQSEvent) => {
+  logger.info('sync-test-result-info lambda triggered');
   if (
     !event
       || !event.Records
@@ -23,22 +22,22 @@ export const handler = async (event :SQSEvent) => {
   try {
     event.Records.forEach((record: SQSRecord) => {
       logger.debug('payload recieved from queue:', record);
-      const test = processRecord(record);
+      const test = processRecord(record) as TestResult;
       logger.debug('processed record:', test ?? 'no test');
 
       let promiseUpdateStatus: Promise<object | undefined> | undefined;
 
       if (test) {
-        test.testTypes.forEach((testType: any) => {
+        test.testTypes.forEach((testType: TestType) => {
           if (promiseUpdateStatus === undefined) {
             promiseUpdateStatus = syncTestResultInfo(
               test.systemNumber,
               test.testStatus,
-              testType.testResult,
+              testType.testResult ?? '',
               testType.testTypeId,
               test.createdById,
               test.createdByName,
-              test.euVehicleCategory || undefined,
+              test.euVehicleCategory as EUVehicleCategory || undefined,
             );
             promisesArray.push(promiseUpdateStatus);
           }
