@@ -1,12 +1,13 @@
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
-import logger from '../util/logger';
 import { dynamoDBClientConfig } from '../config';
+import logger from '../util/logger';
 
 export enum NumberTypes {
   ZNumber = 'z-number',
   TrailerId = 'trailerId',
   TNumber = 't-number',
   SystemNumber = 'system-number',
+  PlateSerialNumber = 'plateSerialNo',
 }
 
 const lambdaClient = new LambdaClient({ region: dynamoDBClientConfig.region });
@@ -43,6 +44,9 @@ export const generateNewNumber = async (numberType: NumberTypes): Promise<string
       case NumberTypes.ZNumber:
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         return JSON.parse(bufferBody).zNumber as string;
+      case NumberTypes.PlateSerialNumber:
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        return JSON.parse(bufferBody).plateSerialNumber as string;
       default:
         throw new Error('Invalid search parameter');
     }
