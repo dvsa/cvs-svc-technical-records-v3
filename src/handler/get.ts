@@ -1,10 +1,10 @@
-import 'dotenv/config';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import logger from '../util/logger';
-import { addHttpHeaders } from '../util/httpHeaders';
-import { validateSysNumTimestampPathParams } from '../validators/sysNumTimestamp';
+import 'dotenv/config';
 import { getBySystemNumberAndCreatedTimestamp } from '../services/database';
 import { formatTechRecord } from '../util/formatTechRecord';
+import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
+import { validateSysNumTimestampPathParams } from '../validators/sysNumTimestamp';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Get end point called');
