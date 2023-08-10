@@ -95,7 +95,7 @@ Resources:
         CodeUri: src/handler/
         Handler: sync-test-result-info.handler
         Runtime: nodejs18.x
-        Timeout: 40
+        Timeout: 20
         Events:
           PatchLambda:
             Type: Api

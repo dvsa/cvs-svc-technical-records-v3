@@ -21,7 +21,7 @@ export const handler = async (event: SQSEvent) => {
   const promisesArray: Promise<object | undefined>[] = [];
   try {
     event.Records.forEach((record: SQSRecord) => {
-      logger.info('payload recieved from queue:', record);
+      logger.debug('payload recieved from queue:', record);
       const test = processRecord(record) as TestResult;
       logger.debug('processed record:', test ?? 'no test');
 
