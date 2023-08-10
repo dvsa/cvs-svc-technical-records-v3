@@ -1,5 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
+import {
+  TechRecordCar, TechRecordHgv, TechRecordMotorcycle, TechRecordPsv,
+} from '../models/post';
 import { SearchCriteria, SearchResult } from '../models/search';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
 import { processPatchVrmRequest } from '../processors/processVrmRequest';
@@ -33,9 +36,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return validateVrmRes;
     }
 
-    const techRecords: SearchResult[] = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm);
+    const techRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm);
     logger.debug('Tech record search returned: ', techRecords);
-    const filteredVrm = techRecords.filter((x) => x.primaryVrm === newVrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
+    const filteredVrm = techRecords.filter((x) => (x as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm === newVrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
     if (filteredVrm.length) {
       return addHttpHeaders({
         statusCode: 400,
@@ -49,7 +52,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (isCherishedTransfer) {
       await updateVehicle(
         [recordToArchive],
-        newRecord,
+        [newRecord],
       );
     } else {
       await correctVrm(newRecord);
