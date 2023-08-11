@@ -25,6 +25,7 @@ describe('processVrmRequest', () => {
         createdTimestamp: mockedDate.toISOString(),
         techRecord_createdByName: 'Test User',
         techRecord_createdById: 'QWERTY',
+        techRecord_reasonForCreation: 'Update VRM - Cherished Transfer',
       }));
       expect(recordToArchive).toEqual(expect.objectContaining({
         primaryVrm: '991234Z',
