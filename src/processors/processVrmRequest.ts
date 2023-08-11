@@ -13,8 +13,8 @@ export const processPatchVrmRequest = (currentRecord: TechRecordGet, userDetails
     const updatedNewRecord = setCreatedAuditDetails(newRecord, userDetails.username, userDetails.msOid, new Date().toISOString(), currentRecord.techRecord_statusCode as StatusCode);
     (updatedNewRecord as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm = newVrm.toUpperCase();
     const updatedRecordToArchive = setLastUpdatedAuditDetails(recordToArchive, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED);
-
-    return [updatedRecordToArchive, newRecord];
+    updatedNewRecord.techRecord_reasonForCreation = 'Update VRM - Cherished Transfer';
+    return [updatedRecordToArchive, updatedNewRecord];
   }
   const newRecord: TechRecordGet = { ...currentRecord };
   const updatedRecordToArchive = {} as TechRecordGet;
