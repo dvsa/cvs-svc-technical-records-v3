@@ -21,4 +21,6 @@ export interface SearchResult {
   techRecord_make?: string
   techRecord_model?: string
   techRecord_statusCode?: string
+  techRecord_reasonForCreation?: string
+  techRecord_lastUpdatedByName?: string
 }
