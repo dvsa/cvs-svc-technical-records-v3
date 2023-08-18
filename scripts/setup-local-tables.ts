@@ -24,6 +24,8 @@ const flatTechRecordNonKeyAttributes: SearchResultKeys[] = [
   'techRecord_make',
   'techRecord_model',
   'techRecord_statusCode',
+  'techRecord_reasonForCreation',
+  'techRecord_createdByName',
 ];
 
 const tablesToSetup: CreateTableInput[] = [
