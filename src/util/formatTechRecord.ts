@@ -65,13 +65,13 @@ type FlattenArrays<T> = T extends (infer U)[] ? FlattenArrays<U>[] :
   T extends object ? { [K in keyof T as K extends 'secondaryVrms' ? never : K]: FlattenArrays<T[K]> } : T;
 
 /**
- * This function takes an input of type T and returns a promise.
+ * This function takes an input of type T and returns a flattened object.
  * The purpose of this method is to recursively flatten using the helper function flattenArray
  * @param input: T
- * @returns Promise
+ * @returns flattened object
  *
  */
-export const flattenArrays = <T>(input: T): Promise<FlattenArrays<T>> => {
+export const flattenArrays = <T>(input: T): FlattenArrays<T> => {
   const flattenArray = <U>(obj: U, path: string): FlattenArrays<U> => {
     if (Array.isArray(obj)) {
       return obj.reduce<FlattenArrays<U>>((acc, curr, index) => {
@@ -93,5 +93,5 @@ export const flattenArrays = <T>(input: T): Promise<FlattenArrays<T>> => {
     }
     return { [path]: obj } as unknown as FlattenArrays<U>;
   };
-  return Promise.resolve(flattenArray(input, '')) as Promise<FlattenArrays<T>>;
+  return flattenArray(input, '');
 };

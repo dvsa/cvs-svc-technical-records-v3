@@ -3,9 +3,9 @@ const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockUpdateVehicle = jest.fn();
 const mockProcessUpdateRequest = jest.fn();
 
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/update';
-import { TechRecordPut } from '../../../src/models/post';
 import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
 import hgvData from '../../resources/techRecordHGVPost.json';
@@ -56,8 +56,8 @@ describe('update handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
-      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordPut;
-      mockProcessUpdateRequest.mockResolvedValueOnce([hgvData, newRecord]);
+      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordType<'put'>;
+      mockProcessUpdateRequest.mockReturnValueOnce([hgvData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       const result = await handler(request);
 
@@ -121,8 +121,8 @@ describe('update handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
-      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordPut;
-      mockProcessUpdateRequest.mockResolvedValueOnce([hgvData, newRecord]);
+      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordType<'put'>;
+      mockProcessUpdateRequest.mockReturnValueOnce([hgvData, newRecord]);
       mockUpdateVehicle.mockRejectedValueOnce('Error');
       const result = await handler(request);
 

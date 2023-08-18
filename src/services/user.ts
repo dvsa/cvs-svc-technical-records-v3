@@ -12,7 +12,7 @@ export const getUserDetails = (jwt: string): UserDetails => {
     msOid: decodedToken.oid,
     email: decodedToken.email ?? decodedToken.preferred_username ?? decodedToken.upn,
   };
-  if (!userDetails || !userDetails.username || !userDetails.msOid) {
+  if (!userDetails?.username || !userDetails.msOid) {
     throw new Error(ERRORS.MISSING_USER_DETAILS);
   }
   return userDetails;

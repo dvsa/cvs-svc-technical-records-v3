@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { addHttpHeaders } from '../util/httpHeaders';
 
 // eslint-disable-next-line consistent-return

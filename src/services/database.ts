@@ -11,16 +11,15 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import polly from 'polly-js';
 import { dynamoDBClientConfig, tableName } from '../config';
-import { ArchiveRecord } from '../models/archive';
-import { TechRecordGet } from '../models/post';
 import { SearchCriteria, SearchResult, TableIndexes } from '../models/search';
 import logger from '../util/logger';
 
 const ddbClient = new DynamoDBClient(dynamoDBClientConfig);
 
-export const archiveRecord = async (record: ArchiveRecord) : Promise<object> => {
+export const archiveRecord = async (record: TechRecordType<'get'>) : Promise<object> => {
   const command = {
     TableName: tableName,
     Item: marshall(record as unknown as Record<string, AttributeValue>, { removeUndefinedValues: true }),
@@ -30,7 +29,7 @@ export const archiveRecord = async (record: ArchiveRecord) : Promise<object> => 
     return await ddbClient.send(new PutItemCommand(command));
   } catch (e) {
     logger.error('Error in archive record: ', e);
-    throw new Error(`database client failed in archiving the record with systemNumber ${record.systemNumber} and createdTimestamp ${record.createdTimestamp} `);
+    throw new Error(`database client failed in archiving the record with systemNumber ${record.systemNumber} and createdTimestamp ${record.createdTimestamp ?? ''} `);
   }
 };
 
@@ -93,7 +92,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
   }
 };
 
-export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<TechRecordGet> => {
+export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string, createdTimestamp: string): Promise<TechRecordType<'get'>> => {
   const command: GetItemCommandInput = {
     TableName: tableName,
     Key: marshall({
@@ -105,7 +104,7 @@ export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string,
   try {
     const data = await ddbClient.send(new GetItemCommand(command));
     logger.debug(JSON.stringify(data));
-    return unmarshall(data.Item || {}) as TechRecordGet;
+    return unmarshall(data.Item ?? {}) as TechRecordType<'get'>;
   } catch (error) {
     logger.error(`Error in search by sysnum and time: ${JSON.stringify(error)}`);
     throw new Error(`database client failed getting data by ${systemNumber} and ${createdTimestamp}`);
@@ -120,7 +119,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
   trailerId: 'TrailerIdIndex',
 };
 
-export const postTechRecord = async (request: TechRecordGet): Promise <TechRecordGet> => {
+export const postTechRecord = async (request: TechRecordType<'get'>): Promise <TechRecordType<'get'>> => {
   logger.info('about to post');
 
   try {
@@ -147,7 +146,7 @@ export const postTechRecord = async (request: TechRecordGet): Promise <TechRecor
   }
 };
 
-export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord: TechRecordGet): Promise<object> => {
+export const updateVehicle = async (recordsToArchive: TechRecordType<'get'>[], newRecord: TechRecordType<'get'>): Promise<object> => {
   logger.info('inside updateVehicle');
 
   const transactWriteParams: TransactWriteCommandInput = {
@@ -186,7 +185,7 @@ export const updateVehicle = async (recordsToArchive: TechRecordGet[], newRecord
   return polly().waitAndRetry(3).executeForPromise(() => sendTransaction);
 };
 
-export const correctVrm = async (newRecord: TechRecordGet): Promise<object> => {
+export const correctVrm = async (newRecord: TechRecordType<'get'>): Promise<object> => {
   logger.info('correcting a VRM');
   const putItemInput: PutItemCommandInput = {
     TableName: tableName,

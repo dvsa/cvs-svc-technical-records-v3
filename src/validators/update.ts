@@ -1,5 +1,5 @@
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { TechRecordGet, TechRecordPut } from '../models/post';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
 import {
   ERRORS, StatusCode,
@@ -17,12 +17,12 @@ export const validateUpdateErrors = (requestBody: string | null) => {
     };
   }
 
-  const body = JSON.parse(requestBody ?? '') as TechRecordPut;
+  const body = JSON.parse(requestBody ?? '') as TechRecordType<'put'>;
 
   return validateAgainstSkeletonSchema(body) ?? false;
 };
 
-export const checkStatusCodeValidity = (oldStatus: string | undefined, newStatus?: string | undefined) => {
+export const checkStatusCodeValidity = (oldStatus: string | undefined | null, newStatus?: string | undefined | null) => {
   if (oldStatus === StatusCode.ARCHIVED) {
     return {
       statusCode: 400,
@@ -67,7 +67,7 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
 };
 
 // eslint-disable-next-line consistent-return
-export const validateVrm = (currentRecord: TechRecordGet, newVrm: string) => {
+export const validateVrm = (currentRecord: TechRecordType<'get'>, newVrm: string) => {
   if (!newVrm) {
     return {
       statusCode: 400,

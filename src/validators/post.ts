@@ -1,13 +1,13 @@
 import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
 import { schemas } from '@dvsa/cvs-type-definitions/schemas';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { ErrorObject } from 'ajv';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { TechRecordGet, TechRecordPut } from '../models/post';
 import {
   ERRORS, HttpMethod, RecordCompleteness, VehicleType,
 } from '../util/enum';
 
-export const identifyObjectType = (obj: TechRecordGet, method: HttpMethod) => identifySchema(obj.techRecord_vehicleType as VehicleType, obj.techRecord_recordCompleteness as RecordCompleteness, method);
+export const identifyObjectType = (obj: TechRecordType<'get'>, method: HttpMethod) => identifySchema(obj.techRecord_vehicleType as VehicleType, obj.techRecord_recordCompleteness as RecordCompleteness, method);
 export const identifySchema = (vehicleType: VehicleType, recordCompleteness: RecordCompleteness, method: HttpMethod) => schemas
   .find((x: string) => x.includes(vehicleType) && x.includes(recordCompleteness) && x.includes(method));
 
@@ -22,7 +22,7 @@ export const formatValidationErrors = (errors: ErrorObject[]) => {
   return JSON.stringify({ error: errorMessage });
 };
 
-export const validateAgainstSkeletonSchema = (body: TechRecordPut) => {
+export const validateAgainstSkeletonSchema = (body: TechRecordType<'put'>) => {
   const schema = identifySchema(body.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
 
   if (!schema) {
@@ -55,7 +55,7 @@ export const validatePostErrors = (event: APIGatewayProxyEvent) => {
       body: JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }),
     };
   }
-  const body = JSON.parse(event.body) as TechRecordPut;
+  const body = JSON.parse(event.body) as TechRecordType<'put'>;
 
   if (!body.techRecord_vehicleType) {
     return {
