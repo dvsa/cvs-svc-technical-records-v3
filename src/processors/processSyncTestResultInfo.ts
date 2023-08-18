@@ -1,13 +1,13 @@
 import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/complete';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
+import { SearchCriteria } from '../models/search';
+import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
+import { getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle } from '../services/database';
 import {
   ERRORS, ReasonForCreation, StatusCode, UpdateType,
 } from '../util/enum';
-import { getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle } from '../services/database';
-import { TechRecordGet } from '../models/post';
-import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
-import { validateUpdateStatus } from '../validators/statusUpdate';
-import { SearchCriteria } from '../models/search';
 import logger from '../util/logger';
+import { validateUpdateStatus } from '../validators/statusUpdate';
 
 export const syncTestResultInfo = async (
   systemNumber: string,
@@ -83,8 +83,8 @@ export const syncTestResultInfo = async (
   }
 
   if (updateNeeded) {
-    const updatedNewRecords: TechRecordGet[] = [];
-    const updatedRecordsToArchive: TechRecordGet[] = [];
+    const updatedNewRecords: TechRecordType<'get'>[] = [];
+    const updatedRecordsToArchive: TechRecordType<'get'>[] = [];
     newRecords.forEach((record) => {
       updatedNewRecords.push(setCreatedAuditDetails(record, createdByName, createdById, new Date().toISOString(), record.techRecord_statusCode as StatusCode));
     });

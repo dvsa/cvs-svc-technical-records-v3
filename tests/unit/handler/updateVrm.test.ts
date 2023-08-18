@@ -6,9 +6,9 @@ const mockProcessPatchVrmRequest = jest.fn();
 const mockSearchByCriteria = jest.fn();
 const mockCorrectVrm = jest.fn();
 
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
-import { TechRecordPut } from '../../../src/models/post';
 import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
 import carData from '../../resources/techRecordCarPost.json';
@@ -57,7 +57,7 @@ describe('update vrm handler', () => {
       process.env.AWS_SAM_LOCAL = 'true';
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      const newRecord = { ...carData, newVrm: 'SJG1020' } as TechRecordPut;
+      const newRecord = { ...carData, newVrm: 'SJG1020' } as TechRecordType<'put'>;
       mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       mockSearchByCriteria.mockReturnValueOnce([{
@@ -92,7 +92,7 @@ describe('update vrm handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      const newRecord = { ...carData, newVrm: 'foo' } as TechRecordPut;
+      const newRecord = { ...carData, newVrm: 'foo' } as TechRecordType<'put'>;
       mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       mockSearchByCriteria.mockReturnValueOnce([{

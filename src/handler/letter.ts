@@ -1,17 +1,15 @@
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
 import { LetterRequestBody, LetterType, ParagraphId } from '../models/letter';
-import {
-  TechRecordGet,
-  TechRecordTrl,
-} from '../models/post';
 import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
 import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';
 import { addToSqs } from '../services/sqs';
-import { StatusCode, VehicleType } from '../util/enum';
+import { StatusCode } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
+import { isTRL } from '../util/vehicle-type-narrowing';
 import { validateLetterErrors } from '../validators/letter';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -26,7 +24,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
   logger.info(`Get from database with sysNum ${systemNumber} and timestamp ${createdTimestamp}`);
 
-  const record = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as TechRecordTrl;
+  const record = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
   logger.debug(`result is: ${JSON.stringify(record)}`);
 
@@ -44,7 +42,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     });
   }
 
-  if (record.techRecord_vehicleType !== VehicleType.TRL) {
+  if (!isTRL(record)) {
     return addHttpHeaders({
       statusCode: 400,
       body: 'Tech record is not a TRL',
@@ -58,7 +56,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   record.techRecord_letterOfAuth_letterIssuer = body.vtmUsername;
   record.techRecord_letterOfAuth_letterDateRequested = new Date().toISOString();
 
-  await inPlaceRecordUpdate(record as TechRecordGet);
+  await inPlaceRecordUpdate(record as TechRecordType<'get'>);
 
   const letterSqsPayload: SQSRequestBody = {
     techRecord: formatTechRecord(record),

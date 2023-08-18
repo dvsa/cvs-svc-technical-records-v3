@@ -1,28 +1,35 @@
-import {
-  TechRecordCar, TechRecordGet, TechRecordHgv, TechRecordMotorcycle, TechRecordPsv,
-} from '../models/post';
+import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
 import { UserDetails } from '../services/user';
 import { StatusCode } from '../util/enum';
+import { isTRL } from '../util/vehicle-type-narrowing';
 
-export const processPatchVrmRequest = (currentRecord: TechRecordGet, userDetails: UserDetails, newVrm: string, isCherishedTransfer: boolean): Array<TechRecordGet> => {
+export const processPatchVrmRequest = (currentRecord: TechRecordType<'get'>, userDetails: UserDetails, newVrm: string, isCherishedTransfer: boolean): Array<TechRecordType<'get'>> => {
   if (isCherishedTransfer) {
-    const recordToArchive: TechRecordGet = { ...currentRecord };
-    const newRecord: TechRecordGet = { ...currentRecord };
+    const recordToArchive: TechRecordType<'get'> = { ...currentRecord };
+    const newRecord: TechRecordType<'get'> = { ...currentRecord };
 
-    const oldVrms = (recordToArchive as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).secondaryVrms ?? []
-    oldVrms.push((recordToArchive as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm!)
+    const oldVrms: string[] = (recordToArchive as TechRecordTypeByVehicle<'car'> | TechRecordTypeByVehicle<'motorcycle'> | TechRecordTypeByVehicle<'psv'> | TechRecordTypeByVehicle<'lgv'> | TechRecordTypeByVehicle<'hgv'>).secondaryVrms ?? [];
+    if (!isTRL(recordToArchive) && recordToArchive.primaryVrm) {
+      oldVrms.push(recordToArchive.primaryVrm);
+    }
 
     const updatedNewRecord = setCreatedAuditDetails(newRecord, userDetails.username, userDetails.msOid, new Date().toISOString(), currentRecord.techRecord_statusCode as StatusCode);
-    (updatedNewRecord as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm = newVrm.toUpperCase();
+    if (!isTRL(updatedNewRecord)) {
+      updatedNewRecord.primaryVrm = newVrm.toUpperCase();
+      updatedNewRecord.secondaryVrms = oldVrms;
+    }
     const updatedRecordToArchive = setLastUpdatedAuditDetails(recordToArchive, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED);
     updatedNewRecord.techRecord_reasonForCreation = 'Update VRM - Cherished Transfer';
-    (updatedNewRecord as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).secondaryVrms = oldVrms
     return [updatedRecordToArchive, updatedNewRecord];
   }
-  const newRecord: TechRecordGet = { ...currentRecord };
-  const updatedRecordToArchive = {} as TechRecordGet;
-  (newRecord as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm = newVrm.toUpperCase();
+
+  const newRecord: TechRecordType<'get'> = { ...currentRecord };
+  const updatedRecordToArchive = {} as TechRecordType<'get'>;
+  if (!isTRL(newRecord)) {
+    newRecord.primaryVrm = newVrm.toUpperCase();
+  }
   newRecord.techRecord_lastUpdatedAt = new Date().toISOString();
   newRecord.techRecord_lastUpdatedById = userDetails.msOid;
   newRecord.techRecord_lastUpdatedByName = userDetails.username;

@@ -1,22 +1,22 @@
-import {
-  TechRecordCar, TechRecordGet, TechRecordHgv, TechRecordMotorcycle, TechRecordPsv, TechRecordPut, TechRecordTrl,
-} from '../models/post';
+import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
 import { UserDetails } from '../services/user';
 import { HttpMethod, StatusCode, UpdateType } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
+import { isTRL } from '../util/vehicle-type-narrowing';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
-export const processUpdateRequest = async (recordFromDB: TechRecordGet, requestBody: TechRecordPut, userDetails: UserDetails): Promise<(TechRecordGet | TechRecordPut)[]> => {
-  const formattedRecordFromDB = formatTechRecord(recordFromDB);
+export const processUpdateRequest = (recordFromDB: TechRecordType<'get'>, requestBody: TechRecordType<'put'>, userDetails: UserDetails): (TechRecordType<'get'> | TechRecordType<'put'>)[] => {
+  const formattedRecordFromDB = formatTechRecord<typeof recordFromDB>(recordFromDB);
 
   const updatedRequest = processVehicleIdentifiers(recordFromDB, requestBody);
 
-  const newRecord = { ...formattedRecordFromDB, ...updatedRequest } as TechRecordGet;
+  const newRecord = { ...formattedRecordFromDB, ...updatedRequest };
 
-  newRecord.techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord, HttpMethod.GET);
+  (newRecord as TechRecordType<'get'>).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechRecordType<'get'>, HttpMethod.GET);
 
-  const flattenedNewRecord = await flattenArrays(newRecord) as TechRecordGet;
+  const flattenedNewRecord = flattenArrays(newRecord) as TechRecordType<'get'>;
 
   const updateType = getUpdateType(flattenedNewRecord, recordFromDB);
   recordFromDB.techRecord_updateType = updateType;
@@ -40,40 +40,45 @@ export const processUpdateRequest = async (recordFromDB: TechRecordGet, requestB
   return [updatedRecordFromDB, updatedNewRecord];
 };
 
-export const getUpdateType = (oldRecord: TechRecordGet, newRecord: TechRecordGet): UpdateType => {
-  const isAdrUpdate = Object.entries(newRecord).some(([key, value]) => /techRecord_adrDetails_[a-zA-Z]+/.test(key) && oldRecord[key as keyof TechRecordGet] !== value);
+export const getUpdateType = (oldRecord: TechRecordType<'get'>, newRecord: TechRecordType<'get'>): UpdateType => {
+  const isAdrUpdate = Object.entries(newRecord).some(([key, value]) => /techRecord_adrDetails_[a-zA-Z]+/.test(key) && oldRecord[key as keyof TechRecordType<'get'>] !== value);
   return isAdrUpdate ? UpdateType.ADR : UpdateType.TECH_RECORD_UPDATE;
 };
 
-export const processVehicleIdentifiers = (recordFromDB: TechRecordGet, requestBody: TechRecordPut) => {
-  const techRecord = { ...requestBody } as TechRecordGet;
+export const processVehicleIdentifiers = (recordFromDB: TechRecordType<'get'>, requestBody: TechRecordType<'put'>) => {
+  const techRecord = { ...requestBody };
+  const vehicleType = techRecord.techRecord_vehicleType ?? recordFromDB.techRecord_vehicleType;
 
-  const newVrm = (techRecord as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm;
-  const existingVrm = (recordFromDB as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm;
-  if (newVrm !== undefined && newVrm !== null && newVrm !== existingVrm) {
-    (techRecord as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm = existingVrm;
+  if (vehicleType && vehicleType !== 'trl') {
+    const newVrm = (techRecord as TechRecordTypeByVehicle<'hgv'> | TechRecordTypeByVehicle<'psv'> | TechRecordTypeByVehicle<'motorcycle'> | TechRecordTypeByVehicle<'car'> | TechRecordTypeByVehicle<'lgv'>).primaryVrm;
+    const existingVrm = !isTRL(recordFromDB) ? recordFromDB.primaryVrm : '';
+    if (newVrm !== undefined && newVrm !== null && newVrm !== existingVrm) {
+      (techRecord as TechRecordTypeByVehicle<'hgv'> | TechRecordTypeByVehicle<'psv'> | TechRecordTypeByVehicle<'motorcycle'> | TechRecordTypeByVehicle<'car'> | TechRecordTypeByVehicle<'lgv'>).primaryVrm = existingVrm;
+    }
   }
 
-  const newTrailerId = (techRecord as TechRecordTrl).trailerId;
-  if (newTrailerId !== undefined && newTrailerId !== null && newTrailerId !== (recordFromDB as TechRecordTrl).trailerId) {
-    (techRecord as TechRecordTrl).trailerId = (recordFromDB as TechRecordTrl).trailerId;
+  if (vehicleType === 'trl') {
+    const newTrailerId = (techRecord as TechRecordTypeByVehicle<'trl'>).trailerId;
+    if (newTrailerId !== undefined && newTrailerId !== null && newTrailerId !== (recordFromDB as TechRecordTypeByVehicle<'trl'>).trailerId) {
+      (techRecord as TechRecordTypeByVehicle<'trl'>).trailerId = (recordFromDB as TechRecordTypeByVehicle<'trl'>).trailerId;
+    }
   }
 
-  if (techRecord.systemNumber) {
-    techRecord.systemNumber = recordFromDB.systemNumber;
+  if ((techRecord as TechRecordType<'get'>).systemNumber) {
+    (techRecord as TechRecordType<'get'>).systemNumber = recordFromDB.systemNumber;
   }
 
-  if (techRecord.partialVin) {
-    techRecord.partialVin = recordFromDB.partialVin;
+  if ((techRecord as TechRecordType<'get'>).partialVin) {
+    (techRecord as TechRecordType<'get'>).partialVin = recordFromDB.partialVin;
   }
 
   const newVin = techRecord.vin;
   if (newVin !== undefined && newVin !== null && newVin !== recordFromDB.vin) {
     techRecord.vin = newVin.toUpperCase();
     if (newVin.length < 6) {
-      techRecord.partialVin = newVin.toUpperCase();
+      (techRecord as TechRecordType<'get'>).partialVin = newVin.toUpperCase();
     } else {
-      techRecord.partialVin = newVin.substring(Math.max(newVin.length - 6)).toUpperCase();
+      (techRecord as TechRecordType<'get'>).partialVin = newVin.substring(Math.max(newVin.length - 6)).toUpperCase();
     }
   }
   return techRecord;

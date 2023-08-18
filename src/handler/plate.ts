@@ -1,18 +1,17 @@
+import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
 import { PlateRequestBody, Plates } from '../models/plate';
-import {
-  TechRecordGet, TechRecordHgv,
-  TechRecordTrl,
-} from '../models/post';
 import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
 import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';
 import { addToSqs } from '../services/sqs';
 import { NumberTypes, generateNewNumber } from '../services/testNumber';
-import { StatusCode, VehicleType } from '../util/enum';
+import { StatusCode } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
+import { isHGV, isTRL } from '../util/vehicle-type-narrowing';
 import { validatePlateErrors, validatePlateInfo } from '../validators/plate';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -45,7 +44,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     });
   }
 
-  if (!(record.techRecord_vehicleType === VehicleType.HGV || record.techRecord_vehicleType === VehicleType.TRL)) {
+  if (!(isHGV(record) || isTRL(record))) {
     return addHttpHeaders({
       statusCode: 400,
       body: 'Tech record is not a HGV or TRL',
@@ -66,7 +65,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders(plateInfoErrors);
   }
 
-  const arrayifiedRecord = formatTechRecord(record) as TechRecordHgv | TechRecordTrl;
+  const arrayifiedRecord = formatTechRecord<TechRecordTypeByVehicle<'hgv'> | TechRecordTypeByVehicle<'trl'>>(record);
 
   if (arrayifiedRecord.techRecord_plates) {
     arrayifiedRecord.techRecord_plates.push(newPlate);
@@ -74,7 +73,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     arrayifiedRecord.techRecord_plates = [newPlate];
   }
 
-  const normalisedRecord = await flattenArrays(arrayifiedRecord) as TechRecordGet;
+  const normalisedRecord = flattenArrays(arrayifiedRecord) as TechRecordType<'get'>;
   await inPlaceRecordUpdate(normalisedRecord);
 
   const plateSqsPayload: SQSRequestBody = {

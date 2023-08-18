@@ -1,6 +1,6 @@
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
-import { TechRecordGet, TechRecordPut } from '../models/post';
 import { SearchCriteria } from '../models/search';
 import { processUpdateRequest } from '../processors/processUpdateRequest';
 import { getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle } from '../services/database';
@@ -37,7 +37,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const systemNumber = decodeURIComponent(event.pathParameters?.systemNumber ?? '');
     const createdTimestamp = decodeURIComponent(event.pathParameters?.createdTimestamp ?? '');
-    const requestBody = JSON.parse(event.body ?? '') as TechRecordPut;
+    const requestBody = JSON.parse(event.body ?? '') as TechRecordType<'put'>;
 
     let recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
     if (!recordFromDB || !Object.keys(recordFromDB).length) {
@@ -68,11 +68,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
     }
 
-    const [updatedRecordFromDB, updatedNewRecord] = await processUpdateRequest(recordFromDB, requestBody, userDetails);
+    const [updatedRecordFromDB, updatedNewRecord] = processUpdateRequest(recordFromDB, requestBody, userDetails);
 
-    const recordsToArchive = archiveNeeded ? [updatedRecordFromDB] as TechRecordGet[] : [];
+    const recordsToArchive = archiveNeeded ? [updatedRecordFromDB] as TechRecordType<'get'>[] : [];
 
-    await updateVehicle(recordsToArchive, [updatedNewRecord as TechRecordGet]);
+    const record = await updateVehicle(recordsToArchive, [updatedNewRecord as TechRecordType<'get'>]);
 
     const formattedRecord = formatTechRecord(updatedNewRecord);
 

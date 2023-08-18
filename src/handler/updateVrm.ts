@@ -1,9 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
-import {
-  TechRecordCar, TechRecordHgv, TechRecordMotorcycle, TechRecordPsv,
-} from '../models/post';
-import { SearchCriteria, SearchResult } from '../models/search';
+
+import { SearchCriteria } from '../models/search';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
 import { processPatchVrmRequest } from '../processors/processVrmRequest';
 import {
@@ -38,7 +36,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const techRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm);
     logger.debug('Tech record search returned: ', techRecords);
-    const filteredVrm = techRecords.filter((x) => (x as TechRecordHgv | TechRecordMotorcycle | TechRecordCar | TechRecordPsv).primaryVrm === newVrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
+    const filteredVrm = techRecords.filter((x) => x.primaryVrm === newVrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
     if (filteredVrm.length) {
       return addHttpHeaders({
         statusCode: 400,

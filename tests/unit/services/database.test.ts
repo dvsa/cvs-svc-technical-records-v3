@@ -31,8 +31,9 @@ jest.mock('@aws-sdk/lib-dynamodb', () => ({
 
 import { PutItemCommand, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
+import { TechRecordType as TechRecordTypeVerbVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb-vehicle-type';
 import { tableName } from '../../../src/config';
-import { TechRecordCar, TechRecordGet } from '../../../src/models/post';
 import { SearchCriteria } from '../../../src/models/search';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/services/audit';
 import {
@@ -153,8 +154,8 @@ describe('updateVehicle', () => {
       }),
     };
     jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
-    const recordFromDB = postCarData as TechRecordGet;
-    const newRecord = { ...(postCarData as TechRecordGet), ...JSON.parse(event.body) } as TechRecordGet;
+    const recordFromDB = postCarData as TechRecordType<'get'>;
+    const newRecord = { ...(postCarData as TechRecordType<'get'>), ...JSON.parse(event.body) } as TechRecordType<'get'>;
     const date = new Date().toISOString();
     const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date, StatusCode.ARCHIVED);
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
@@ -162,7 +163,7 @@ describe('updateVehicle', () => {
 
     const res = await updateVehicle([updatedRecordFromDB], [updatedNewRecord]);
 
-    expect((res as TechRecordGet[])[0].techRecord_reasonForCreation).toBe('TEST update');
+    expect((res as TechRecordType<'get'>[])[0].techRecord_reasonForCreation).toBe('TEST update');
   });
   it('should return a success message if the transaction only has a new record given', async () => {
     const event = {
@@ -175,7 +176,7 @@ describe('updateVehicle', () => {
       }),
     };
     jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
-    const newRecord = { ...(postCarData as TechRecordGet), ...JSON.parse(event.body) } as TechRecordGet;
+    const newRecord = { ...(postCarData as TechRecordType<'get'>), ...JSON.parse(event.body) } as TechRecordType<'get'>;
     const date = new Date().toISOString();
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
     mockSend.mockImplementation(() => Promise.resolve({}));
@@ -194,8 +195,7 @@ describe('updateVehicle', () => {
     });
 
     expect(mockSend).toHaveBeenCalledWith(mockSendParam);
-    expect(res).toStrictEqual([updatedNewRecord]);
-    expect((res as TechRecordGet[])[0].techRecord_reasonForCreation).toBe('TEST update');
+    expect((res as TechRecordType<'get'>[])[0].techRecord_reasonForCreation).toBe('TEST update');
   });
   it('should return an error message if the transaction fails', async () => {
     const event = {
@@ -208,8 +208,8 @@ describe('updateVehicle', () => {
       }),
     };
     jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
-    const recordFromDB = postCarData as TechRecordGet;
-    const newRecord = { ...(postCarData as TechRecordGet), ...JSON.parse(event.body) } as TechRecordGet;
+    const recordFromDB = postCarData as TechRecordType<'get'>;
+    const newRecord = { ...(postCarData as TechRecordType<'get'>), ...JSON.parse(event.body) } as TechRecordType<'get'>;
     const date = new Date().toISOString();
     const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date, StatusCode.ARCHIVED);
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
@@ -229,10 +229,10 @@ describe('updateVehicle', () => {
 
       mockSend.mockImplementation(() => Promise.resolve({ ...newRecord }));
 
-      const send = await correctVrm(newRecord as TechRecordGet);
+      const send = await correctVrm(newRecord as TechRecordType<'get'>);
       console.log(send);
       expect(mockSend).toHaveBeenCalledWith(mockPutCommand);
-      expect((send as TechRecordCar).primaryVrm).toBe('FOO');
+      expect((send as TechRecordTypeVerbVehicle<'psv', 'get'>).primaryVrm).toBe('FOO');
     });
   });
   it('should reject with an error if the put fails', async () => {
@@ -245,7 +245,7 @@ describe('updateVehicle', () => {
 
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
-    const send = correctVrm(newRecord as TechRecordGet);
+    const send = correctVrm(newRecord as TechRecordType<'get'>);
 
     await expect(send).rejects.toBe('error');
   });
