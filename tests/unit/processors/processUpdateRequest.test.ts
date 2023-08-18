@@ -1,6 +1,5 @@
-import {
-  TechRecordGet, TechRecordHgv, TechRecordPut, TechRecordTrl,
-} from '../../../src/models/post';
+import { TechRecordType as TechRecordTypeVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { getUpdateType, processUpdateRequest, processVehicleIdentifiers } from '../../../src/processors/processUpdateRequest';
 import { UserDetails } from '../../../src/services/user';
 import { StatusCode, UpdateType } from '../../../src/util/enum';
@@ -22,20 +21,20 @@ describe('getUpdateType', () => {
       techRecord_vehicleType: 'trl',
       techRecord_adrDetails_vehicleDetails_type: 'testType',
     };
-    expect(getUpdateType(mockRecord as TechRecordGet, mockRequest1 as TechRecordGet)).toEqual(UpdateType.ADR);
-    expect(getUpdateType(mockRecord as TechRecordGet, mockRequest2 as TechRecordGet)).toEqual(UpdateType.TECH_RECORD_UPDATE);
-    expect(getUpdateType(mockRecord as TechRecordGet, mockRequest3 as TechRecordGet)).toEqual(UpdateType.TECH_RECORD_UPDATE);
+    expect(getUpdateType(mockRecord as TechRecordType<'get'>, mockRequest1 as TechRecordType<'get'>)).toEqual(UpdateType.ADR);
+    expect(getUpdateType(mockRecord as TechRecordType<'get'>, mockRequest2 as TechRecordType<'get'>)).toEqual(UpdateType.TECH_RECORD_UPDATE);
+    expect(getUpdateType(mockRecord as TechRecordType<'get'>, mockRequest3 as TechRecordType<'get'>)).toEqual(UpdateType.TECH_RECORD_UPDATE);
   });
 });
 
 describe('processUpdateRequest', () => {
-  it('returns updated records to archive and to add', async () => {
-    const mockRecordFromDb = hgvData as TechRecordGet;
-    const mockRequest = { techRecord_reasonForCreation: 'Test Update', techRecord_emissionsLimit: 3 } as TechRecordPut;
+  it('returns updated records to archive and to add', () => {
+    const mockRecordFromDb = hgvData as TechRecordType<'get'>;
+    const mockRequest = { techRecord_reasonForCreation: 'Test Update', techRecord_emissionsLimit: 3 } as TechRecordType<'put'>;
     const mockUserDetails: UserDetails = {
       username: 'UpdateUser', msOid: 'QWERTY', email: 'UpdateUser@test.com',
     };
-    const [updatedRecordFromDB, updatedNewRecord] = await processUpdateRequest(mockRecordFromDb, mockRequest, mockUserDetails);
+    const [updatedRecordFromDB, updatedNewRecord] = processUpdateRequest(mockRecordFromDb, mockRequest, mockUserDetails);
     expect(updatedRecordFromDB).toEqual(expect.objectContaining({
       techRecord_statusCode: StatusCode.ARCHIVED,
       techRecord_lastUpdatedByName: 'UpdateUser',
@@ -56,33 +55,33 @@ describe('processVehicleIdentifiers', () => {
   it('should replace the vrm if present in request', () => {
     const mockRecordFromDb = hgvData;
     const mockRequest = { techRecord_reasonForCreation: 'Test Update', primaryVrm: 1234 };
-    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordGet, mockRequest as unknown as TechRecordPut);
-    expect((updatedRequest as TechRecordHgv).primaryVrm).toBe('GB02DAN');
+    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
+    expect((updatedRequest as TechRecordTypeVehicle<'hgv'>).primaryVrm).toBe('GB02DAN');
   });
   it('should replace the trailer id if present in request', () => {
     const mockRecordFromDb = trailerData;
     const mockRequest = { techRecord_reasonForCreation: 'Test Update', trailerId: 1234 };
-    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordGet, mockRequest as unknown as TechRecordPut);
-    expect((updatedRequest as TechRecordTrl).trailerId).toBe('C000001');
+    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
+    expect((updatedRequest as TechRecordTypeVehicle<'trl'>).trailerId).toBe('C000001');
   });
   it('should calculate partialVin if a new VIN is in the request', () => {
     const mockRecordFromDb = hgvData;
     const mockRequest = { techRecord_reasonForCreation: 'Test Update', vin: 'Abc123456' };
-    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordGet, mockRequest as unknown as TechRecordPut);
-    expect((updatedRequest as TechRecordHgv).vin).toBe('ABC123456');
-    expect((updatedRequest as TechRecordHgv).partialVin).toBe('123456');
+    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
+    expect((updatedRequest as TechRecordTypeVehicle<'hgv'>).vin).toBe('ABC123456');
+    expect((updatedRequest as TechRecordTypeVehicle<'hgv'>).partialVin).toBe('123456');
   });
   it('should use same partialVin as new VIN if VIN is less than 6 characters', () => {
     const mockRecordFromDb = hgvData;
     const mockRequest = { techRecord_reasonForCreation: 'Test Update', vin: 'abc123' };
-    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordGet, mockRequest as unknown as TechRecordPut);
-    expect((updatedRequest as TechRecordHgv).vin).toBe('ABC123');
-    expect((updatedRequest as TechRecordHgv).partialVin).toBe('ABC123');
+    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
+    expect((updatedRequest as TechRecordTypeVehicle<'hgv'>).vin).toBe('ABC123');
+    expect((updatedRequest as TechRecordTypeVehicle<'hgv'>).partialVin).toBe('ABC123');
   });
   it('should make no changes if vehicle identifiers do not change', () => {
     const mockRecordFromDb = hgvData;
     const mockRequest = { techRecord_reasonForCreation: 'Test Update' };
-    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordGet, mockRequest as unknown as TechRecordPut);
+    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
     expect(updatedRequest).toEqual(mockRequest);
   });
 });

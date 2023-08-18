@@ -1,5 +1,5 @@
 import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
-import { TechRecordGet, TechRecordPut } from '../models/post';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { HttpMethod, RecordCompleteness, VehicleType } from '../util/enum';
 import logger from '../util/logger';
 import { identifySchema } from './post';
@@ -10,7 +10,7 @@ import { identifySchema } from './post';
  * @returns RecordCompleteness
  *
  */
-export function validateAndComputeRecordCompleteness(input: (TechRecordPut | TechRecordGet), method: HttpMethod): RecordCompleteness {
+export function validateAndComputeRecordCompleteness(input: (TechRecordType<'put'> | TechRecordType<'get'>), method: HttpMethod): RecordCompleteness {
   if (input.techRecord_hiddenInVta) {
     logger.info('Hidden in VTA, returning skeleton');
     validateSkeletonSchema(input, method);
@@ -26,17 +26,17 @@ export function validateAndComputeRecordCompleteness(input: (TechRecordPut | Tec
   return RecordCompleteness.SKELETON;
 }
 
-const validateSkeletonSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
+const validateSkeletonSchema = (input: (TechRecordType<'put'> | TechRecordType<'get'>), method: HttpMethod): boolean => {
   const isSkeletonSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, method);
   return isSkeletonSchema ? isValidObject(isSkeletonSchema, input) : false;
 };
 
-const validateCompleteSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
+const validateCompleteSchema = (input: (TechRecordType<'get'> | TechRecordType<'put'>), method: HttpMethod): boolean => {
   const isCompleteSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.COMPLETE, method);
   return isCompleteSchema ? isValidObject(isCompleteSchema, input) : false;
 };
 
-const validateTestableSchema = (input: (TechRecordPut | TechRecordGet), method: HttpMethod): boolean => {
+const validateTestableSchema = (input: (TechRecordType<'get'> | TechRecordType<'put'>), method: HttpMethod): boolean => {
   const isTestableSchema = input.techRecord_vehicleType === (VehicleType.TRL || VehicleType.PSV || VehicleType.HGV)
     ? identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, method) : '';
   return isTestableSchema ? isValidObject(isTestableSchema, input) : false;

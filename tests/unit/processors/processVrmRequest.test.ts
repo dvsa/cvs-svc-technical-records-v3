@@ -1,6 +1,4 @@
-import {
-  TechRecordGet,
-} from '../../../src/models/post';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { processPatchVrmRequest } from '../../../src/processors/processVrmRequest';
 import postCarData from '../../resources/techRecordCarPost.json';
 
@@ -18,7 +16,7 @@ describe('processVrmRequest', () => {
   });
   describe('cherished transfer', () => {
     it('returns updated records to archive and to add', () => {
-      const mockRecordFromDb = postCarData as TechRecordGet;
+      const mockRecordFromDb = postCarData as TechRecordType<'get'>;
       const [recordToArchive, updatedNewRecord] = processPatchVrmRequest(mockRecordFromDb, mockUserDetails, 'FOO', true);
       expect(updatedNewRecord).toEqual(expect.objectContaining({
         primaryVrm: 'FOO',
@@ -38,7 +36,7 @@ describe('processVrmRequest', () => {
   });
   describe('correcting an error', () => {
     it('returns a new record and an undefined record to archive', () => {
-      const mockRecordFromDb = postCarData as TechRecordGet;
+      const mockRecordFromDb = postCarData as TechRecordType<'get'>;
       const [recordToArchive, updatedNewRecord] = processPatchVrmRequest(mockRecordFromDb, mockUserDetails, 'FOO', false);
       expect(updatedNewRecord).toEqual(expect.objectContaining({
         primaryVrm: 'FOO',
