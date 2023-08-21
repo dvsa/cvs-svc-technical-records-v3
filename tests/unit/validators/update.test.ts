@@ -4,7 +4,7 @@ import { checkStatusCodeValidity, validateUpdateErrors } from '../../../src/vali
 
 const trlPayload = {
   techRecord_reasonForCreation: 'Test Update',
-  techRecord_approvalType: 'Test',
+  techRecord_approvalType: null,
   techRecord_statusCode: 'provisional',
   techRecord_vehicleClass_code: 't',
   techRecord_vehicleClass_description: 'trailer',
@@ -36,8 +36,12 @@ describe('validateUpdateErrors', () => {
       body: JSON.stringify({
         techRecord_vehicleType: 'trl',
         techRecord_statusCode: 'random',
+        techRecord_vehicleClass_code: 'a',
+        techRecord_vehicleClass_description: 'trailer',
+        techRecord_vehicleConfiguration: 'rigid',
+        vin: '9080977997',
         techRecord_plates: [{
-          reasonForIssue: 'random',
+          plateReasonForIssue: 'random',
         }],
       }),
       headers: { Authorization: 'Bearer 123' },
@@ -50,7 +54,7 @@ describe('validateUpdateErrors', () => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       error: expect.arrayContaining(["must have required property 'techRecord_reasonForCreation'",
         'techRecord_statusCode must be equal to one of the allowed values',
-        'techRecord_plates/0/reasonForIssue must be equal to one of the allowed values']),
+        'techRecord_plates/0/plateReasonForIssue must be equal to one of the allowed values']),
     }));
   });
   it('returns false if no errors', () => {

@@ -36,7 +36,7 @@ describe('update handler', () => {
       },
       body: JSON.stringify({
         techRecord_reasonForCreation: 'Test Update',
-        techRecord_approvalType: 'Test',
+        techRecord_approvalType: null,
         techRecord_statusCode: 'provisional',
         techRecord_vehicleClass_code: 't',
         techRecord_vehicleClass_description: 'trailer',
@@ -100,7 +100,7 @@ describe('update handler', () => {
     it('should return an error when VINs are invalid', async () => {
       request.body = JSON.stringify({
         techRecord_reasonForCreation: 'Test Update',
-        techRecord_approvalType: 'Test',
+        techRecord_approvalType: null,
         techRecord_statusCode: 'provisional',
         techRecord_vehicleClass_code: 't',
         techRecord_vehicleClass_description: 'trailer',
