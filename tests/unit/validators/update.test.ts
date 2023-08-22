@@ -4,7 +4,7 @@ import { checkStatusCodeValidity, validateUpdateErrors } from '../../../src/vali
 
 const trlPayload = {
   techRecord_reasonForCreation: 'Test Update',
-  techRecord_approvalType: null,
+  techRecord_approvalType: 'NTA',
   techRecord_statusCode: 'provisional',
   techRecord_vehicleClass_code: 't',
   techRecord_vehicleClass_description: 'trailer',

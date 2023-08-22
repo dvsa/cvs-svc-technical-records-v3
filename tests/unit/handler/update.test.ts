@@ -36,7 +36,7 @@ describe('update handler', () => {
       },
       body: JSON.stringify({
         techRecord_reasonForCreation: 'Test Update',
-        techRecord_approvalType: null,
+        techRecord_approvalType: 'NTA',
         techRecord_statusCode: 'provisional',
         techRecord_vehicleClass_code: 't',
         techRecord_vehicleClass_description: 'trailer',
@@ -56,16 +56,16 @@ describe('update handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
-      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordType<'put'>;
+      const newRecord = { ...hgvData, ...JSON.parse(request.body ?? '') } as TechRecordType<'put'>;
       mockProcessUpdateRequest.mockReturnValueOnce([hgvData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       const result = await handler(request);
 
+      expect(result.statusCode).toBe(200);
+
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
       expect(mockProcessUpdateRequest).toHaveBeenCalledTimes(1);
       expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
-
-      expect(result.statusCode).toBe(200);
       expect(result.body).not.toBeNull();
     });
   });
@@ -100,7 +100,7 @@ describe('update handler', () => {
     it('should return an error when VINs are invalid', async () => {
       request.body = JSON.stringify({
         techRecord_reasonForCreation: 'Test Update',
-        techRecord_approvalType: null,
+        techRecord_approvalType: 'NTA',
         techRecord_statusCode: 'provisional',
         techRecord_vehicleClass_code: 't',
         techRecord_vehicleClass_description: 'trailer',

@@ -29,8 +29,6 @@
   "techRecord_couplingCenterToRearTrlMin": 800,
   "techRecord_couplingType": "F",
   "techRecord_createdAt": "2023-06-16T14:17:05.788Z",
-  "techRecord_createdById": "28e4bca6-3992-4a06-874d-143395a8b4df",
-  "techRecord_createdByName": "Emyr Waters",
   "techRecord_dimensions_length": 7500,
   "techRecord_dimensions_width": 2200,
   "techRecord_drawbarCouplingFitted": true,
