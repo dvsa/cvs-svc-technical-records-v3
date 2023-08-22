@@ -379,5 +379,131 @@
     "techRecord_vehicleConfiguration": null,
     "techRecord_vehicleType": "car",
     "vin": "DP76UMK4DQLTOT"
+  },
+  {
+    "techRecord_vehicleSubclass": ["a"],
+    "techRecord_axles": [
+      {
+        "axleNumber": 1,
+        "parkingBrakeMrk": false,
+        "tyres_dataTrAxles": null,
+        "tyres_fitmentCode": null,
+        "tyres_plyRating": null,
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": null,
+        "tyres_tyreSize": null,
+        "weights_designWeight": null,
+        "weights_gbWeight": null
+      },
+      {
+        "axleNumber": 2,
+        "parkingBrakeMrk": null,
+        "tyres_dataTrAxles": 345,
+        "tyres_fitmentCode": "single",
+        "tyres_plyRating": "AB",
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": 5678,
+        "tyres_tyreSize": "295/80-22.5",
+        "weights_designWeight": null,
+        "weights_gbWeight": null
+      },
+      {
+        "axleNumber": 3,
+        "parkingBrakeMrk": null,
+        "tyres_dataTrAxles": 345,
+        "tyres_fitmentCode": "single",
+        "tyres_plyRating": "AB",
+        "tyres_speedCategorySymbol": "a7",
+        "tyres_tyreCode": 5678,
+        "tyres_tyreSize": "295/80-22.5",
+        "weights_designWeight": null,
+        "weights_gbWeight": null
+      }
+    ],
+    "techRecord_plates": [
+      {
+        "extraInfo": "more info",
+        "info": "info"
+
+      },
+      {
+        "extraInfo": "more info",
+        "info": "info"
+      }
+    ],
+    "techRecord_dimensions_axleSpacing": [
+      {
+        "axle": "1-2",
+        "value": "123"
+      },
+      {
+        "axle": "2-3",
+        "value": "321"
+      }
+    ],
+    "systemNumber": "XYZEP5JYOMM00020",
+    "createdTimestamp": "2019-06-19T10:26:51.903Z",
+    "partialVin": "400020",
+    "primaryVrm": "SJG3075",
+    "secondaryVrms": ["SVNS10"],
+    "techRecord_bodyType_code": "x",
+    "techRecord_bodyType_description": null,
+    "techRecord_brakeCode": "178202",
+    "techRecord_brakes_antilockBrakingSystem": true,
+    "techRecord_brakes_brakeCode": "123",
+    "techRecord_brakes_brakeCodeOriginal": "12412",
+    "techRecord_brakes_brakeForceWheelsNotLocked_parkingBrakeForceA": 2332,
+    "techRecord_brakes_brakeForceWheelsNotLocked_secondaryBrakeForceA": 2512,
+    "techRecord_brakes_brakeForceWheelsNotLocked_serviceBrakeForceA": 6424,
+    "techRecord_brakes_brakeForceWheelsUpToHalfLocked_parkingBrakeForceB": 3512,
+    "techRecord_brakes_brakeForceWheelsUpToHalfLocked_secondaryBrakeForceB": 2512,
+    "techRecord_brakes_brakeForceWheelsUpToHalfLocked_serviceBrakeForceB": 5521,
+    "techRecord_brakes_dataTrBrakeOne": "None",
+    "techRecord_brakes_dataTrBrakeThree": "None",
+    "techRecord_brakes_dataTrBrakeTwo": "None",
+    "techRecord_brakes_dtpNumber": null,
+    "techRecord_brakes_loadSensingValve": true,
+    "techRecord_brakes_retarderBrakeOne": "electric",
+    "techRecord_brakes_retarderBrakeTwo": "exhaust",
+    "techRecord_conversionRefNo": null,
+    "techRecord_createdAt": "2019-06-22T10:26:54.904Z",
+    "techRecord_createdByName": null,
+    "techRecord_dimensions_length": null,
+    "techRecord_dimensions_width": null,
+    "techRecord_drawbarCouplingFitted": null,
+    "techRecord_euroStandard": " ",
+    "techRecord_euVehicleCategory": null,
+    "techRecord_frontAxleTo5thWheelMax": null,
+    "techRecord_frontAxleTo5thWheelMin": null,
+    "techRecord_frontVehicleTo5thWheelCouplingMax": null,
+    "techRecord_frontVehicleTo5thWheelCouplingMin": null,
+    "techRecord_functionCode": null,
+    "techRecord_grossDesignWeight": null,
+    "techRecord_grossGbWeight": null,
+    "techRecord_grossKerbWeight": null,
+    "techRecord_grossLadenWeight": null,
+    "techRecord_lastUpdatedAt": "2019-06-24T10:26:54.903Z",
+    "techRecord_make": null,
+    "techRecord_manufactureYear": null,
+    "techRecord_maxTrainDesignWeight": null,
+    "techRecord_maxTrainGbWeight": null,
+    "techRecord_model": null,
+    "techRecord_noOfAxles": 2,
+    "techRecord_notes": null,
+    "techRecord_ntaNumber": null,
+    "techRecord_reasonForCreation": null,
+    "techRecord_regnDate": null,
+    "techRecord_roadFriendly": false,
+    "techRecord_speedLimiterMrk": null,
+    "techRecord_statusCode": "provisional",
+    "techRecord_tachoExemptMrk": null,
+    "techRecord_trainDesignWeight": null,
+    "techRecord_trainGbWeight": null,
+    "techRecord_tyreUseCode": null,
+    "techRecord_vehicleClass_code": "v",
+    "techRecord_vehicleClass_description": null,
+    "techRecord_vehicleConfiguration": null,
+    "techRecord_vehicleType": "car",
+    "vin": "DP76UMK4DQLTOT"
   }
 ]

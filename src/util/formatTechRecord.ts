@@ -5,20 +5,21 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let objectToAdd: any = {};
   let arrayIndex = 0;
+  const axleSpacingBias = arrayName.includes('axleSpacing') ? 1 : 0;
   Object.entries(techRecordWithoutArrays).sort().forEach(([key, value]) => {
     if (/_\d+_/.test(key) && key.includes(arrayName)) {
       const splitKey = key.split('_');
 
-      if (parseInt(splitKey[2], 10) === arrayIndex) {
-        splitKey.splice(0, 3);
+      if (parseInt(splitKey[2 + axleSpacingBias], 10) === arrayIndex) {
+        splitKey.splice(0, 3 + axleSpacingBias);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
       } else {
         arrayToAdd.push(objectToAdd);
-        arrayIndex = parseInt(splitKey[2], 10);
+        arrayIndex = parseInt(splitKey[2 + axleSpacingBias], 10);
         objectToAdd = {};
-        splitKey.splice(0, 3);
+        splitKey.splice(0, 3 + axleSpacingBias);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
@@ -48,10 +49,13 @@ export const formatTechRecord = (techRecordWithoutArrays: object) => {
     if (!/_\d+/.test(key)) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
       formattedTechRecord[key] = value;
-    } else {
+    } else if (key.includes('techRecord_dimensions_axleSpacing') && !arrayNames.includes('techRecord_dimensions_axleSpacing')) {
+      arrayNames.push('techRecord_dimensions_axleSpacing');
+    } else if (!key.includes('dimensions')) {
       arrayNames.push(`${key.split('_')[0]}_${key.split('_')[1]}`);
     }
   });
+
   const valuesToArrayify = [...new Set(arrayNames)];
   valuesToArrayify.forEach((value) => buildArray(techRecordWithoutArrays, value, formattedTechRecord as object));
 
