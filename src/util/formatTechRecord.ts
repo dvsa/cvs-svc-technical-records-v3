@@ -8,17 +8,20 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
   Object.entries(techRecordWithoutArrays).sort().forEach(([key, value]) => {
     if (/_\d+_/.test(key) && key.includes(arrayName)) {
       const splitKey = key.split('_');
+      const idx = (splitKey.findIndex((k) => !Number.isNaN(+k)));
+      // eslint-disable-next-line security/detect-object-injection
+      const splitNumber = +splitKey[idx];
 
-      if (parseInt(splitKey[2], 10) === arrayIndex) {
-        splitKey.splice(0, 3);
+      if (splitNumber === arrayIndex) {
+        splitKey.splice(0, idx + 1);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
       } else {
         arrayToAdd.push(objectToAdd);
-        arrayIndex = parseInt(splitKey[2], 10);
+        arrayIndex = splitNumber;
         objectToAdd = {};
-        splitKey.splice(0, 3);
+        splitKey.splice(0, idx + 1);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
@@ -48,11 +51,14 @@ export const formatTechRecord = <T>(techRecordWithoutArrays: object): T => {
     if (!/_\d+/.test(key)) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
       formattedTechRecord[key] = value;
+    } else if (/techRecord_\w+_\w+_\d+/.test(key)) {
+      arrayNames.push(`${key.split('_')[0]}_${key.split('_')[1]}_${key.split('_')[2]}`);
     } else {
       arrayNames.push(`${key.split('_')[0]}_${key.split('_')[1]}`);
     }
   });
   const valuesToArrayify = [...new Set(arrayNames)];
+  console.log(valuesToArrayify);
   valuesToArrayify.forEach((value) => buildArray(techRecordWithoutArrays, value, formattedTechRecord as object));
 
   return formattedTechRecord as T;
