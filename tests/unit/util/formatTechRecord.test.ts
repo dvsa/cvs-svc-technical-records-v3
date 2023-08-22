@@ -1,6 +1,6 @@
-import * as flatRecords from '../../resources/technical-records-v3.json';
-import * as expectedRecords from '../../resources/tech-records-with-arrays.json';
 import { formatTechRecord } from '../../../src/util/formatTechRecord';
+import * as expectedRecords from '../../resources/tech-records-with-arrays.json';
+import * as flatRecords from '../../resources/technical-records-v3.json';
 
 describe('test format of tech record', () => {
   it('should not do any changes if there is no arrays', () => {
@@ -31,5 +31,11 @@ describe('test format of tech record', () => {
     const inputRecord = flatRecords[3];
     const res = formatTechRecord(inputRecord);
     expect(res).toEqual(expectedRecords[3]);
+  });
+
+  it('should work with a complex axle array and out of order plate array and axle spacings', () => {
+    const inputRecord = flatRecords[6];
+    const res = formatTechRecord(inputRecord);
+    expect(res).toEqual(expectedRecords[4]);
   });
 });
