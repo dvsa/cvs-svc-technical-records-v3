@@ -5,21 +5,23 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let objectToAdd: any = {};
   let arrayIndex = 0;
-  const axleSpacingBias = arrayName.includes('axleSpacing') ? 1 : 0;
   Object.entries(techRecordWithoutArrays).sort().forEach(([key, value]) => {
     if (/_\d+_/.test(key) && key.includes(arrayName)) {
       const splitKey = key.split('_');
+      const idx = (splitKey.findIndex((k) => !Number.isNaN(+k)));
+      // eslint-disable-next-line security/detect-object-injection
+      const splitNumber = +splitKey[idx];
 
-      if (parseInt(splitKey[2 + axleSpacingBias], 10) === arrayIndex) {
-        splitKey.splice(0, 3 + axleSpacingBias);
+      if (splitNumber === arrayIndex) {
+        splitKey.splice(0, idx + 1);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
       } else {
         arrayToAdd.push(objectToAdd);
-        arrayIndex = parseInt(splitKey[2 + axleSpacingBias], 10);
+        arrayIndex = splitNumber;
         objectToAdd = {};
-        splitKey.splice(0, 3 + axleSpacingBias);
+        splitKey.splice(0, idx + 1);
         const newKey = splitKey.join('_');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
         objectToAdd[newKey] = value;
