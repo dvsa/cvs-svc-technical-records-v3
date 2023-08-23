@@ -161,9 +161,9 @@ describe('updateVehicle', () => {
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
     mockSend.mockImplementation(() => Promise.resolve({}));
 
-    const res = await updateVehicle([updatedRecordFromDB], updatedNewRecord);
+    const res = await updateVehicle([updatedRecordFromDB], [updatedNewRecord]);
 
-    expect((res as TechRecordType<'get'>).techRecord_reasonForCreation).toBe('TEST update');
+    expect((res as TechRecordType<'get'>[])[0].techRecord_reasonForCreation).toBe('TEST update');
   });
   it('should return a success message if the transaction only has a new record given', async () => {
     const event = {
@@ -181,7 +181,7 @@ describe('updateVehicle', () => {
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
     mockSend.mockImplementation(() => Promise.resolve({}));
 
-    const res = await updateVehicle([], updatedNewRecord);
+    const res = await updateVehicle([], [updatedNewRecord]);
 
     const mockSendParam = new TransactWriteItemsCommand({
       TransactItems: [
@@ -195,7 +195,7 @@ describe('updateVehicle', () => {
     });
 
     expect(mockSend).toHaveBeenCalledWith(mockSendParam);
-    expect((res as TechRecordType<'get'>).techRecord_reasonForCreation).toBe('TEST update');
+    expect((res as TechRecordType<'get'>[])[0].techRecord_reasonForCreation).toBe('TEST update');
   });
   it('should return an error message if the transaction fails', async () => {
     const event = {
@@ -215,7 +215,7 @@ describe('updateVehicle', () => {
     const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
-    await expect(updateVehicle([updatedRecordFromDB], updatedNewRecord)).rejects.toBe('error');
+    await expect(updateVehicle([updatedRecordFromDB], [updatedNewRecord])).rejects.toBe('error');
   });
 
   describe('correctVrm', () => {

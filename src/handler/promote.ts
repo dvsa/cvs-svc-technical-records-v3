@@ -69,7 +69,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     newCurrent.techRecord_reasonForCreation = reasonForPromoting;
     logger.debug(`New current record after update ${JSON.stringify(newCurrent)}`);
 
-    await updateVehicle(recordsToArchive, newCurrent);
+    await updateVehicle(recordsToArchive, [newCurrent]);
 
     return addHttpHeaders({
       statusCode: 200,

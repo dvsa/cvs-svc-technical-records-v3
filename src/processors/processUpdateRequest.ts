@@ -8,13 +8,13 @@ import { isTRL } from '../util/vehicle-type-narrowing';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
 export const processUpdateRequest = (recordFromDB: TechRecordType<'get'>, requestBody: TechRecordType<'put'>, userDetails: UserDetails): (TechRecordType<'get'> | TechRecordType<'put'>)[] => {
-  const formattedRecordFromDB = formatTechRecord(recordFromDB);
+  const formattedRecordFromDB = formatTechRecord<typeof recordFromDB>(recordFromDB);
 
   const updatedRequest = processVehicleIdentifiers(recordFromDB, requestBody);
 
   const newRecord = { ...formattedRecordFromDB, ...updatedRequest };
 
-  (newRecord as TechRecordType<'get'>).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord, HttpMethod.GET);
+  (newRecord as TechRecordType<'get'>).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechRecordType<'get'>, HttpMethod.GET);
 
   const flattenedNewRecord = flattenArrays(newRecord) as TechRecordType<'get'>;
 

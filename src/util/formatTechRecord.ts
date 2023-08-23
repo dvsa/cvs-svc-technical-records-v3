@@ -43,7 +43,7 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
   return formattedTechRecord as object;
 };
 
-export const formatTechRecord = (techRecordWithoutArrays: object) => {
+export const formatTechRecord = <T>(techRecordWithoutArrays: object): T => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formattedTechRecord: any = {};
   const arrayNames: string[] = [];
@@ -61,7 +61,7 @@ export const formatTechRecord = (techRecordWithoutArrays: object) => {
   console.log(valuesToArrayify);
   valuesToArrayify.forEach((value) => buildArray(techRecordWithoutArrays, value, formattedTechRecord as object));
 
-  return formattedTechRecord as object;
+  return formattedTechRecord as T;
 };
 
 /**

@@ -4,7 +4,7 @@ import { checkStatusCodeValidity, validateUpdateErrors } from '../../../src/vali
 
 const trlPayload = {
   techRecord_reasonForCreation: 'Test Update',
-  techRecord_approvalType: 'IVA',
+  techRecord_approvalType: 'NTA',
   techRecord_statusCode: 'provisional',
   techRecord_vehicleClass_code: 't',
   techRecord_vehicleClass_description: 'trailer',
@@ -36,8 +36,12 @@ describe('validateUpdateErrors', () => {
       body: JSON.stringify({
         techRecord_vehicleType: 'trl',
         techRecord_statusCode: 'random',
+        techRecord_vehicleClass_code: 'a',
+        techRecord_vehicleClass_description: 'trailer',
+        techRecord_vehicleConfiguration: 'rigid',
+        vin: '9080977997',
         techRecord_plates: [{
-          reasonForIssue: 'random',
+          plateReasonForIssue: 'random',
         }],
       }),
       headers: { Authorization: 'Bearer 123' },
@@ -49,11 +53,8 @@ describe('validateUpdateErrors', () => {
     expect(JSON.parse(res.body ?? '')).toEqual(expect.objectContaining({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       error: expect.arrayContaining(["must have required property 'techRecord_reasonForCreation'",
-        "must have required property 'techRecord_vehicleClass_code'",
-        "must have required property 'techRecord_vehicleClass_description'",
-        "must have required property 'techRecord_vehicleConfiguration'",
-        "must have required property 'vin'",
-        'techRecord_statusCode must be equal to one of the allowed values']),
+        'techRecord_statusCode must be equal to one of the allowed values',
+        'techRecord_plates/0/plateReasonForIssue must be equal to one of the allowed values']),
     }));
   });
   it('returns false if no errors', () => {

@@ -56,16 +56,16 @@ describe('update handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
-      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordType<'put'>;
+      const newRecord = { ...hgvData, ...JSON.parse(request.body ?? '') } as TechRecordType<'put'>;
       mockProcessUpdateRequest.mockReturnValueOnce([hgvData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       const result = await handler(request);
 
+      expect(result.statusCode).toBe(200);
+
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
       expect(mockProcessUpdateRequest).toHaveBeenCalledTimes(1);
       expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
-
-      expect(result.statusCode).toBe(200);
       expect(result.body).not.toBeNull();
     });
   });
