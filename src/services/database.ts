@@ -131,7 +131,7 @@ export const postTechRecord = async (request: TechRecordType<'get'>): Promise <T
         '#systemNumber': 'systemNumber',
       },
       ExpressionAttributeValues: {
-        ':createdTimestamp': { S: request.createdTimestamp as string },
+        ':createdTimestamp': { S: request.createdTimestamp },
         ':systemNumber': { S: request.systemNumber },
       },
       Item: marshall(request, { removeUndefinedValues: true }),
