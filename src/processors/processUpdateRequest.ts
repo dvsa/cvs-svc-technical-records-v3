@@ -13,7 +13,7 @@ export const processUpdateRequest = (recordFromDB: TechRecordType<'get'>, reques
   const newRecord = { ...formattedRecordFromDB, ...requestBody };
 
   (newRecord as TechRecordType<'get'>).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechRecordType<'get'>, HttpMethod.PUT);
-  addVehicleIdentifiers(recordFromDB, requestBody);
+  addVehicleIdentifiers(recordFromDB, newRecord as TechRecordType<'put'>);
 
   const flattenedNewRecord = flattenArrays(newRecord) as TechRecordType<'get'>;
 
