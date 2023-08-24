@@ -10,11 +10,10 @@ import { validateAndComputeRecordCompleteness } from '../validators/recordComple
 export const processUpdateRequest = (recordFromDB: TechRecordType<'get'>, requestBody: TechRecordType<'put'>, userDetails: UserDetails): (TechRecordType<'get'> | TechRecordType<'put'>)[] => {
   const formattedRecordFromDB = formatTechRecord<typeof recordFromDB>(recordFromDB);
 
-  const updatedRequest = processVehicleIdentifiers(recordFromDB, requestBody);
+  const newRecord = { ...formattedRecordFromDB, ...requestBody };
 
-  const newRecord = { ...formattedRecordFromDB, ...updatedRequest };
-
-  (newRecord as TechRecordType<'get'>).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechRecordType<'get'>, HttpMethod.GET);
+  (newRecord as TechRecordType<'get'>).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechRecordType<'get'>, HttpMethod.PUT);
+  addVehicleIdentifiers(recordFromDB, requestBody);
 
   const flattenedNewRecord = flattenArrays(newRecord) as TechRecordType<'get'>;
 
@@ -45,8 +44,7 @@ export const getUpdateType = (oldRecord: TechRecordType<'get'>, newRecord: TechR
   return isAdrUpdate ? UpdateType.ADR : UpdateType.TECH_RECORD_UPDATE;
 };
 
-export const processVehicleIdentifiers = (recordFromDB: TechRecordType<'get'>, requestBody: TechRecordType<'put'>) => {
-  const techRecord = { ...requestBody };
+export const addVehicleIdentifiers = (recordFromDB: TechRecordType<'get'>, techRecord: TechRecordType<'put'>): void => {
   const vehicleType = techRecord.techRecord_vehicleType ?? recordFromDB.techRecord_vehicleType;
 
   if (vehicleType && vehicleType !== 'trl') {
@@ -81,5 +79,4 @@ export const processVehicleIdentifiers = (recordFromDB: TechRecordType<'get'>, r
       (techRecord as TechRecordType<'get'>).partialVin = newVin.substring(Math.max(newVin.length - 6)).toUpperCase();
     }
   }
-  return techRecord;
 };
