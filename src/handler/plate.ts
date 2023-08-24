@@ -15,7 +15,7 @@ import { isHGV, isTRL } from '../util/vehicle-type-narrowing';
 import { validatePlateErrors, validatePlateInfo } from '../validators/plate';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.info('Plate end point called');
+  logger.debug('Plate end point called');
 
   const plateErrors = validatePlateErrors(event);
   if (plateErrors) {

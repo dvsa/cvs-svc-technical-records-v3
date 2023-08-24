@@ -15,7 +15,7 @@ import logger from '../util/logger';
 import { validateUpdateVrmRequest, validateVrm } from '../validators/update';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.info('Amend VRM Called');
+  logger.debug('Amend VRM Called');
   try {
     const isRequestInvalid: APIGatewayProxyResult | boolean = validateUpdateVrmRequest(event);
     if (isRequestInvalid) {
