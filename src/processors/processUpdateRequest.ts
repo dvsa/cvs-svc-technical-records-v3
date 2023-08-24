@@ -13,7 +13,7 @@ export const processUpdateRequest = (recordFromDB: TechRecordType<'get'>, reques
   const newRecord = { ...formattedRecordFromDB, ...requestBody };
 
   (newRecord as TechRecordType<'get'>).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechRecordType<'get'>, HttpMethod.PUT);
-  addVehicleIdentifiers(recordFromDB, newRecord as TechRecordType<'put'>);
+  addVehicleIdentifiers(formattedRecordFromDB, newRecord as TechRecordType<'put'>);
 
   const flattenedNewRecord = flattenArrays(newRecord) as TechRecordType<'get'>;
 
@@ -48,35 +48,21 @@ export const addVehicleIdentifiers = (recordFromDB: TechRecordType<'get'>, techR
   const vehicleType = techRecord.techRecord_vehicleType ?? recordFromDB.techRecord_vehicleType;
 
   if (vehicleType && vehicleType !== 'trl') {
-    const newVrm = (techRecord as TechRecordTypeByVehicle<'hgv'> | TechRecordTypeByVehicle<'psv'> | TechRecordTypeByVehicle<'motorcycle'> | TechRecordTypeByVehicle<'car'> | TechRecordTypeByVehicle<'lgv'>).primaryVrm;
     const existingVrm = !isTRL(recordFromDB) ? recordFromDB.primaryVrm : '';
-    if (newVrm !== undefined && newVrm !== null && newVrm !== existingVrm) {
-      (techRecord as TechRecordTypeByVehicle<'hgv'> | TechRecordTypeByVehicle<'psv'> | TechRecordTypeByVehicle<'motorcycle'> | TechRecordTypeByVehicle<'car'> | TechRecordTypeByVehicle<'lgv'>).primaryVrm = existingVrm;
-    }
+    (techRecord as TechRecordTypeByVehicle<'hgv'> | TechRecordTypeByVehicle<'psv'> | TechRecordTypeByVehicle<'motorcycle'> | TechRecordTypeByVehicle<'car'> | TechRecordTypeByVehicle<'lgv'>).primaryVrm = existingVrm;
   }
 
   if (vehicleType === 'trl') {
-    const newTrailerId = (techRecord as TechRecordTypeByVehicle<'trl'>).trailerId;
-    if (newTrailerId !== undefined && newTrailerId !== null && newTrailerId !== (recordFromDB as TechRecordTypeByVehicle<'trl'>).trailerId) {
-      (techRecord as TechRecordTypeByVehicle<'trl'>).trailerId = (recordFromDB as TechRecordTypeByVehicle<'trl'>).trailerId;
-    }
+    (techRecord as TechRecordTypeByVehicle<'trl'>).trailerId = (recordFromDB as TechRecordTypeByVehicle<'trl'>).trailerId;
   }
 
-  if ((techRecord as TechRecordType<'get'>).systemNumber) {
-    (techRecord as TechRecordType<'get'>).systemNumber = recordFromDB.systemNumber;
-  }
+  (techRecord as TechRecordType<'get'>).systemNumber = recordFromDB.systemNumber;
 
-  if ((techRecord as TechRecordType<'get'>).partialVin) {
-    (techRecord as TechRecordType<'get'>).partialVin = recordFromDB.partialVin;
-  }
-
-  const newVin = techRecord.vin;
-  if (newVin !== undefined && newVin !== null && newVin !== recordFromDB.vin) {
-    techRecord.vin = newVin.toUpperCase();
-    if (newVin.length < 6) {
-      (techRecord as TechRecordType<'get'>).partialVin = newVin.toUpperCase();
-    } else {
-      (techRecord as TechRecordType<'get'>).partialVin = newVin.substring(Math.max(newVin.length - 6)).toUpperCase();
-    }
+  const newVin = techRecord.vin ?? recordFromDB.vin;
+  techRecord.vin = newVin.toUpperCase();
+  if (newVin.length < 6) {
+    (techRecord as TechRecordType<'get'>).partialVin = newVin.toUpperCase();
+  } else {
+    (techRecord as TechRecordType<'get'>).partialVin = newVin.substring(Math.max(newVin.length - 6)).toUpperCase();
   }
 };
