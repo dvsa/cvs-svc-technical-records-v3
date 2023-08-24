@@ -120,7 +120,7 @@ const CriteriaIndexMap: Record<Exclude<SearchCriteria, SearchCriteria.ALL>, Tabl
 };
 
 export const postTechRecord = async (request: TechRecordType<'get'>): Promise <TechRecordType<'get'>> => {
-  logger.debug(`Posting record: ${JSON.stringify(request)}`);
+  logger.info(`Posting record: ${JSON.stringify(request)}`);
 
   try {
     const command: PutItemCommandInput = {
@@ -147,9 +147,9 @@ export const postTechRecord = async (request: TechRecordType<'get'>): Promise <T
 };
 
 export const updateVehicle = async (recordsToArchive: TechRecordType<'get'>[], newRecords: TechRecordType<'get'>[]): Promise<object> => {
-  logger.debug(`Creating new records: ${JSON.stringify(newRecords)}`);
+  logger.info(`Creating new records: ${JSON.stringify(newRecords)}`);
   const archivedRecordsInfo = recordsToArchive.map((r) => `systemNumber: ${r.systemNumber} and createdTimestamp: ${r.createdTimestamp}`).join('\n');
-  logger.debug(`Archiving records: ${archivedRecordsInfo}`);
+  logger.info(`Archiving records: ${archivedRecordsInfo}`);
 
   const transactWriteParams: TransactWriteCommandInput = { TransactItems: [] };
 
