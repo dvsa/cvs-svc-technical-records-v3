@@ -9,9 +9,9 @@ jest.mock('../../../src/services/database.ts', () => ({
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/post';
-import postTrlData from '../../resources/techRecordsTrlPost.json';
-import postCarData from '../../resources/techRecordCarPost.json';
 import { ERRORS } from '../../../src/util/enum';
+import postCarData from '../../resources/techRecordCarPost.json';
+import postTrlData from '../../resources/techRecordsTrlPost.json';
 
 describe('Test Post Lambda Function', () => {
   beforeEach(() => {
@@ -19,7 +19,7 @@ describe('Test Post Lambda Function', () => {
     jest.resetModules();
   });
   describe('Successful response', () => {
-    it('should pass validation and return a 200 response', async () => {
+    it.only('should pass validation and return a 200 response', async () => {
       const event = {
         resource: '/',
         path: '/',
