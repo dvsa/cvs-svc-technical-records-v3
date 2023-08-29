@@ -19,7 +19,7 @@ describe('Test Post Lambda Function', () => {
     jest.resetModules();
   });
   describe('Successful response', () => {
-    it.only('should pass validation and return a 200 response', async () => {
+    it('should pass validation and return a 200 response', async () => {
       const event = {
         resource: '/',
         path: '/',
