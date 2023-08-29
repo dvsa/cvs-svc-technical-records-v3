@@ -14,6 +14,9 @@ export const processPostRequest = async (input: TechRecordType<'put'>, userDetai
     throw new Error(ERRORS.MISSING_PAYLOAD);
   }
 
+  input.techRecord_createdByName = userDetails.username;
+  input.techRecord_createdById = userDetails.msOid;
+
   (input as TechRecordType<'get'>).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(input, HttpMethod.PUT);
 
   const requestAsGet: TechRecordType<'get'> = flattenArrays(input) as TechRecordType<'get'>;
@@ -28,12 +31,8 @@ export const processPostRequest = async (input: TechRecordType<'put'>, userDetai
   if (isTRL(requestAsGet) && !requestAsGet.trailerId) {
     requestAsGet.trailerId = await generateNewNumber(NumberTypes.TrailerId);
   }
-  const now = new Date().toISOString();
-  requestAsGet.techRecord_createdByName = userDetails.username;
-  requestAsGet.techRecord_createdById = userDetails.msOid;
   requestAsGet.systemNumber = systemNumber;
-  requestAsGet.createdTimestamp = now;
-  requestAsGet.techRecord_createdAt = now;
+  requestAsGet.createdTimestamp = new Date().toISOString();
   requestAsGet.partialVin = requestAsGet.vin.length < 6 ? requestAsGet.vin : requestAsGet.vin.substring(requestAsGet.vin.length - 6);
   logger.info('Successfully Processed Record');
   return requestAsGet;
