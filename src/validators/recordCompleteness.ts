@@ -57,7 +57,11 @@ const validateTestableSchema = (input: (TechRecordType<'get'> | TechRecordType<'
   || input.techRecord_vehicleType === VehicleType.HGV
   || (input.techRecord_vehicleType === VehicleType.TRL && input.techRecord_euVehicleCategory !== 'o1' && input.techRecord_euVehicleCategory !== 'o2');
 
-  const isTestableSchema = isTestableVehicleType ? identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, method) : undefined;
+  if (!isTestableVehicleType) {
+    return true;
+  }
+
+  const isTestableSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, method);
   if (!isTestableSchema) {
     return false;
   }
