@@ -19,7 +19,7 @@ export const syncTestResultInfo = async (
   euVehicleCategory: EUVehicleCategory | undefined,
 ) => {
   let updateNeeded = false;
-  let EuVehicleCategoryUpdateNeeded = false;
+  let euVehicleCategoryUpdateNeeded = false;
 
   const statusUpdateNeeded = validateUpdateStatus(
     testStatus,
@@ -47,9 +47,9 @@ export const syncTestResultInfo = async (
 
   if (euVehicleCategory) {
     if (completeProvisionalRecord && completeCurrentRecord) {
-      EuVehicleCategoryUpdateNeeded = !(completeProvisionalRecord.techRecord_euVehicleCategory && completeCurrentRecord.techRecord_euVehicleCategory);
+      euVehicleCategoryUpdateNeeded = !(completeProvisionalRecord.techRecord_euVehicleCategory && completeCurrentRecord.techRecord_euVehicleCategory);
     } else {
-      EuVehicleCategoryUpdateNeeded = !!((completeProvisionalRecord && !completeProvisionalRecord.techRecord_euVehicleCategory) || (completeCurrentRecord && !completeCurrentRecord.techRecord_euVehicleCategory));
+      euVehicleCategoryUpdateNeeded = !!((completeProvisionalRecord && !completeProvisionalRecord.techRecord_euVehicleCategory) || (completeCurrentRecord && !completeCurrentRecord.techRecord_euVehicleCategory));
     }
   }
 
@@ -64,12 +64,12 @@ export const syncTestResultInfo = async (
 
     newRecords[0].techRecord_statusCode = StatusCode.CURRENT;
     newRecords[0].techRecord_reasonForCreation = ReasonForCreation.RECORD_PROMOTED;
-    if (EuVehicleCategoryUpdateNeeded && euVehicleCategory) {
+    if (euVehicleCategoryUpdateNeeded && euVehicleCategory) {
       logger.info('EU vehicle category update');
       newRecords[0].techRecord_euVehicleCategory = euVehicleCategory;
       newRecords[0].techRecord_reasonForCreation = `${newRecords[0].techRecord_reasonForCreation} ${ReasonForCreation.EU_VEHICLE_CATEGORY_UPDATE}`;
     }
-  } else if (EuVehicleCategoryUpdateNeeded && euVehicleCategory) {
+  } else if (euVehicleCategoryUpdateNeeded && euVehicleCategory) {
     updateNeeded = true;
     logger.info('EU vehicle category update');
     if (completeCurrentRecord) {

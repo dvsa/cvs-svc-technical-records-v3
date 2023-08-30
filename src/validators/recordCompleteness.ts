@@ -53,11 +53,15 @@ const validateCompleteSchema = (input: (TechRecordType<'get'> | TechRecordType<'
 };
 
 const validateTestableSchema = (input: (TechRecordType<'get'> | TechRecordType<'put'>), method: HttpMethod): boolean => {
-  const isTestableVehicleType = input.techRecord_vehicleType === VehicleType.TRL
-   || input.techRecord_vehicleType === VehicleType.PSV
-   || input.techRecord_vehicleType === VehicleType.HGV;
+  const isTestableVehicleType = input.techRecord_vehicleType === VehicleType.PSV
+  || input.techRecord_vehicleType === VehicleType.HGV
+  || (input.techRecord_vehicleType === VehicleType.TRL && input.techRecord_euVehicleCategory !== 'o1' && input.techRecord_euVehicleCategory !== 'o2');
 
-  const isTestableSchema = isTestableVehicleType ? identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, method) : '';
+  if (!isTestableVehicleType) {
+    return true;
+  }
+
+  const isTestableSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, method);
   if (!isTestableSchema) {
     return false;
   }
