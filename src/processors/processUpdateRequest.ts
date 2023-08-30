@@ -2,6 +2,7 @@ import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-defini
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
 import { UserDetails } from '../services/user';
+import { addVehicleClassCode } from '../services/vehicleClass';
 import { HttpMethod, StatusCode, UpdateType } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
@@ -39,6 +40,7 @@ export const processUpdateRequest = (
     date,
     flattenedNewRecord.techRecord_statusCode as StatusCode,
   );
+  addVehicleClassCode(updatedNewRecord);
 
   return [updatedRecordFromDB, updatedNewRecord];
 };

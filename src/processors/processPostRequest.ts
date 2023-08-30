@@ -1,7 +1,9 @@
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
+import { setCreatedAuditDetails } from '../services/audit';
 import { NumberTypes, generateNewNumber } from '../services/testNumber';
 import { UserDetails } from '../services/user';
-import { ERRORS, HttpMethod } from '../util/enum';
+import { addVehicleClassCode } from '../services/vehicleClass';
+import { ERRORS, HttpMethod, StatusCode } from '../util/enum';
 import { flattenArrays } from '../util/formatTechRecord';
 import logger from '../util/logger';
 import { isObjectEmpty } from '../validators/emptyObject';
@@ -29,13 +31,18 @@ export const processPostRequest = async (input: TechRecordType<'put'>, userDetai
     requestAsGet.trailerId = await generateNewNumber(NumberTypes.TrailerId);
   }
   const now = new Date().toISOString();
-  requestAsGet.techRecord_createdByName = userDetails.username;
-  requestAsGet.techRecord_createdById = userDetails.msOid;
-  requestAsGet.systemNumber = systemNumber;
-  requestAsGet.createdTimestamp = now;
-  requestAsGet.techRecord_createdAt = now;
-  requestAsGet.partialVin = requestAsGet.vin.length < 6
-    ? requestAsGet.vin : requestAsGet.vin.substring(requestAsGet.vin.length - 6);
+
+  const updatedNewRecord = setCreatedAuditDetails(
+    requestAsGet,
+    userDetails.username,
+    userDetails.msOid,
+    now,
+    requestAsGet.techRecord_statusCode as StatusCode,
+  );
+  updatedNewRecord.systemNumber = systemNumber;
+  updatedNewRecord.partialVin = updatedNewRecord.vin.length < 6
+    ? updatedNewRecord.vin : updatedNewRecord.vin.substring(updatedNewRecord.vin.length - 6);
+  addVehicleClassCode(updatedNewRecord);
   logger.info('Successfully Processed Record');
-  return requestAsGet;
+  return updatedNewRecord;
 };
