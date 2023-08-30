@@ -1,6 +1,6 @@
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 
-export const addVehicleClassCode = (record: TechRecordType<'get'> | TechRecordType<'put'>): void => {
+export const addVehicleClassCode = (record: TechRecordType<'get'>): void => {
   if ('techRecord_vehicleClass_description' in record) {
     const vehicleClassCodeMap = new Map<string, string>([
       ['3 wheelers', '3'],
@@ -15,6 +15,7 @@ export const addVehicleClassCode = (record: TechRecordType<'get'> | TechRecordTy
       ['small psv (ie: less than or equal to 22 seats)', 's'],
       ['trailer', 't'],
     ]);
+
     record.techRecord_vehicleClass_code = vehicleClassCodeMap.get(record.techRecord_vehicleClass_description ?? '');
   }
 };
