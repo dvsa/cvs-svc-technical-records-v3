@@ -8,7 +8,12 @@ import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy';
 import { handler } from '../../../src/handler/letter';
 import { DocumentName } from '../../../src/models/sqsPayload';
 
-const headers = { 'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token', 'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT', 'Access-Control-Allow-Origin': '*' };
+const headers = {
+  'Access-Control-Allow-Headers':
+ 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
+  'Access-Control-Allow-Origin': '*',
+};
 const payload = {
   letterType: 'trailer accept',
   paragraphId: '2',
@@ -105,7 +110,10 @@ describe('Letter Gen Testing', () => {
         recipientEmailAddress: 'n@n.com',
       };
 
-      const res = await handler({ pathParameters: { systemNumber: '123456', createdTimestamp: '12345' }, body: JSON.stringify(payload) } as unknown as APIGatewayProxyEvent);
+      const res = await handler({
+        pathParameters: { systemNumber: '123456', createdTimestamp: '12345' },
+        body: JSON.stringify(payload),
+      } as unknown as APIGatewayProxyEvent);
       expect(mockAddToSqs).toHaveBeenCalledWith(expectedSqsPayload, expect.anything());
       expect(res).toEqual({
         statusCode: 200,

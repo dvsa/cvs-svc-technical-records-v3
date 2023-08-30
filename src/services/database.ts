@@ -29,11 +29,14 @@ export const archiveRecord = async (record: TechRecordType<'get'>) : Promise<obj
     return await ddbClient.send(new PutItemCommand(command));
   } catch (e) {
     logger.error('Error in archive record: ', e);
-    throw new Error(`database client failed in archiving the record with systemNumber ${record.systemNumber} and createdTimestamp ${record.createdTimestamp ?? ''} `);
+    throw new Error(
+      `database client failed in archiving the record with systemNumber ${record.systemNumber} and createdTimestamp ${record.createdTimestamp} `,
+    );
   }
 };
 
-export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string): Promise<SearchResult[]> => {
+export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, SearchCriteria.ALL>, searchIdentifier: string)
+: Promise<SearchResult[]> => {
   const query: QueryInput = {
     TableName: tableName,
     IndexName: CriteriaIndexMap[searchCriteria],
@@ -199,7 +202,10 @@ export const inPlaceRecordUpdate = async (updatedRecord: TechRecordType<'get'>) 
   } catch (e) {
     logger.error('Error in record in place update: ', e);
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    throw new Error(`database client failed in updating in place the record with systemNumber ${updatedRecord.systemNumber} and createdTimestamp ${updatedRecord.createdTimestamp} `);
+    throw new Error(
+      // eslint-disable-next-line max-len
+      `database client failed in updating in place the record with systemNumber ${updatedRecord.systemNumber} and createdTimestamp ${updatedRecord.createdTimestamp}`,
+    );
   }
 };
 

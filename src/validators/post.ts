@@ -1,14 +1,13 @@
 import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
-import { schemas } from '@dvsa/cvs-type-definitions/schemas';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { ErrorObject } from 'ajv';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import {
-  ERRORS, HttpMethod, RecordCompleteness, VehicleType,
+  ERRORS, HttpMethod, RecordCompleteness,
 } from '../util/enum';
-
-export const identifySchema = (vehicleType: VehicleType, recordCompleteness: RecordCompleteness, method: HttpMethod) => schemas
-  .find((x: string) => x.includes(vehicleType) && x.includes(recordCompleteness) && x.includes(method));
+import logger from '../util/logger';
+import { getVehicleTypeWithSmallTrl } from './recordCompleteness';
+import { identifySchema } from './schemaIdentifier';
 
 export const formatValidationErrors = (errors: ErrorObject[]) => {
   const errorMessage: string[] = [];
@@ -22,7 +21,15 @@ export const formatValidationErrors = (errors: ErrorObject[]) => {
 };
 
 export const validateAgainstSkeletonSchema = (body: TechRecordType<'put'>) => {
-  const schema = identifySchema(body.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
+  const vehicleTypeWithSmallTrl = getVehicleTypeWithSmallTrl(body);
+  if (!vehicleTypeWithSmallTrl) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Vehicle type is required' }),
+    };
+  }
+  const schema = identifySchema(vehicleTypeWithSmallTrl, RecordCompleteness.SKELETON, HttpMethod.PUT);
+  logger.debug(`Validating against schema: ${schema ?? 'Could not find schema'}`);
 
   if (!schema) {
     return {

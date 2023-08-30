@@ -4,7 +4,6 @@ import { UserDetails } from '../services/user';
 import { ERRORS, HttpMethod } from '../util/enum';
 import { flattenArrays } from '../util/formatTechRecord';
 import logger from '../util/logger';
-import { isTRL } from '../util/vehicle-type-narrowing';
 import { isObjectEmpty } from '../validators/emptyObject';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
@@ -19,13 +18,14 @@ export const processPostRequest = async (input: TechRecordType<'put'>, userDetai
   const requestAsGet: TechRecordType<'get'> = flattenArrays(input) as TechRecordType<'get'>;
   // helper method for handler
   const systemNumber = await generateNewNumber(NumberTypes.SystemNumber);
-  if (!isTRL(requestAsGet) && !requestAsGet.primaryVrm) {
+  if (requestAsGet.techRecord_vehicleType !== 'trl' && !requestAsGet.primaryVrm) {
     requestAsGet.primaryVrm = await generateNewNumber(NumberTypes.ZNumber);
   }
-  if (isTRL(requestAsGet) && !requestAsGet.trailerId && ((requestAsGet).techRecord_euVehicleCategory === 'o1' || (requestAsGet).techRecord_euVehicleCategory === 'o2')) {
+  if (requestAsGet.techRecord_vehicleType === 'trl' && !requestAsGet.trailerId
+  && ((requestAsGet).techRecord_euVehicleCategory === 'o1' || (requestAsGet).techRecord_euVehicleCategory === 'o2')) {
     requestAsGet.trailerId = await generateNewNumber(NumberTypes.TNumber);
   }
-  if (isTRL(requestAsGet) && !requestAsGet.trailerId) {
+  if (requestAsGet.techRecord_vehicleType === 'trl' && !requestAsGet.trailerId) {
     requestAsGet.trailerId = await generateNewNumber(NumberTypes.TrailerId);
   }
   const now = new Date().toISOString();
@@ -34,7 +34,8 @@ export const processPostRequest = async (input: TechRecordType<'put'>, userDetai
   requestAsGet.systemNumber = systemNumber;
   requestAsGet.createdTimestamp = now;
   requestAsGet.techRecord_createdAt = now;
-  requestAsGet.partialVin = requestAsGet.vin.length < 6 ? requestAsGet.vin : requestAsGet.vin.substring(requestAsGet.vin.length - 6);
+  requestAsGet.partialVin = requestAsGet.vin.length < 6
+    ? requestAsGet.vin : requestAsGet.vin.substring(requestAsGet.vin.length - 6);
   logger.info('Successfully Processed Record');
   return requestAsGet;
 };

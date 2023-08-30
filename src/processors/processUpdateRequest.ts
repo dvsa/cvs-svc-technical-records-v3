@@ -4,14 +4,18 @@ import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/
 import { UserDetails } from '../services/user';
 import { HttpMethod, StatusCode, UpdateType } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
-import { isTRL } from '../util/vehicle-type-narrowing';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
-export const processUpdateRequest = (recordFromDB: TechRecordType<'get'>, requestBody: TechRecordType<'put'>, userDetails: UserDetails): (TechRecordType<'get'> | TechRecordType<'put'>)[] => {
+export const processUpdateRequest = (
+  recordFromDB: TechRecordType<'get'>,
+  requestBody: TechRecordType<'put'>,
+  userDetails: UserDetails,
+): (TechRecordType<'get'> | TechRecordType<'put'>)[] => {
   const formattedRecordFromDB = formatTechRecord<typeof recordFromDB>(recordFromDB);
 
   const newRecord = { ...formattedRecordFromDB, ...requestBody };
 
+  // eslint-disable-next-line max-len
   (newRecord as TechRecordType<'get'>).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechRecordType<'get'>, HttpMethod.PUT);
   addVehicleIdentifiers(formattedRecordFromDB, newRecord as TechRecordType<'put'>);
 
@@ -40,16 +44,17 @@ export const processUpdateRequest = (recordFromDB: TechRecordType<'get'>, reques
 };
 
 export const getUpdateType = (oldRecord: TechRecordType<'get'>, newRecord: TechRecordType<'get'>): UpdateType => {
-  const isAdrUpdate = Object.entries(newRecord).some(([key, value]) => /techRecord_adrDetails_[a-zA-Z]+/.test(key) && oldRecord[key as keyof TechRecordType<'get'>] !== value);
+  const isAdrUpdate = Object.entries(newRecord).some(([key, value]) => /techRecord_adrDetails_[a-zA-Z]+/.test(key)
+   && oldRecord[key as keyof TechRecordType<'get'>] !== value);
   return isAdrUpdate ? UpdateType.ADR : UpdateType.TECH_RECORD_UPDATE;
 };
 
 export const addVehicleIdentifiers = (recordFromDB: TechRecordType<'get'>, techRecord: TechRecordType<'put'>): void => {
   const vehicleType = techRecord.techRecord_vehicleType ?? recordFromDB.techRecord_vehicleType;
 
-  if (vehicleType && vehicleType !== 'trl') {
-    const existingVrm = !isTRL(recordFromDB) ? recordFromDB.primaryVrm : '';
-    (techRecord as TechRecordTypeByVehicle<'hgv'> | TechRecordTypeByVehicle<'psv'> | TechRecordTypeByVehicle<'motorcycle'> | TechRecordTypeByVehicle<'car'> | TechRecordTypeByVehicle<'lgv'>).primaryVrm = existingVrm;
+  if (vehicleType && vehicleType !== 'trl' && techRecord.techRecord_vehicleType !== 'trl') {
+    const existingVrm = recordFromDB.techRecord_vehicleType !== 'trl' ? recordFromDB.primaryVrm : '';
+    techRecord.primaryVrm = existingVrm;
   }
 
   if (vehicleType === 'trl') {

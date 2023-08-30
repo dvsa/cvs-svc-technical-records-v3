@@ -29,7 +29,10 @@ describe('syncTestResultInfo', () => {
         .rejects.toThrow(ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD);
     });
     it('should throw error if more than two non-archived records', async () => {
-      mockSearchByCriteria.mockResolvedValueOnce([{ techRecord_statusCode: 'provisional' }, { techRecord_statusCode: 'provisional' }, { techRecord_statusCode: 'current' }]);
+      mockSearchByCriteria.mockResolvedValueOnce([
+        { techRecord_statusCode: 'provisional' },
+        { techRecord_statusCode: 'provisional' },
+        { techRecord_statusCode: 'current' }]);
       await expect(syncTestResultInfo('123', 'submitted', 'pass', '47', '012345', 'Test User', 'm2'))
         .rejects.toThrow(ERRORS.MORE_THAN_TWO_NON_ARCHIVED_TECH_RECORDS);
     });

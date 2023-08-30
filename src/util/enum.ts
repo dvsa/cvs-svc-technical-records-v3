@@ -1,11 +1,6 @@
-export enum VehicleType {
-  PSV = 'psv',
-  TRL = 'trl',
-  HGV = 'hgv',
-  CAR = 'car',
-  LGV = 'lgv',
-  MOTORCYCLE = 'motorcycle',
-}
+export type VehicleType = 'psv' | 'trl' | 'hgv' | 'car' | 'lgv' | 'motorcycle';
+
+export type VehicleTypeWithSmallTrl = VehicleType | 'small trl';
 
 export enum RecordCompleteness {
   COMPLETE = 'complete',

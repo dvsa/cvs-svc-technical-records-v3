@@ -46,7 +46,13 @@ describe('Test plate validator', () => {
 
     it('should pass and return undefined', () => {
       mockValidateSysNumTimestampPathParams.mockReturnValueOnce(undefined);
-      const res = validatePlateErrors({ body: JSON.stringify({ reasonForCreation: 'bar', vtmUsername: 'foo', recipientEmailAddress: 'n@n.com' }) } as unknown as APIGatewayProxyEvent);
+      const res = validatePlateErrors({
+        body: JSON.stringify({
+          reasonForCreation: 'bar',
+          vtmUsername: 'foo',
+          recipientEmailAddress: 'n@n.com',
+        }),
+      } as unknown as APIGatewayProxyEvent);
       expect(res).toBeUndefined();
     });
   });
