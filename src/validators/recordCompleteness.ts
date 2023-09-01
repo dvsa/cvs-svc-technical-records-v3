@@ -1,8 +1,11 @@
 import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
-import { HttpMethod, RecordCompleteness, VehicleType } from '../util/enum';
+import {
+  HttpMethod, RecordCompleteness,
+  VehicleTypeWithSmallTrl,
+} from '../util/enum';
 import logger from '../util/logger';
-import { identifySchema } from './post';
+import { identifySchema } from './schemaIdentifier';
 
 /**
  * This function validates and changes the input in place and returns the RecordCompleteness.
@@ -27,7 +30,12 @@ export function validateAndComputeRecordCompleteness(input: (TechRecordType<'put
 }
 
 const validateSkeletonSchema = (input: (TechRecordType<'put'> | TechRecordType<'get'>), method: HttpMethod): boolean => {
-  const isSkeletonSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, method);
+  const vehicleTypeWithSmallTrl = getVehicleTypeWithSmallTrl(input);
+
+  if (!vehicleTypeWithSmallTrl) {
+    return false;
+  }
+  const isSkeletonSchema = identifySchema(vehicleTypeWithSmallTrl, RecordCompleteness.SKELETON, method);
   if (!isSkeletonSchema) {
     return false;
   }
@@ -40,7 +48,12 @@ const validateSkeletonSchema = (input: (TechRecordType<'put'> | TechRecordType<'
 };
 
 const validateCompleteSchema = (input: (TechRecordType<'get'> | TechRecordType<'put'>), method: HttpMethod): boolean => {
-  const isCompleteSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.COMPLETE, method);
+  const vehicleTypeWithSmallTrl = getVehicleTypeWithSmallTrl(input);
+
+  if (!vehicleTypeWithSmallTrl) {
+    return false;
+  }
+  const isCompleteSchema = identifySchema(vehicleTypeWithSmallTrl, RecordCompleteness.COMPLETE, method);
   if (!isCompleteSchema) {
     return false;
   }
@@ -53,11 +66,13 @@ const validateCompleteSchema = (input: (TechRecordType<'get'> | TechRecordType<'
 };
 
 const validateTestableSchema = (input: (TechRecordType<'get'> | TechRecordType<'put'>), method: HttpMethod): boolean => {
-  const isTestableVehicleType = input.techRecord_vehicleType === VehicleType.TRL
-   || input.techRecord_vehicleType === VehicleType.PSV
-   || input.techRecord_vehicleType === VehicleType.HGV;
+  const vehicleTypeWithSmallTrl = getVehicleTypeWithSmallTrl(input);
 
-  const isTestableSchema = isTestableVehicleType ? identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, method) : '';
+  if (!vehicleTypeWithSmallTrl) {
+    return false;
+  }
+
+  const isTestableSchema = identifySchema(vehicleTypeWithSmallTrl, RecordCompleteness.TESTABLE, method);
   if (!isTestableSchema) {
     return false;
   }
@@ -68,3 +83,11 @@ const validateTestableSchema = (input: (TechRecordType<'get'> | TechRecordType<'
   }
   return !errors.length;
 };
+
+export const getVehicleTypeWithSmallTrl = (record: TechRecordType<'get'> | TechRecordType<'put'>): VehicleTypeWithSmallTrl | undefined => (
+  record.techRecord_vehicleType === 'trl'
+  && (record.techRecord_euVehicleCategory === 'o1' || record.techRecord_euVehicleCategory === 'o2')
+    ? 'small trl'
+    : record.techRecord_vehicleType
+
+);

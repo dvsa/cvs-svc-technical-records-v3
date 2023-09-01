@@ -1,4 +1,3 @@
-import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
 import { LetterRequestBody, LetterType, ParagraphId } from '../models/letter';
@@ -9,7 +8,6 @@ import { StatusCode } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
-import { isTRL } from '../util/vehicle-type-narrowing';
 import { validateLetterErrors } from '../validators/letter';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -42,7 +40,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     });
   }
 
-  if (!isTRL(record)) {
+  if (record.techRecord_vehicleType !== 'trl') {
     return addHttpHeaders({
       statusCode: 400,
       body: 'Tech record is not a TRL',
@@ -56,7 +54,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   record.techRecord_letterOfAuth_letterIssuer = body.vtmUsername;
   record.techRecord_letterOfAuth_letterDateRequested = new Date().toISOString();
 
-  await inPlaceRecordUpdate(record as TechRecordType<'get'>);
+  await inPlaceRecordUpdate(record);
 
   const letterSqsPayload: SQSRequestBody = {
     techRecord: formatTechRecord(record),

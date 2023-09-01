@@ -109,6 +109,6 @@ dist
 
 # Output files
 .aws-sam/**
-*LambdaFunction.zip
+*Function.zip
 
 .idea/

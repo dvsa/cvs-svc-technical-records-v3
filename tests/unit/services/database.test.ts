@@ -46,6 +46,7 @@ import {
 import * as UserDetails from '../../../src/services/user';
 import { StatusCode } from '../../../src/util/enum';
 import postCarData from '../../resources/techRecordCarPost.json';
+import { mockToken } from '../util/mockToken';
 
 const mockUserDetails = {
   username: 'Test User', msOid: 'QWERTY', email: 'testUser@test.com',
@@ -146,8 +147,7 @@ describe('updateVehicle', () => {
   it('should return a success message if the transaction is successful', async () => {
     const event = {
       headers: {
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+        Authorization: mockToken,
       },
       body: JSON.stringify({
         techRecord_reasonForCreation: 'TEST update',
@@ -158,7 +158,13 @@ describe('updateVehicle', () => {
     const newRecord = { ...(postCarData as TechRecordType<'get'>), ...JSON.parse(event.body) } as TechRecordType<'get'>;
     const date = new Date().toISOString();
     const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date, StatusCode.ARCHIVED);
-    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
+    const updatedNewRecord = setCreatedAuditDetails(
+      newRecord,
+      mockUserDetails.username,
+      mockUserDetails.msOid,
+      date,
+      newRecord.techRecord_statusCode as StatusCode,
+    );
     mockSend.mockImplementation(() => Promise.resolve({}));
 
     const res = await updateVehicle([updatedRecordFromDB], [updatedNewRecord]);
@@ -168,8 +174,7 @@ describe('updateVehicle', () => {
   it('should return a success message if the transaction only has a new record given', async () => {
     const event = {
       headers: {
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+        Authorization: mockToken,
       },
       body: JSON.stringify({
         techRecord_reasonForCreation: 'TEST update',
@@ -178,7 +183,13 @@ describe('updateVehicle', () => {
     jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
     const newRecord = { ...(postCarData as TechRecordType<'get'>), ...JSON.parse(event.body) } as TechRecordType<'get'>;
     const date = new Date().toISOString();
-    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
+    const updatedNewRecord = setCreatedAuditDetails(
+      newRecord,
+      mockUserDetails.username,
+      mockUserDetails.msOid,
+      date,
+      newRecord.techRecord_statusCode as StatusCode,
+    );
     mockSend.mockImplementation(() => Promise.resolve({}));
 
     const res = await updateVehicle([], [updatedNewRecord]);
@@ -200,8 +211,7 @@ describe('updateVehicle', () => {
   it('should return an error message if the transaction fails', async () => {
     const event = {
       headers: {
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+        Authorization: mockToken,
       },
       body: JSON.stringify({
         techRecord_reasonForCreation: 'TEST update',
@@ -212,7 +222,13 @@ describe('updateVehicle', () => {
     const newRecord = { ...(postCarData as TechRecordType<'get'>), ...JSON.parse(event.body) } as TechRecordType<'get'>;
     const date = new Date().toISOString();
     const updatedRecordFromDB = setLastUpdatedAuditDetails(recordFromDB, mockUserDetails.username, mockUserDetails.msOid, date, StatusCode.ARCHIVED);
-    const updatedNewRecord = setCreatedAuditDetails(newRecord, mockUserDetails.username, mockUserDetails.msOid, date, newRecord.techRecord_statusCode as StatusCode);
+    const updatedNewRecord = setCreatedAuditDetails(
+      newRecord,
+      mockUserDetails.username,
+      mockUserDetails.msOid,
+      date,
+      newRecord.techRecord_statusCode as StatusCode,
+    );
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 
     await expect(updateVehicle([updatedRecordFromDB], [updatedNewRecord])).rejects.toBe('error');

@@ -60,7 +60,7 @@ describe('processVehicleIdentifiers', () => {
   it('should replace the trailer id if present in request', () => {
     const mockRecordFromDb = trailerData;
     const mockRequest = { techRecord_reasonForCreation: 'Test Update', trailerId: 1234 };
-    addVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
+    addVehicleIdentifiers(mockRecordFromDb as unknown as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
     expect(mockRequest.trailerId).toBe('C000001');
   });
   it('should calculate partialVin if a new VIN is in the request', () => {

@@ -23,7 +23,12 @@ jest.mock('../../../src/services/sqs', () => ({
   addToSqs: mockAddToSqs,
 }));
 
-const headers = { 'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token', 'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT', 'Access-Control-Allow-Origin': '*' };
+const headers = {
+  'Access-Control-Allow-Headers':
+  'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
+  'Access-Control-Allow-Origin': '*',
+};
 const payload = {
   reasonForCreation: 'plate',
   vtmUsername: 'test',
@@ -84,7 +89,10 @@ describe('Test plate gen lambda', () => {
     mockValidatePlateErrors.mockReturnValueOnce(undefined);
     mockValidatePlateInfo.mockReturnValueOnce({ statusCode: 500, body: 'Missing plate information' });
     process.env.AWS_SAM_LOCAL = 'true';
-    const res = await handler({ pathParameters: { systemNumber: '123456', createdTimestamp: '12345' }, body: JSON.stringify(payload) } as unknown as APIGatewayProxyEvent);
+    const res = await handler({
+      pathParameters: { systemNumber: '123456', createdTimestamp: '12345' },
+      body: JSON.stringify(payload),
+    } as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 500,
       body: 'Missing plate information',
@@ -112,7 +120,10 @@ describe('Test plate gen lambda', () => {
         recipientEmailAddress: payload.recipientEmailAddress,
       };
 
-      const res = await handler({ pathParameters: { systemNumber: '123456', createdTimestamp: '12345' }, body: JSON.stringify(payload) } as unknown as APIGatewayProxyEvent);
+      const res = await handler({
+        pathParameters: { systemNumber: '123456', createdTimestamp: '12345' },
+        body: JSON.stringify(payload),
+      } as unknown as APIGatewayProxyEvent);
       expect(mockAddToSqs).toHaveBeenCalledWith(expectedSqsPayload, expect.anything());
       expect(res).toEqual({
         statusCode: 200,

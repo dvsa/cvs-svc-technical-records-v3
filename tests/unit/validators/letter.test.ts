@@ -45,7 +45,13 @@ describe('Test letter validator', () => {
 
     it('should error if there is no recipientEmailAddress', () => {
       mockValidateSysNumTimestampPathParams.mockReturnValueOnce(undefined);
-      const res = validateLetterErrors({ body: JSON.stringify({ letterType: 'bar', paragraphId: '123', vtmUsername: 'foo' }) } as unknown as APIGatewayProxyEvent);
+      const res = validateLetterErrors({
+        body: JSON.stringify({
+          letterType: 'bar',
+          paragraphId: '123',
+          vtmUsername: 'foo',
+        }),
+      } as unknown as APIGatewayProxyEvent);
       expect(res).toEqual({ statusCode: 400, body: 'No recipient email provided' });
     });
 

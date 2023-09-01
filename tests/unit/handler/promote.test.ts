@@ -20,7 +20,12 @@ jest.mock('../../../src/services/database.ts', () => ({
 jest.mock('../../../src/services/user', () => ({
   getUserDetails: mockGetUserDetails,
 }));
-const headers = { 'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token', 'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT', 'Access-Control-Allow-Origin': '*' };
+const headers = {
+  'Access-Control-Allow-Headers':
+'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
+  'Access-Control-Allow-Origin': '*',
+};
 const mockEvent = {
   pathParameters: { systemNumber: '123', createdTimestamp: '123' },
   body: '{"reasonForPromoting":"Just a test for promoting"}',
@@ -61,7 +66,8 @@ describe('Promote endpoint', () => {
 
   it('should return 200 when given a provisional and there is a current', async () => {
     mockValidatePromoteErrors.mockReturnValueOnce(undefined);
-    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: StatusCode.PROVISIONAL }).mockResolvedValueOnce({ techRecord_statusCode: StatusCode.CURRENT });
+    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: StatusCode.PROVISIONAL })
+      .mockResolvedValueOnce({ techRecord_statusCode: StatusCode.CURRENT });
     mockSearchByCriteria.mockResolvedValueOnce([{ techRecord_statusCode: StatusCode.CURRENT }]);
     mockUpdateVehicle.mockResolvedValueOnce(undefined);
     mockGetUserDetails.mockReturnValueOnce({ username: 'user', msOid: '123' });
@@ -85,7 +91,12 @@ describe('Promote endpoint', () => {
 
     const result = await handler(mockEvent as unknown as APIGatewayProxyEvent);
 
-    expect(result).toEqual({ statusCode: 404, body: `No record found matching systemNumber ${mockEvent.pathParameters.systemNumber} and timestamp ${mockEvent.pathParameters.createdTimestamp}`, headers });
+    expect(result).toEqual({
+      statusCode: 404,
+      body:
+      `No record found matching systemNumber ${mockEvent.pathParameters.systemNumber} and timestamp ${mockEvent.pathParameters.createdTimestamp}`,
+      headers,
+    });
   });
 
   it('should return 400 if record is not a provisional', async () => {

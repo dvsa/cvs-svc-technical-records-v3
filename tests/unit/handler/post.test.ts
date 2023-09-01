@@ -9,9 +9,10 @@ jest.mock('../../../src/services/database.ts', () => ({
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/post';
-import postTrlData from '../../resources/techRecordsTrlPost.json';
-import postCarData from '../../resources/techRecordCarPost.json';
 import { ERRORS } from '../../../src/util/enum';
+import postCarData from '../../resources/techRecordCarPost.json';
+import postTrlData from '../../resources/techRecordsTrlPost.json';
+import { mockToken } from '../util/mockToken';
 
 describe('Test Post Lambda Function', () => {
   beforeEach(() => {
@@ -35,7 +36,7 @@ describe('Test Post Lambda Function', () => {
           Host: '70ixmpl4fl.execute-api.us-east-2.amazonaws.com',
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
           'X-Amzn-Trace-Id': 'Root=1-5e66d96f-7491f09xmpl79d18acf3d050',
-          Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+          Authorization: mockToken,
         },
         multiValueHeaders: {
           accept: [

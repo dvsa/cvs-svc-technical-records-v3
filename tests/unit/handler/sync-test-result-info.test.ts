@@ -2,7 +2,6 @@
 const mockProcessRecord = jest.fn();
 const mockSyncTestResultInfo = jest.fn();
 import { handler } from '../../../src/handler/sync-test-result-info';
-import { ERRORS } from '../../../src/util/enum';
 import parsedRecord from '../../resources/queue-event-parsed-body.json';
 import queueEvent from '../../resources/queue-event.json';
 
@@ -19,25 +18,20 @@ describe('syncTestResultInfo handler', () => {
     jest.resetModules();
   });
   describe('Error handling', () => {
-    it('should throw error if event is empty', async () => {
-      await expect(handler({
-        Records: [],
-      }))
-        .rejects.toThrow(ERRORS.EVENT_IS_EMPTY);
-    });
-    it('should throw error if promise is rejected', async () => {
+    it('should now throw error if promise is rejected, but report on that failure', async () => {
       mockProcessRecord.mockReturnValue(parsedRecord);
       mockSyncTestResultInfo.mockImplementation(() => Promise.reject(new Error('test error')));
-      await expect(handler(queueEvent))
-        .rejects.toThrow('test error');
+      const failures = (await handler(queueEvent)).batchItemFailures;
+      expect(failures).toHaveLength(1);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      expect(failures[0]).toEqual({ itemIdentifier: queueEvent.Records[0].messageId });
     });
   });
   describe('Success response', () => {
     it('should resolve successfully', async () => {
       mockProcessRecord.mockReturnValue(parsedRecord);
       mockSyncTestResultInfo.mockImplementation(() => Promise.resolve({ passed: '123' }));
-      await expect(handler(queueEvent))
-        .resolves.toStrictEqual([{ passed: '123' }]);
+      expect((await handler(queueEvent)).batchItemFailures).toHaveLength(0);
       expect(mockProcessRecord).toHaveBeenCalledTimes(1);
       expect(mockSyncTestResultInfo).toHaveBeenCalledTimes(1);
     });

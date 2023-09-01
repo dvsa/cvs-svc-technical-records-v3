@@ -56,16 +56,34 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     if (currentResult) {
       const currentRecord = await getBySystemNumberAndCreatedTimestamp(currentResult.systemNumber, currentResult.createdTimestamp);
-      const currentNowArchived = setLastUpdatedAuditDetails(currentRecord, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED);
+      const currentNowArchived = setLastUpdatedAuditDetails(
+        currentRecord,
+        userDetails.username,
+        userDetails.msOid,
+        new Date().toISOString(),
+        StatusCode.ARCHIVED,
+      );
       recordsToArchive.push(currentNowArchived);
       logger.debug(`Old current record after update ${JSON.stringify(currentNowArchived)}`);
     }
 
-    const provisionalNowArchived = setLastUpdatedAuditDetails(cloneDeep(provisionalRecord), userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED);
+    const provisionalNowArchived = setLastUpdatedAuditDetails(
+      cloneDeep(provisionalRecord),
+      userDetails.username,
+      userDetails.msOid,
+      new Date().toISOString(),
+      StatusCode.ARCHIVED,
+    );
     recordsToArchive.push(provisionalNowArchived);
     logger.debug(`Old provisional record after update ${JSON.stringify(provisionalNowArchived)}`);
 
-    const newCurrent = setCreatedAuditDetails(provisionalRecord, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.CURRENT);
+    const newCurrent = setCreatedAuditDetails(
+      provisionalRecord,
+      userDetails.username,
+      userDetails.msOid,
+      new Date().toISOString(),
+      StatusCode.CURRENT,
+    );
     newCurrent.techRecord_reasonForCreation = reasonForPromoting;
     logger.debug(`New current record after update ${JSON.stringify(newCurrent)}`);
 

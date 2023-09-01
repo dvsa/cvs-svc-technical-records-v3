@@ -19,7 +19,7 @@ export const syncTestResultInfo = async (
   euVehicleCategory: EUVehicleCategory | undefined,
 ) => {
   let updateNeeded = false;
-  let EuVehicleCategoryUpdateNeeded = false;
+  let euVehicleCategoryUpdateNeeded = false;
 
   const statusUpdateNeeded = validateUpdateStatus(
     testStatus,
@@ -42,14 +42,21 @@ export const syncTestResultInfo = async (
   const provisionalRecord = nonArchivedRecords.find((record) => record.techRecord_statusCode === StatusCode.PROVISIONAL);
   const currentRecord = nonArchivedRecords.find((record) => record.techRecord_statusCode === StatusCode.CURRENT);
 
-  const completeProvisionalRecord = provisionalRecord ? await getBySystemNumberAndCreatedTimestamp(provisionalRecord.systemNumber, provisionalRecord.createdTimestamp) : undefined;
-  const completeCurrentRecord = currentRecord ? await getBySystemNumberAndCreatedTimestamp(currentRecord.systemNumber, currentRecord.createdTimestamp) : undefined;
+  const completeProvisionalRecord = provisionalRecord
+    ? await getBySystemNumberAndCreatedTimestamp(provisionalRecord.systemNumber, provisionalRecord.createdTimestamp)
+    : undefined;
+  const completeCurrentRecord = currentRecord
+    ? await getBySystemNumberAndCreatedTimestamp(currentRecord.systemNumber, currentRecord.createdTimestamp)
+    : undefined;
 
   if (euVehicleCategory) {
     if (completeProvisionalRecord && completeCurrentRecord) {
-      EuVehicleCategoryUpdateNeeded = !(completeProvisionalRecord.techRecord_euVehicleCategory && completeCurrentRecord.techRecord_euVehicleCategory);
+      euVehicleCategoryUpdateNeeded = !(completeProvisionalRecord.techRecord_euVehicleCategory && completeCurrentRecord.techRecord_euVehicleCategory);
     } else {
-      EuVehicleCategoryUpdateNeeded = !!((completeProvisionalRecord && !completeProvisionalRecord.techRecord_euVehicleCategory) || (completeCurrentRecord && !completeCurrentRecord.techRecord_euVehicleCategory));
+      euVehicleCategoryUpdateNeeded = !!(
+        (completeProvisionalRecord && !completeProvisionalRecord.techRecord_euVehicleCategory)
+        || (completeCurrentRecord && !completeCurrentRecord.techRecord_euVehicleCategory)
+      );
     }
   }
 
@@ -64,21 +71,29 @@ export const syncTestResultInfo = async (
 
     newRecords[0].techRecord_statusCode = StatusCode.CURRENT;
     newRecords[0].techRecord_reasonForCreation = ReasonForCreation.RECORD_PROMOTED;
-    if (EuVehicleCategoryUpdateNeeded && euVehicleCategory) {
+    if (euVehicleCategoryUpdateNeeded && euVehicleCategory) {
       logger.info('EU vehicle category update');
       newRecords[0].techRecord_euVehicleCategory = euVehicleCategory;
       newRecords[0].techRecord_reasonForCreation = `${newRecords[0].techRecord_reasonForCreation} ${ReasonForCreation.EU_VEHICLE_CATEGORY_UPDATE}`;
     }
-  } else if (EuVehicleCategoryUpdateNeeded && euVehicleCategory) {
+  } else if (euVehicleCategoryUpdateNeeded && euVehicleCategory) {
     updateNeeded = true;
     logger.info('EU vehicle category update');
     if (completeCurrentRecord) {
       recordsToArchive.push({ ...completeCurrentRecord });
-      newRecords.push({ ...completeCurrentRecord, techRecord_euVehicleCategory: euVehicleCategory, techRecord_reasonForCreation: ReasonForCreation.EU_VEHICLE_CATEGORY_UPDATE });
+      newRecords.push({
+        ...completeCurrentRecord,
+        techRecord_euVehicleCategory: euVehicleCategory,
+        techRecord_reasonForCreation: ReasonForCreation.EU_VEHICLE_CATEGORY_UPDATE,
+      });
     }
     if (completeProvisionalRecord) {
       recordsToArchive.push({ ...completeProvisionalRecord });
-      newRecords.push({ ...completeProvisionalRecord, techRecord_euVehicleCategory: euVehicleCategory, techRecord_reasonForCreation: ReasonForCreation.EU_VEHICLE_CATEGORY_UPDATE });
+      newRecords.push({
+        ...completeProvisionalRecord,
+        techRecord_euVehicleCategory: euVehicleCategory,
+        techRecord_reasonForCreation: ReasonForCreation.EU_VEHICLE_CATEGORY_UPDATE,
+      });
     }
   }
 
@@ -86,7 +101,13 @@ export const syncTestResultInfo = async (
     const updatedNewRecords: TechRecordType<'get'>[] = [];
     const updatedRecordsToArchive: TechRecordType<'get'>[] = [];
     newRecords.forEach((record) => {
-      updatedNewRecords.push(setCreatedAuditDetails(record, createdByName, createdById, new Date().toISOString(), record.techRecord_statusCode as StatusCode));
+      updatedNewRecords.push(setCreatedAuditDetails(
+        record,
+        createdByName,
+        createdById,
+        new Date().toISOString(),
+        record.techRecord_statusCode as StatusCode,
+      ));
     });
     recordsToArchive.forEach((record) => {
       record.techRecord_updateType = UpdateType.TECH_RECORD_UPDATE;

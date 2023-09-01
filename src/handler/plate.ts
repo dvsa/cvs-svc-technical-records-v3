@@ -11,7 +11,6 @@ import { StatusCode } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
-import { isHGV, isTRL } from '../util/vehicle-type-narrowing';
 import { validatePlateErrors, validatePlateInfo } from '../validators/plate';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -44,7 +43,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     });
   }
 
-  if (!(isHGV(record) || isTRL(record))) {
+  if (record.techRecord_vehicleType !== 'trl' && record.techRecord_vehicleType !== 'hgv') {
     return addHttpHeaders({
       statusCode: 400,
       body: 'Tech record is not a HGV or TRL',

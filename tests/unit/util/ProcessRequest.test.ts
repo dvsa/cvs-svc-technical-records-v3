@@ -13,7 +13,7 @@ const mockUser = { username: 'foo', email: 'foo', msOid: 'foo' };
 describe('testing helper method processPostRequest', () => {
   it('should return a request body and have changed the systemNumber for a car', async () => {
     process.env.AWS_SAM_LOCAL = 'true';
-    const request = postCarData as TechRecordPUTCarComplete;
+    const request = postCarData as unknown as TechRecordPUTCarComplete;
     request.primaryVrm = '';
     const res = await processPostRequest(request, mockUser);
     expect(res.systemNumber).toBe('123');
