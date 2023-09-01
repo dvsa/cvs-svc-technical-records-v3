@@ -11,8 +11,7 @@ import techRecordData from '../tests/resources/technical-records-v3.json';
 import { TableSeedRequest } from './setup-local-tables.model';
 
 type SearchResultKeys = keyof SearchResult;
-// TODO: Update type definitions to that we can use an array of SearchResultKeys for the below
-const flatTechRecordNonKeyAttributes: any[] = [
+const flatTechRecordNonKeyAttributes: SearchResultKeys[] = [
   'systemNumber',
   'createdTimestamp',
   'vin',
