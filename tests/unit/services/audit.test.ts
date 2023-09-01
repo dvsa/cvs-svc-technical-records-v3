@@ -22,7 +22,11 @@ describe('Audit details tests', () => {
     it('should set and remove correctly', () => {
       const date = new Date().toISOString();
 
-      const res = setCreatedAuditDetails({ techRecord_lastUpdatedAt: '123', techRecord_lastUpdatedById: '123', techRecord_lastUpdatedByName: '123' } as TechRecordType<'get'>, 'user', '123', date, StatusCode.CURRENT);
+      const res = setCreatedAuditDetails({
+        techRecord_lastUpdatedAt: '123',
+        techRecord_lastUpdatedById: '123',
+        techRecord_lastUpdatedByName: '123',
+      } as TechRecordType<'get'>, 'user', '123', date, StatusCode.CURRENT);
 
       expect(res).toEqual({
         techRecord_createdAt: date,

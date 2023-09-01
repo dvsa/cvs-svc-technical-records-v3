@@ -1,6 +1,5 @@
-import { TechRecordType as TechRecordTypeVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
-import { getUpdateType, processUpdateRequest, processVehicleIdentifiers } from '../../../src/processors/processUpdateRequest';
+import { addVehicleIdentifiers, getUpdateType, processUpdateRequest } from '../../../src/processors/processUpdateRequest';
 import { UserDetails } from '../../../src/services/user';
 import { StatusCode, UpdateType } from '../../../src/util/enum';
 import hgvData from '../../resources/techRecordHGVPost.json';
@@ -55,33 +54,33 @@ describe('processVehicleIdentifiers', () => {
   it('should replace the vrm if present in request', () => {
     const mockRecordFromDb = hgvData;
     const mockRequest = { techRecord_reasonForCreation: 'Test Update', primaryVrm: 1234 };
-    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
-    expect((updatedRequest as TechRecordTypeVehicle<'hgv'>).primaryVrm).toBe('GB02DAN');
+    addVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
+    expect(mockRequest.primaryVrm).toBe('GB02DAN');
   });
   it('should replace the trailer id if present in request', () => {
     const mockRecordFromDb = trailerData;
     const mockRequest = { techRecord_reasonForCreation: 'Test Update', trailerId: 1234 };
-    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
-    expect((updatedRequest as TechRecordTypeVehicle<'trl'>).trailerId).toBe('C000001');
+    addVehicleIdentifiers(mockRecordFromDb as unknown as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
+    expect(mockRequest.trailerId).toBe('C000001');
   });
   it('should calculate partialVin if a new VIN is in the request', () => {
     const mockRecordFromDb = hgvData;
-    const mockRequest = { techRecord_reasonForCreation: 'Test Update', vin: 'Abc123456' };
-    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
-    expect((updatedRequest as TechRecordTypeVehicle<'hgv'>).vin).toBe('ABC123456');
-    expect((updatedRequest as TechRecordTypeVehicle<'hgv'>).partialVin).toBe('123456');
+    const mockRequest = { techRecord_reasonForCreation: 'Test Update', vin: 'Abc123456' } as TechRecordType<'get'>;
+    addVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
+    expect(mockRequest.vin).toBe('ABC123456');
+    expect(mockRequest.partialVin).toBe('123456');
   });
   it('should use same partialVin as new VIN if VIN is less than 6 characters', () => {
     const mockRecordFromDb = hgvData;
-    const mockRequest = { techRecord_reasonForCreation: 'Test Update', vin: 'abc123' };
-    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
-    expect((updatedRequest as TechRecordTypeVehicle<'hgv'>).vin).toBe('ABC123');
-    expect((updatedRequest as TechRecordTypeVehicle<'hgv'>).partialVin).toBe('ABC123');
+    const mockRequest = { techRecord_reasonForCreation: 'Test Update', vin: 'abc123' } as TechRecordType<'get'>;
+    addVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
+    expect(mockRequest.vin).toBe('ABC123');
+    expect(mockRequest.partialVin).toBe('ABC123');
   });
   it('should make no changes if vehicle identifiers do not change', () => {
     const mockRecordFromDb = hgvData;
     const mockRequest = { techRecord_reasonForCreation: 'Test Update' };
-    const updatedRequest = processVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
-    expect(updatedRequest).toEqual(mockRequest);
+    addVehicleIdentifiers(mockRecordFromDb as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
+    expect(mockRequest).toEqual(mockRequest);
   });
 });

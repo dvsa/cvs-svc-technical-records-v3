@@ -13,7 +13,12 @@ jest.mock('../../../src/services/database.ts', () => ({
   searchByCriteria: mockSearchByCriteria,
   searchByAll: mockSearchByAll,
 }));
-const headers = { 'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token', 'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT', 'Access-Control-Allow-Origin': '*' };
+const headers = {
+  'Access-Control-Allow-Headers':
+'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
+  'Access-Control-Allow-Origin': '*',
+};
 
 describe('Test Search Lambda Function', () => {
   beforeEach(() => {
@@ -38,7 +43,10 @@ describe('Test Search Lambda Function', () => {
     it('should return results when given a search criteria', async () => {
       mockValidateSearchErrors.mockReturnValueOnce(null);
       mockSearchByCriteria.mockResolvedValueOnce(['record 1', 'record 2']);
-      const result = await handler({ pathParameters: { searchIdentifier: '123456' }, queryStringParameters: { searchCriteria: 'systemNumber' } } as unknown as APIGatewayProxyEvent);
+      const result = await handler({
+        pathParameters: { searchIdentifier: '123456' },
+        queryStringParameters: { searchCriteria: 'systemNumber' },
+      } as unknown as APIGatewayProxyEvent);
       expect(mockSearchByCriteria).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]', headers });
     });

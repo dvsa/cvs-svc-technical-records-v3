@@ -43,7 +43,7 @@ const buildArray = (techRecordWithoutArrays: object, arrayName: string, formatte
   return formattedTechRecord as object;
 };
 
-export const formatTechRecord = (techRecordWithoutArrays: object) => {
+export const formatTechRecord = <T>(techRecordWithoutArrays: object): T => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formattedTechRecord: any = {};
   const arrayNames: string[] = [];
@@ -51,17 +51,17 @@ export const formatTechRecord = (techRecordWithoutArrays: object) => {
     if (!/_\d+/.test(key)) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, security/detect-object-injection, @typescript-eslint/no-unsafe-member-access
       formattedTechRecord[key] = value;
-    } else if (/techRecord_\w+_\w+_\d+/.test(key)) {
-      arrayNames.push(`${key.split('_')[0]}_${key.split('_')[1]}_${key.split('_')[2]}`);
     } else {
-      arrayNames.push(`${key.split('_')[0]}_${key.split('_')[1]}`);
+      const splitKey = key.split('_');
+      const idx = splitKey.findIndex((k) => !Number.isNaN(+k));
+      const keyName = splitKey.slice(0, idx).join('_');
+      arrayNames.push(keyName);
     }
   });
   const valuesToArrayify = [...new Set(arrayNames)];
-  console.log(valuesToArrayify);
   valuesToArrayify.forEach((value) => buildArray(techRecordWithoutArrays, value, formattedTechRecord as object));
 
-  return formattedTechRecord as object;
+  return formattedTechRecord as T;
 };
 
 /**

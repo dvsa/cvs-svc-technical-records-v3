@@ -1,8 +1,11 @@
 import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
-import { HttpMethod, RecordCompleteness, VehicleType } from '../util/enum';
+import {
+  HttpMethod, RecordCompleteness,
+  VehicleTypeWithSmallTrl,
+} from '../util/enum';
 import logger from '../util/logger';
-import { identifySchema } from './post';
+import { identifySchema } from './schemaIdentifier';
 
 /**
  * This function validates and changes the input in place and returns the RecordCompleteness.
@@ -27,17 +30,64 @@ export function validateAndComputeRecordCompleteness(input: (TechRecordType<'put
 }
 
 const validateSkeletonSchema = (input: (TechRecordType<'put'> | TechRecordType<'get'>), method: HttpMethod): boolean => {
-  const isSkeletonSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, method);
-  return isSkeletonSchema ? isValidObject(isSkeletonSchema, input) : false;
+  const vehicleTypeWithSmallTrl = getVehicleTypeWithSmallTrl(input);
+
+  if (!vehicleTypeWithSmallTrl) {
+    return false;
+  }
+  const isSkeletonSchema = identifySchema(vehicleTypeWithSmallTrl, RecordCompleteness.SKELETON, method);
+  if (!isSkeletonSchema) {
+    return false;
+  }
+
+  const errors = isValidObject(isSkeletonSchema, input, true);
+  if (errors.length) {
+    logger.info(`Is not a valid skeleton schema, errors: ${JSON.stringify(errors)}`);
+  }
+  return !errors.length;
 };
 
 const validateCompleteSchema = (input: (TechRecordType<'get'> | TechRecordType<'put'>), method: HttpMethod): boolean => {
-  const isCompleteSchema = identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.COMPLETE, method);
-  return isCompleteSchema ? isValidObject(isCompleteSchema, input) : false;
+  const vehicleTypeWithSmallTrl = getVehicleTypeWithSmallTrl(input);
+
+  if (!vehicleTypeWithSmallTrl) {
+    return false;
+  }
+  const isCompleteSchema = identifySchema(vehicleTypeWithSmallTrl, RecordCompleteness.COMPLETE, method);
+  if (!isCompleteSchema) {
+    return false;
+  }
+
+  const errors = isValidObject(isCompleteSchema, input, true);
+  if (errors.length) {
+    logger.info(`Is not a valid complete schema, errors: ${JSON.stringify(errors)}`);
+  }
+  return !errors.length;
 };
 
 const validateTestableSchema = (input: (TechRecordType<'get'> | TechRecordType<'put'>), method: HttpMethod): boolean => {
-  const isTestableSchema = input.techRecord_vehicleType === (VehicleType.TRL || VehicleType.PSV || VehicleType.HGV)
-    ? identifySchema(input.techRecord_vehicleType as VehicleType, RecordCompleteness.TESTABLE, method) : '';
-  return isTestableSchema ? isValidObject(isTestableSchema, input) : false;
+  const vehicleTypeWithSmallTrl = getVehicleTypeWithSmallTrl(input);
+
+  if (!vehicleTypeWithSmallTrl) {
+    return false;
+  }
+
+  const isTestableSchema = identifySchema(vehicleTypeWithSmallTrl, RecordCompleteness.TESTABLE, method);
+  if (!isTestableSchema) {
+    return false;
+  }
+
+  const errors = isValidObject(isTestableSchema, input, true, true);
+  if (errors.length) {
+    logger.info(`Is not a valid testable schema, errors: ${JSON.stringify(errors)}`);
+  }
+  return !errors.length;
 };
+
+export const getVehicleTypeWithSmallTrl = (record: TechRecordType<'get'> | TechRecordType<'put'>): VehicleTypeWithSmallTrl | undefined => (
+  record.techRecord_vehicleType === 'trl'
+  && (record.techRecord_euVehicleCategory === 'o1' || record.techRecord_euVehicleCategory === 'o2')
+    ? 'small trl'
+    : record.techRecord_vehicleType
+
+);

@@ -5,7 +5,10 @@ import hgvData from '../../resources/techRecordHGVPost.json';
 
 describe('validateAndComputeRecordCompleteness', () => {
   it('should return correct record completeness', () => {
-    expect(validateAndComputeRecordCompleteness({ techRecord_vehicleType: 'car' } as unknown as TechRecordType<'put'>, HttpMethod.GET)).toEqual(RecordCompleteness.SKELETON);
+    expect(validateAndComputeRecordCompleteness(
+      { techRecord_vehicleType: 'car' } as unknown as TechRecordType<'put'>,
+      HttpMethod.GET,
+    )).toEqual(RecordCompleteness.SKELETON);
     expect(validateAndComputeRecordCompleteness(hgvData as TechRecordType<'put'>, HttpMethod.GET)).toEqual(RecordCompleteness.COMPLETE);
   });
   it('should remove any random fields from the input', () => {
