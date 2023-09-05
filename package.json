@@ -51,7 +51,6 @@
     "@aws-sdk/types": "^3.341.0",
     "@dvsa/eslint-config-ts": "^3.0.0",
     "@types/aws-lambda": "^8.10.114",
-    "@types/axios": "^0.14.0",
     "@types/jest": "^28.1.8",
     "@types/lodash": "^4.14.195",
     "@types/node": "^16.18.34",
