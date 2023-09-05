@@ -1,15 +1,13 @@
 import { isValidObject } from '@dvsa/cvs-type-definitions/schema-validator';
-import { schemas } from '@dvsa/cvs-type-definitions/schemas';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { ErrorObject } from 'ajv';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { TechRecordGet, TechRecordPut } from '../models/post';
 import {
-  ERRORS, HttpMethod, RecordCompleteness, VehicleType,
+  ERRORS, HttpMethod, RecordCompleteness,
 } from '../util/enum';
-
-export const identifyObjectType = (obj: TechRecordGet, method: HttpMethod) => identifySchema(obj.techRecord_vehicleType as VehicleType, obj.techRecord_recordCompleteness as RecordCompleteness, method);
-export const identifySchema = (vehicleType: VehicleType, recordCompleteness: RecordCompleteness, method: HttpMethod) => schemas
-  .find((x: string) => x.includes(vehicleType) && x.includes(recordCompleteness) && x.includes(method));
+import logger from '../util/logger';
+import { getVehicleTypeWithSmallTrl } from './recordCompleteness';
+import { identifySchema } from './schemaIdentifier';
 
 export const formatValidationErrors = (errors: ErrorObject[]) => {
   const errorMessage: string[] = [];
@@ -22,8 +20,16 @@ export const formatValidationErrors = (errors: ErrorObject[]) => {
   return JSON.stringify({ error: errorMessage });
 };
 
-export const validateAgainstSkeletonSchema = (body: TechRecordPut) => {
-  const schema = identifySchema(body.techRecord_vehicleType as VehicleType, RecordCompleteness.SKELETON, HttpMethod.PUT);
+export const validateAgainstSkeletonSchema = (body: TechRecordType<'put'>) => {
+  const vehicleTypeWithSmallTrl = getVehicleTypeWithSmallTrl(body);
+  if (!vehicleTypeWithSmallTrl) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Vehicle type is required' }),
+    };
+  }
+  const schema = identifySchema(vehicleTypeWithSmallTrl, RecordCompleteness.SKELETON, HttpMethod.PUT);
+  logger.debug(`Validating against schema: ${schema ?? 'Could not find schema'}`);
 
   if (!schema) {
     return {
@@ -55,7 +61,7 @@ export const validatePostErrors = (event: APIGatewayProxyEvent) => {
       body: JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }),
     };
   }
-  const body = JSON.parse(event.body) as TechRecordPut;
+  const body = JSON.parse(event.body) as TechRecordType<'put'>;
 
   if (!body.techRecord_vehicleType) {
     return {

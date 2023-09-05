@@ -89,3 +89,42 @@ Resources:
             Properties:
               Path: /v3/technical-records/updateVrm/{systemNumber}/{createdTimestamp}
               Method: patch
+    GeneratePlateFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: plate.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PlateLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/plate/{systemNumber}/{createdTimestamp}
+              Method: post
+    GenerateLetterFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: letter.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          LetterLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/letter/{systemNumber}/{createdTimestamp}
+              Method: post
+    SyncTestResultInfoFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: sync-test-result-info.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PatchLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/sync-test-result-info
+              Method: patch

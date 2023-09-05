@@ -1,11 +1,6 @@
-export enum VehicleType {
-  PSV = 'psv',
-  TRL = 'trl',
-  HGV = 'hgv',
-  CAR = 'car',
-  LGV = 'lgv',
-  MOTORCYCLE = 'motorcycle',
-}
+export type VehicleType = 'psv' | 'trl' | 'hgv' | 'car' | 'lgv' | 'motorcycle';
+
+export type VehicleTypeWithSmallTrl = VehicleType | 'small trl';
 
 export enum RecordCompleteness {
   COMPLETE = 'complete',
@@ -43,6 +38,12 @@ export enum ERRORS {
   VIN_ERROR = 'New VIN is invalid',
   INVALID_VRM_UPDATE = 'Cannot use update API to update the VRM',
   INVALID_TRAILER_ID_UPDATE = 'Cannot use update API to update the trailer ID',
+  MORE_THAN_TWO_NON_ARCHIVED_TECH_RECORDS = 'The vehicle has more than two non archived Tech records.',
+  CANNOT_FIND_RECORD = 'Cannot find record',
+}
+export enum ReasonForCreation {
+  EU_VEHICLE_CATEGORY_UPDATE = 'EU Vehicle Catergory updated.',
+  RECORD_PROMOTED = 'Record promoted to current.',
 }
 
 export enum UpdateType {

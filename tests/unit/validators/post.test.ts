@@ -54,7 +54,10 @@ describe('Test post errors', () => {
     });
   });
   it('should error if there is no schema found', () => {
-    const event = { body: JSON.stringify({ techRecord_vehicleType: 'random' }), headers: { Authorization: 'Bearer 123' } } as unknown as APIGatewayProxyEvent;
+    const event = {
+      body: JSON.stringify({ techRecord_vehicleType: 'random' }),
+      headers: { Authorization: 'Bearer 123' },
+    } as unknown as APIGatewayProxyEvent;
 
     const res = validatePostErrors(event);
 
@@ -66,7 +69,10 @@ describe('Test post errors', () => {
   it('should error if the object is invalid', () => {
     mockIdentifySchema.mockReturnValueOnce(undefined);
 
-    const event = { body: JSON.stringify({ techRecord_vehicleType: 'trl' }), headers: { Authorization: 'Bearer 123' } } as unknown as APIGatewayProxyEvent;
+    const event = {
+      body: JSON.stringify({ techRecord_vehicleType: 'trl' }),
+      headers: { Authorization: 'Bearer 123' },
+    } as unknown as APIGatewayProxyEvent;
 
     const res = validatePostErrors(event) as { statusCode: number;body: string; };
 

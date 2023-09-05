@@ -1,4 +1,4 @@
-import { TechRecordGet } from '../../../src/models/post';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/services/audit';
 import { StatusCode } from '../../../src/util/enum';
 
@@ -7,7 +7,7 @@ describe('Audit details tests', () => {
     it('should set the correct details', () => {
       const date = new Date().toISOString();
 
-      const res = setLastUpdatedAuditDetails({} as TechRecordGet, 'user', '123', date, StatusCode.ARCHIVED);
+      const res = setLastUpdatedAuditDetails({} as TechRecordType<'get'>, 'user', '123', date, StatusCode.ARCHIVED);
 
       expect(res).toEqual({
         techRecord_lastUpdatedAt: date,
@@ -22,7 +22,11 @@ describe('Audit details tests', () => {
     it('should set and remove correctly', () => {
       const date = new Date().toISOString();
 
-      const res = setCreatedAuditDetails({ techRecord_lastUpdatedAt: '123', techRecord_lastUpdatedById: '123', techRecord_lastUpdatedByName: '123' } as TechRecordGet, 'user', '123', date, StatusCode.CURRENT);
+      const res = setCreatedAuditDetails({
+        techRecord_lastUpdatedAt: '123',
+        techRecord_lastUpdatedById: '123',
+        techRecord_lastUpdatedByName: '123',
+      } as TechRecordType<'get'>, 'user', '123', date, StatusCode.CURRENT);
 
       expect(res).toEqual({
         techRecord_createdAt: date,

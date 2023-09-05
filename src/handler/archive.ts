@@ -1,6 +1,8 @@
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
-import { ArchiveRecord, ArchiveRecordRequestBody } from '../models/archive';
+import { ArchiveRecordRequestBody } from '../models/archive';
+import { updateNotes } from '../processors/processArchiveRequest';
 import { setLastUpdatedAuditDetails } from '../services/audit';
 import { archiveRecord, getBySystemNumberAndCreatedTimestamp } from '../services/database';
 import { getUserDetails } from '../services/user';
@@ -28,7 +30,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     logger.debug(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
 
-    const record: ArchiveRecord = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp) as ArchiveRecord;
+    const record: TechRecordType<'get'> = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
     logger.debug(`result is: ${JSON.stringify(record)}`);
 
@@ -46,11 +48,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       });
     }
 
-    const updatedRecord = setLastUpdatedAuditDetails(record, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED) as ArchiveRecord;
+    const updatedRecord = setLastUpdatedAuditDetails(record, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED);
 
-    updatedRecord.techRecord_notes = record.techRecord_notes
-      ? `${record.techRecord_notes} \n${body.reasonForArchiving}`
-      : body.reasonForArchiving;
+    updateNotes(body.reasonForArchiving, updatedRecord, record);
+
     await archiveRecord(updatedRecord);
 
     return addHttpHeaders({

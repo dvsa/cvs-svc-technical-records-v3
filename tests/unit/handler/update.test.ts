@@ -3,12 +3,13 @@ const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockUpdateVehicle = jest.fn();
 const mockProcessUpdateRequest = jest.fn();
 
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/update';
-import { TechRecordPut } from '../../../src/models/post';
 import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
 import hgvData from '../../resources/techRecordHGVPost.json';
+import { mockToken } from '../util/mockToken';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
@@ -27,8 +28,7 @@ describe('update handler', () => {
   beforeEach(() => {
     request = {
       headers: {
-        Authorization:
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+        Authorization: mockToken,
       },
       pathParameters: {
         systemNumber: '10000067',
@@ -36,7 +36,7 @@ describe('update handler', () => {
       },
       body: JSON.stringify({
         techRecord_reasonForCreation: 'Test Update',
-        techRecord_approvalType: 'Test',
+        techRecord_approvalType: 'NTA',
         techRecord_statusCode: 'provisional',
         techRecord_vehicleClass_code: 't',
         techRecord_vehicleClass_description: 'trailer',
@@ -56,16 +56,16 @@ describe('update handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
-      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordPut;
-      mockProcessUpdateRequest.mockResolvedValueOnce([hgvData, newRecord]);
+      const newRecord = { ...hgvData, ...JSON.parse(request.body ?? '') } as TechRecordType<'put'>;
+      mockProcessUpdateRequest.mockReturnValueOnce([hgvData, newRecord]);
       mockUpdateVehicle.mockResolvedValueOnce(newRecord);
       const result = await handler(request);
+
+      expect(result.statusCode).toBe(200);
 
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
       expect(mockProcessUpdateRequest).toHaveBeenCalledTimes(1);
       expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
-
-      expect(result.statusCode).toBe(200);
       expect(result.body).not.toBeNull();
     });
   });
@@ -74,8 +74,7 @@ describe('update handler', () => {
     it('should return error when event has no body', async () => {
       const invalidRequest = {
         headers: {
-          Authorization:
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+          Authorization: mockToken,
         },
         pathParameters: {
           systemNumber: '10000067',
@@ -100,7 +99,7 @@ describe('update handler', () => {
     it('should return an error when VINs are invalid', async () => {
       request.body = JSON.stringify({
         techRecord_reasonForCreation: 'Test Update',
-        techRecord_approvalType: 'Test',
+        techRecord_approvalType: 'NTA',
         techRecord_statusCode: 'provisional',
         techRecord_vehicleClass_code: 't',
         techRecord_vehicleClass_description: 'trailer',
@@ -121,8 +120,8 @@ describe('update handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
-      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordPut;
-      mockProcessUpdateRequest.mockResolvedValueOnce([hgvData, newRecord]);
+      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordType<'put'>;
+      mockProcessUpdateRequest.mockReturnValueOnce([hgvData, newRecord]);
       mockUpdateVehicle.mockRejectedValueOnce('Error');
       const result = await handler(request);
 

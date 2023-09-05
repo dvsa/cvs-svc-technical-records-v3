@@ -1,6 +1,6 @@
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import 'dotenv/config';
-import { TechRecordPut } from '../models/post';
 import { processPostRequest } from '../processors/processPostRequest';
 import { postTechRecord } from '../services/database';
 import { getUserDetails } from '../services/user';
@@ -20,7 +20,7 @@ export const handler = async (
     }
 
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
-    const body = await JSON.parse(event.body ?? '') as TechRecordPut;
+    const body = await JSON.parse(event.body ?? '') as TechRecordType<'put'>;
 
     const requestBody = await processPostRequest(body, userDetails);
 
