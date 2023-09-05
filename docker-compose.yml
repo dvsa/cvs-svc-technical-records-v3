@@ -38,7 +38,7 @@ volumes:
 
 networks:
   dynamodbNetwork:
-    # This emulates the name of the network when running in a Gihtub action
+    # This emulates the name of the network when running in a Github action
     name: github_network_348ba1e8dc8f4460aaca022be6196a0f
     driver: bridge
     ipam:
