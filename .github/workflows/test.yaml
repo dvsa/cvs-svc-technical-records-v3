@@ -34,23 +34,14 @@ jobs:
       #   run: npm run build:prod
       - name: Setup dotenv
         run: cp .env.example .env
-      - name: Replace docker network
+      - name: Build
         run: |
-          echo "$(docker network ls | grep github_network | awk '{print $2}')"
-          # sed -i "s/dynamo/$(docker network ls | grep github_network | awk '{print $2}')/" .env
-          cat .env
-      # - name: Start ci
-      #   run: npm run test-i
-      #   env:
-      #     AWS_ACCESS_KEY_ID: foo
-      #     AWS_SECRET_ACCESS_KEY: bar
-      #   continue-on-error: true
+          npm run build:dev
       - name: Start ci
-        run: npm run start:ci & (sleep 100 && ls && npm run test:integration)
+        run: npm run test:integration:github
         env:
           AWS_ACCESS_KEY_ID: foo
           AWS_SECRET_ACCESS_KEY: bar
-        continue-on-error: true
       - name: Debug containers
         run: |
           docker ps

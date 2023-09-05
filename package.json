@@ -20,10 +20,11 @@
     "dynamo:reset": "docker compose down --volumes && npm run dynamo:start",
     "dynamo:seed": "ts-node scripts/setup-local-tables.ts",
     "tools-setup": "echo 'move on'",
-    "test-i": "npm run build:dev && jest int --globalSetup='./scripts/spin-up-lambdas.ts' --globalTeardown='./scripts/destroy-lambdas.ts' --testTimeout 10000",
+    "test-i": "echo 'nothing to do'",
+    "test:integration:github": "jest int --globalSetup='./scripts/spin-up-lambdas.ts' --globalTeardown='./scripts/destroy-lambdas.ts' --testTimeout 10000",
     "test:integration": "jest int --testTimeout 10000",
     "package": "npm run build:prod",
-    "start:ci": "npm run dynamo:seed && npm run build:dev && sam local start-api --docker-network $(docker network ls | grep github_network | awk '{print $2}') --warm-containers EAGER",
+    "start:ci": "npm run dynamo:seed && sam local start-api --docker-network $(docker network ls | grep github_network | awk '{print $2}') --warm-containers EAGER",
     "swagger:open": "docker run --name swagger -d -p 80:8080 -v $(pwd)/docs:/tmp -e SWAGGER_FILE=/tmp/spec.yml swaggerapi/swagger-editor"
   },
   "contributors": [
