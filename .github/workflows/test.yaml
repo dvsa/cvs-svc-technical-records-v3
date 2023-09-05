@@ -46,7 +46,7 @@ jobs:
       #     AWS_SECRET_ACCESS_KEY: bar
       #   continue-on-error: true
       - name: Start ci
-        run: npm run start:ci & (sleep 30 && npm run test:integration)
+        run: npm run start:ci & (sleep 30 && ls &&  npm run test:integration)
         env:
           AWS_ACCESS_KEY_ID: foo
           AWS_SECRET_ACCESS_KEY: bar
