@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { ERRORS, StatusCode } from '../../../src/util/enum';
-import { checkStatusCodeValidity, validateUpdateErrors } from '../../../src/validators/update';
+import { checkStatusCodeValidity, validateUpdateErrors, validateUpdateVrmRequest } from '../../../src/validators/update';
 
 const trlPayload = {
   techRecord_reasonForCreation: 'Test Update',
@@ -86,3 +86,74 @@ describe('checkStatusCodeValidity', () => {
     expect(checkStatusCodeValidity(StatusCode.CURRENT, StatusCode.PROVISIONAL)).toBe(false);
   });
 });
+
+describe('validateUpdateVrmRequest', () => {
+  it('returns error if there is no request body', () => {
+    const event = { body: undefined, pathParameters:{ systemNumber: 123456, createdTimestamp: new Date().toISOString()} } as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual({
+      statusCode: 400,
+      body: 'invalid request',
+    })
+  })
+  it('returns error if the authorization headers are missing', () => {
+    const event = { headers: {}, body: JSON.stringify({newVrm: '0123456'}), pathParameters:{ systemNumber: 123456, createdTimestamp: new Date().toISOString()} } as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual({
+      statusCode: 400,
+      body: 'Missing authorization header',
+    })
+  })
+  it('if isCherishedTransfer returns error if new vrm missing', () => {
+    const event = {
+      body: JSON.stringify({ isCherishedTransfer: true, newDonorVrm: '123456' }),
+      pathParameters:{ systemNumber: 123456, createdTimestamp: new Date().toISOString()} ,
+      headers: {
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+      },} as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual({
+      statusCode: 400,
+      body: 'You must provide a donor vehicle VRM',
+    })
+  })
+  it('if isCherishedTransfer returns error if new donor vrm missing', () => {
+    const event = {
+      body: JSON.stringify({ newVrm: '0123456',  isCherishedTransfer: true }),
+      pathParameters:{ systemNumber: 123456, createdTimestamp: new Date().toISOString()} ,
+      headers: {
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+      },} as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual({
+      statusCode: 400,
+      body: 'You must provide a new VRM for the donor vehicle',
+    })
+  })
+  it('if isCherishedTransfer returns false if everything is fine', () => {
+    const event = {
+      body: JSON.stringify({ newVrm: '0123456',  isCherishedTransfer: true, newDonorVrm: '012345' }),
+      pathParameters:{ systemNumber: 123456, createdTimestamp: new Date().toISOString()} ,
+      headers: {
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+      },} as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual(false)
+  })
+  it('if !isCherishedTransfer returns error if newVrm missing', () => {
+    const event = {
+      body: JSON.stringify({ newVrm: undefined,  isCherishedTransfer: false }),
+      pathParameters:{ systemNumber: 123456, createdTimestamp: new Date().toISOString()} ,
+      headers: {
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+      },} as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual({
+      statusCode: 400,
+      body: 'You must provide a new VRM',
+    })
+  })
+  it('if !isCherishedTransfer returns false if all information provided', () => {
+    const event = {
+      body: JSON.stringify({ newVrm: '012345',  isCherishedTransfer: false }),
+      pathParameters:{ systemNumber: 123456, createdTimestamp: new Date().toISOString()} ,
+      headers: {
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQ0RFRiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0aWQiOiIxMjM0NTYiLCJvaWQiOiIxMjMxMjMiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiSm9obiIsInVwbiI6IjEyMzIxMyJ9.R3Fy5ptj-7VIxxw35tc9V1BuybDosP2IksPCK7MRemw',
+      },} as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual(false)
+  })
+})
