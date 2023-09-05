@@ -14,7 +14,7 @@ describe('test the get error validator', () => {
     const res = validateSysNumTimestampPathParams(event as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
-      body: 'Missing system number',
+      body: JSON.stringify({ errors: ['Missing system number'] }),
       headers,
     });
   });
@@ -24,7 +24,7 @@ describe('test the get error validator', () => {
     const res = validateSysNumTimestampPathParams(event as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
-      body: 'Missing created timestamp',
+      body: JSON.stringify({ errors: ['Missing created timestamp'] }),
       headers,
     });
   });
@@ -34,7 +34,7 @@ describe('test the get error validator', () => {
     const res = validateSysNumTimestampPathParams(event as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
-      body: 'The system number should be between 3 and 21 characters.',
+      body: JSON.stringify({ errors: ['The system number should be between 3 and 21 characters.'] }),
       headers,
     });
   });
@@ -44,7 +44,7 @@ describe('test the get error validator', () => {
     const res = validateSysNumTimestampPathParams(event as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
-      body: 'The system number should be between 3 and 21 characters.',
+      body: JSON.stringify({ errors: ['The system number should be between 3 and 21 characters.'] }),
       headers,
     });
   });
@@ -54,7 +54,7 @@ describe('test the get error validator', () => {
     const res = validateSysNumTimestampPathParams(event as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
-      body: 'Invalid created timestamp',
+      body: JSON.stringify({ errors: ['Invalid created timestamp'] }),
       headers,
     });
   });
