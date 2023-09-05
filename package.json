@@ -15,7 +15,7 @@
     "build:prod": "webpack-cli --config webpack/webpack.production.js",
     "start:dev": "npm run dynamo:start && sam local start-api --docker-network $(docker network ls | grep github_network | awk '{print $2}')",
     "invoke": "sam local invoke --docker-network $(docker network ls | grep github_network | awk '{print $2}')",
-    "dynamo:start": " docker compose up -d && npm run dynamo:seed",
+    "dynamo:start": "docker compose up -d && npm run dynamo:seed",
     "dynamo:stop": "docker compose down",
     "dynamo:reset": "docker compose down --volumes && npm run dynamo:start",
     "dynamo:seed": "ts-node scripts/setup-local-tables.ts",

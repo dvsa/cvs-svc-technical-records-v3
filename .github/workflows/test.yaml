@@ -39,8 +39,14 @@ jobs:
           # sed -i "s/dynamo/$(docker network ls | grep github_network | awk '{print $2}')/" .env
           sed -i "s/dynamo/0.0.0.0/" .env
           cat .env
+      # - name: Start ci
+      #   run: npm run test-i
+      #   env:
+      #     AWS_ACCESS_KEY_ID: foo
+      #     AWS_SECRET_ACCESS_KEY: bar
+      #   continue-on-error: true
       - name: Start ci
-        run: npm run test-i
+        run: npm run start:ci & (sleep 20 && npm run test:integration)
         env:
           AWS_ACCESS_KEY_ID: foo
           AWS_SECRET_ACCESS_KEY: bar
