@@ -16,6 +16,7 @@ jobs:
         image: amazon/dynamodb-local
         ports:
           - '8000:8000'
+        options: --name local-dynamodb
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node
