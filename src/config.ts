@@ -1,6 +1,6 @@
+import path from 'path';
 import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 import dotenv from 'dotenv';
-import path from 'path';
 
 const envFile = path.join(__dirname, '../.env');
 
