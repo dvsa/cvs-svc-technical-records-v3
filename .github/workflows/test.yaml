@@ -11,6 +11,12 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    services:
+      local-dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - '8000:8000'
+        options: --name local-dynamodb
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node
@@ -18,8 +24,6 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-      - name: update npm dependency
-        run: npm i -g npm@9
       - name: Install dependencies
         run: npm ci
       - name: Run lint
@@ -28,3 +32,15 @@ jobs:
         run: npm run test:ci
       - name: Build
         run: npm run build:prod
+      - name: Setup dotenv
+        run: cp .env.example .env
+      - name: Build
+        run: |
+          npm run build:dev
+      - name: Start ci
+        run: npm run test:integration:github
+        env:
+          AWS_ACCESS_KEY_ID: foo
+          AWS_SECRET_ACCESS_KEY: bar
+
+
