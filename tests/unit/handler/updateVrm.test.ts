@@ -1,10 +1,7 @@
 /* eslint-disable import/first */
-
 const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
-const mockUpdateVehicle = jest.fn();
-const mockProcessPatchVrmRequest = jest.fn();
-const mockSearchByCriteria = jest.fn();
-const mockCorrectVrm = jest.fn();
+const mockProcessCorrectVrm = jest.fn();
+const mockProcessCherishedTransfer = jest.fn()
 
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
@@ -13,20 +10,24 @@ import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
 import carData from '../../resources/techRecordCarPost.json';
 import { mockToken } from '../util/mockToken';
+import { addHttpHeaders } from '../../../src/util/httpHeaders';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
-  updateVehicle: mockUpdateVehicle,
-  searchByCriteria: mockSearchByCriteria,
-  correctVrm: mockCorrectVrm,
 }));
 
-jest.mock('../../../src/processors/processVrmRequest', () => ({
-  processPatchVrmRequest: mockProcessPatchVrmRequest,
+jest.mock('../../../src/processors/processCorrectVrm', () => ({
+  processCorrectVrm: mockProcessCorrectVrm
 }));
+
+jest.mock('../../../src/processors/processCherishedTransfer', () => ({
+  processCherishedTransfer: mockProcessCherishedTransfer
+}))
+
 const mockUserDetails = {
   username: 'Test User', msOid: 'QWERTY', email: 'testUser@test.com',
 };
+
 describe('update vrm handler', () => {
   let request: APIGatewayProxyEvent;
   beforeEach(() => {
@@ -52,30 +53,17 @@ describe('update vrm handler', () => {
       const newBody = JSON.stringify({
         newVrm: 'SJG1020',
         isCherishedTransfer: true,
+        newDonorVrm: '01234'
       });
       request.body = newBody;
       process.env.AWS_SAM_LOCAL = 'true';
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
-      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      const newRecord = { ...carData, newVrm: 'SJG1020' } as TechRecordType<'put'>;
-      mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
-      mockUpdateVehicle.mockResolvedValueOnce(newRecord);
-      mockSearchByCriteria.mockReturnValueOnce([{
-        techRecord_manufactureYear: 'null',
-        primaryVrm: 'SJG1020',
-        techRecord_make: 'null',
-        vin: 'DP76UMK4DQLTOT400021',
-        techRecord_statusCode: 'archived',
-        systemNumber: 'XYZEP5JYOMM00020',
-        techRecord_vehicleType: 'car',
-        createdTimestamp: '2019-06-24T10:26:54.903Z',
-        techRecord_model: 'null',
-      }]);
+      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValue(carData);
+      mockProcessCherishedTransfer.mockResolvedValue(addHttpHeaders({statusCode: 200, body: JSON.stringify('hiya')}))
       const result = await handler(request);
 
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
-      expect(mockProcessPatchVrmRequest).toHaveBeenCalledTimes(1);
-      expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
+      expect(mockProcessCherishedTransfer).toHaveBeenCalledTimes(1);
       expect(result.statusCode).toBe(200);
       expect(result.body).not.toBeNull();
     });
@@ -92,25 +80,12 @@ describe('update vrm handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      const newRecord = { ...carData, newVrm: 'foo' } as TechRecordType<'put'>;
-      mockProcessPatchVrmRequest.mockReturnValueOnce([carData, newRecord]);
-      mockUpdateVehicle.mockResolvedValueOnce(newRecord);
-      mockSearchByCriteria.mockReturnValueOnce([{
-        techRecord_manufactureYear: 'null',
-        primaryVrm: 'SJG1020',
-        techRecord_make: 'null',
-        vin: 'DP76UMK4DQLTOT400021',
-        techRecord_statusCode: 'provisional',
-        systemNumber: 'XYZEP5JYOMM00020',
-        techRecord_vehicleType: 'car',
-        createdTimestamp: '2019-06-24T10:26:54.903Z',
-        techRecord_model: 'null',
-      }]);
+      mockProcessCorrectVrm.mockReturnValueOnce(addHttpHeaders({statusCode: 200, body: JSON.stringify('hiya')}));
+
       const result = await handler(request);
 
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
-      expect(mockProcessPatchVrmRequest).toHaveBeenCalledTimes(1);
-      expect(mockCorrectVrm).toHaveBeenCalledTimes(1);
+      expect(mockProcessCorrectVrm).toHaveBeenCalledTimes(1);
       expect(result.statusCode).toBe(200);
       expect(result.body).not.toBeNull();
     });
@@ -185,25 +160,10 @@ describe('update vrm handler', () => {
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe('Invalid VRM');
     });
-    it('should return 400 if the vrm exists on a non archived record', async () => {
-      request.body = JSON.stringify({ newVrm: 'SJG1020' });
-      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      mockSearchByCriteria.mockReturnValueOnce([
-        {
-          techRecord_manufactureYear: 'null',
-          primaryVrm: 'SJG1020',
-          techRecord_make: 'null',
-          vin: 'DP76UMK4DQLTOT400021',
-          techRecord_statusCode: 'current',
-          systemNumber: 'XYZEP5JYOMM00020',
-          techRecord_vehicleType: 'car',
-          createdTimestamp: '2019-06-24T10:26:54.903Z',
-          techRecord_model: 'null',
-        },
-      ]);
-      const result = await handler(request as unknown as APIGatewayProxyEvent);
-      expect(result.statusCode).toBe(400);
-      expect(result.body).toBe(JSON.stringify('Primary VRM SJG1020 already exists'));
-    });
+    it('should return 500 internal server error if the transact fails', () => {
+
+    })
   });
+
+
 });

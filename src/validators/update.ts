@@ -1,10 +1,14 @@
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { SearchCriteria } from '../models/search';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
+import { searchByCriteria } from '../services/database';
 import {
   ERRORS, StatusCode,
 } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
+import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
 import { isObjectEmpty } from './emptyObject';
 import { validateAgainstSkeletonSchema } from './post';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
