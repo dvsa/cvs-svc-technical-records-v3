@@ -8,6 +8,7 @@ import { StatusCode } from "../util/enum";
 import { formatTechRecord } from "../util/formatTechRecord";
 import { addHttpHeaders } from "../util/httpHeaders";
 import { validateVrm } from "../validators/update";
+import logger from "../util/logger";
 
 export const processCherishedTransfer = async (userDetails: UserDetails, newVrm: string, newDonorVrm: string, recipientRecord: TechRecordType<'get'> ): Promise<APIGatewayProxyResult> => {
 try {  const donorRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm)
