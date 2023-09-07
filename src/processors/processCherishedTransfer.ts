@@ -63,7 +63,15 @@ export const processCherishedTransfer = async (
       StatusCode.ARCHIVED,
     );
 
-    const updatedDonorRecord = setLastUpdatedAuditDetails(
+    const updatedDonorRecordToArchive = setLastUpdatedAuditDetails(
+      donorRecord,
+      userDetails.username,
+      userDetails.msOid,
+      new Date().toISOString(),
+      StatusCode.ARCHIVED,
+    );
+
+    const updatedDonorRecord = setCreatedAuditDetails(
       donorRecord,
       userDetails.username,
       userDetails.msOid,
@@ -76,8 +84,8 @@ export const processCherishedTransfer = async (
     }
 
     await updateVehicle(
-      [updatedRecordToArchive, updatedDonorRecord],
-      [updatedNewRecord],
+      [updatedRecordToArchive, updatedDonorRecordToArchive],
+      [updatedNewRecord, updatedDonorRecord],
     );
 
     return addHttpHeaders({
