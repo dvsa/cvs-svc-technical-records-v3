@@ -10,7 +10,8 @@ module.exports = merge(common, {
   plugins: [
     new CopyPlugin({
       patterns: Object.keys((new AwsSamPlugin({ vscodeDebug: false }).entry())).map((lambdaName) => ([
-        { from: './.env', to: `.aws-sam/build/${lambdaName}/`, noErrorOnMissing: true }
+        { from: './.env', to: `.aws-sam/build/${lambdaName}/`, noErrorOnMissing: true },
+        { from: './node_modules/@dvsa/cvs-type-definitions/json-schemas/', to: `.aws-sam/build/${lambdaName}/json-schemas`}
       ])).flat()
     }),
   ]
