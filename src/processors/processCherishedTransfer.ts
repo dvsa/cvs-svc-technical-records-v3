@@ -10,19 +10,19 @@ import { addHttpHeaders } from "../util/httpHeaders";
 import { validateVrm } from "../validators/update";
 
 export const processCherishedTransfer = async (userDetails: UserDetails, newVrm: string, newDonorVrm: string, recipientRecord: TechRecordType<'get'> ): Promise<APIGatewayProxyResult> => {
-  const donorRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm)
+try {  const donorRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm)
   const currentDonorRecordDetails = donorRecords.filter(x => x.techRecord_statusCode == StatusCode.CURRENT)
     if(currentDonorRecordDetails.length <= 0){
-      throw addHttpHeaders({
+      return addHttpHeaders({
         statusCode: 400,
-        body: JSON.stringify(`no vehicles with VRM ${newVrm} have a current record`),
+        body: `no vehicles with VRM ${newVrm} have a current record`,
       });
     }
   const donorRecord = await getBySystemNumberAndCreatedTimestamp(currentDonorRecordDetails[0].systemNumber, currentDonorRecordDetails[0].createdTimestamp)
 
-  const donorVrmsNotIncorrectFormat = validateVrm(recipientRecord, newDonorVrm);
+  const donorVrmsNotIncorrectFormat = validateVrm(donorRecord, newDonorVrm);
   if (donorVrmsNotIncorrectFormat) {
-    return donorVrmsNotIncorrectFormat;
+    return addHttpHeaders(donorVrmsNotIncorrectFormat);
   }
 
   const recipientRecordToArchive: TechRecordType<'get'> = { ...recipientRecord };
@@ -73,6 +73,12 @@ export const processCherishedTransfer = async (userDetails: UserDetails, newVrm:
     statusCode: 200,
     body: JSON.stringify(formatTechRecord(updatedNewRecord)),
   });
+} catch (err) {
+  return addHttpHeaders({
+    statusCode: 500,
+    body: JSON.stringify(err),
+  });
+}
 }
 
 const secondaryVrms = (record:TechRecordType<'get'>): Array<string> | undefined => {

@@ -2,18 +2,21 @@
 const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockProcessCorrectVrm = jest.fn();
 const mockProcessCherishedTransfer = jest.fn()
+const mockUpdateVehicle = jest.fn();
+const mockSearchByCriteria = jest.fn()
 
-import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
 import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
-import carData from '../../resources/techRecordCarPost.json';
-import { mockToken } from '../util/mockToken';
 import { addHttpHeaders } from '../../../src/util/httpHeaders';
+import { default as carData, default as postCarData } from '../../resources/techRecordCarPost.json';
+import { mockToken } from '../util/mockToken';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
+  updateVehicle: mockUpdateVehicle,
+  searchByCriteria: mockSearchByCriteria
 }));
 
 jest.mock('../../../src/processors/processCorrectVrm', () => ({
@@ -92,6 +95,10 @@ describe('update vrm handler', () => {
   });
 
   describe('Error handling', () => {
+    beforeEach(() => {
+      jest.resetAllMocks();
+    jest.resetModules();
+    })
     it('should return error when event has no body', async () => {
       const invalidRequest = {
         headers: {
@@ -160,10 +167,5 @@ describe('update vrm handler', () => {
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe('Invalid VRM');
     });
-    it('should return 500 internal server error if the transact fails', () => {
-
-    })
   });
-
-
 });

@@ -14,7 +14,6 @@ import { validateUpdateVrmRequest, validateVrm } from '../validators/update';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.debug('Amend VRM Called');
-  try {
     const isRequestInvalid: APIGatewayProxyResult | boolean = validateUpdateVrmRequest(event);
     if (isRequestInvalid) {
       return isRequestInvalid;
@@ -39,11 +38,4 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     } else {
       return await processCorrectVrm(currentRecord, userDetails, newVrm);
     }
-  } catch (error) {
-    console.log(error);
-    return addHttpHeaders({
-      statusCode: 500,
-      body: JSON.stringify(error),
-    });
-  }
 };

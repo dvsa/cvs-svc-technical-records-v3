@@ -8,6 +8,8 @@ import { processCherishedTransfer } from "../../../src/processors/processCherish
 import postCarData from '../../resources/techRecordCarPost.json';
 import { StatusCode } from "../../../src/util/enum";
 import { SearchResult } from "../../../src/models/search";
+import { addHttpHeaders } from "../../../src/util/httpHeaders";
+import { APIGatewayProxyResult } from "aws-lambda";
 
 jest.mock('../../../src/services/database', () => ({
   updateVehicle: mockUpdateVehicle,
@@ -93,4 +95,49 @@ describe('processCherishedTransfer', () => {
         expect.arrayContaining([expect.objectContaining(updateRecordReturned)])
     )
   });
+  it('should throw an error if there is no current record for the donor vehicle', async () => {
+    const recipientMockRecord = { ...postCarData, techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
+    const donorMockRecord = { ...postCarData, primaryVrm: 'DONORVRM', secondaryVrms: ['testing'], techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
+    const mockSearchReturn =[{
+      primaryVrm: "FOOBAR",
+      vin: "TESTVIN",
+      techRecord_statusCode: "archived",
+      techRecord_vehicleType: "car",
+      createdTimestamp: new Date(),
+      systemNumber: '012345',
+      techRecord_manufactureYear: 1989,
+    },
+    {
+      primaryVrm: "FOOBAR",
+      vin: "TESTVIN",
+      techRecord_statusCode: "provisional",
+      techRecord_vehicleType: "car",
+      createdTimestamp: new Date(),
+      systemNumber: '012345',
+      techRecord_manufactureYear: 1989,
+    }]
+    mockSearchByCriteria.mockResolvedValueOnce(mockSearchReturn);
+    mockGetBySysNumTimestamp.mockResolvedValueOnce(donorMockRecord);
+    const result = await processCherishedTransfer(mockUserDetails, 'DONORVRM', '012345', recipientMockRecord);
+    expect(result).toEqual(addHttpHeaders({statusCode: 400, body: 'no vehicles with VRM DONORVRM have a current record'}))
+})
+it('should return an error if an invalid VRM is supplied for the donor', async () => {
+  const recipientMockRecord = { ...postCarData, techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
+    const donorMockRecord = { ...postCarData, primaryVrm: 'DONORVRM', secondaryVrms: ['testing'], techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
+    const mockSearchReturn = {
+      primaryVrm: "FOOBAR",
+      vin: "TESTVIN",
+      techRecord_statusCode: "current",
+      techRecord_vehicleType: "car",
+      createdTimestamp: new Date(),
+      systemNumber: '012345',
+      techRecord_manufactureYear: 1989,
+    }
+    mockSearchByCriteria.mockResolvedValueOnce([mockSearchReturn]);
+    mockGetBySysNumTimestamp.mockResolvedValueOnce(donorMockRecord);
+    const result = await processCherishedTransfer(mockUserDetails, 'DONORVRM', '0!', recipientMockRecord);
+    expect(result).toEqual(addHttpHeaders({statusCode: 400, body: 'Invalid VRM'}))
+
+})
+
 });
