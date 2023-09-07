@@ -51,11 +51,24 @@ const donorVehicleUpdated = {
   secondaryVrms: [
     'testing', 'DONORVRM',
   ],
+  techRecord_createdByName: 'Test User',
+  techRecord_createdById: 'QWERTY',
+  techRecord_reasonForCreation: 'Update VRM - Cherished Transfer',
+  techRecord_statusCode: 'current',
+  techRecord_vehicleType: 'car',
+  vin: 'AA11100851',
+};
+
+const donorRecordToArchive = {
+  primaryVrm: 'DONORVRM',
+  secondaryVrms: [
+    'testing',
+  ],
   techRecord_createdByName: 'foo',
   techRecord_createdById: 'foo',
   techRecord_euVehicleCategory: 'm1',
   techRecord_reasonForCreation: ' ',
-  techRecord_statusCode: 'current',
+  techRecord_statusCode: 'archived',
   vin: 'AA11100851',
   techRecord_lastUpdatedByName: 'Test User',
   techRecord_lastUpdatedById: 'QWERTY',
@@ -86,15 +99,20 @@ describe('processCherishedTransfer', () => {
     mockSearchByCriteria.mockResolvedValueOnce([mockSearchReturn]);
     mockGetBySysNumTimestamp.mockResolvedValueOnce(donorMockRecord);
     await processCherishedTransfer(mockUserDetails, 'DONORVRM', '012345', recipientMockRecord);
-    expect(mockUpdateVehicle).toBeCalledTimes(1);
+    expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
     expect(mockUpdateVehicle).toHaveBeenCalledWith(
       expect.arrayContaining(
         [
-          expect.objectContaining(donorVehicleUpdated),
           expect.objectContaining(recipientRecordToArchive),
+          expect.objectContaining(donorRecordToArchive),
         ],
       ),
-      expect.arrayContaining([expect.objectContaining(updateRecordReturned)]),
+      expect.arrayContaining(
+        [
+          expect.objectContaining(updateRecordReturned),
+          expect.objectContaining(donorVehicleUpdated),
+        ],
+      ),
     );
   });
   it('should throw an error if there is no current record for the donor vehicle', async () => {

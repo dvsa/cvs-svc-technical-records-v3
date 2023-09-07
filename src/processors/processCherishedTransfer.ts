@@ -30,6 +30,7 @@ export const processCherishedTransfer = async (
       currentDonorRecordDetails[0].systemNumber,
       currentDonorRecordDetails[0].createdTimestamp,
     );
+    const donorToArchive = { ...donorRecord };
 
     const donorVrmsNotIncorrectFormat = validateVrm(donorRecord, newDonorVrm);
     if (donorVrmsNotIncorrectFormat) {
@@ -64,7 +65,7 @@ export const processCherishedTransfer = async (
     );
 
     const updatedDonorRecordToArchive = setLastUpdatedAuditDetails(
-      donorRecord,
+      donorToArchive,
       userDetails.username,
       userDetails.msOid,
       new Date().toISOString(),
@@ -82,6 +83,7 @@ export const processCherishedTransfer = async (
       updatedDonorRecord.primaryVrm = newDonorVrm.toUpperCase();
       updatedDonorRecord.secondaryVrms = donorOldVrms;
     }
+    updatedDonorRecord.techRecord_reasonForCreation = 'Update VRM - Cherished Transfer';
 
     await updateVehicle(
       [updatedRecordToArchive, updatedDonorRecordToArchive],
