@@ -64,14 +64,7 @@ module.exports = env => {
   let commit = env ? env.commit ? env.commit : 'local' : 'local';
   return merge(common, {
     mode: 'production',
-    plugins: [new CopyPlugin({
-      patterns: Object.keys((new AwsSamPlugin({vscodeDebug: false}).entry())).map((lambdaName) => ([
-        {
-          from: './node_modules/@dvsa/cvs-type-definitions/json-schemas/',
-          to: `.aws-sam/build/${lambdaName}/json-schemas`
-        }
-      ])).flat()
-    }),
+    plugins: [
       new BundlePlugin({
           archives: LAMBDA_NAMES.map(ln => {
             return {
