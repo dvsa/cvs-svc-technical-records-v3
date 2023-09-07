@@ -13,7 +13,6 @@ export const processCorrectVrm = async (
   userDetails: UserDetails,
   newVrm: string,
 ): Promise<APIGatewayProxyResult> => {
-
   const techRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm);
   const filteredVrm = techRecords.filter((x) => x.primaryVrm === newVrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
   if (filteredVrm.length) {
@@ -32,10 +31,10 @@ export const processCorrectVrm = async (
   newRecord.techRecord_lastUpdatedById = userDetails.msOid;
   newRecord.techRecord_lastUpdatedByName = userDetails.username;
 
-  const correctedRecord = await correctVrm(newRecord)
+  const correctedRecord = await correctVrm(newRecord);
 
   return addHttpHeaders({
     statusCode: 200,
     body: JSON.stringify(formatTechRecord(correctedRecord)),
-  })
+  });
 };

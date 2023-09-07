@@ -1,31 +1,31 @@
 /* eslint-disable import/first */
 const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockProcessCorrectVrm = jest.fn();
-const mockProcessCherishedTransfer = jest.fn()
+const mockProcessCherishedTransfer = jest.fn();
 const mockUpdateVehicle = jest.fn();
-const mockSearchByCriteria = jest.fn()
+const mockSearchByCriteria = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
 import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
 import { addHttpHeaders } from '../../../src/util/httpHeaders';
-import { default as carData, default as postCarData } from '../../resources/techRecordCarPost.json';
+import carData from '../../resources/techRecordCarPost.json';
 import { mockToken } from '../util/mockToken';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
   updateVehicle: mockUpdateVehicle,
-  searchByCriteria: mockSearchByCriteria
+  searchByCriteria: mockSearchByCriteria,
 }));
 
 jest.mock('../../../src/processors/processCorrectVrm', () => ({
-  processCorrectVrm: mockProcessCorrectVrm
+  processCorrectVrm: mockProcessCorrectVrm,
 }));
 
 jest.mock('../../../src/processors/processCherishedTransfer', () => ({
-  processCherishedTransfer: mockProcessCherishedTransfer
-}))
+  processCherishedTransfer: mockProcessCherishedTransfer,
+}));
 
 const mockUserDetails = {
   username: 'Test User', msOid: 'QWERTY', email: 'testUser@test.com',
@@ -56,13 +56,13 @@ describe('update vrm handler', () => {
       const newBody = JSON.stringify({
         newVrm: 'SJG1020',
         isCherishedTransfer: true,
-        newDonorVrm: '01234'
+        newDonorVrm: '01234',
       });
       request.body = newBody;
       process.env.AWS_SAM_LOCAL = 'true';
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValue(carData);
-      mockProcessCherishedTransfer.mockResolvedValue(addHttpHeaders({statusCode: 200, body: JSON.stringify('hiya')}))
+      mockProcessCherishedTransfer.mockResolvedValue(addHttpHeaders({ statusCode: 200, body: JSON.stringify('hiya') }));
       const result = await handler(request);
 
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
@@ -83,7 +83,7 @@ describe('update vrm handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      mockProcessCorrectVrm.mockReturnValueOnce(addHttpHeaders({statusCode: 200, body: JSON.stringify('hiya')}));
+      mockProcessCorrectVrm.mockReturnValueOnce(addHttpHeaders({ statusCode: 200, body: JSON.stringify('hiya') }));
 
       const result = await handler(request);
 
@@ -97,8 +97,8 @@ describe('update vrm handler', () => {
   describe('Error handling', () => {
     beforeEach(() => {
       jest.resetAllMocks();
-    jest.resetModules();
-    })
+      jest.resetModules();
+    });
     it('should return error when event has no body', async () => {
       const invalidRequest = {
         headers: {

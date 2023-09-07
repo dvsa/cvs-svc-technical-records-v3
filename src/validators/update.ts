@@ -61,26 +61,23 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
     };
   }
   const { newVrm, isCherishedTransfer, newDonorVrm } = JSON.parse(event.body) as UpdateVrmRequestBody;
-  if(isCherishedTransfer){
+  if (isCherishedTransfer) {
     if (!newVrm) {
       return {
         statusCode: 400,
         body: 'You must provide a donor vehicle VRM',
       };
-    } else if(!newDonorVrm) {
+    } if (!newDonorVrm) {
       return {
         statusCode: 400,
         body: 'You must provide a new VRM for the donor vehicle',
       };
     }
-
-  } else {
-    if (!newVrm) {
-      return {
-        statusCode: 400,
-        body: 'You must provide a new VRM',
-      };
-    }
+  } else if (!newVrm) {
+    return {
+      statusCode: 400,
+      body: 'You must provide a new VRM',
+    };
   }
   return false;
 };
