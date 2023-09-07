@@ -12,7 +12,7 @@ services:
     command: '-jar DynamoDBLocal.jar -sharedDb -dbPath .'
     networks:
           dynamodbNetwork:
-            ipv4_address: 172.22.0.2
+            ipv4_address: 172.18.0.2
             aliases:
             - dynamodblocal
 
@@ -23,12 +23,12 @@ services:
       ports:
         - "8001:8001"
       environment:
-        - DYNAMO_ENDPOINT=http://172.22.0.2:8000
+        - DYNAMO_ENDPOINT=http://172.18.0.2:8000
       depends_on:
         - dynamo
       networks:
           dynamodbNetwork:
-            ipv4_address: 172.22.0.3
+            ipv4_address: 172.18.0.3
             aliases:
             - dynamodbadmin
 
@@ -38,9 +38,10 @@ volumes:
 
 networks:
   dynamodbNetwork:
-    name: dynamo_net
+    # This emulates the name of the network when running in a Github action
+    name: github_network_348ba1e8dc8f4460aaca022be6196a0f
     driver: bridge
     ipam:
       driver: default
       config:
-        - subnet: "172.22.0.2/16"
+        - subnet: "172.18.0.2/16"

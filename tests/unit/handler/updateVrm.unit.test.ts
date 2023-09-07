@@ -116,7 +116,7 @@ describe('update vrm handler', () => {
     it('should return error when event is invalid', async () => {
       const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toBe('Missing system number');
+      expect(result.body).toEqual(JSON.stringify({ errors: ['Missing system number'] }));
     });
     it('should return an error when request has no auth header', async () => {
       request.headers.Authorization = undefined;
