@@ -18,8 +18,6 @@ jest.mock('../../../src/services/database', () => ({
 
 }));
 
-const dateToUse = new Date();
-
 const updateRecordReturned = {
   primaryVrm: 'DONORVRM',
   secondaryVrms: [
