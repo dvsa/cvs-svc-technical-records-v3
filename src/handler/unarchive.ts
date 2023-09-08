@@ -2,8 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/
 import 'dotenv/config';
 import { cloneDeep } from 'lodash';
 import { SearchCriteria } from '../models/search';
-import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
-import { getBySystemNumberAndCreatedTimestamp, postTechRecord, searchByCriteria, updateVehicle } from '../services/database';
+import { setCreatedAuditDetails } from '../services/audit';
+import { getBySystemNumberAndCreatedTimestamp, postTechRecord, searchByCriteria } from '../services/database';
 import { getUserDetails } from '../services/user';
 import { StatusCode } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
