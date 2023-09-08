@@ -80,7 +80,7 @@ describe('processCherishedTransfer', () => {
     jest.resetAllMocks();
     jest.resetModules();
   });
-  it('should send update Vehicles with correctly formatted vehicles', async () => {
+  it('should send update Vehicles with correctly formatted vehicles and newDonorVrm', async () => {
     const recipientMockRecord = { ...postCarData, techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
     const donorMockRecord = {
       ...postCarData, primaryVrm: 'DONORVRM', secondaryVrms: ['testing'], techRecord_statusCode: StatusCode.CURRENT,
@@ -109,6 +109,49 @@ describe('processCherishedTransfer', () => {
         [
           expect.objectContaining(updateRecordReturned),
           expect.objectContaining(donorVehicleUpdated),
+        ],
+      ),
+    );
+  });
+  it('should send update Vehicles with correctly formatted vehicles when no newDonorVrm sent', async () => {
+    const recipientMockRecord = { ...postCarData, techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
+    const donorMockRecord = {
+      ...postCarData, primaryVrm: 'DONORVRM', secondaryVrms: ['testing'], techRecord_statusCode: StatusCode.CURRENT,
+    } as TechRecordType<'get'>;
+    const mockSearchReturn = {
+      primaryVrm: 'FOOBAR',
+      vin: 'TESTVIN',
+      techRecord_statusCode: 'archived',
+      techRecord_vehicleType: 'car',
+      createdTimestamp: new Date(),
+      systemNumber: '012345',
+      techRecord_manufactureYear: 1989,
+    };
+    const newRecord = {
+      primaryVrm: 'NEWVRM',
+      secondaryVrms: [
+        ' ', '991234Z',
+      ],
+      techRecord_createdByName: 'Test User',
+      techRecord_createdById: 'QWERTY',
+      techRecord_reasonForCreation: 'Update VRM - Cherished Transfer',
+      techRecord_statusCode: 'current',
+      techRecord_vehicleType: 'car',
+      vin: 'AA11100851',
+    };
+    mockSearchByCriteria.mockResolvedValueOnce([mockSearchReturn]);
+    mockGetBySysNumTimestamp.mockResolvedValueOnce(donorMockRecord);
+    await processCherishedTransfer(mockUserDetails, 'NEWVRM', '', recipientMockRecord);
+    expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
+    expect(mockUpdateVehicle).toHaveBeenCalledWith(
+      expect.arrayContaining(
+        [
+          expect.objectContaining(recipientRecordToArchive),
+        ],
+      ),
+      expect.arrayContaining(
+        [
+          expect.objectContaining(newRecord),
         ],
       ),
     );
