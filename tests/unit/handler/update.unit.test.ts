@@ -44,6 +44,8 @@ describe('update handler', () => {
         techRecord_vehicleType: 'trl',
         trailerId: 'C530005',
         vin: '9080977997',
+        techRecord_bodyType_description: 'artic',
+        techRecord_bodyType_code: 'a',
       }),
     } as unknown as APIGatewayProxyEvent;
     jest.resetAllMocks();
@@ -107,6 +109,8 @@ describe('update handler', () => {
         techRecord_vehicleType: 'trl',
         trailerId: 'C530005',
         vin: 'to',
+        techRecord_bodyType_description: 'artic',
+        techRecord_bodyType_code: 'a',
       });
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
         vin: 'testVin',
