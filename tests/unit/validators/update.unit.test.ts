@@ -170,3 +170,4 @@ describe('validateUpdateVrmRequest', () => {
     expect(validateUpdateVrmRequest(event)).toBe(false);
   });
 });
+
