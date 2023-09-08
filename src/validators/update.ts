@@ -8,7 +8,6 @@ import {
 } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
-import logger from '../util/logger';
 import { isObjectEmpty } from './emptyObject';
 import { validateAgainstSkeletonSchema } from './post';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
@@ -107,6 +106,18 @@ export const validateVrm = (currentRecord: TechRecordType<'get'>, newVrm: string
       statusCode: 400,
       body: 'Cannot update the vrm of an archived record',
     };
+  }
+  return false;
+};
+
+export const validateVrmExists = async (vrm: string) => {
+  const techRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, vrm);
+  const filteredVrm = techRecords.filter((x) => x.primaryVrm === vrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
+  if (filteredVrm.length) {
+    return addHttpHeaders({
+      statusCode: 400,
+      body: JSON.stringify(`Primary VRM ${vrm} already exists`),
+    });
   }
   return false;
 };
