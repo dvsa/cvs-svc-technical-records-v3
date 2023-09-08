@@ -1,11 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 
+import { TechRecordCar } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
 import { processCherishedTransfer } from '../processors/processCherishedTransfer';
 import { processCorrectVrm } from '../processors/processCorrectVrm';
 import {
-  getBySystemNumberAndCreatedTimestamp,
+  getBySystemNumberAndCreatedTimestamp, updateVehicle,
 } from '../services/database';
 import { getUserDetails } from '../services/user';
 import { addHttpHeaders } from '../util/httpHeaders';
@@ -32,9 +34,23 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   const userDetails = getUserDetails(event.headers.Authorization ?? '');
-
-  if (isCherishedTransfer) {
-    return processCherishedTransfer(userDetails, newVrm, newDonorVrm!, currentRecord);
+  try {
+    if (isCherishedTransfer) {
+      const [
+        newRecipientRecord,
+        recipientRecordToArchive,
+        newDonorRecord,
+        donorRecordToArchive,
+      ]: Promise<TechRecordType<'get'>[]> | APIGatewayProxyResult = processCherishedTransfer(userDetails, newVrm, currentRecord, newDonorVrm);
+      await updateVehicle([recipientRecordToArchive, donorRecordToArchive], [newRecipientRecord, newDonorRecord]);
+    }
+  } catch (err) {
+    return addHttpHeaders(
+      {
+        statusCode: 400,
+        body: err,
+      },
+    );
   }
   return processCorrectVrm(currentRecord, userDetails, newVrm);
 };
