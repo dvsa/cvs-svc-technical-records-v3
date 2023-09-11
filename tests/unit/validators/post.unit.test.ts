@@ -20,8 +20,6 @@ const trlPayload = {
   techRecord_vehicleType: 'trl',
   trailerId: 'C530005',
   vin: '9080977997',
-  techRecord_bodyType_description: 'artic',
-  techRecord_bodyType_code: 'a',
 };
 
 describe('Test post errors', () => {
