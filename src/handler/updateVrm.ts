@@ -52,6 +52,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         newDonorVrm,
         donorVehicleRecord,
       );
+      console.log('hiya');
 
       await updateVehicle([recipientRecordToArchive, donorRecordToArchive], [newRecipientRecord, newDonorRecord]);
 
