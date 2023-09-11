@@ -31,7 +31,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     logger.info(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
 
     const archivedRecord: TechRecordType<"get"> = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
-
     logger.debug(`result is: ${JSON.stringify(archivedRecord)}`);
 
     if (!archivedRecord || !Object.keys(archivedRecord).length) {
@@ -49,7 +48,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     const allVehicleRecords = await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, archivedRecord.systemNumber);
-    const hasUnarchivedRecords: boolean = allVehicleRecords.some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED);
+    const hasUnarchivedRecords: boolean = allVehicleRecords.some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED &&
+      searchResult.primaryVrm === (archivedRecord as any).primaryVrm);
 
     if(hasUnarchivedRecords){
       return addHttpHeaders({
