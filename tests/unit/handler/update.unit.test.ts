@@ -11,6 +11,20 @@ import { ERRORS } from '../../../src/util/enum';
 import hgvData from '../../resources/techRecordHGVPost.json';
 import { mockToken } from '../util/mockToken';
 
+const trlPayload = {
+  techRecord_reasonForCreation: 'Test Update',
+  techRecord_approvalType: 'NTA',
+  techRecord_statusCode: 'provisional',
+  techRecord_vehicleClass_code: 't',
+  techRecord_vehicleClass_description: 'trailer',
+  techRecord_vehicleConfiguration: 'rigid',
+  techRecord_vehicleType: 'trl',
+  trailerId: 'C530005',
+  vin: '9080977997',
+  techRecord_bodyType_description: 'artic',
+  techRecord_bodyType_code: 'a',
+};
+
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
   updateVehicle: mockUpdateVehicle,
@@ -34,19 +48,7 @@ describe('update handler', () => {
         systemNumber: '10000067',
         createdTimestamp: '2023-06-16T11:26:30.196Z',
       },
-      body: JSON.stringify({
-        techRecord_reasonForCreation: 'Test Update',
-        techRecord_approvalType: 'NTA',
-        techRecord_statusCode: 'provisional',
-        techRecord_vehicleClass_code: 't',
-        techRecord_vehicleClass_description: 'trailer',
-        techRecord_vehicleConfiguration: 'rigid',
-        techRecord_vehicleType: 'trl',
-        trailerId: 'C530005',
-        vin: '9080977997',
-        techRecord_bodyType_description: 'artic',
-        techRecord_bodyType_code: 'a',
-      }),
+      body: JSON.stringify(trlPayload),
     } as unknown as APIGatewayProxyEvent;
     jest.resetAllMocks();
     jest.resetModules();
@@ -100,17 +102,8 @@ describe('update handler', () => {
     });
     it('should return an error when VINs are invalid', async () => {
       request.body = JSON.stringify({
-        techRecord_reasonForCreation: 'Test Update',
-        techRecord_approvalType: 'NTA',
-        techRecord_statusCode: 'provisional',
-        techRecord_vehicleClass_code: 't',
-        techRecord_vehicleClass_description: 'trailer',
-        techRecord_vehicleConfiguration: 'rigid',
-        techRecord_vehicleType: 'trl',
-        trailerId: 'C530005',
+        ...trlPayload,
         vin: 'to',
-        techRecord_bodyType_description: 'artic',
-        techRecord_bodyType_code: 'a',
       });
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
         vin: 'testVin',
