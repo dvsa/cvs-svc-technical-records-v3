@@ -11,21 +11,6 @@ jest.mock('../../../src/validators/post.ts', () => ({
   identifySchema: mockIdentifySchema,
 }));
 
-const trlPayload = {
-  techRecord_reasonForCreation: 'VRM updated from undefined to C530005. Test dev tes 1',
-  techRecord_statusCode: 'provisional',
-  techRecord_vehicleClass_code: 't',
-  techRecord_vehicleClass_description: 'trailer',
-  techRecord_vehicleConfiguration: 'rigid',
-  techRecord_vehicleType: 'trl',
-  techRecord_bodyType_description: 'artic',
-  techRecord_bodyType_code: 'a',
-  trailerId: 'C530005',
-  vin: '9080977997',
-  techRecord_bodyType_description: 'artic',
-  techRecord_bodyType_code: 'a',
-};
-
 describe('Test post errors', () => {
   it('should error if there is no body', () => {
     const event = { foo: 'bar' } as unknown as APIGatewayProxyEvent;
@@ -87,7 +72,21 @@ describe('Test post errors', () => {
     }));
   });
   it('should return undefined as no errors', () => {
-    const event = { body: JSON.stringify(trlPayload), headers: { Authorization: 'Bearer 123' } } as unknown as APIGatewayProxyEvent;
+    const event = {
+      body: JSON.stringify({
+        techRecord_reasonForCreation: 'VRM updated from undefined to C530005. Test dev tes 1',
+        techRecord_statusCode: 'provisional',
+        techRecord_vehicleClass_code: 't',
+        techRecord_vehicleClass_description: 'trailer',
+        techRecord_vehicleConfiguration: 'rigid',
+        techRecord_vehicleType: 'trl',
+        trailerId: 'C530005',
+        vin: '9080977997',
+        techRecord_bodyType_description: 'artic',
+        techRecord_bodyType_code: 'a',
+      }),
+      headers: { Authorization: 'Bearer 123' },
+    } as unknown as APIGatewayProxyEvent;
 
     const res = validatePostErrors(event);
 

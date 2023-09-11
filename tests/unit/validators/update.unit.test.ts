@@ -3,21 +3,6 @@ import { ERRORS, StatusCode } from '../../../src/util/enum';
 import { checkStatusCodeValidity, validateUpdateErrors, validateUpdateVrmRequest } from '../../../src/validators/update';
 import { mockToken } from '../util/mockToken';
 
-const trlPayload = {
-  techRecord_reasonForCreation: 'Test Update',
-  techRecord_approvalType: 'NTA',
-  techRecord_statusCode: 'provisional',
-  techRecord_vehicleClass_code: 't',
-  techRecord_vehicleClass_description: 'trailer',
-  techRecord_vehicleType: 'trl',
-  techRecord_bodyType_description: 'artic',
-  techRecord_bodyType_code: 'a',
-  trailerId: 'C530005',
-  vin: '9080977997',
-  techRecord_bodyType_description: 'artic',
-  techRecord_bodyType_code: 'a',
-};
-
 describe('validateUpdateErrors', () => {
   it('throws error if request body is empty', () => {
     expect(validateUpdateErrors('{}')).toEqual({
@@ -64,7 +49,21 @@ describe('validateUpdateErrors', () => {
     }));
   });
   it('returns false if no errors', () => {
-    const event = { body: JSON.stringify(trlPayload) } as unknown as APIGatewayProxyEvent;
+    const event = {
+      body: JSON.stringify({
+        techRecord_reasonForCreation: 'Test Update',
+        techRecord_approvalType: 'NTA',
+        techRecord_statusCode: 'provisional',
+        techRecord_vehicleClass_code: 't',
+        techRecord_vehicleClass_description: 'trailer',
+        techRecord_vehicleConfiguration: 'rigid',
+        techRecord_vehicleType: 'trl',
+        trailerId: 'C530005',
+        vin: '9080977997',
+        techRecord_bodyType_description: 'artic',
+        techRecord_bodyType_code: 'a',
+      }),
+    } as unknown as APIGatewayProxyEvent;
 
     const res = validateUpdateErrors(event.body);
 
