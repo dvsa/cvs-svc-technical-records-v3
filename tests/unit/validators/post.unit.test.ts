@@ -18,6 +18,8 @@ const trlPayload = {
   techRecord_vehicleClass_description: 'trailer',
   techRecord_vehicleConfiguration: 'rigid',
   techRecord_vehicleType: 'trl',
+  techRecord_bodyType_description: 'artic',
+  techRecord_bodyType_code: 'a',
   trailerId: 'C530005',
   vin: '9080977997',
 };
