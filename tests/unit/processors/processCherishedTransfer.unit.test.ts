@@ -80,53 +80,27 @@ describe('processCherishedTransfer', () => {
     jest.resetAllMocks();
     jest.resetModules();
   });
-  it('should send update Vehicles with correctly formatted vehicles and newDonorVrm', async () => {
+  it('should return updated vehicle records correctly formatted', () => {
     const recipientMockRecord = { ...postCarData, techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
     const donorMockRecord = {
       ...postCarData, primaryVrm: 'DONORVRM', secondaryVrms: ['testing'], techRecord_statusCode: StatusCode.CURRENT,
     } as TechRecordType<'get'>;
-    const mockSearchReturn = {
-      primaryVrm: 'FOOBAR',
-      vin: 'TESTVIN',
-      techRecord_statusCode: 'current',
-      techRecord_vehicleType: 'car',
-      createdTimestamp: new Date(),
-      systemNumber: '012345',
-      techRecord_manufactureYear: 1989,
-    };
-    mockSearchByCriteria.mockResolvedValueOnce([mockSearchReturn]);
-    mockGetBySysNumTimestamp.mockResolvedValueOnce(donorMockRecord);
-    await processCherishedTransfer(mockUserDetails, 'DONORVRM', '012345', recipientMockRecord);
-    expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
-    expect(mockUpdateVehicle).toHaveBeenCalledWith(
+
+    const result = processCherishedTransfer(mockUserDetails, 'DONORVRM', recipientMockRecord, '012345', donorMockRecord);
+
+    expect(result).toEqual(
       expect.arrayContaining(
         [
           expect.objectContaining(recipientRecordToArchive),
           expect.objectContaining(donorRecordToArchive),
-        ],
-      ),
-      expect.arrayContaining(
-        [
           expect.objectContaining(updateRecordReturned),
           expect.objectContaining(donorVehicleUpdated),
         ],
       ),
     );
   });
-  it('should send update Vehicles with correctly formatted vehicles when no newDonorVrm sent', async () => {
+  it('should send update Vehicles with correctly formatted vehicles when no newDonorVrm sent', () => {
     const recipientMockRecord = { ...postCarData, techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
-    const donorMockRecord = {
-      ...postCarData, primaryVrm: 'DONORVRM', secondaryVrms: ['testing'], techRecord_statusCode: StatusCode.CURRENT,
-    } as TechRecordType<'get'>;
-    const mockSearchReturn = {
-      primaryVrm: 'FOOBAR',
-      vin: 'TESTVIN',
-      techRecord_statusCode: 'archived',
-      techRecord_vehicleType: 'car',
-      createdTimestamp: new Date(),
-      systemNumber: '012345',
-      techRecord_manufactureYear: 1989,
-    };
     const newRecord = {
       primaryVrm: 'NEWVRM',
       secondaryVrms: [
@@ -139,68 +113,16 @@ describe('processCherishedTransfer', () => {
       techRecord_vehicleType: 'car',
       vin: 'AA11100851',
     };
-    mockSearchByCriteria.mockResolvedValueOnce([mockSearchReturn]);
-    mockGetBySysNumTimestamp.mockResolvedValueOnce(donorMockRecord);
-    await processCherishedTransfer(mockUserDetails, 'NEWVRM', '', recipientMockRecord);
-    expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
-    expect(mockUpdateVehicle).toHaveBeenCalledWith(
+
+    const result = processCherishedTransfer(mockUserDetails, 'NEWVRM', recipientMockRecord);
+
+    expect(result).toEqual(
       expect.arrayContaining(
         [
           expect.objectContaining(recipientRecordToArchive),
-        ],
-      ),
-      expect.arrayContaining(
-        [
           expect.objectContaining(newRecord),
         ],
       ),
     );
-  });
-  it('should throw an error if there is no current record for the donor vehicle', async () => {
-    const recipientMockRecord = { ...postCarData, techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
-    const donorMockRecord = {
-      ...postCarData, primaryVrm: 'DONORVRM', secondaryVrms: ['testing'], techRecord_statusCode: StatusCode.CURRENT,
-    } as TechRecordType<'get'>;
-    const mockSearchReturn = [{
-      primaryVrm: 'FOOBAR',
-      vin: 'TESTVIN',
-      techRecord_statusCode: 'archived',
-      techRecord_vehicleType: 'car',
-      createdTimestamp: new Date(),
-      systemNumber: '012345',
-      techRecord_manufactureYear: 1989,
-    },
-    {
-      primaryVrm: 'FOOBAR',
-      vin: 'TESTVIN',
-      techRecord_statusCode: 'provisional',
-      techRecord_vehicleType: 'car',
-      createdTimestamp: new Date(),
-      systemNumber: '012345',
-      techRecord_manufactureYear: 1989,
-    }];
-    mockSearchByCriteria.mockResolvedValueOnce(mockSearchReturn);
-    mockGetBySysNumTimestamp.mockResolvedValueOnce(donorMockRecord);
-    const result = await processCherishedTransfer(mockUserDetails, 'DONORVRM', '012345', recipientMockRecord);
-    expect(result).toEqual(addHttpHeaders({ statusCode: 400, body: 'no vehicles with VRM DONORVRM have a current record' }));
-  });
-  it('should return an error if an invalid VRM is supplied for the donor', async () => {
-    const recipientMockRecord = { ...postCarData, techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
-    const donorMockRecord = {
-      ...postCarData, primaryVrm: 'DONORVRM', secondaryVrms: ['testing'], techRecord_statusCode: StatusCode.CURRENT,
-    } as TechRecordType<'get'>;
-    const mockSearchReturn = {
-      primaryVrm: 'FOOBAR',
-      vin: 'TESTVIN',
-      techRecord_statusCode: 'current',
-      techRecord_vehicleType: 'car',
-      createdTimestamp: new Date(),
-      systemNumber: '012345',
-      techRecord_manufactureYear: 1989,
-    };
-    mockSearchByCriteria.mockResolvedValueOnce([mockSearchReturn]);
-    mockGetBySysNumTimestamp.mockResolvedValueOnce(donorMockRecord);
-    const result = await processCherishedTransfer(mockUserDetails, 'DONORVRM', '0!', recipientMockRecord);
-    expect(result).toEqual(addHttpHeaders({ statusCode: 400, body: 'Invalid VRM' }));
   });
 });

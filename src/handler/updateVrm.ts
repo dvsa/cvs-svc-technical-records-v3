@@ -1,19 +1,20 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 
-import { SearchCriteria } from '../models/search';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
 import { processCherishedTransfer } from '../processors/processCherishedTransfer';
 import { processCorrectVrm } from '../processors/processCorrectVrm';
 import {
   correctVrm,
-  getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle,
+  getBySystemNumberAndCreatedTimestamp,
+  updateVehicle,
 } from '../services/database';
+import { donorVehicle } from '../services/donorVehicle';
 import { getUserDetails } from '../services/user';
-import { StatusCode } from '../util/enum';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
-import { validateUpdateVrmRequest, validateVrmExists, validateVrm } from '../validators/update';
+import { validateUpdateVrmRequest, validateVrm, validateVrmExists } from '../validators/update';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -30,56 +31,38 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       systemNumber,
       createdTimestamp,
     );
-    const vrmsNotIncorrectFormat = validateVrm(recipientRecord, newVrm);
-    if (vrmsNotIncorrectFormat) {
-      return vrmsNotIncorrectFormat;
+    const newVrmNotCorrectFormat = validateVrm(recipientRecord, newVrm);
+    if (newVrmNotCorrectFormat) {
+      return newVrmNotCorrectFormat;
     }
 
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
 
-    let donorRecord;
     if (isCherishedTransfer) {
-      if (newDonorVrm) {
-        const donorRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm);
-        const currentDonorRecordDetails = donorRecords.filter((x) => x.techRecord_statusCode === StatusCode.CURRENT);
-        if (!currentDonorRecordDetails) {
-          return addHttpHeaders({
-            statusCode: 400,
-            body: `no vehicles with VRM ${newVrm} have a current record`,
-          });
-        }
-        donorRecord = await getBySystemNumberAndCreatedTimestamp(
-          currentDonorRecordDetails[0].systemNumber,
-          currentDonorRecordDetails[0].createdTimestamp,
-        );
-        const donorVrmsNotIncorrectFormat = validateVrm(donorRecord, newDonorVrm);
-        if (donorVrmsNotIncorrectFormat) {
-          return addHttpHeaders(donorVrmsNotIncorrectFormat);
-        }
-      } else {
-        const vrmExists = await validateVrmExists(newVrm);
-        if (vrmExists) {
-          return vrmExists;
-        }
-        const [newRecipientRecord, recipientRecordToArchive, newDonorRecord, donorRecordToArchive] = processCherishedTransfer(
-          userDetails,
-          newVrm,
-          recipientRecord,
-          newDonorVrm,
-          donorRecord,
-        );
+      const [donorVehicleRecord, error] = await donorVehicle(newVrm, newDonorVrm) as [TechRecordType<'get'>, APIGatewayProxyResult | undefined];
 
-        await updateVehicle([recipientRecordToArchive, donorRecordToArchive], [newRecipientRecord, newDonorRecord]);
-
-        return addHttpHeaders({
-          statusCode: 200,
-          body: JSON.stringify(newRecipientRecord),
-        });
+      if (error) {
+        return error;
       }
+
+      const [newRecipientRecord, recipientRecordToArchive, newDonorRecord, donorRecordToArchive] = processCherishedTransfer(
+        userDetails,
+        newVrm,
+        recipientRecord,
+        newDonorVrm,
+        donorVehicleRecord,
+      );
+
+      await updateVehicle([recipientRecordToArchive, donorRecordToArchive], [newRecipientRecord, newDonorRecord]);
+
+      return addHttpHeaders({
+        statusCode: 200,
+        body: JSON.stringify(newRecipientRecord),
+      });
     }
-    const vrmExists = await validateVrmExists(newVrm);
-    if (vrmExists) {
-      return vrmExists;
+    const newVrmExistsOnActiveRecord = await validateVrmExists(newVrm);
+    if (newVrmExistsOnActiveRecord) {
+      return newVrmExistsOnActiveRecord;
     }
     logger.debug('identifier has been validated');
     const newRecipientRecord = processCorrectVrm(recipientRecord, userDetails, newVrm);

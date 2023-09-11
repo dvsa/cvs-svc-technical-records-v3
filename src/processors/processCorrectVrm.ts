@@ -1,5 +1,7 @@
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { UserDetails } from '../services/user';
+import { setLastUpdatedAuditDetails } from '../services/audit';
+import { StatusCode } from '../util/enum';
 
 export const processCorrectVrm = (
   currentRecord: TechRecordType<'get'>,
@@ -7,12 +9,16 @@ export const processCorrectVrm = (
   newVrm: string,
 ): TechRecordType<'get'> => {
   const newRecord: TechRecordType<'get'> = { ...currentRecord };
-  if (newRecord.techRecord_vehicleType !== 'trl') {
-    newRecord.primaryVrm = newVrm.toUpperCase();
+  const updatedRecord = setLastUpdatedAuditDetails(
+    newRecord,
+    userDetails.username,
+    userDetails.msOid,
+    new Date().toISOString(),
+    newRecord.techRecord_statusCode as StatusCode,
+  );
+  if (updatedRecord.techRecord_vehicleType !== 'trl') {
+    updatedRecord.primaryVrm = newVrm.toUpperCase();
   }
-  newRecord.techRecord_lastUpdatedAt = new Date().toISOString();
-  newRecord.techRecord_lastUpdatedById = userDetails.msOid;
-  newRecord.techRecord_lastUpdatedByName = userDetails.username;
 
-  return newRecord;
+  return updatedRecord;
 };

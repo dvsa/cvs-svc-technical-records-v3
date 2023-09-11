@@ -17,28 +17,22 @@ describe('processCorrectVrm', () => {
   const mockUserDetails = {
     username: 'Test User', msOid: 'QWERTY', email: 'testUser@test.com',
   };
-  beforeEach(() => {
-    jest.resetAllMocks();
-    jest.resetModules();
-  });
-  describe('successful if VRM is not on an current or provisional record', () => {
-    it('returns a new record and an undefined record to archive', async () => {
-      const mockRecordFromDb = postCarData as TechRecordType<'get'>;
-      mockSearchByCriteria.mockResolvedValueOnce([]);
-      mockCorrectVrm.mockResolvedValueOnce({});
-      const result = await processCorrectVrm(mockRecordFromDb, mockUserDetails, 'FOOBAR');
-      expect(mockCorrectVrm).toHaveBeenCalledTimes(1);
-      expect(result.statusCode).toBe(200);
-      expect(result.body).not.toBeNull();
-    });
-  });
-  it('fails if VRM is on a current or provisional record', async () => {
-    const mockRecordFromDb = postCarData as TechRecordType<'get'>;
-    mockSearchByCriteria.mockResolvedValueOnce([{ ...postCarData, techRecord_statusCode: StatusCode.CURRENT }]);
+  const updatedRecordReturned = {
+    primaryVrm: 'NEWVRM',
+    secondaryVrms: [
+      ' ',
+    ],
+    techRecord_lastUpdatedByName: 'Test User',
+    techRecord_lastUpdatedById: 'QWERTY',
+    techRecord_statusCode: 'current',
+    techRecord_vehicleType: 'car',
+    vin: 'AA11100851',
+  };
+  it('returns a correctly formatted record', () => {
+    const mockRecordFromDb = { ...postCarData, techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
+    mockSearchByCriteria.mockResolvedValueOnce([]);
     mockCorrectVrm.mockResolvedValueOnce({});
-    const result = await processCorrectVrm(mockRecordFromDb, mockUserDetails, '991234Z');
-    expect(mockCorrectVrm).toHaveBeenCalledTimes(0);
-    expect(result.statusCode).toBe(400);
-    expect(result.body).not.toBeNull();
+    const result = processCorrectVrm(mockRecordFromDb, mockUserDetails, 'NEWVRM');
+    expect(result).toEqual(expect.objectContaining(updatedRecordReturned));
   });
 });
