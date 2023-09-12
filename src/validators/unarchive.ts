@@ -32,11 +32,11 @@ export const validateUnarchiveErrors = (event: APIGatewayProxyEvent): APIGateway
       body: 'Reason for unarchiving not provided',
     };
   }
-  if(!body.status || (body.status === StatusCode.CURRENT || body.status === StatusCode.PROVISIONAL)) {
+  if (!body.status || (body.status === StatusCode.CURRENT || body.status === StatusCode.PROVISIONAL)) {
     return {
       statusCode: 400,
-      body: 'Invalid status provided'
-    }
+      body: 'Invalid status provided',
+    };
   }
 
   return undefined;
