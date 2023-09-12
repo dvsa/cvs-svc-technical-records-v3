@@ -49,7 +49,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const allVehicleRecords = await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, archivedRecord.systemNumber);
     const hasUnarchivedRecords: boolean = allVehicleRecords.some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       && searchResult.primaryVrm === (archivedRecord as unknown as any).primaryVrm);
 
     if (hasUnarchivedRecords) {
