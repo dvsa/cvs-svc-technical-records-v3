@@ -26,7 +26,7 @@ export const processCherishedTransfer = (
 const formatSecondaryVrms = (record:TechRecordType<'get'>): Array<string> | undefined => {
   if (record.techRecord_vehicleType !== 'trl') {
     const secondaryVrms: string[] = record.secondaryVrms ? [...record.secondaryVrms] : [];
-    secondaryVrms.push(record.primaryVrm!);
+    secondaryVrms.push(record.primaryVrm ?? '');
     return secondaryVrms;
   }
   return undefined;

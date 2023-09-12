@@ -117,7 +117,7 @@ describe('update handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
-      const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordType<'put'>;
+      const newRecord = { ...hgvData, ...JSON.parse(request.body ?? '') } as TechRecordType<'put'>;
       mockProcessUpdateRequest.mockReturnValueOnce([hgvData, newRecord]);
       mockUpdateVehicle.mockRejectedValueOnce('Error');
       const result = await handler(request);

@@ -4,12 +4,9 @@ const mockSearchByCriteria = jest.fn();
 const mockGetBySysNumTimestamp = jest.fn();
 
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
-import { APIGatewayProxyResult } from 'aws-lambda';
 import { processCherishedTransfer } from '../../../src/processors/processCherishedTransfer';
-import postCarData from '../../resources/techRecordCarPost.json';
 import { StatusCode } from '../../../src/util/enum';
-import { SearchResult } from '../../../src/models/search';
-import { addHttpHeaders } from '../../../src/util/httpHeaders';
+import postCarData from '../../resources/techRecordCarPost.json';
 
 jest.mock('../../../src/services/database', () => ({
   updateVehicle: mockUpdateVehicle,
