@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
 import { cloneDeep } from 'lodash';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { SearchCriteria } from '../models/search';
 import { setCreatedAuditDetails } from '../services/audit';
 import { getBySystemNumberAndCreatedTimestamp, postTechRecord, searchByCriteria } from '../services/database';
@@ -11,7 +12,6 @@ import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateUnarchiveErrors } from '../validators/unarchive';
 import { UnarchiveRequestBody } from '../models/unarchive';
-import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Unarchive end point called');
@@ -30,7 +30,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     logger.info(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
 
-    const archivedRecord: TechRecordType<"get"> = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
+    const archivedRecord: TechRecordType<'get'> = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
     logger.debug(`result is: ${JSON.stringify(archivedRecord)}`);
 
     if (!archivedRecord || !Object.keys(archivedRecord).length) {
@@ -48,17 +48,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     const allVehicleRecords = await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, archivedRecord.systemNumber);
-    const hasUnarchivedRecords: boolean = allVehicleRecords.some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED &&
-      searchResult.primaryVrm === (archivedRecord as any).primaryVrm);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const hasUnarchivedRecords: boolean = allVehicleRecords.some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED
+      && searchResult.primaryVrm === (archivedRecord as any).primaryVrm);
 
-    if(hasUnarchivedRecords){
+    if (hasUnarchivedRecords) {
       return addHttpHeaders({
         statusCode: 400,
         body: 'Cannot archive a record with unarchived records',
       });
     }
 
-    let recordToCreate: TechRecordType<"get"> = cloneDeep(archivedRecord);
+    let recordToCreate: TechRecordType<'get'> = cloneDeep(archivedRecord);
     recordToCreate.techRecord_reasonForCreation = reasonForUnarchiving;
     recordToCreate = setCreatedAuditDetails(
       recordToCreate,
