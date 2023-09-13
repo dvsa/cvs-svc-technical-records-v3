@@ -820,6 +820,12 @@
     "vin": "DP76UMK4DQLTOT"
   },
   {
+    "createdTimestamp": "2019-06-22T12:00:00.904Z",
+    "partialVin": "700060",
+    "primaryVrm": "WSG5075",
+    "secondaryVrms": [
+        "BADS70"
+    ],
     "systemNumber": "RATMEM00066",
     "techRecord_bodyType_code": "x",
     "techRecord_bodyType_description": null,
