@@ -3,6 +3,7 @@ import { ERRORS, StatusCode } from '../../../src/util/enum';
 import { checkStatusCodeValidity, validateUpdateErrors } from '../../../src/validators/update';
 
 const trlPayload = {
+  techRecord_vehicleConfiguration: 'other',
   techRecord_reasonForCreation: 'Test Update',
   techRecord_approvalType: 'NTA',
   techRecord_statusCode: 'provisional',
