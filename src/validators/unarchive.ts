@@ -34,9 +34,7 @@ export const validateUnarchiveErrors = (event: APIGatewayProxyEvent): APIGateway
   }
 
   const validStatusCodes = [StatusCode.CURRENT, StatusCode.PROVISIONAL];
-  const statusCodeIsValid = validStatusCodes.some((statusCode) => {
-    return statusCode === body?.status;
-  });
+  const statusCodeIsValid = validStatusCodes.some((statusCode) => statusCode === body?.status);
 
   if (!statusCodeIsValid) {
     return {
