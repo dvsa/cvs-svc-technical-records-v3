@@ -42,7 +42,7 @@ describe('Unarchive Post Lambda Function', () => {
           vin: 'DP76UMK4DQLTOT',
           primaryVrm: 'RATMEM00066',
           techRecord_vehicleType: 'car',
-        }
+        },
       ]);
       mockUnarchiveRecord.mockResolvedValueOnce(postCarData);
 
@@ -99,7 +99,7 @@ describe('Unarchive Post Lambda Function', () => {
           vin: 'DP76UMK4DQLTOT',
           primaryVrm: 'RATMEM00066',
           techRecord_vehicleType: 'car',
-        }
+        },
       ]);
 
       const result = await handler(unarchiveRequestData as unknown as APIGatewayProxyEvent);
