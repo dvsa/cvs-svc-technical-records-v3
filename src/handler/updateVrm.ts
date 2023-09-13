@@ -45,7 +45,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         return error;
       }
 
-      const [newRecipientRecord, recipientRecordToArchive, newDonorRecord, donorRecordToArchive] = processCherishedTransfer(
+      const { recordsToArchive, recordsToUpdate } = processCherishedTransfer(
         userDetails,
         newVrm,
         recipientRecord,
@@ -53,11 +53,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         donorVehicleRecord,
       );
 
-      await updateVehicle([recipientRecordToArchive, donorRecordToArchive], [newRecipientRecord, newDonorRecord]);
+      await updateVehicle(recordsToArchive, recordsToUpdate);
 
       return addHttpHeaders({
         statusCode: 200,
-        body: JSON.stringify(newRecipientRecord),
+        body: JSON.stringify(recordsToUpdate[0]),
       });
     }
     const newVrmExistsOnActiveRecord = await validateVrmExists(newVrm);

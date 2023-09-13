@@ -9,18 +9,66 @@ export const processCherishedTransfer = (
   recipientRecord: TechRecordType<'get'>,
   newDonorVrm?: string,
   donorRecord?: TechRecordType<'get'>,
-)
-: TechRecordType<'get'>[] => {
+) => {
+  const recordsToUpdate = [];
+  const recordsToArchive = [];
+
   if (newDonorVrm && donorRecord) {
-    return cherishedTransferWithDonor(
-      userDetails,
-      newVrm,
-      newDonorVrm,
-      recipientRecord,
-      donorRecord,
+    const donorToArchive = { ...donorRecord };
+    const donorOldVrms = formatSecondaryVrms(donorRecord);
+
+    const updatedDonorRecordToArchive = setLastUpdatedAuditDetails(
+      donorToArchive,
+      userDetails.username,
+      userDetails.msOid,
+      new Date().toISOString(),
+      StatusCode.ARCHIVED,
     );
+
+    const updatedDonorRecord = setCreatedAuditDetails(
+      donorRecord,
+      userDetails.username,
+      userDetails.msOid,
+      new Date().toISOString(),
+      StatusCode.CURRENT,
+    );
+    if (updatedDonorRecord.techRecord_vehicleType !== 'trl') {
+      updatedDonorRecord.primaryVrm = newDonorVrm.toUpperCase();
+      updatedDonorRecord.secondaryVrms = donorOldVrms;
+    }
+    updatedDonorRecord.techRecord_reasonForCreation = 'Update VRM - Cherished Transfer';
+    recordsToUpdate.push(updatedDonorRecord);
+    recordsToArchive.push(updatedDonorRecordToArchive);
   }
-  return cherishedTransferNoDonorVehicle(newVrm, recipientRecord, userDetails);
+  const recordToArchive = { ...recipientRecord };
+  const newRecord = { ...recipientRecord };
+  const recipientOldVrms = formatSecondaryVrms(newRecord);
+
+  const updatedRecipientRecordToArchive = setLastUpdatedAuditDetails(
+    recordToArchive,
+    userDetails.username,
+    userDetails.msOid,
+    new Date().toISOString(),
+    StatusCode.ARCHIVED,
+  );
+
+  const updatedRecipientNewRecord = setCreatedAuditDetails(
+    newRecord,
+    userDetails.username,
+    userDetails.msOid,
+    new Date().toISOString(),
+    recipientRecord.techRecord_statusCode as StatusCode,
+  );
+  if (updatedRecipientNewRecord.techRecord_vehicleType !== 'trl') {
+    updatedRecipientNewRecord.primaryVrm = newVrm.toUpperCase();
+    updatedRecipientNewRecord.secondaryVrms = recipientOldVrms;
+  }
+  updatedRecipientNewRecord.techRecord_reasonForCreation = 'Update VRM - Cherished Transfer';
+  recordsToUpdate.unshift(updatedRecipientNewRecord);
+  recordsToArchive.unshift(updatedRecipientRecordToArchive);
+
+  const request = { recordsToUpdate, recordsToArchive };
+  return request;
 };
 
 const formatSecondaryVrms = (record:TechRecordType<'get'>): Array<string> | undefined => {
@@ -30,97 +78,4 @@ const formatSecondaryVrms = (record:TechRecordType<'get'>): Array<string> | unde
     return secondaryVrms;
   }
   return undefined;
-};
-
-const cherishedTransferNoDonorVehicle = (
-  newVrm: string,
-  recipientRecord: TechRecordType<'get'>,
-  userDetails: UserDetails,
-): TechRecordType<'get'>[] => {
-  const recordToArchive = { ...recipientRecord };
-  const newRecord = { ...recipientRecord };
-  const recipientOldVrms = formatSecondaryVrms(newRecord);
-
-  const updatedRecordToArchive = setLastUpdatedAuditDetails(
-    recordToArchive,
-    userDetails.username,
-    userDetails.msOid,
-    new Date().toISOString(),
-    StatusCode.ARCHIVED,
-  );
-
-  const updatedNewRecord = setCreatedAuditDetails(
-    newRecord,
-    userDetails.username,
-    userDetails.msOid,
-    new Date().toISOString(),
-    recipientRecord.techRecord_statusCode as StatusCode,
-  );
-  if (updatedNewRecord.techRecord_vehicleType !== 'trl') {
-    updatedNewRecord.primaryVrm = newVrm.toUpperCase();
-    updatedNewRecord.secondaryVrms = recipientOldVrms;
-  }
-  updatedNewRecord.techRecord_reasonForCreation = 'Update VRM - Cherished Transfer';
-
-  return [updatedNewRecord, updatedRecordToArchive, {} as TechRecordType<'get'>, {} as TechRecordType<'get'>];
-};
-
-const cherishedTransferWithDonor = (
-  userDetails: UserDetails,
-  newVrm: string,
-  newDonorVrm: string,
-  recipientRecord: TechRecordType<'get'>,
-  donorRecord: TechRecordType<'get'>,
-): TechRecordType<'get'>[] => {
-  const donorToArchive = { ...donorRecord };
-
-  const recipientRecordToArchive: TechRecordType<'get'> = { ...recipientRecord };
-  const recipientNewRecord: TechRecordType<'get'> = { ...recipientRecord };
-
-  const recipientOldVrms = formatSecondaryVrms(recipientRecordToArchive);
-  const donorOldVrms = formatSecondaryVrms(donorRecord);
-
-  const updatedNewRecord = setCreatedAuditDetails(
-    recipientNewRecord,
-    userDetails.username,
-    userDetails.msOid,
-    new Date().toISOString(),
-    recipientRecord.techRecord_statusCode as StatusCode,
-  );
-  if (updatedNewRecord.techRecord_vehicleType !== 'trl') {
-    updatedNewRecord.primaryVrm = newVrm.toUpperCase();
-    updatedNewRecord.secondaryVrms = recipientOldVrms;
-  }
-  updatedNewRecord.techRecord_reasonForCreation = 'Update VRM - Cherished Transfer';
-
-  const updatedRecordToArchive = setLastUpdatedAuditDetails(
-    recipientRecordToArchive,
-    userDetails.username,
-    userDetails.msOid,
-    new Date().toISOString(),
-    StatusCode.ARCHIVED,
-  );
-
-  const updatedDonorRecordToArchive = setLastUpdatedAuditDetails(
-    donorToArchive,
-    userDetails.username,
-    userDetails.msOid,
-    new Date().toISOString(),
-    StatusCode.ARCHIVED,
-  );
-
-  const updatedDonorRecord = setCreatedAuditDetails(
-    donorRecord,
-    userDetails.username,
-    userDetails.msOid,
-    new Date().toISOString(),
-    StatusCode.CURRENT,
-  );
-  if (updatedDonorRecord.techRecord_vehicleType !== 'trl') {
-    updatedDonorRecord.primaryVrm = newDonorVrm.toUpperCase();
-    updatedDonorRecord.secondaryVrms = donorOldVrms;
-  }
-  updatedDonorRecord.techRecord_reasonForCreation = 'Update VRM - Cherished Transfer';
-
-  return [updatedNewRecord, updatedRecordToArchive, updatedDonorRecord, updatedDonorRecordToArchive];
 };

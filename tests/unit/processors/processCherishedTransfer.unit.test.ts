@@ -84,16 +84,11 @@ describe('processCherishedTransfer', () => {
     } as TechRecordType<'get'>;
 
     const result = processCherishedTransfer(mockUserDetails, 'DONORVRM', recipientMockRecord, '012345', donorMockRecord);
-
     expect(result).toEqual(
-      expect.arrayContaining(
-        [
-          expect.objectContaining(recipientRecordToArchive),
-          expect.objectContaining(donorRecordToArchive),
-          expect.objectContaining(updateRecordReturned),
-          expect.objectContaining(donorVehicleUpdated),
-        ],
-      ),
+      {
+        recordsToArchive: [expect.objectContaining(recipientRecordToArchive), expect.objectContaining(donorRecordToArchive)],
+        recordsToUpdate: [expect.objectContaining(updateRecordReturned), expect.objectContaining(donorVehicleUpdated)],
+      },
     );
   });
   it('should send update Vehicles with correctly formatted vehicles when no newDonorVrm sent', () => {
@@ -114,12 +109,10 @@ describe('processCherishedTransfer', () => {
     const result = processCherishedTransfer(mockUserDetails, 'NEWVRM', recipientMockRecord);
 
     expect(result).toEqual(
-      expect.arrayContaining(
-        [
-          expect.objectContaining(recipientRecordToArchive),
-          expect.objectContaining(newRecord),
-        ],
-      ),
+      {
+        recordsToArchive: [expect.objectContaining(recipientRecordToArchive)],
+        recordsToUpdate: [expect.objectContaining(newRecord)],
+      },
     );
   });
 });
