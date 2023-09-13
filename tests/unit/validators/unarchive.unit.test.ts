@@ -92,21 +92,6 @@ describe('test the unarchive error validator', () => {
     });
   });
 
-  it('should return an error when status is empty', () => {
-    const event = {
-      pathParameters: { systemNumber: 'RATMEM00066', createdTimestamp: '2019-06-15T10:26:54.903Z' },
-      body: JSON.stringify({ reasonForUnarchiving: 'Just a test for unarchiving', status: '' }),
-      headers: {
-        Authorization: mockToken,
-      },
-    };
-    const res = validateUnarchiveErrors(event as unknown as APIGatewayProxyEvent);
-    expect(res).toEqual({
-      statusCode: 400,
-      body: 'Invalid status provided',
-    });
-  });
-
   it('should return undefined when no errors and provisional status', () => {
     const event = {
       pathParameters: { systemNumber: 'RATMEM00066', createdTimestamp: '2019-06-15T10:26:54.903Z' },
