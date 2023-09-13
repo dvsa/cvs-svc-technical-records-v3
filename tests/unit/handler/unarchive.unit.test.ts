@@ -33,15 +33,15 @@ describe('Unarchive Post Lambda Function', () => {
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(unarchivePostData);
       mockSearchByCriteriaRecords.mockResolvedValueOnce([
         {
-          "techRecord_model": null,
-          "techRecord_manufactureYear": null,
-          "techRecord_make": null,
-          "techRecord_statusCode": "archived",
-          "createdTimestamp": "2019-06-22T12:00:00.904Z",
-          "systemNumber": "12346574",
-          "vin": "DP76UMK4DQLTOT",
-          "primaryVrm": "RATMEM00066",
-          "techRecord_vehicleType": "car"
+          techRecord_model: null,
+          techRecord_manufactureYear: null,
+          techRecord_make: null,
+          techRecord_statusCode: 'archived',
+          createdTimestamp: '2019-06-22T12:00:00.904Z',
+          systemNumber: '12346574',
+          vin: 'DP76UMK4DQLTOT',
+          primaryVrm: 'RATMEM00066',
+          techRecord_vehicleType: 'car',
         }
       ]);
       mockUnarchiveRecord.mockResolvedValueOnce(postCarData);
@@ -90,15 +90,15 @@ describe('Unarchive Post Lambda Function', () => {
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(invalidRecordData);
       mockSearchByCriteriaRecords.mockResolvedValueOnce([
         {
-          "techRecord_model": null,
-          "techRecord_manufactureYear": null,
-          "techRecord_make": null,
-          "techRecord_statusCode": "provisional",
-          "createdTimestamp": "2019-06-22T12:00:00.904Z",
-          "systemNumber": "123465749",
-          "vin": "DP76UMK4DQLTOT",
-          "primaryVrm": "RATMEM00066",
-          "techRecord_vehicleType": "car"
+          techRecord_model: null,
+          techRecord_manufactureYear: null,
+          techRecord_make: null,
+          techRecord_statusCode: 'provisional',
+          createdTimestamp: '2019-06-22T12:00:00.904Z',
+          systemNumber: '123465749',
+          vin: 'DP76UMK4DQLTOT',
+          primaryVrm: 'RATMEM00066',
+          techRecord_vehicleType: 'car',
         }
       ]);
 
