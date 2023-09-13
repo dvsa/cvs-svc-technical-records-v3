@@ -67,8 +67,7 @@ export const processCherishedTransfer = (
   recordsToUpdate.unshift(updatedRecipientNewRecord);
   recordsToArchive.unshift(updatedRecipientRecordToArchive);
 
-  const request = { recordsToUpdate, recordsToArchive };
-  return request;
+  return { recordsToUpdate, recordsToArchive };
 };
 
 const formatSecondaryVrms = (record:TechRecordType<'get'>): Array<string> | undefined => {
