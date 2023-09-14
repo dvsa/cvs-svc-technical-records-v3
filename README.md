@@ -58,12 +58,15 @@ A local DynamoDB table is available for local testing. [DynamoDB Admin](https://
 - Running locally
 The are two ways of running the integration tests locally
     1. With two terminals 
+
         _This is the recommended way if writing new integration tests as it gives more feedback as it is possible to see the logs of the local lambdas_
         - In one terminal run `npm run build:dev && npm run start:dev`
         - In another terminal, run `npm run test:integration`
 
     2. With one terminal 
+
         _This is the recommended way if running the tests to test functionality is not broken. There are no logs output to the console, but the tests run faster than the above method_
+
         - Run `npm run dynamo:start` to spin up the dynamoDB container
         - Run `npm run test:integration:github` to run the tests
         - _Optional_ `npm run docker:clean` to stop and remove the lambda containers the tests have spun up. These can build up overtime. This will remove all containers using the `public.ecr.aws/lambda/nodejs:18-rapid-x86_64` base image
