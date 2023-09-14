@@ -34,18 +34,19 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     logger.debug(`result is: ${JSON.stringify(record)}`);
 
     if (!record || !Object.keys(record).length) {
-      return addHttpHeaders({ statusCode: 404, body: `No record found matching systemNumber ${systemNumber} and timestamp ${createdTimestamp}`});
+      return addHttpHeaders({ statusCode: 404, body: `No record found matching systemNumber ${systemNumber} and timestamp ${createdTimestamp}` });
     }
 
     if (record.techRecord_statusCode !== StatusCode.ARCHIVED) {
-      return addHttpHeaders({ statusCode: 400, body: 'Record provided is not an archived record so cannot be unarchived.'});
+      return addHttpHeaders({ statusCode: 400, body: 'Record provided is not an archived record so cannot be unarchived.' });
     }
 
     const { primaryVrm } = (record as { primaryVrm?: string });
-    const hasUnarchivedRecords = (await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, record.systemNumber)).some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED && searchResult.primaryVrm === primaryVrm);
+    const hasUnarchivedRecords = (await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, record.systemNumber))
+      .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED && searchResult.primaryVrm === primaryVrm);
 
     if (hasUnarchivedRecords) {
-      return addHttpHeaders({ statusCode: 400, body: 'Cannot archive a record with unarchived records'});
+      return addHttpHeaders({ statusCode: 400, body: 'Cannot archive a record with unarchived records' });
     }
 
     const recordToCreate: TechRecordType<'get'> = {
@@ -59,7 +60,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     return addHttpHeaders({ statusCode: 200, body: JSON.stringify(formatTechRecord(postResponse)) });
   } catch (error) {
-    logger.error(`Error has been thrown with ${JSON.stringify(error)}`);
+    //eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    logger.error(`Error has been thrown with ${ JSON.stringify(error) }`);
     return addHttpHeaders({ statusCode: 500, body: JSON.stringify({ error: `Failed to unarchive record: ${error}` })});
   }
 };
