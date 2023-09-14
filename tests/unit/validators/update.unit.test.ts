@@ -127,19 +127,6 @@ describe('validateUpdateVrmRequest', () => {
       body: 'You must provide a donor vehicle VRM',
     });
   });
-  it('if isCherishedTransfer returns error if new donor vrm missing', () => {
-    const event = {
-      body: JSON.stringify({ newVrm: '0123456', isCherishedTransfer: true }),
-      pathParameters: { systemNumber: 123456, createdTimestamp: new Date().toISOString() },
-      headers: {
-        Authorization: mockToken,
-      },
-    } as unknown as APIGatewayProxyEvent;
-    expect(validateUpdateVrmRequest(event)).toEqual({
-      statusCode: 400,
-      body: 'You must provide a new VRM for the donor vehicle',
-    });
-  });
   it('if isCherishedTransfer returns false if everything is fine', () => {
     const event = {
       body: JSON.stringify({ newVrm: '0123456', isCherishedTransfer: true, newDonorVrm: '012345' }),

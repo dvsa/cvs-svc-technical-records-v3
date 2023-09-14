@@ -35,13 +35,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (newVrmNotCorrectFormat) {
       return newVrmNotCorrectFormat;
     }
-
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
-
-    if (isCherishedTransfer) {
-      const [donorVehicleRecord, error] = await donorVehicle(newVrm, newDonorVrm) as [TechRecordType<'get'>, APIGatewayProxyResult | undefined];
-
-      if (error) {
+    if (isCherishedTransfer === true) {
+      logger.debug('Performing cherished Transfer');
+      const [donorVehicleRecord, error] = await donorVehicle(newVrm, newDonorVrm) as [TechRecordType<'get'>, APIGatewayProxyResult];
+      if (error?.statusCode) {
         return error;
       }
 
@@ -52,7 +50,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         newDonorVrm,
         donorVehicleRecord,
       );
-
       await updateVehicle(recordsToArchive, recordsToUpdate);
 
       return addHttpHeaders({
@@ -60,6 +57,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         body: JSON.stringify(recordsToUpdate[0]),
       });
     }
+    logger.debug('Correcting an error');
     const newVrmExistsOnActiveRecord = await validateVrmExists(newVrm);
     if (newVrmExistsOnActiveRecord) {
       return newVrmExistsOnActiveRecord;

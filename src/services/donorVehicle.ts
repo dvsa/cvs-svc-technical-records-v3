@@ -8,7 +8,7 @@ import { addHttpHeaders } from '../util/httpHeaders';
 
 export const donorVehicle = async (newVrm: string, newDonorVrm?: string) => {
   let err = {} as APIGatewayProxyResult;
-  let donorVehicleRecord = {} as TechRecordType<'get'>;
+  let donorVehicleRecord = {};
   if (newDonorVrm) {
     const donorRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm);
     const currentDonorRecordDetails = donorRecords.filter((x) => x.techRecord_statusCode === StatusCode.CURRENT);
@@ -24,7 +24,7 @@ export const donorVehicle = async (newVrm: string, newDonorVrm?: string) => {
       );
     }
 
-    const donorVrmsNotIncorrectFormat = validateVrm(donorVehicleRecord, newDonorVrm);
+    const donorVrmsNotIncorrectFormat = validateVrm(donorVehicleRecord as TechRecordType<'get'>, newDonorVrm);
     if (donorVrmsNotIncorrectFormat) {
       err = addHttpHeaders(donorVrmsNotIncorrectFormat);
     }

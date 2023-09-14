@@ -59,17 +59,12 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
       body: 'Missing authorization header',
     };
   }
-  const { newVrm, isCherishedTransfer, newDonorVrm } = JSON.parse(event.body) as UpdateVrmRequestBody;
+  const { newVrm, isCherishedTransfer } = JSON.parse(event.body) as UpdateVrmRequestBody;
   if (isCherishedTransfer) {
     if (!newVrm) {
       return {
         statusCode: 400,
         body: 'You must provide a donor vehicle VRM',
-      };
-    } if (!newDonorVrm) {
-      return {
-        statusCode: 400,
-        body: 'You must provide a new VRM for the donor vehicle',
       };
     }
   } else if (!newVrm) {
