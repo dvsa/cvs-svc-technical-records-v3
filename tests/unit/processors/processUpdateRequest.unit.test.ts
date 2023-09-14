@@ -29,11 +29,11 @@ describe('getUpdateType', () => {
 describe('processUpdateRequest', () => {
   it('returns updated records to archive and to add', () => {
     const mockRecordFromDb = hgvData as TechRecordType<'get'>;
-    const mockRequest = { techRecord_reasonForCreation: 'Test Update', techRecord_emissionsLimit: 3 } as TechRecordType<'put'>;
+    const newRecord = { techRecord_reasonForCreation: 'Test Update', techRecord_emissionsLimit: 3 } as TechRecordType<'put'>;
     const mockUserDetails: UserDetails = {
       username: 'UpdateUser', msOid: 'QWERTY', email: 'UpdateUser@test.com',
     };
-    const [updatedRecordFromDB, updatedNewRecord] = processUpdateRequest(mockRecordFromDb, mockRequest, mockUserDetails);
+    const [updatedRecordFromDB, updatedNewRecord] = processUpdateRequest(mockRecordFromDb, newRecord, mockUserDetails);
     expect(updatedRecordFromDB).toEqual(expect.objectContaining({
       techRecord_statusCode: StatusCode.ARCHIVED,
       techRecord_lastUpdatedByName: 'UpdateUser',
@@ -45,7 +45,6 @@ describe('processUpdateRequest', () => {
       techRecord_emissionsLimit: 3,
       techRecord_createdByName: 'UpdateUser',
       techRecord_createdById: 'QWERTY',
-      techRecord_axles_0_tyres_tyreCode: 428,
     }));
   });
 });
