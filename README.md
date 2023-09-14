@@ -69,7 +69,7 @@ The are two ways of running the integration tests locally
 
         - Run `npm run dynamo:start` to spin up the dynamoDB container
         - Run `npm run test:integration:github` to run the tests
-        - _Optional_ `npm run docker:clean` to stop and remove the lambda containers the tests have spun up. These can build up overtime. This will remove all containers using the `public.ecr.aws/lambda/nodejs:18-rapid-x86_64` base image
+        - _Optionally:_ `npm run docker:clean` to stop and remove the lambda containers the tests have spun up. These can build up overtime. Note this will remove all containers using the `public.ecr.aws/lambda/nodejs:18-rapid-x86_64` base image on the machine, regardless of where they were spun up from.
 
 
 **Documentation** 
