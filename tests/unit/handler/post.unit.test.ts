@@ -10,6 +10,7 @@ jest.mock('../../../src/services/database.ts', () => ({
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/post';
 import { ERRORS } from '../../../src/util/enum';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 import postCarData from '../../resources/techRecordCarPost.json';
 import postTrlData from '../../resources/techRecordsTrlPost.json';
 import { mockToken } from '../util/mockToken';
@@ -65,7 +66,7 @@ describe('Test Post Lambda Function', () => {
     it('should return 400 when event has no body', async () => {
       const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toContain(JSON.stringify({ error: ERRORS.MISSING_PAYLOAD }));
+      expect(result.body).toContain(formatErrorMessage(ERRORS.MISSING_PAYLOAD));
     });
     it('should return 500 when error is thrown', async () => {
       postTrlData.techRecord_statusCode = 'foo';

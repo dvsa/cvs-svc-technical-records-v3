@@ -11,6 +11,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
 import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 import carData from '../../resources/techRecordCarPost.json';
 import { mockToken } from '../util/mockToken';
 
@@ -129,7 +130,7 @@ describe('update vrm handler', () => {
       } as unknown as APIGatewayProxyEvent;
       const result = await handler(invalidRequest);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toBe('invalid request');
+      expect(result.body).toBe(formatErrorMessage('invalid request'));
     });
     it('should return error when event is invalid', async () => {
       const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);
@@ -140,7 +141,7 @@ describe('update vrm handler', () => {
       request.headers.Authorization = undefined;
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toEqual(ERRORS.MISSING_AUTH_HEADER);
+      expect(result.body).toEqual(formatErrorMessage(ERRORS.MISSING_AUTH_HEADER));
     });
     it('should return an error when VINs are invalid', async () => {
       request.body = JSON.stringify({ newVrm: null });
@@ -149,7 +150,7 @@ describe('update vrm handler', () => {
       });
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toBe('You must provide a new VRM');
+      expect(result.body).toBe(formatErrorMessage('You must provide a new VRM'));
     });
     it('should return the current record when there is a duplicate vrm', async () => {
       request.body = JSON.stringify({ newVrm: 'SJG1020' });
@@ -183,7 +184,7 @@ describe('update vrm handler', () => {
       });
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toBe('Invalid VRM');
+      expect(result.body).toBe(formatErrorMessage('Invalid VRM'));
     });
     it('should return 400 if the vrm exists on a non archived record', async () => {
       request.body = JSON.stringify({ newVrm: 'SJG1020' });

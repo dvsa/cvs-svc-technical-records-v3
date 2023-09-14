@@ -19,6 +19,7 @@
     "dynamo:stop": "docker compose down",
     "dynamo:reset": "docker compose down --volumes && npm run dynamo:start",
     "dynamo:seed": "ts-node scripts/setup-local-tables.ts",
+    "docker:clean": "docker rm $(docker stop $(docker ps -a --filter ancestor=public.ecr.aws/lambda/nodejs:18-rapid-x86_64 --format='{{.ID}}')) > /dev/null",
     "tools-setup": "echo 'move on'",
     "test-i": "echo 'nothing to do'",
     "test:integration:github": "jest int --globalSetup='./scripts/spin-up-lambdas.ts' --globalTeardown='./scripts/destroy-lambdas.ts' --testTimeout 10000",

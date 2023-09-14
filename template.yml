@@ -123,8 +123,10 @@ Resources:
         Runtime: nodejs18.x
         Timeout: 20
         Events:
-          PatchLambda:
-            Type: Api
+          SQSEvent:
+            Type: SQS
             Properties:
-              Path: /v3/technical-records/sync-test-result-info
-              Method: patch
+              Path: !GetAtt LocalQueue.Arn
+              BatchSize: 10
+    LocalQueue:
+      Type: AWS::SQS::Queue
