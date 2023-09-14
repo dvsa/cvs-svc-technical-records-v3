@@ -60,8 +60,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     return addHttpHeaders({ statusCode: 200, body: JSON.stringify(formatTechRecord(postResponse)) });
   } catch (error) {
-    //eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    logger.error(`Error has been thrown with ${ JSON.stringify(error) }`);
-    return addHttpHeaders({ statusCode: 500, body: JSON.stringify({ error: `Failed to unarchive record: ${error}` })});
+    //  @typescript-eslint/restrict-template-expressions
+    logger.error(`Error has been thrown with ${JSON.stringify(error)}`);
+    return addHttpHeaders({ statusCode: 500, body: JSON.stringify({error: `Failed to unarchive record: ${error}`}) });
   }
 };
