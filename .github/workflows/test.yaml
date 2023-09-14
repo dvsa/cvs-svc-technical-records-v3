@@ -37,7 +37,7 @@ jobs:
       - name: Build
         run: |
           npm run build:dev
-      - name: Start ci
+      - name: Run integration tests
         run: npm run test:integration:github
         env:
           AWS_ACCESS_KEY_ID: foo

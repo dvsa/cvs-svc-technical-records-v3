@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { validateSearchErrors } from '../../../src/validators/search';
 
 describe('test the get error validator', () => {
@@ -7,7 +8,7 @@ describe('test the get error validator', () => {
     const res = validateSearchErrors(event as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
-      body: 'Missing vehicle search identifier',
+      body: formatErrorMessage('Missing vehicle search identifier'),
     });
   });
 
@@ -16,7 +17,7 @@ describe('test the get error validator', () => {
     const res = validateSearchErrors(event as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
-      body: 'Invalid search criteria',
+      body: formatErrorMessage('Invalid search criteria'),
     });
   });
 
@@ -25,7 +26,7 @@ describe('test the get error validator', () => {
     const res = validateSearchErrors(event as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
-      body: 'The search identifier should be between 3 and 21 characters.',
+      body: formatErrorMessage('The search identifier must be between 3 and 21 characters.'),
     });
   });
 
@@ -34,7 +35,7 @@ describe('test the get error validator', () => {
     const res = validateSearchErrors(event as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
-      body: 'The search identifier should be between 3 and 21 characters.',
+      body: formatErrorMessage('The search identifier must be between 3 and 21 characters.'),
     });
   });
 
