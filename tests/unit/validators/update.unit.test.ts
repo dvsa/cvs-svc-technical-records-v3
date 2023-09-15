@@ -124,7 +124,7 @@ describe('validateUpdateVrmRequest', () => {
     } as unknown as APIGatewayProxyEvent;
     expect(validateUpdateVrmRequest(event)).toEqual({
       statusCode: 400,
-      body: 'You must provide a donor vehicle VRM',
+      body: 'You must provide a new VRM',
     });
   });
   it('if isCherishedTransfer returns false if everything is fine', () => {

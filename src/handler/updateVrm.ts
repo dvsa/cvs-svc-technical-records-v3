@@ -38,6 +38,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
     if (isCherishedTransfer === true) {
       logger.debug('Performing cherished Transfer');
+      if (!newDonorVrm?.length) {
+        const newVrmExistsOnActiveRecord = await validateVrmExists(newVrm);
+        if (newVrmExistsOnActiveRecord) {
+          return newVrmExistsOnActiveRecord;
+        }
+      }
       const [donorVehicleRecord, error] = await donorVehicle(newVrm, newDonorVrm) as [TechRecordType<'get'>, APIGatewayProxyResult];
       if (error?.statusCode) {
         return error;
