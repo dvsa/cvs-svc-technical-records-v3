@@ -39,6 +39,7 @@ export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, S
 : Promise<SearchResult[]> => {
   const query: QueryInput = {
     TableName: tableName,
+    // eslint-disable-next-line security/detect-object-injection
     IndexName: CriteriaIndexMap[searchCriteria],
     KeyConditionExpression: `#${searchCriteria} = :${searchCriteria}`,
     ExpressionAttributeNames: {

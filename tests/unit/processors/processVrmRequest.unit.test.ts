@@ -37,7 +37,7 @@ describe('processVrmRequest', () => {
   describe('correcting an error', () => {
     it('returns a new record and an undefined record to archive', () => {
       const mockRecordFromDb = postCarData as TechRecordType<'get'>;
-      const [recordToArchive, updatedNewRecord] = processPatchVrmRequest(mockRecordFromDb, mockUserDetails, 'FOO', false);
+      const [, updatedNewRecord] = processPatchVrmRequest(mockRecordFromDb, mockUserDetails, 'FOO', false);
       expect(updatedNewRecord).toEqual(expect.objectContaining({
         primaryVrm: 'FOO',
         techRecord_lastUpdatedAt: mockedDate.toISOString(),
