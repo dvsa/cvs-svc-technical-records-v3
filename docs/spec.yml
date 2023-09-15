@@ -58,7 +58,7 @@ paths:
     get:
       summary: 'Get a technical record'
       tags:
-        - Get a Technical Record 
+        - Get a Technical Record
       parameters:
         - in: path
           name: systemNumber
@@ -195,6 +195,54 @@ paths:
           description: Unprocessable request
         '500':
           description: Validation Error
+  '/v3/technical-records/unarchive/{systemNumber}/{createdTimestamp}':
+    post:
+      summary: 'Unarchive an archived tech record which has no other non-archived tech records which share the same VRM'
+      tags:
+        - Unarchive Technical Record
+      parameters:
+        - in: path
+          name: systemNumber
+          schema:
+            type: string
+          required: true
+          description: This represents the systemNumber of the vehicle. Partition key of the DynamoDB table.
+        - in: path
+          name: createdTimestamp
+          schema:
+            type: string
+          required: true
+          description: Date at which the record was created. Sort key of the DynamoDB table.
+        - in: body
+          description: The desired status code of the new tech record and the reason for the unarchival
+          schema:
+            type: object
+            required: status, reasonForUnarchiving
+            properties:
+              status:
+                type: string
+              reasonForUnarchiving:
+                type: string
+
+      responses:
+        '200':
+          description: Returns the unarchived tech record with the supplied status
+          content:
+            application/json:
+              schema:
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v2.0.21/json-schemas/v3/tech-record/get/psv/complete/index.json"
+        '400':
+          description: Bad request
+        '401':
+          description: Not authenticated
+        '403':
+          description: Unauthorised Access
+        '404':
+          description: Operation not supported
+        '422':
+          description: Unprocessable request
+        '500':
+          description: Validation Error
   '/v3/technical-records{systemNumber}/{createdTimestamp}':
     patch:
       summary: 'Updates and archives record'
@@ -238,7 +286,7 @@ paths:
         '422':
           description: Unprocessable request
         '500':
-          description: Validation Error        
+          description: Validation Error
 components:
   securitySchemes:
     OAuth2:
