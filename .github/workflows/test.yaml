@@ -42,5 +42,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: foo
           AWS_SECRET_ACCESS_KEY: bar
+      - name: Cleanup lambda containers
+        run: npm run docker:clean  
 
 

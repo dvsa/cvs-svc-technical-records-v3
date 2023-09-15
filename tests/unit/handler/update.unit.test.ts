@@ -125,6 +125,7 @@ describe('update handler', () => {
 
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const newRecord = { ...hgvData, ...JSON.parse(request.body!) } as TechRecordType<'put'>;
       mockProcessUpdateRequest.mockReturnValueOnce([hgvData, newRecord]);
       mockUpdateVehicle.mockRejectedValueOnce('Error');

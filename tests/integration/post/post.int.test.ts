@@ -18,6 +18,7 @@ describe('update function', () => {
     it('should create the record', async () => {
       const systemNumber = '11000162';
       const createdTimestamp = '2023-09-13T13:06:51.221Z';
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const recordToCreate = techRecordData.find((record) => record.systemNumber === systemNumber
         && record.createdTimestamp === createdTimestamp)!;
 
