@@ -43,8 +43,8 @@ jobs:
           AWS_ACCESS_KEY_ID: foo
           AWS_SECRET_ACCESS_KEY: bar
       - name: Cleanup lambda containers
-        run: npm run docker:clean  
-      - name: Debug network
-        run: docker network inspect $(docker network ls | grep github_network | awk '{print $2}')
+        run: |
+          NETWORK_NAME="$(docker network ls | grep github_network | awk '{print $2}')"
+          for i in ` docker network inspect -f '{{range .Containers}}{{.Name}} {{end}}' $NETWORK_NAME`; do docker network disconnect -f $NETWORK_NAME $i; done;
 
 
