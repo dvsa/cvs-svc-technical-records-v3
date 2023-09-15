@@ -4,21 +4,17 @@ import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/
 import { UserDetails } from '../services/user';
 import { addVehicleClassCode } from '../services/vehicleClass';
 import { HttpMethod, StatusCode, UpdateType } from '../util/enum';
-import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
+import { flattenArrays } from '../util/formatTechRecord';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
 export const processUpdateRequest = (
   recordFromDB: TechRecordType<'get'>,
-  requestBody: TechRecordType<'put'>,
+  newRecord: TechRecordType<'put'>,
   userDetails: UserDetails,
 ): (TechRecordType<'get'> | TechRecordType<'put'>)[] => {
-  const formattedRecordFromDB = formatTechRecord<typeof recordFromDB>(recordFromDB);
-
-  const newRecord = { ...formattedRecordFromDB, ...requestBody };
-
   // eslint-disable-next-line max-len
   (newRecord as TechRecordType<'get'>).techRecord_recordCompleteness = validateAndComputeRecordCompleteness(newRecord as TechRecordType<'get'>, HttpMethod.PUT);
-  addVehicleIdentifiers(formattedRecordFromDB, newRecord as TechRecordType<'put'>);
+  addVehicleIdentifiers(recordFromDB, newRecord);
 
   const flattenedNewRecord = flattenArrays(newRecord) as TechRecordType<'get'>;
 

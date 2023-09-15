@@ -254,10 +254,6 @@ describe('updateVehicle', () => {
   it('should reject with an error if the put fails', async () => {
     const newRecord = { ...postCarData };
     newRecord.primaryVrm = 'FOO';
-    const mockPutCommand = new PutItemCommand({
-      TableName: tableName,
-      Item: marshall(newRecord),
-    });
 
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 

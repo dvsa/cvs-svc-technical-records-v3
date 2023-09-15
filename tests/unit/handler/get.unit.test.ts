@@ -37,7 +37,13 @@ describe('Test Get Lambda Function', () => {
       mockValidateSysNumTimestampPathParams.mockReturnValueOnce(null);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({});
       const result = await handler({ pathParameters: { systemNumber: '123456', createdTimestamp: '12345' } } as unknown as APIGatewayProxyEvent);
-      expect(result).toEqual({ statusCode: 404, body: 'No record found matching systemNumber 123456 and timestamp 12345', headers });
+      expect(result).toEqual({
+        statusCode: 404,
+        body: JSON.stringify(
+          { errors: ['No record found matching systemNumber 123456 and timestamp 12345'] },
+        ),
+        headers,
+      });
     });
   });
 

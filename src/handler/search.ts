@@ -2,6 +2,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 import { SearchCriteria } from '../models/search';
 import { searchByAll, searchByCriteria } from '../services/database';
+import { formatErrorMessage } from '../util/errorMessage';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateSearchErrors } from '../validators/search';
@@ -26,7 +27,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   if (!searchResult.length) {
     return addHttpHeaders({
       statusCode: 404,
-      body: `No records found matching identifier ${searchIdentifier} and criteria ${searchCriteria}`,
+      body: formatErrorMessage(`No records found matching identifier ${searchIdentifier} and criteria ${searchCriteria}`),
     });
   }
 
