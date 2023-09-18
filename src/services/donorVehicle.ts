@@ -6,10 +6,10 @@ import { validateVrm } from '../validators/update';
 import { searchByCriteria, getBySystemNumberAndCreatedTimestamp } from './database';
 import { addHttpHeaders } from '../util/httpHeaders';
 
-export const donorVehicle = async (newVrm: string, newDonorVrm?: string) => {
+export const donorVehicle = async (newVrm: string, thirdMark?: string) => {
   let err = {} as APIGatewayProxyResult;
   let donorVehicleRecord = {};
-  if (newDonorVrm) {
+  if (thirdMark) {
     const donorRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm);
     const currentDonorRecordDetails = donorRecords.filter((x) => x.techRecord_statusCode === StatusCode.CURRENT);
     if (!currentDonorRecordDetails.length) {
@@ -24,7 +24,7 @@ export const donorVehicle = async (newVrm: string, newDonorVrm?: string) => {
       );
     }
 
-    const donorVrmsNotIncorrectFormat = validateVrm(donorVehicleRecord as TechRecordType<'get'>, newDonorVrm);
+    const donorVrmsNotIncorrectFormat = validateVrm(donorVehicleRecord as TechRecordType<'get'>, thirdMark);
     if (donorVrmsNotIncorrectFormat) {
       err = addHttpHeaders(donorVrmsNotIncorrectFormat);
     }

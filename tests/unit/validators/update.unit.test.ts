@@ -116,7 +116,7 @@ describe('validateUpdateVrmRequest', () => {
   });
   it('if isCherishedTransfer returns error if new vrm missing', () => {
     const event = {
-      body: JSON.stringify({ isCherishedTransfer: true, newDonorVrm: '123456' }),
+      body: JSON.stringify({ isCherishedTransfer: true, thirdMark: '123456' }),
       pathParameters: { systemNumber: 123456, createdTimestamp: new Date().toISOString() },
       headers: {
         Authorization: mockToken,
@@ -129,7 +129,7 @@ describe('validateUpdateVrmRequest', () => {
   });
   it('if isCherishedTransfer returns false if everything is fine', () => {
     const event = {
-      body: JSON.stringify({ newVrm: '0123456', isCherishedTransfer: true, newDonorVrm: '012345' }),
+      body: JSON.stringify({ newVrm: '0123456', isCherishedTransfer: true, thirdMark: '012345' }),
       pathParameters: { systemNumber: 123456, createdTimestamp: new Date().toISOString() },
       headers: {
         Authorization: mockToken,

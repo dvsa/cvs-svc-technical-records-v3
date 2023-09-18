@@ -26,7 +26,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     logger.debug('Request is Valid');
     const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
     const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
-    const { newVrm, isCherishedTransfer, newDonorVrm } = JSON.parse(event.body as string) as UpdateVrmRequestBody;
+    const { newVrm, isCherishedTransfer, thirdMark } = JSON.parse(event.body as string) as UpdateVrmRequestBody;
     const recipientRecord = await getBySystemNumberAndCreatedTimestamp(
       systemNumber,
       createdTimestamp,
@@ -38,13 +38,13 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
     if (isCherishedTransfer === true) {
       logger.debug('Performing cherished Transfer');
-      if (!newDonorVrm?.length) {
+      if (!thirdMark?.length) {
         const newVrmExistsOnActiveRecord = await validateVrmExists(newVrm);
         if (newVrmExistsOnActiveRecord) {
           return newVrmExistsOnActiveRecord;
         }
       }
-      const [donorVehicleRecord, error] = await donorVehicle(newVrm, newDonorVrm) as [TechRecordType<'get'>, APIGatewayProxyResult];
+      const [donorVehicleRecord, error] = await donorVehicle(newVrm, thirdMark) as [TechRecordType<'get'>, APIGatewayProxyResult];
       if (error?.statusCode) {
         return error;
       }
@@ -53,7 +53,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         userDetails,
         newVrm,
         recipientRecord,
-        newDonorVrm,
+        thirdMark,
         donorVehicleRecord,
       );
       await updateVehicle(recordsToArchive, recordsToUpdate);

@@ -15,11 +15,11 @@ describe('donorVehicle', () => {
     jest.resetAllMocks();
     jest.resetModules();
   });
-  it('if no newDonorVrm is present should return two empty objects.', async () => {
+  it('if no thirdMark is present should return two empty objects.', async () => {
     const result = await donorVehicle('DONORVRM');
     expect(result).toEqual(expect.arrayContaining([{}, {}]));
   });
-  it('if a newDonorVrm is present should search for and return a current record if there is one.', async () => {
+  it('if a thirdMark is present should search for and return a current record if there is one.', async () => {
     const mockSearchReturn = [
       {
         primaryVrm: 'DONORVRM',

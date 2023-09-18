@@ -7,13 +7,13 @@ export const processCherishedTransfer = (
   userDetails: UserDetails,
   newVrm: string,
   recipientRecord: TechRecordType<'get'>,
-  newDonorVrm?: string,
+  thirdMark?: string,
   donorRecord?: TechRecordType<'get'>,
 ) => {
   const recordsToUpdate = [];
   const recordsToArchive = [];
 
-  if (newDonorVrm && donorRecord) {
+  if (thirdMark && donorRecord) {
     const donorToArchive = { ...donorRecord };
     const donorOldVrms = formatSecondaryVrms(donorRecord);
 
@@ -33,7 +33,7 @@ export const processCherishedTransfer = (
       StatusCode.CURRENT,
     );
     if (updatedDonorRecord.techRecord_vehicleType !== 'trl') {
-      updatedDonorRecord.primaryVrm = newDonorVrm.toUpperCase();
+      updatedDonorRecord.primaryVrm = thirdMark.toUpperCase();
       updatedDonorRecord.secondaryVrms = donorOldVrms;
     }
     updatedDonorRecord.techRecord_reasonForCreation = 'Update VRM - Cherished Transfer';

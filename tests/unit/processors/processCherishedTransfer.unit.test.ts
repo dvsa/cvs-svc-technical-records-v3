@@ -91,7 +91,7 @@ describe('processCherishedTransfer', () => {
       },
     );
   });
-  it('should send update Vehicles with correctly formatted vehicles when no newDonorVrm sent', () => {
+  it('should send update Vehicles with correctly formatted vehicles when no thirdMark sent', () => {
     const recipientMockRecord = { ...postCarData, techRecord_statusCode: StatusCode.CURRENT } as TechRecordType<'get'>;
     const newRecord = {
       primaryVrm: 'NEWVRM',

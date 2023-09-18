@@ -61,7 +61,7 @@ describe('update vrm handler', () => {
       const newBody = JSON.stringify({
         newVrm: 'DONORVRM',
         isCherishedTransfer: true,
-        newDonorVrm: '01234',
+        thirdMark: '01234',
       });
       request.body = newBody;
       process.env.AWS_SAM_LOCAL = 'true';
@@ -152,7 +152,7 @@ describe('update vrm handler', () => {
       expect(result.body).toBe('Primary VRM SJG1020 already exists');
     });
     it('should return an error when there is an error with the donor record', async () => {
-      request.body = JSON.stringify({ newVrm: 'SJG1020', isCherishedTransfer: true, newDonorVrm: 'testing' });
+      request.body = JSON.stringify({ newVrm: 'SJG1020', isCherishedTransfer: true, thirdMark: 'testing' });
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
         techRecord_manufactureYear: 'null',
         primaryVrm: 'SJG1020',
@@ -171,7 +171,7 @@ describe('update vrm handler', () => {
       expect(result.body).toBe('error');
     });
     it('returns 500 if there is an error', async () => {
-      request.body = JSON.stringify({ newVrm: 'SJG1020', isCherishedTransfer: true, newDonorVrm: 'testing' });
+      request.body = JSON.stringify({ newVrm: 'SJG1020', isCherishedTransfer: true, thirdMark: 'testing' });
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
         techRecord_manufactureYear: 'null',
         primaryVrm: 'SJG1020',
