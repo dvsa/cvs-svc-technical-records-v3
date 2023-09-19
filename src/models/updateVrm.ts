@@ -1,4 +1,5 @@
 export type UpdateVrmRequestBody = {
   newVrm: string
-  isCherishedTransfer: boolean
+  isCherishedTransfer: boolean,
+  thirdMark?: string
 };

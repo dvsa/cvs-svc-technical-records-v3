@@ -1,11 +1,14 @@
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { SearchCriteria } from '../models/search';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
+import { searchByCriteria } from '../services/database';
 import {
   ERRORS, StatusCode,
 } from '../util/enum';
 import { formatErrorMessage } from '../util/errorMessage';
 import { formatTechRecord } from '../util/formatTechRecord';
+import { addHttpHeaders } from '../util/httpHeaders';
 import { isObjectEmpty } from './emptyObject';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
 
@@ -40,12 +43,6 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
   if (isPathInvalid) {
     return isPathInvalid;
   }
-  if (!event.body || !Object.keys(event.body).length) {
-    return {
-      statusCode: 400,
-      body: formatErrorMessage('invalid request'),
-    };
-  }
 
   if (!event.headers.Authorization) {
     return {
@@ -53,13 +50,23 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
       body: formatErrorMessage('Missing authorization header'),
     };
   }
+
+  if (!event.body || !Object.keys(event.body).length) {
+    return {
+      statusCode: 400,
+      body: formatErrorMessage('invalid request'),
+    };
+  }
+
   const { newVrm } = JSON.parse(event.body) as UpdateVrmRequestBody;
+
   if (!newVrm) {
     return {
       statusCode: 400,
       body: formatErrorMessage('You must provide a new VRM'),
     };
   }
+
   return false;
 };
 
@@ -88,6 +95,18 @@ export const validateVrm = (currentRecord: TechRecordType<'get'>, newVrm: string
       statusCode: 400,
       body: formatErrorMessage('Cannot update the vrm of an archived record'),
     };
+  }
+  return false;
+};
+
+export const validateVrmExists = async (vrm: string) => {
+  const techRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, vrm);
+  const vrmExists = techRecords.find((x) => x.primaryVrm === vrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
+  if (vrmExists) {
+    return addHttpHeaders({
+      statusCode: 400,
+      body: formatErrorMessage(`Primary VRM ${vrm} already exists`),
+    });
   }
   return false;
 };

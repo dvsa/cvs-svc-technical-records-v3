@@ -246,7 +246,6 @@ describe('updateVehicle', () => {
       mockSend.mockImplementation(() => Promise.resolve({ ...newRecord }));
 
       const send = await correctVrm(newRecord as TechRecordType<'get'>);
-      console.log(send);
       expect(mockSend).toHaveBeenCalledWith(mockPutCommand);
       expect((send as TechRecordTypeVerbVehicle<'psv', 'get'>).primaryVrm).toBe('FOO');
     });
