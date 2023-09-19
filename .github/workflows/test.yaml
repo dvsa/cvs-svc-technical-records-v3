@@ -37,10 +37,14 @@ jobs:
       - name: Build
         run: |
           npm run build:dev
-      - name: Start ci
+      - name: Run integration tests
         run: npm run test:integration:github
         env:
           AWS_ACCESS_KEY_ID: foo
           AWS_SECRET_ACCESS_KEY: bar
+      - name: Cleanup lambda containers
+        run: |
+          NETWORK_NAME="$(docker network ls | grep github_network | awk '{print $2}')"
+          for i in ` docker network inspect -f '{{range .Containers}}{{.Name}} {{end}}' $NETWORK_NAME`; do docker network disconnect -f $NETWORK_NAME $i; done;
 
 

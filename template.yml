@@ -51,6 +51,18 @@ Resources:
             Properties:
               Path: /v3/technical-records/archive/{systemNumber}/{createdTimestamp}
               Method: patch
+    UnarchiveLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: unarchive.handler
+        Runtime: nodejs18.x
+        Events:
+          ArchiveLambdaApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/unarchive/{systemNumber}/{createdTimestamp}
+              Method: post
     PatchLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -123,8 +135,10 @@ Resources:
         Runtime: nodejs18.x
         Timeout: 20
         Events:
-          PatchLambda:
-            Type: Api
+          SQSEvent:
+            Type: SQS
             Properties:
-              Path: /v3/technical-records/sync-test-result-info
-              Method: patch
+              Path: !GetAtt LocalQueue.Arn
+              BatchSize: 10
+    LocalQueue:
+      Type: AWS::SQS::Queue

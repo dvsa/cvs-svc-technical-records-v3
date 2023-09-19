@@ -5,6 +5,7 @@ const mockSearchByCriteria = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/search';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 
 jest.mock('../../../src/validators/search.ts', () => ({
   validateSearchErrors: mockValidateSearchErrors,
@@ -26,16 +27,17 @@ describe('Test Search Lambda Function', () => {
   });
   describe('Error handling', () => {
     it('should return an error when the query parameters are invalid', async () => {
-      mockValidateSearchErrors.mockReturnValueOnce({ statusCode: 400, body: 'Missing vehicle search identifier' });
+      mockValidateSearchErrors.mockReturnValueOnce({ statusCode: 400, body: formatErrorMessage('Missing vehicle search identifier') });
       const result = await handler({ pathParameters: { foo: 'undefined' } } as unknown as APIGatewayProxyEvent);
-      expect(result).toEqual({ statusCode: 400, body: 'Missing vehicle search identifier', headers });
+      expect(mockValidateSearchErrors).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ statusCode: 400, body: formatErrorMessage('Missing vehicle search identifier'), headers });
     });
 
     it('should return a 404 if no results are found', async () => {
       mockValidateSearchErrors.mockReturnValueOnce(null);
       mockSearchByAll.mockResolvedValueOnce([]);
       const result = await handler({ pathParameters: { searchIdentifier: '123456' } } as unknown as APIGatewayProxyEvent);
-      expect(result).toEqual({ statusCode: 404, body: 'No records found matching identifier 123456 and criteria all', headers });
+      expect(result).toEqual({ statusCode: 404, body: formatErrorMessage('No records found matching identifier 123456 and criteria all'), headers });
     });
   });
 

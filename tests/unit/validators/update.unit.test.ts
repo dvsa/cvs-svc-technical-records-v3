@@ -2,12 +2,13 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { ERRORS, StatusCode } from '../../../src/util/enum';
 import { checkStatusCodeValidity, validateUpdateErrors, validateUpdateVrmRequest } from '../../../src/validators/update';
 import { mockToken } from '../util/mockToken';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 
 describe('validateUpdateErrors', () => {
   it('throws error if request body is empty', () => {
     expect(validateUpdateErrors('{}')).toEqual({
       statusCode: 400,
-      body: ERRORS.MISSING_PAYLOAD,
+      body: formatErrorMessage(ERRORS.MISSING_PAYLOAD),
     });
   });
   it('should error if the object is invalid', () => {

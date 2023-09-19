@@ -11,9 +11,11 @@ const mockValidateVrm = jest.fn();
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
 import * as UserDetails from '../../../src/services/user';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { addHttpHeaders } from '../../../src/util/httpHeaders';
 import carData from '../../resources/techRecordCarPost.json';
 import { mockToken } from '../util/mockToken';
+import { ERRORS } from '../../../src/util/enum';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
@@ -121,9 +123,20 @@ describe('update vrm handler', () => {
       mockValidateUpdateVrmRequest.mockReturnValueOnce(addHttpHeaders({ statusCode: 400, body: 'invalid request' }));
       const result = await handler(invalidRequest);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toBe('invalid request');
+      expect(result.body).toBe(formatErrorMessage('invalid request'));
     });
-    it('should return an error when VRMs are invalid', async () => {
+    it('should return error when event is invalid', async () => {
+      const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toEqual(JSON.stringify({ errors: ['Missing system number'] }));
+    });
+    it('should return an error when request has no auth header', async () => {
+      request.headers.Authorization = undefined;
+      const result = await handler(request as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toEqual(formatErrorMessage(ERRORS.MISSING_AUTH_HEADER));
+    });
+    it('should return an error when VINs are invalid', async () => {
       request.body = JSON.stringify({ newVrm: null });
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
         vin: 'testVin',
@@ -131,7 +144,7 @@ describe('update vrm handler', () => {
       mockValidateVrm.mockReturnValueOnce(addHttpHeaders({ statusCode: 400, body: 'You must provide a new VRM' }));
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toBe('You must provide a new VRM');
+      expect(result.body).toBe(formatErrorMessage('You must provide a new VRM'));
     });
     it('should return the current record when there is a duplicate vrm', async () => {
       request.body = JSON.stringify({ newVrm: 'SJG1020' });
@@ -184,7 +197,29 @@ describe('update vrm handler', () => {
         techRecord_model: 'null',
       });
       const result = await handler(request as unknown as APIGatewayProxyEvent);
-      expect(result.statusCode).toBe(500);
+      // expect(result.statusCode).toBe(500);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toBe(formatErrorMessage('Invalid VRM'));
+    });
+    it('should return 400 if the vrm exists on a non archived record', async () => {
+      request.body = JSON.stringify({ newVrm: 'SJG1020' });
+      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
+      mockSearchByCriteria.mockReturnValueOnce([
+        {
+          techRecord_manufactureYear: 'null',
+          primaryVrm: 'SJG1020',
+          techRecord_make: 'null',
+          vin: 'DP76UMK4DQLTOT400021',
+          techRecord_statusCode: 'current',
+          systemNumber: 'XYZEP5JYOMM00020',
+          techRecord_vehicleType: 'car',
+          createdTimestamp: '2019-06-24T10:26:54.903Z',
+          techRecord_model: 'null',
+        },
+      ]);
+      const result = await handler(request as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toBe(JSON.stringify('Primary VRM SJG1020 already exists'));
     });
   });
 });

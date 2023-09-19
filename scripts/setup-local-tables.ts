@@ -184,6 +184,7 @@ const setupLocalTables = async () => {
 
 export const seedTables = async (seedingRequest: TableSeedRequest[]) => {
   const command: BatchWriteItemCommandInput = seedingRequest.reduce((prev, { table, data }) => {
+    // eslint-disable-next-line security/detect-object-injection
     const prevTableData: WriteRequest[] = prev.RequestItems?.[table] ?? [];
     const marshalledData: WriteRequest[] = data.map((item) => ({ PutRequest: { Item: marshall(item) } }));
     return {

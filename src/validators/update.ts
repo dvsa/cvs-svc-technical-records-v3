@@ -6,23 +6,20 @@ import { searchByCriteria } from '../services/database';
 import {
   ERRORS, StatusCode,
 } from '../util/enum';
+import { formatErrorMessage } from '../util/errorMessage';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import { isObjectEmpty } from './emptyObject';
-import { validateAgainstSkeletonSchema } from './post';
 import { validateSysNumTimestampPathParams } from './sysNumTimestamp';
 
 export const validateUpdateErrors = (requestBody: string | null) => {
   if (!requestBody || isObjectEmpty(JSON.parse(requestBody))) {
     return {
       statusCode: 400,
-      body: ERRORS.MISSING_PAYLOAD,
+      body: formatErrorMessage(ERRORS.MISSING_PAYLOAD),
     };
   }
-
-  const body = JSON.parse(requestBody ?? '') as TechRecordType<'put'>;
-
-  return validateAgainstSkeletonSchema(body) ?? false;
+  return false;
 };
 
 export const checkStatusCodeValidity = (oldStatus: string | undefined | null, newStatus?: string | undefined | null) => {
@@ -49,14 +46,14 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
   if (!event.body || !Object.keys(event.body).length) {
     return {
       statusCode: 400,
-      body: 'invalid request',
+      body: formatErrorMessage('invalid request'),
     };
   }
 
   if (!event.headers.Authorization) {
     return {
       statusCode: 400,
-      body: 'Missing authorization header',
+      body: formatErrorMessage('Missing authorization header'),
     };
   }
   const { newVrm } = JSON.parse(event.body) as UpdateVrmRequestBody;
@@ -64,7 +61,7 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
   if (!newVrm) {
     return {
       statusCode: 400,
-      body: 'You must provide a new VRM',
+      body: formatErrorMessage('You must provide a new VRM'),
     };
   }
 
@@ -76,13 +73,13 @@ export const validateVrm = (currentRecord: TechRecordType<'get'>, newVrm: string
   if (!newVrm) {
     return {
       statusCode: 400,
-      body: 'New Identifier is invalid',
+      body: formatErrorMessage('New Identifier is invalid'),
     };
   }
   if (!(/^[0-9a-z]+$/i).test(newVrm)) {
     return {
       statusCode: 400,
-      body: 'Invalid VRM',
+      body: formatErrorMessage('Invalid VRM'),
     };
   }
   if ('primaryVrm' in currentRecord && newVrm === currentRecord.primaryVrm) {
@@ -94,7 +91,7 @@ export const validateVrm = (currentRecord: TechRecordType<'get'>, newVrm: string
   if (currentRecord.techRecord_statusCode === 'archived') {
     return {
       statusCode: 400,
-      body: 'Cannot update the vrm of an archived record',
+      body: formatErrorMessage('Cannot update the vrm of an archived record'),
     };
   }
   return false;

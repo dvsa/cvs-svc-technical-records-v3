@@ -3,6 +3,7 @@ const mockIdentifySchema = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { ERRORS } from '../../../src/util/enum';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { validatePostErrors } from '../../../src/validators/post';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -19,7 +20,7 @@ describe('Test post errors', () => {
 
     expect(res).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ error: ERRORS.MISSING_PAYLOAD }),
+      body: formatErrorMessage(ERRORS.MISSING_PAYLOAD),
     });
   });
   it('should error if there is no auth header', () => {
@@ -29,7 +30,7 @@ describe('Test post errors', () => {
 
     expect(res).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }),
+      body: formatErrorMessage(ERRORS.MISSING_AUTH_HEADER),
     });
   });
   it('should error if there is no vehicle Type', () => {
@@ -39,7 +40,7 @@ describe('Test post errors', () => {
 
     expect(res).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ error: ERRORS.VEHICLE_TYPE_ERROR }),
+      body: formatErrorMessage(ERRORS.VEHICLE_TYPE_ERROR),
     });
   });
   it('should error if there is no schema found', () => {
@@ -52,7 +53,7 @@ describe('Test post errors', () => {
 
     expect(res).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ error: 'Payload is invalid' }),
+      body: JSON.stringify({ errors: ['Payload is invalid'] }),
     });
   });
   it('should error if the object is invalid', () => {
@@ -68,7 +69,7 @@ describe('Test post errors', () => {
     expect(res.statusCode).toBe(400);
     expect(JSON.parse(res.body ?? '')).toEqual(expect.objectContaining({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      error: expect.arrayContaining(["must have required property 'techRecord_reasonForCreation'"]),
+      errors: expect.arrayContaining(["must have required property 'techRecord_reasonForCreation'"]),
     }));
   });
   it('should return undefined as no errors', () => {
