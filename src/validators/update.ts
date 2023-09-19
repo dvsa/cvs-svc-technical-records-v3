@@ -102,8 +102,8 @@ export const validateVrm = (currentRecord: TechRecordType<'get'>, newVrm: string
 
 export const validateVrmExists = async (vrm: string) => {
   const techRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, vrm);
-  const filteredVrm = techRecords.filter((x) => x.primaryVrm === vrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
-  if (filteredVrm.length) {
+  const vrmExists = techRecords.find((x) => x.primaryVrm === vrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
+  if (vrmExists) {
     return addHttpHeaders({
       statusCode: 400,
       body: JSON.stringify(`Primary VRM ${vrm} already exists`),
