@@ -209,6 +209,7 @@ describe('update vrm handler', () => {
         createdTimestamp: '2019-06-24T10:26:54.903Z',
         techRecord_model: 'null',
       });
+      mockUpdateVehicle.mockRejectedValueOnce({ error: 'issue updating' });
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(500);
       expect(result.body).toBe(formatErrorMessage(
