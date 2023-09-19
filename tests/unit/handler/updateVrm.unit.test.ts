@@ -212,7 +212,7 @@ describe('update vrm handler', () => {
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(500);
       expect(result.body).toBe(formatErrorMessage(
-        'Failed to update record: TypeError: undefined is not iterable (cannot read property Symbol(Symbol.iterator))',
+        'Failed to update record',
       ));
     });
     it('should return 400 if the vrm exists on a non archived record', async () => {

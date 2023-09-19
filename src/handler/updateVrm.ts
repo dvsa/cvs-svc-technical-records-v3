@@ -93,7 +93,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders({
       statusCode: 500,
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      body: formatErrorMessage(`Failed to update record: ${err}`),
+      body: formatErrorMessage('Failed to update record'),
     });
   }
 };
