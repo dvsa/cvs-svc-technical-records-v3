@@ -58,7 +58,7 @@ describe('Test Post Lambda Function', () => {
       mockPostTechRecord.mockResolvedValueOnce(postCarData);
       const result = await handler(event as unknown as APIGatewayProxyEvent);
       console.info(result);
-      expect(result.statusCode).toBe(200);
+      expect(result.statusCode).toBe(201);
       expect(result.body).not.toBeNull();
     });
   });

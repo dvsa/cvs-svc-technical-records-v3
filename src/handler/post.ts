@@ -35,7 +35,7 @@ export const handler = async (
     const postResponse = await postTechRecord(requestBody);
 
     return addHttpHeaders({
-      statusCode: 200,
+      statusCode: 201,
       body: JSON.stringify(formatTechRecord(postResponse)),
     });
   } catch (error) {
