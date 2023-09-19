@@ -52,7 +52,7 @@ describe('update function', () => {
       const json = await response.json() as TechRecordType<'get'>;
 
       expect(json).toEqual(expected);
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(201);
     });
   });
 
