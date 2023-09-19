@@ -43,12 +43,6 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
   if (isPathInvalid) {
     return isPathInvalid;
   }
-  if (!event.body || !Object.keys(event.body).length) {
-    return {
-      statusCode: 400,
-      body: formatErrorMessage('invalid request'),
-    };
-  }
 
   if (!event.headers.Authorization) {
     return {
@@ -56,6 +50,14 @@ export const validateUpdateVrmRequest = (event: APIGatewayProxyEvent) => {
       body: formatErrorMessage('Missing authorization header'),
     };
   }
+
+  if (!event.body || !Object.keys(event.body).length) {
+    return {
+      statusCode: 400,
+      body: formatErrorMessage('invalid request'),
+    };
+  }
+
   const { newVrm } = JSON.parse(event.body) as UpdateVrmRequestBody;
 
   if (!newVrm) {
@@ -103,7 +105,7 @@ export const validateVrmExists = async (vrm: string) => {
   if (vrmExists) {
     return addHttpHeaders({
       statusCode: 400,
-      body: JSON.stringify(`Primary VRM ${vrm} already exists`),
+      body: formatErrorMessage(`Primary VRM ${vrm} already exists`),
     });
   }
   return false;

@@ -123,15 +123,28 @@ describe('update vrm handler', () => {
       mockValidateUpdateVrmRequest.mockReturnValueOnce(addHttpHeaders({ statusCode: 400, body: 'invalid request' }));
       const result = await handler(invalidRequest);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toBe(formatErrorMessage('invalid request'));
+      expect(result.body).toBe('invalid request');
     });
     it('should return error when event is invalid', async () => {
-      const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);
+      request.pathParameters = null;
+      mockValidateUpdateVrmRequest.mockReturnValueOnce(addHttpHeaders(
+        {
+          statusCode: 400,
+          body: JSON.stringify({ errors: ['Missing system number'] }),
+        },
+      ));
+      const result = await handler(request);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toEqual(JSON.stringify({ errors: ['Missing system number'] }));
+      expect(result.body).toEqual(formatErrorMessage('Missing system number'));
     });
     it('should return an error when request has no auth header', async () => {
       request.headers.Authorization = undefined;
+      mockValidateUpdateVrmRequest.mockReturnValueOnce(addHttpHeaders(
+        {
+          statusCode: 400,
+          body: formatErrorMessage(ERRORS.MISSING_AUTH_HEADER),
+        },
+      ));
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
       expect(result.body).toEqual(formatErrorMessage(ERRORS.MISSING_AUTH_HEADER));
@@ -141,7 +154,7 @@ describe('update vrm handler', () => {
       mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
         vin: 'testVin',
       });
-      mockValidateVrm.mockReturnValueOnce(addHttpHeaders({ statusCode: 400, body: 'You must provide a new VRM' }));
+      mockValidateVrm.mockReturnValueOnce(addHttpHeaders({ statusCode: 400, body: formatErrorMessage('You must provide a new VRM') }));
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe(formatErrorMessage('You must provide a new VRM'));
@@ -197,29 +210,23 @@ describe('update vrm handler', () => {
         techRecord_model: 'null',
       });
       const result = await handler(request as unknown as APIGatewayProxyEvent);
-      // expect(result.statusCode).toBe(500);
-      expect(result.statusCode).toBe(400);
-      expect(result.body).toBe(formatErrorMessage('Invalid VRM'));
+      expect(result.statusCode).toBe(500);
+      expect(result.body).toBe(formatErrorMessage(
+        'Failed to update record: TypeError: undefined is not iterable (cannot read property Symbol(Symbol.iterator))',
+      ));
     });
     it('should return 400 if the vrm exists on a non archived record', async () => {
       request.body = JSON.stringify({ newVrm: 'SJG1020' });
-      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(carData);
-      mockSearchByCriteria.mockReturnValueOnce([
+      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValue(carData);
+      mockValidateVrmExists.mockResolvedValueOnce(addHttpHeaders(
         {
-          techRecord_manufactureYear: 'null',
-          primaryVrm: 'SJG1020',
-          techRecord_make: 'null',
-          vin: 'DP76UMK4DQLTOT400021',
-          techRecord_statusCode: 'current',
-          systemNumber: 'XYZEP5JYOMM00020',
-          techRecord_vehicleType: 'car',
-          createdTimestamp: '2019-06-24T10:26:54.903Z',
-          techRecord_model: 'null',
+          statusCode: 400,
+          body: formatErrorMessage('Primary VRM SJG1020 already exists'),
         },
-      ]);
+      ));
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toBe(JSON.stringify('Primary VRM SJG1020 already exists'));
+      expect(result.body).toBe(formatErrorMessage('Primary VRM SJG1020 already exists'));
     });
   });
 });

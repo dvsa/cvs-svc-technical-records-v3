@@ -2,6 +2,7 @@
 const mockSearchByCriteria = jest.fn();
 const mockGetBySysNumTime = jest.fn();
 import { donorVehicle } from '../../../src/services/donorVehicle';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { addHttpHeaders } from '../../../src/util/httpHeaders';
 import carData from '../../resources/techRecordCarPost.json';
 
@@ -103,6 +104,6 @@ describe('error  handling', () => {
     const result = await donorVehicle('DONORVRM', 'NEWVRM!');
     expect(result).toEqual(expect.arrayContaining([
       {},
-      addHttpHeaders({ statusCode: 400, body: 'Invalid VRM' })]));
+      addHttpHeaders({ statusCode: 400, body: formatErrorMessage('Invalid VRM') })]));
   });
 });

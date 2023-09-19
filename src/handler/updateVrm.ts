@@ -15,14 +15,17 @@ import { getUserDetails } from '../services/user';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateUpdateVrmRequest, validateVrm, validateVrmExists } from '../validators/update';
+import { formatErrorMessage } from '../util/errorMessage';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     logger.debug('Amend VRM Called');
+
     const isRequestInvalid: APIGatewayProxyResult | boolean = validateUpdateVrmRequest(event);
     if (isRequestInvalid) {
       return isRequestInvalid;
     }
+
     logger.debug('Request is Valid');
     const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
     const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
@@ -31,19 +34,24 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       systemNumber,
       createdTimestamp,
     );
+
     const newVrmNotCorrectFormat = validateVrm(recipientRecord, newVrm);
     if (newVrmNotCorrectFormat) {
       return newVrmNotCorrectFormat;
     }
+
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
+
     if (isCherishedTransfer === true) {
       logger.debug('Performing cherished Transfer');
+
       if (!thirdMark?.length) {
         const newVrmExistsOnActiveRecord = await validateVrmExists(newVrm);
         if (newVrmExistsOnActiveRecord) {
           return newVrmExistsOnActiveRecord;
         }
       }
+
       const [donorVehicleRecord, error] = await donorVehicle(newVrm, thirdMark) as [TechRecordType<'get'>, APIGatewayProxyResult];
       if (error?.statusCode) {
         return error;
@@ -56,6 +64,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         thirdMark,
         donorVehicleRecord,
       );
+
       await updateVehicle(recordsToArchive, recordsToUpdate);
 
       return addHttpHeaders({
@@ -63,12 +72,15 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         body: JSON.stringify(recordsToUpdate[0]),
       });
     }
+
     logger.debug('Correcting an error');
     const newVrmExistsOnActiveRecord = await validateVrmExists(newVrm);
     if (newVrmExistsOnActiveRecord) {
       return newVrmExistsOnActiveRecord;
     }
+
     logger.debug('identifier has been validated');
+
     const newRecipientRecord = processCorrectVrm(recipientRecord, userDetails, newVrm);
 
     await correctVrm(newRecipientRecord);
@@ -81,7 +93,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders({
       statusCode: 500,
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      body: JSON.stringify({ error: `Failed to update record : ${err}` }),
+      body: formatErrorMessage(`Failed to update record: ${err}`),
     });
   }
 };
