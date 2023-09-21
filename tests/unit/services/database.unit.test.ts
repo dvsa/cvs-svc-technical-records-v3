@@ -246,7 +246,6 @@ describe('updateVehicle', () => {
       mockSend.mockImplementation(() => Promise.resolve({ ...newRecord }));
 
       const send = await correctVrm(newRecord as TechRecordType<'get'>);
-      console.log(send);
       expect(mockSend).toHaveBeenCalledWith(mockPutCommand);
       expect((send as TechRecordTypeVerbVehicle<'psv', 'get'>).primaryVrm).toBe('FOO');
     });
@@ -254,10 +253,6 @@ describe('updateVehicle', () => {
   it('should reject with an error if the put fails', async () => {
     const newRecord = { ...postCarData };
     newRecord.primaryVrm = 'FOO';
-    const mockPutCommand = new PutItemCommand({
-      TableName: tableName,
-      Item: marshall(newRecord),
-    });
 
     mockSend.mockImplementation((): Promise<unknown> => Promise.reject(new Error('error')));
 

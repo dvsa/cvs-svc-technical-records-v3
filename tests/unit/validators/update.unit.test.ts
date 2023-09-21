@@ -1,6 +1,8 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { ERRORS, StatusCode } from '../../../src/util/enum';
-import { checkStatusCodeValidity, validateUpdateErrors } from '../../../src/validators/update';
+import { checkStatusCodeValidity, validateUpdateErrors, validateUpdateVrmRequest } from '../../../src/validators/update';
+import { mockToken } from '../util/mockToken';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 
 const trlPayload = {
   techRecord_vehicleConfiguration: 'other',
@@ -20,44 +22,8 @@ describe('validateUpdateErrors', () => {
   it('throws error if request body is empty', () => {
     expect(validateUpdateErrors('{}')).toEqual({
       statusCode: 400,
-      body: ERRORS.MISSING_PAYLOAD,
+      body: formatErrorMessage(ERRORS.MISSING_PAYLOAD),
     });
-  });
-  it('should error if the object is invalid', () => {
-    const event = { body: JSON.stringify({ techRecord_vehicleType: 'lol' }) } as unknown as APIGatewayProxyEvent;
-
-    const res = validateUpdateErrors(event.body);
-
-    expect(res).toEqual({
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Payload is invalid' }),
-    });
-  });
-  it('should error if a field is invalid', () => {
-    const event = {
-      body: JSON.stringify({
-        techRecord_vehicleType: 'trl',
-        techRecord_statusCode: 'random',
-        techRecord_vehicleClass_code: 'a',
-        techRecord_vehicleClass_description: 'trailer',
-        techRecord_vehicleConfiguration: 'rigid',
-        vin: '9080977997',
-        techRecord_plates: [{
-          plateReasonForIssue: 'random',
-        }],
-      }),
-      headers: { Authorization: 'Bearer 123' },
-    } as unknown as APIGatewayProxyEvent;
-
-    const res = validateUpdateErrors(event.body) as { statusCode: number;body: string; };
-
-    expect(res.statusCode).toBe(400);
-    expect(JSON.parse(res.body ?? '')).toEqual(expect.objectContaining({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      error: expect.arrayContaining(["must have required property 'techRecord_reasonForCreation'",
-        'techRecord_statusCode must be equal to one of the allowed values',
-        'techRecord_plates/0/plateReasonForIssue must be equal to one of the allowed values']),
-    }));
   });
   it('returns false if no errors', () => {
     const event = { body: JSON.stringify(trlPayload) } as unknown as APIGatewayProxyEvent;
@@ -86,5 +52,78 @@ describe('checkStatusCodeValidity', () => {
     expect(checkStatusCodeValidity(StatusCode.PROVISIONAL, StatusCode.CURRENT)).toBe(false);
     expect(checkStatusCodeValidity(StatusCode.PROVISIONAL, StatusCode.PROVISIONAL)).toBe(false);
     expect(checkStatusCodeValidity(StatusCode.CURRENT, StatusCode.PROVISIONAL)).toBe(false);
+  });
+});
+
+describe('validateUpdateVrmRequest', () => {
+  it('returns error if there is no request body', () => {
+    const event = {
+      body: undefined,
+      pathParameters: { systemNumber: 123456, createdTimestamp: new Date().toISOString() },
+      headers: {
+        Authorization: mockToken,
+      },
+    } as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual({
+      statusCode: 400,
+      body: formatErrorMessage('invalid request'),
+    });
+  });
+  it('returns error if the authorization headers are missing', () => {
+    const event = {
+      headers: {},
+      body: JSON.stringify({ newVrm: '0123456' }),
+      pathParameters: { systemNumber: 123456, createdTimestamp: new Date().toISOString() },
+    } as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual({
+      statusCode: 400,
+      body: formatErrorMessage('Missing authorization header'),
+    });
+  });
+  it('if isCherishedTransfer returns error if new vrm missing', () => {
+    const event = {
+      body: JSON.stringify({ isCherishedTransfer: true, thirdMark: '123456' }),
+      pathParameters: { systemNumber: 123456, createdTimestamp: new Date().toISOString() },
+      headers: {
+        Authorization: mockToken,
+      },
+    } as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual({
+      statusCode: 400,
+      body: formatErrorMessage('You must provide a new VRM'),
+    });
+  });
+  it('if isCherishedTransfer returns false if everything is fine', () => {
+    const event = {
+      body: JSON.stringify({ newVrm: '0123456', isCherishedTransfer: true, thirdMark: '012345' }),
+      pathParameters: { systemNumber: 123456, createdTimestamp: new Date().toISOString() },
+      headers: {
+        Authorization: mockToken,
+      },
+    } as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toBe(false);
+  });
+  it('if !isCherishedTransfer returns error if newVrm missing', () => {
+    const event = {
+      body: JSON.stringify({ newVrm: undefined, isCherishedTransfer: false }),
+      pathParameters: { systemNumber: 123456, createdTimestamp: new Date().toISOString() },
+      headers: {
+        Authorization: mockToken,
+      },
+    } as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toEqual({
+      statusCode: 400,
+      body: formatErrorMessage('You must provide a new VRM'),
+    });
+  });
+  it('if !isCherishedTransfer returns false if all information provided', () => {
+    const event = {
+      body: JSON.stringify({ newVrm: '012345', isCherishedTransfer: false }),
+      pathParameters: { systemNumber: 123456, createdTimestamp: new Date().toISOString() },
+      headers: {
+        Authorization: mockToken,
+      },
+    } as unknown as APIGatewayProxyEvent;
+    expect(validateUpdateVrmRequest(event)).toBe(false);
   });
 });

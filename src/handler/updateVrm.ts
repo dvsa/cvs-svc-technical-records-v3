@@ -1,69 +1,99 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 
-import { SearchCriteria } from '../models/search';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { UpdateVrmRequestBody } from '../models/updateVrm';
-import { processPatchVrmRequest } from '../processors/processVrmRequest';
+import { processCherishedTransfer } from '../processors/processCherishedTransfer';
+import { processCorrectVrm } from '../processors/processCorrectVrm';
 import {
-  correctVrm, getBySystemNumberAndCreatedTimestamp, searchByCriteria, updateVehicle,
+  correctVrm,
+  getBySystemNumberAndCreatedTimestamp,
+  updateVehicle,
 } from '../services/database';
+import { donorVehicle } from '../services/donorVehicle';
 import { getUserDetails } from '../services/user';
-import { StatusCode } from '../util/enum';
-import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
-import { validateUpdateVrmRequest, validateVrm } from '../validators/update';
+import { validateUpdateVrmRequest, validateVrm, validateVrmExists } from '../validators/update';
+import { formatErrorMessage } from '../util/errorMessage';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.debug('Amend VRM Called');
   try {
+    logger.debug('Amend VRM Called');
+
     const isRequestInvalid: APIGatewayProxyResult | boolean = validateUpdateVrmRequest(event);
     if (isRequestInvalid) {
       return isRequestInvalid;
     }
+
     logger.debug('Request is Valid');
     const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
     const createdTimestamp: string = decodeURIComponent(event.pathParameters?.createdTimestamp as string);
-    const { newVrm, isCherishedTransfer } = JSON.parse(event.body as string) as UpdateVrmRequestBody;
-    const currentRecord = await getBySystemNumberAndCreatedTimestamp(
+    const { newVrm, isCherishedTransfer, thirdMark } = JSON.parse(event.body as string) as UpdateVrmRequestBody;
+    const recipientRecord = await getBySystemNumberAndCreatedTimestamp(
       systemNumber,
       createdTimestamp,
     );
-    const validateVrmRes = validateVrm(currentRecord, newVrm);
-    if (validateVrmRes) {
-      return validateVrmRes;
+
+    const newVrmNotCorrectFormat = validateVrm(recipientRecord, newVrm);
+    if (newVrmNotCorrectFormat) {
+      return newVrmNotCorrectFormat;
     }
 
-    const techRecords = await searchByCriteria(SearchCriteria.PRIMARYVRM, newVrm);
-    logger.debug('Tech record search returned: ', techRecords);
-    const filteredVrm = techRecords.filter((x) => x.primaryVrm === newVrm && x.techRecord_statusCode !== StatusCode.ARCHIVED);
-    if (filteredVrm.length) {
+    const userDetails = getUserDetails(event.headers.Authorization ?? '');
+
+    if (isCherishedTransfer === true) {
+      logger.debug('Performing cherished Transfer');
+
+      if (!thirdMark?.length) {
+        const newVrmExistsOnActiveRecord = await validateVrmExists(newVrm);
+        if (newVrmExistsOnActiveRecord) {
+          return newVrmExistsOnActiveRecord;
+        }
+      }
+
+      const [donorVehicleRecord, error] = await donorVehicle(newVrm, thirdMark) as [TechRecordType<'get'>, APIGatewayProxyResult];
+      if (error?.statusCode) {
+        return error;
+      }
+
+      const { recordsToArchive, recordsToUpdate } = processCherishedTransfer(
+        userDetails,
+        newVrm,
+        recipientRecord,
+        thirdMark,
+        donorVehicleRecord,
+      );
+
+      await updateVehicle(recordsToArchive, recordsToUpdate);
+
       return addHttpHeaders({
-        statusCode: 400,
-        body: JSON.stringify(`Primary VRM ${newVrm} already exists`),
+        statusCode: 200,
+        body: JSON.stringify(recordsToUpdate[0]),
       });
     }
-    logger.debug('identifier has been validated');
-    const userDetails = getUserDetails(event.headers.Authorization ?? '');
-    const [recordToArchive, newRecord] = processPatchVrmRequest(currentRecord, userDetails, newVrm, isCherishedTransfer);
 
-    if (isCherishedTransfer) {
-      await updateVehicle(
-        [recordToArchive],
-        [newRecord],
-      );
-    } else {
-      await correctVrm(newRecord);
+    logger.debug('Correcting an error');
+    const newVrmExistsOnActiveRecord = await validateVrmExists(newVrm);
+    if (newVrmExistsOnActiveRecord) {
+      return newVrmExistsOnActiveRecord;
     }
+
+    logger.debug('identifier has been validated');
+
+    const newRecipientRecord = processCorrectVrm(recipientRecord, userDetails, newVrm);
+
+    await correctVrm(newRecipientRecord);
+
     return addHttpHeaders({
       statusCode: 200,
-      body: JSON.stringify(formatTechRecord(newRecord)),
+      body: JSON.stringify(newRecipientRecord),
     });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
     return addHttpHeaders({
       statusCode: 500,
-      body: JSON.stringify(error),
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      body: formatErrorMessage('Failed to update record'),
     });
   }
 };

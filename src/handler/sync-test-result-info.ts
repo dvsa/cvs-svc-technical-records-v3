@@ -45,6 +45,7 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
     results.forEach((r, i) => {
       if (r.status === 'rejected' || !r.value) {
         response.batchItemFailures.push({
+          // eslint-disable-next-line security/detect-object-injection
           itemIdentifier: event.Records[i].messageId,
         });
       }

@@ -3,6 +3,7 @@ const mockIdentifySchema = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { ERRORS } from '../../../src/util/enum';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { validatePostErrors } from '../../../src/validators/post';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -10,19 +11,6 @@ jest.mock('../../../src/validators/post.ts', () => ({
   ...jest.requireActual('../../../src/validators/post.ts'),
   identifySchema: mockIdentifySchema,
 }));
-
-const trlPayload = {
-  techRecord_reasonForCreation: 'VRM updated from undefined to C530005. Test dev tes 1',
-  techRecord_statusCode: 'provisional',
-  techRecord_vehicleClass_code: 't',
-  techRecord_vehicleClass_description: 'trailer',
-  techRecord_vehicleConfiguration: 'rigid',
-  techRecord_vehicleType: 'trl',
-  techRecord_bodyType_description: 'artic',
-  techRecord_bodyType_code: 'a',
-  trailerId: 'C530005',
-  vin: '9080977997',
-};
 
 describe('Test post errors', () => {
   it('should error if there is no body', () => {
@@ -32,7 +20,7 @@ describe('Test post errors', () => {
 
     expect(res).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ error: ERRORS.MISSING_PAYLOAD }),
+      body: formatErrorMessage(ERRORS.MISSING_PAYLOAD),
     });
   });
   it('should error if there is no auth header', () => {
@@ -42,7 +30,7 @@ describe('Test post errors', () => {
 
     expect(res).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }),
+      body: formatErrorMessage(ERRORS.MISSING_AUTH_HEADER),
     });
   });
   it('should error if there is no vehicle Type', () => {
@@ -52,7 +40,7 @@ describe('Test post errors', () => {
 
     expect(res).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ error: ERRORS.VEHICLE_TYPE_ERROR }),
+      body: formatErrorMessage(ERRORS.VEHICLE_TYPE_ERROR),
     });
   });
   it('should error if there is no schema found', () => {
@@ -65,7 +53,7 @@ describe('Test post errors', () => {
 
     expect(res).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ error: 'Payload is invalid' }),
+      body: JSON.stringify({ errors: ['Payload is invalid'] }),
     });
   });
   it('should error if the object is invalid', () => {
@@ -81,11 +69,25 @@ describe('Test post errors', () => {
     expect(res.statusCode).toBe(400);
     expect(JSON.parse(res.body ?? '')).toEqual(expect.objectContaining({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      error: expect.arrayContaining(["must have required property 'techRecord_reasonForCreation'"]),
+      errors: expect.arrayContaining(["must have required property 'techRecord_reasonForCreation'"]),
     }));
   });
   it('should return undefined as no errors', () => {
-    const event = { body: JSON.stringify(trlPayload), headers: { Authorization: 'Bearer 123' } } as unknown as APIGatewayProxyEvent;
+    const event = {
+      body: JSON.stringify({
+        techRecord_reasonForCreation: 'VRM updated from undefined to C530005. Test dev tes 1',
+        techRecord_statusCode: 'provisional',
+        techRecord_vehicleClass_code: 't',
+        techRecord_vehicleClass_description: 'trailer',
+        techRecord_vehicleConfiguration: 'rigid',
+        techRecord_vehicleType: 'trl',
+        trailerId: 'C530005',
+        vin: '9080977997',
+        techRecord_bodyType_description: 'artic',
+        techRecord_bodyType_code: 'a',
+      }),
+      headers: { Authorization: 'Bearer 123' },
+    } as unknown as APIGatewayProxyEvent;
 
     const res = validatePostErrors(event);
 

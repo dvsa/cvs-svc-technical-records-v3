@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 import { getBySystemNumberAndCreatedTimestamp } from '../services/database';
+import { formatErrorMessage } from '../util/errorMessage';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
@@ -25,7 +26,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   if (!record || !Object.keys(record).length) {
     return addHttpHeaders({
       statusCode: 404,
-      body: `No record found matching systemNumber ${systemNumber} and timestamp ${createdTimestamp}`,
+      body: formatErrorMessage(`No record found matching systemNumber ${systemNumber} and timestamp ${createdTimestamp}`),
     });
   }
 

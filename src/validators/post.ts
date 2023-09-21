@@ -5,6 +5,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import {
   ERRORS, HttpMethod, RecordCompleteness,
 } from '../util/enum';
+import { formatErrorMessage } from '../util/errorMessage';
 import logger from '../util/logger';
 import { getVehicleTypeWithSmallTrl } from './recordCompleteness';
 import { identifySchema } from './schemaIdentifier';
@@ -17,7 +18,7 @@ export const formatValidationErrors = (errors: ErrorObject[]) => {
       errorMessage.push(error);
     }
   });
-  return JSON.stringify({ error: errorMessage });
+  return formatErrorMessage(errorMessage);
 };
 
 export const validateAgainstSkeletonSchema = (body: TechRecordType<'put'>) => {
@@ -25,7 +26,7 @@ export const validateAgainstSkeletonSchema = (body: TechRecordType<'put'>) => {
   if (!vehicleTypeWithSmallTrl) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Vehicle type is required' }),
+      body: formatErrorMessage('Vehicle type is required'),
     };
   }
   const schema = identifySchema(vehicleTypeWithSmallTrl, RecordCompleteness.SKELETON, HttpMethod.PUT);
@@ -34,7 +35,7 @@ export const validateAgainstSkeletonSchema = (body: TechRecordType<'put'>) => {
   if (!schema) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Payload is invalid' }),
+      body: formatErrorMessage('Payload is invalid'),
     };
   }
   const validationErrors = isValidObject(schema, body, true);
@@ -52,13 +53,13 @@ export const validatePostErrors = (event: APIGatewayProxyEvent) => {
   if (!event.body) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: ERRORS.MISSING_PAYLOAD }),
+      body: formatErrorMessage(ERRORS.MISSING_PAYLOAD),
     };
   }
   if (!event.headers.Authorization) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: ERRORS.MISSING_AUTH_HEADER }),
+      body: formatErrorMessage(ERRORS.MISSING_AUTH_HEADER),
     };
   }
   const body = JSON.parse(event.body) as TechRecordType<'put'>;
@@ -66,7 +67,7 @@ export const validatePostErrors = (event: APIGatewayProxyEvent) => {
   if (!body.techRecord_vehicleType) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: ERRORS.VEHICLE_TYPE_ERROR }),
+      body: formatErrorMessage(ERRORS.VEHICLE_TYPE_ERROR),
     };
   }
 

@@ -4,6 +4,7 @@ import 'dotenv/config';
 import { processPostRequest } from '../processors/processPostRequest';
 import { postTechRecord } from '../services/database';
 import { getUserDetails } from '../services/user';
+import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validatePostErrors } from '../validators/post';
@@ -34,8 +35,8 @@ export const handler = async (
     const postResponse = await postTechRecord(requestBody);
 
     return addHttpHeaders({
-      statusCode: 200,
-      body: JSON.stringify(postResponse),
+      statusCode: 201,
+      body: JSON.stringify(formatTechRecord(postResponse)),
     });
   } catch (error) {
     logger.error(`Error has been thrown with ${JSON.stringify(error)}`);

@@ -42,7 +42,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     const { primaryVrm } = (record as { primaryVrm?: string });
-    const hasUnarchivedRecords = (await searchByCriteria(SearchCriteria.PRIMARYVRM, primaryVrm as string))
+    const hasUnarchivedRecords = (await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, record.systemNumber))
       .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED && searchResult.primaryVrm === primaryVrm);
 
     if (hasUnarchivedRecords) {
