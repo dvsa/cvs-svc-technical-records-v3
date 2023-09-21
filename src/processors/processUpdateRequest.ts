@@ -1,4 +1,3 @@
-import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
 import { UserDetails } from '../services/user';
@@ -48,15 +47,12 @@ export const getUpdateType = (oldRecord: TechRecordType<'get'>, newRecord: TechR
 };
 
 export const addVehicleIdentifiers = (recordFromDB: TechRecordType<'get'>, techRecord: TechRecordType<'put'>): void => {
-  const vehicleType = techRecord.techRecord_vehicleType ?? recordFromDB.techRecord_vehicleType;
-
-  if (vehicleType && vehicleType !== 'trl' && techRecord.techRecord_vehicleType !== 'trl') {
-    const existingVrm = recordFromDB.techRecord_vehicleType !== 'trl' ? recordFromDB.primaryVrm : '';
-    techRecord.primaryVrm = existingVrm;
+  if (techRecord.techRecord_vehicleType !== 'trl' && recordFromDB.techRecord_vehicleType !== 'trl') {
+    techRecord.primaryVrm = recordFromDB.primaryVrm;
   }
 
-  if (vehicleType === 'trl') {
-    (techRecord as TechRecordTypeByVehicle<'trl'>).trailerId = (recordFromDB as TechRecordTypeByVehicle<'trl'>).trailerId;
+  if (techRecord.techRecord_vehicleType === 'trl' && recordFromDB.techRecord_vehicleType === 'trl') {
+    techRecord.trailerId = recordFromDB.trailerId;
   }
 
   (techRecord as TechRecordType<'get'>).systemNumber = recordFromDB.systemNumber;
