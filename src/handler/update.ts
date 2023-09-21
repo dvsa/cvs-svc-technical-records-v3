@@ -9,6 +9,7 @@ import { ERRORS, StatusCode } from '../util/enum';
 import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
+import { validateAgainstSkeletonSchema } from '../validators/post';
 import { validateSysNumTimestampPathParams } from '../validators/sysNumTimestamp';
 import { checkStatusCodeValidity, validateUpdateErrors } from '../validators/update';
 import { checkVinValidity } from '../validators/vinValidity';
@@ -37,7 +38,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const systemNumber = decodeURIComponent(event.pathParameters?.systemNumber ?? '');
     const createdTimestamp = decodeURIComponent(event.pathParameters?.createdTimestamp ?? '');
-    const requestBody = JSON.parse(event.body ?? '') as TechRecordType<'put'>;
+    const requestBody = JSON.parse(event.body ?? '') as Partial<TechRecordType<'put'>>;
 
     let recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
     if (!recordFromDB || !Object.keys(recordFromDB).length) {
@@ -68,7 +69,15 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
     }
 
-    const [updatedRecordFromDB, updatedNewRecord] = processUpdateRequest(recordFromDB, requestBody, userDetails);
+    const formattedRecordFromDB = formatTechRecord<typeof recordFromDB>(recordFromDB);
+    const newRecord = { ...formattedRecordFromDB, ...requestBody } as TechRecordType<'put'>;
+    const errors = validateAgainstSkeletonSchema(newRecord);
+
+    if (errors) {
+      return addHttpHeaders(errors);
+    }
+
+    const [updatedRecordFromDB, updatedNewRecord] = processUpdateRequest(recordFromDB, newRecord, userDetails);
 
     const recordsToArchive = archiveNeeded ? [updatedRecordFromDB] as TechRecordType<'get'>[] : [];
 
