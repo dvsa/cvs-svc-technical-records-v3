@@ -39,7 +39,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const systemNumber = decodeURIComponent(event.pathParameters?.systemNumber ?? '');
     const createdTimestamp = decodeURIComponent(event.pathParameters?.createdTimestamp ?? '');
-    const requestBody = JSON.parse(event.body ?? '') as TechRecordType<'put'>;
+    const requestBody = JSON.parse(event.body ?? '') as Partial<TechRecordType<'put'>>;
 
     let recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
     if (!recordFromDB || !Object.keys(recordFromDB).length) {

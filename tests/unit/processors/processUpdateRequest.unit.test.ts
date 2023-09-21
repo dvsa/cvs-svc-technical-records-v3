@@ -58,7 +58,7 @@ describe('processVehicleIdentifiers', () => {
   });
   it('should replace the trailer id if present in request', () => {
     const mockRecordFromDb = trailerData;
-    const mockRequest = { techRecord_reasonForCreation: 'Test Update', trailerId: 1234 };
+    const mockRequest = { techRecord_reasonForCreation: 'Test Update', trailerId: 1234, techRecord_vehicleType: 'trl' };
     addVehicleIdentifiers(mockRecordFromDb as unknown as TechRecordType<'get'>, mockRequest as unknown as TechRecordType<'put'>);
     expect(mockRequest.trailerId).toBe('C000001');
   });

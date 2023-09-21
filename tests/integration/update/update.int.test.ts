@@ -100,6 +100,82 @@ describe('update function', () => {
         expect(json).toEqual(expected);
         expect(response.status).toBe(200);
       });
+
+      it('should update the vehicleType to non trl', async () => {
+        const systemNumber = '11100136';
+        const createdTimestamp = '2023-09-20T15:56:43.608Z';
+
+        const updatedRecord = {
+          techRecord_applicantDetails_address1: '35 TRL Street',
+          techRecord_reasonForCreation: 'update address',
+          techRecord_vehicleType: 'hgv',
+        };
+
+        const expected = {
+          techRecord_vehicleType: 'hgv',
+          techRecord_createdById: '123123',
+          techRecord_createdByName: 'John Doe',
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          createdTimestamp: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          techRecord_createdAt: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
+        };
+
+        const response = await fetch(
+          `http:/127.0.0.1:3000/v3/technical-records/${systemNumber}/${createdTimestamp}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify(updatedRecord),
+            headers: {
+              Authorization: mockToken,
+            },
+          },
+        );
+
+        const json = await response.json() as TechRecordType<'get'>;
+
+        expect(response.status).toBe(200);
+        expect(json).toEqual(expect.objectContaining(expected));
+        expect(json).not.toHaveProperty('primaryVrm');
+      });
+
+      it('should update the vehicleType to  trl', async () => {
+        const systemNumber = '11000162';
+        const createdTimestamp = '2023-09-13T13:06:51.221Z';
+
+        const updatedRecord = {
+          techRecord_applicantDetails_address1: '35 TRL Street',
+          techRecord_reasonForCreation: 'update address',
+          techRecord_vehicleType: 'trl',
+        };
+
+        const expected = {
+          techRecord_vehicleType: 'trl',
+          techRecord_createdById: '123123',
+          techRecord_createdByName: 'John Doe',
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          createdTimestamp: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          techRecord_createdAt: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
+        };
+
+        const response = await fetch(
+          `http:/127.0.0.1:3000/v3/technical-records/${systemNumber}/${createdTimestamp}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify(updatedRecord),
+            headers: {
+              Authorization: mockToken,
+            },
+          },
+        );
+
+        const json = await response.json() as TechRecordType<'get'>;
+
+        expect(response.status).toBe(200);
+        expect(json).toEqual(expect.objectContaining(expected));
+        expect(json).not.toHaveProperty('trailerId');
+      });
     });
   });
 
