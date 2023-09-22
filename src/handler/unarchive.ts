@@ -42,12 +42,15 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     const { primaryVrm } = (record as { primaryVrm?: string });
-    const hasUnarchivedRecords = (await searchByCriteria(SearchCriteria.PRIMARYVRM, primaryVrm as string))
+    const anyVehicleHasUnarchivedRecords = (await searchByCriteria(SearchCriteria.PRIMARYVRM, primaryVrm as string))
       .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED
         && searchResult.techRecord_vehicleType !== 'trl'
         && searchResult.primaryVrm === primaryVrm);
 
-    if (hasUnarchivedRecords) {
+    const thisVehicleHasUnarchivedRecords = (await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, systemNumber as string))
+      .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED);
+
+    if (anyVehicleHasUnarchivedRecords && thisVehicleHasUnarchivedRecords) {
       return addHttpHeaders({ statusCode: 400, body: 'Cannot archive a record with unarchived records' });
     }
 
