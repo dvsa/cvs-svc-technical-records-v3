@@ -8,6 +8,10 @@ const mockAddToSqs = jest.fn();
 import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy';
 import { handler } from '../../../src/handler/plate';
 import { DocumentName } from '../../../src/models/sqsPayload';
+import hgvTechRecord from '../../resources/techRecordCompleteHGVPlate.json'
+import incompleteHgvTechRecord from '../../resources/techRecordIncompleteHGVPlate.json'
+import { formatTechRecord } from '../../../src/util/formatTechRecord';
+import { HgvOrTrl } from '../../../src/models/plateRequiredFields';
 
 jest.mock('../../../src/validators/plate', () => ({
   validatePlateErrors: mockValidatePlateErrors,
@@ -85,7 +89,7 @@ describe('Test plate gen lambda', () => {
   });
 
   it('should error if the plate info is missing', async () => {
-    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'current', techRecord_vehicleType: 'hgv' });
+    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvTechRecord);
     mockValidatePlateErrors.mockReturnValueOnce(undefined);
     mockValidatePlateInfo.mockReturnValueOnce({ statusCode: 500, body: 'Missing plate information' });
     process.env.AWS_SAM_LOCAL = 'true';
@@ -100,9 +104,25 @@ describe('Test plate gen lambda', () => {
     });
   });
 
+  it('should error if the vehicle does not meet the validation requirements', async () => {
+    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(incompleteHgvTechRecord);
+    mockValidatePlateErrors.mockReturnValueOnce(undefined);
+    mockValidatePlateInfo.mockReturnValueOnce(undefined);
+    process.env.AWS_SAM_LOCAL = 'true';
+    const res = await handler({
+      pathParameters: { systemNumber: '123456', createdTimestamp: '12345' },
+      body: JSON.stringify(payload),
+    } as unknown as APIGatewayProxyEvent);
+    expect(res).toEqual({
+      statusCode: 400,
+      body: 'Tech record is missing mandatory fields for a plate',
+      headers,
+    });
+  });
+
   describe('successful call', () => {
     it('should work when given correct info', async () => {
-      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'current', techRecord_vehicleType: 'hgv' });
+      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvTechRecord);
       mockValidatePlateErrors.mockReturnValueOnce(undefined);
       mockValidatePlateInfo.mockReturnValueOnce(undefined);
       process.env.AWS_SAM_LOCAL = 'true';
@@ -113,15 +133,16 @@ describe('Test plate gen lambda', () => {
         plateReasonForIssue: 'plate',
         plateIssuer: 'test',
       };
+      const formattedRecord = formatTechRecord(hgvTechRecord)
       const expectedSqsPayload = {
-        techRecord: { techRecord_statusCode: 'current', techRecord_vehicleType: 'hgv', techRecord_plates: [plate] },
+        techRecord: {...formattedRecord as HgvOrTrl, techRecord_plates: [plate]},
         plate,
         documentName: DocumentName.MINISTRY,
         recipientEmailAddress: payload.recipientEmailAddress,
       };
 
       const res = await handler({
-        pathParameters: { systemNumber: '123456', createdTimestamp: '12345' },
+        pathParameters: { systemNumber: '10000102', createdTimestamp: '12345' },
         body: JSON.stringify(payload),
       } as unknown as APIGatewayProxyEvent);
       expect(mockAddToSqs).toHaveBeenCalledWith(expectedSqsPayload, expect.anything());

@@ -12,6 +12,7 @@ import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validatePlateErrors, validatePlateInfo } from '../validators/plate';
+import { HgvOrTrl, trlRequiredFields, hgvRequiredFields, axleRequiredFields } from '../models/plateRequiredFields';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.debug('Plate end point called');
@@ -49,6 +50,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       body: 'Tech record is not a HGV or TRL',
     });
   }
+  
 
   const body = JSON.parse(event.body ?? '') as PlateRequestBody;
 
@@ -59,12 +61,19 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     plateIssuer: body.vtmUsername,
   };
 
+
+
   const plateInfoErrors = validatePlateInfo(newPlate);
   if (plateInfoErrors) {
     return addHttpHeaders(plateInfoErrors);
   }
 
   const arrayifiedRecord = formatTechRecord<TechRecordTypeByVehicle<'hgv'> | TechRecordTypeByVehicle<'trl'>>(record);
+
+  const validateVehicleFields = validateTechRecordPlates(arrayifiedRecord);
+  if (validateVehicleFields) {
+    return addHttpHeaders(validateVehicleFields)
+  }
 
   if (arrayifiedRecord.techRecord_plates) {
     arrayifiedRecord.techRecord_plates.push(newPlate);
@@ -94,5 +103,29 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   } catch (err) {
     logger.error(`Error has been thrown with ${JSON.stringify(err)}`);
     return addHttpHeaders({ statusCode: 500, body: 'Error generating plate' });
-  }
+  }  
 };
+
+
+function validateTechRecordPlates (record: HgvOrTrl):  APIGatewayProxyResult | undefined {
+  const plateValidationTable = record.techRecord_vehicleType === 'trl' ? trlRequiredFields : hgvRequiredFields;
+
+  if (cannotGeneratePlate(plateValidationTable, record)) {
+    return {
+      statusCode: 400,
+      body: 'Tech record is missing mandatory fields for a plate'
+    }
+  }
+  return ;
+}
+
+function cannotGeneratePlate (plateRequiredFields: string[], record: HgvOrTrl): boolean {
+  const isOneFieldEmpty = plateRequiredFields.some(field => !record[field as keyof HgvOrTrl]);
+  const areAxlesInvalid = record.techRecord_axles?.some(axle => axleRequiredFields.some(field => !(axle as any)[field]));
+
+  return isOneFieldEmpty || !record.techRecord_axles?.length || !!areAxlesInvalid;
+}
+
+
+
+
