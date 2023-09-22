@@ -50,7 +50,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const thisVehicleHasUnarchivedRecords = (await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, systemNumber as string))
       .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED);
 
-    if (anyVehicleHasUnarchivedRecords && thisVehicleHasUnarchivedRecords) {
+    if (anyVehicleHasUnarchivedRecords || thisVehicleHasUnarchivedRecords) {
       return addHttpHeaders({ statusCode: 400, body: 'Cannot archive a record with unarchived records' });
     }
 
