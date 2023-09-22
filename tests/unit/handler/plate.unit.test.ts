@@ -8,8 +8,8 @@ const mockAddToSqs = jest.fn();
 import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy';
 import { handler } from '../../../src/handler/plate';
 import { DocumentName } from '../../../src/models/sqsPayload';
-import hgvTechRecord from '../../resources/techRecordCompleteHGVPlate.json'
-import incompleteHgvTechRecord from '../../resources/techRecordIncompleteHGVPlate.json'
+import hgvTechRecord from '../../resources/techRecordCompleteHGVPlate.json';
+import incompleteHgvTechRecord from '../../resources/techRecordIncompleteHGVPlate.json';
 import { formatTechRecord } from '../../../src/util/formatTechRecord';
 import { HgvOrTrl } from '../../../src/models/plateRequiredFields';
 
@@ -133,9 +133,9 @@ describe('Test plate gen lambda', () => {
         plateReasonForIssue: 'plate',
         plateIssuer: 'test',
       };
-      const formattedRecord = formatTechRecord(hgvTechRecord)
+      const formattedRecord = formatTechRecord(hgvTechRecord);
       const expectedSqsPayload = {
-        techRecord: {...formattedRecord as HgvOrTrl, techRecord_plates: [plate]},
+        techRecord: { ...formattedRecord as HgvOrTrl, techRecord_plates: [plate] },
         plate,
         documentName: DocumentName.MINISTRY,
         recipientEmailAddress: payload.recipientEmailAddress,

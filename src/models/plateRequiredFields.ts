@@ -1,4 +1,4 @@
-import { TechRecordType } from "@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type";
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
 
 export const hgvRequiredFields: string[] = [
   'primaryVrm',
@@ -26,7 +26,7 @@ export const hgvRequiredFields: string[] = [
   'techRecord_dimensions_length',
   'techRecord_dimensions_width',
   'techRecord_tyreUseCode',
-  'techRecord_axles'
+  'techRecord_axles',
 ];
 
 export const axleRequiredFields: string[] = [
@@ -35,7 +35,7 @@ export const axleRequiredFields: string[] = [
   'weights_designWeight',
   'tyres_tyreSize',
   'tyres_plyRating',
-  'tyres_fitmentCode'
+  'tyres_fitmentCode',
 ];
 
 export const trlRequiredFields: string[] = [
@@ -59,7 +59,7 @@ export const trlRequiredFields: string[] = [
   'techRecord_dimensions_length',
   'techRecord_dimensions_width',
   'techRecord_tyreUseCode',
-  'techRecord_axles'
+  'techRecord_axles',
 ];
 
 export type HgvOrTrl = TechRecordType<'hgv'> | TechRecordType<'trl'>;
