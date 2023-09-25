@@ -109,7 +109,7 @@ describe('Unarchive Post Lambda Function', () => {
       expect(mockSearchByCriteriaRecords).toHaveBeenCalledTimes(2);
 
       expect(result.statusCode).toBe(400);
-      expect(result.body).toContain('Cannot archive a record with unarchived records');
+      expect(result.body).toContain('Cannot unarchive a record with non-archived records');
     });
   });
 });
