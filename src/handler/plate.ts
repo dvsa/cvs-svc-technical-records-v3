@@ -2,6 +2,7 @@ import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-defini
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
+import { HGVAxles } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/complete';
 import { PlateRequestBody, Plates } from '../models/plate';
 import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
 import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';
@@ -12,6 +13,9 @@ import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validatePlateErrors, validatePlateInfo } from '../validators/plate';
+import {
+  HgvOrTrl, trlRequiredFields, hgvRequiredFields, axleRequiredFields,
+} from '../models/plateRequiredFields';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.debug('Plate end point called');
@@ -66,6 +70,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   const arrayifiedRecord = formatTechRecord<TechRecordTypeByVehicle<'hgv'> | TechRecordTypeByVehicle<'trl'>>(record);
 
+  const validateVehicleFields = validateTechRecordPlates(arrayifiedRecord);
+  if (validateVehicleFields) {
+    return addHttpHeaders(validateVehicleFields);
+  }
+
   if (arrayifiedRecord.techRecord_plates) {
     arrayifiedRecord.techRecord_plates.push(newPlate);
   } else {
@@ -96,3 +105,24 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders({ statusCode: 500, body: 'Error generating plate' });
   }
 };
+
+function validateTechRecordPlates(record: HgvOrTrl): APIGatewayProxyResult | undefined {
+  const plateValidationTable = record.techRecord_vehicleType === 'trl' ? trlRequiredFields : hgvRequiredFields;
+
+  if (cannotGeneratePlate(plateValidationTable, record)) {
+    return {
+      statusCode: 400,
+      body: 'Tech record is missing mandatory fields for a plate',
+    };
+  }
+  return undefined;
+}
+
+function cannotGeneratePlate(plateRequiredFields: string[], record: HgvOrTrl): boolean {
+  const isOneFieldEmpty = plateRequiredFields.some((field) => !record[field as keyof HgvOrTrl]);
+  const areAxlesInvalid = record.techRecord_axles?.some((axle) => axleRequiredFields.some(
+    (field) => !(axle as HGVAxles)[field as keyof HGVAxles],
+  ));
+
+  return isOneFieldEmpty || !record.techRecord_axles?.length || !!areAxlesInvalid;
+}
