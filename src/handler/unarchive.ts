@@ -47,7 +47,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         && searchResult.techRecord_vehicleType !== 'trl'
         && searchResult.primaryVrm === primaryVrm);
 
-    const thisVehicleHasUnarchivedRecords = (await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, systemNumber as string))
+    const thisVehicleHasUnarchivedRecords = (await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, systemNumber))
       .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED);
 
     if (anyVehicleHasUnarchivedRecords || thisVehicleHasUnarchivedRecords) {
