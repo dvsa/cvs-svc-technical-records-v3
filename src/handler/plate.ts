@@ -119,6 +119,7 @@ function validateTechRecordPlates(record: HgvOrTrl): APIGatewayProxyResult | und
 }
 
 function cannotGeneratePlate(plateRequiredFields: string[], record: HgvOrTrl): boolean {
+
   const isOneFieldEmpty = plateRequiredFields.some(field => {
     const value = record[field as keyof HgvOrTrl];
     return value === undefined || value === null || value === '';
@@ -128,6 +129,7 @@ function cannotGeneratePlate(plateRequiredFields: string[], record: HgvOrTrl): b
       const value = (axle as HGVAxles)[field as keyof HGVAxles];
       return value === undefined || value === null || value === '';
     }
+
   ));
 
   return isOneFieldEmpty || !record.techRecord_axles?.length || !!areAxlesInvalid;

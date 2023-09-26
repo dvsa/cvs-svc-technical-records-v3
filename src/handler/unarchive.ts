@@ -42,11 +42,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     const { primaryVrm } = (record as { primaryVrm?: string });
-    const hasUnarchivedRecords = (await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, record.systemNumber))
-      .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED && searchResult.primaryVrm === primaryVrm);
+    const anyVehicleHasUnarchivedRecords = (await searchByCriteria(SearchCriteria.PRIMARYVRM, primaryVrm as string))
+      .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED
+        && searchResult.techRecord_vehicleType !== 'trl'
+        && searchResult.primaryVrm === primaryVrm);
 
-    if (hasUnarchivedRecords) {
-      return addHttpHeaders({ statusCode: 400, body: 'Cannot archive a record with unarchived records' });
+    const thisVehicleHasUnarchivedRecords = (await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, systemNumber))
+      .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED);
+
+    if (anyVehicleHasUnarchivedRecords || thisVehicleHasUnarchivedRecords) {
+      return addHttpHeaders({ statusCode: 400, body: 'Cannot unarchive a record with non-archived records' });
     }
 
     const recordToCreate: TechRecordType<'get'> = {

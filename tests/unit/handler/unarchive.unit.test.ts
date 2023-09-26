@@ -31,7 +31,7 @@ describe('Unarchive Post Lambda Function', () => {
       process.env.AWS_SAM_LOCAL = 'true';
 
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(unarchivePostData);
-      mockSearchByCriteriaRecords.mockResolvedValueOnce([
+      mockSearchByCriteriaRecords.mockResolvedValue([
         {
           techRecord_model: null,
           techRecord_manufactureYear: null,
@@ -44,12 +44,13 @@ describe('Unarchive Post Lambda Function', () => {
           techRecord_vehicleType: 'car',
         },
       ]);
+
       mockUnarchiveRecord.mockResolvedValueOnce(postCarData);
 
       const result = await handler(unarchiveRequestData as unknown as APIGatewayProxyEvent);
       console.info(result);
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
-      expect(mockSearchByCriteriaRecords).toHaveBeenCalledTimes(1);
+      expect(mockSearchByCriteriaRecords).toHaveBeenCalledTimes(2);
 
       expect(result.statusCode).toBe(200);
       expect(result.body).not.toBeNull();
@@ -88,7 +89,7 @@ describe('Unarchive Post Lambda Function', () => {
       process.env.AWS_SAM_LOCAL = 'true';
       const invalidRecordData = cloneDeep(unarchivePostData);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(invalidRecordData);
-      mockSearchByCriteriaRecords.mockResolvedValueOnce([
+      mockSearchByCriteriaRecords.mockResolvedValue([
         {
           techRecord_model: null,
           techRecord_manufactureYear: null,
@@ -105,10 +106,10 @@ describe('Unarchive Post Lambda Function', () => {
       const result = await handler(unarchiveRequestData as unknown as APIGatewayProxyEvent);
 
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
-      expect(mockSearchByCriteriaRecords).toHaveBeenCalledTimes(1);
+      expect(mockSearchByCriteriaRecords).toHaveBeenCalledTimes(2);
 
       expect(result.statusCode).toBe(400);
-      expect(result.body).toContain('Cannot archive a record with unarchived records');
+      expect(result.body).toContain('Cannot unarchive a record with non-archived records');
     });
   });
 });
