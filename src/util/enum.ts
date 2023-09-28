@@ -33,6 +33,7 @@ export enum ERRORS {
   MISSING_PAYLOAD = 'Missing payload!',
   MISSING_USER_DETAILS = 'Missing user details',
   MISSING_REASON_FOR_ARCHIVING = 'Reason for archiving not provided',
+  MISSING_REASON_FOR_UPDATING = 'Reason for updating not provided',
   VEHICLE_TYPE_ERROR = '"vehicleType" must be one of [hgv, psv, trl, lgv, car, motorcycle]',
   MISSING_AUTH_HEADER = 'Missing authorization header',
   VIN_ERROR = 'New VIN is invalid',

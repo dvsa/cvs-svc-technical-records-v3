@@ -6,6 +6,9 @@ export const checkVinValidity = (currentVin: string, newVin: (string | undefined
       || newVin.length > 21
       || typeof newVin !== 'string'
       || !(/^[0-9a-z]+$/i).test(newVin)
+      || newVin.toUpperCase().includes('O')
+      || newVin.toUpperCase().includes('I')
+      || newVin.toUpperCase().includes('Q')
     ) {
       return ({
         statusCode: 400,

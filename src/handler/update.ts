@@ -13,7 +13,6 @@ import logger from '../util/logger';
 import { validateAgainstSkeletonSchema } from '../validators/post';
 import { validateSysNumTimestampPathParams } from '../validators/sysNumTimestamp';
 import { checkStatusCodeValidity, validateUpdateErrors } from '../validators/update';
-import { checkVinValidity } from '../validators/vinValidity';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Update end point called');
@@ -54,9 +53,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return addHttpHeaders(statusCodeErrors);
     }
 
-    const vinErrors = checkVinValidity(recordFromDB.vin, requestBody.vin);
-    if (vinErrors) {
-      return addHttpHeaders(vinErrors);
+    const vinUpdateCheck = recordFromDB.vin === requestBody.vin;
+    if (vinUpdateCheck) {
+      return addHttpHeaders({
+        statusCode: 500,
+        body: formatErrorMessage('Cannot update VIN with patch end point.'),
+      });
     }
 
     let archiveNeeded = true;
