@@ -1,7 +1,7 @@
 {
   "type": "commonjs",
   "name": "technical-records-v3",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "An API to access flat technical records",
   "main": "index.js",
   "scripts": {
@@ -41,7 +41,7 @@
     "@aws-sdk/client-sqs": "^3.382.0",
     "@aws-sdk/lib-dynamodb": "^3.341.0",
     "@aws-sdk/util-dynamodb": "^3.362.0",
-    "@dvsa/cvs-type-definitions": "^3.0.45",
+    "@dvsa/cvs-type-definitions": "^3.0.47",
     "@types/luxon": "^3.3.0",
     "jwt-decode": "^3.1.2",
     "luxon": "^3.3.0",
