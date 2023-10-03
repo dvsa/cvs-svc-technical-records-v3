@@ -71,12 +71,12 @@ describe('updateVin', () => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const json = await response.json();
 
-      expect(json).toEqual({ errors: 'Cannot update an archived record' });
+      expect(json).toEqual({ errors: ['Cannot update an archived record'] });
       expect(response.status).toBe(400);
     });
   });
 
-  it('should error if the record is already archived', async () => {
+  it('should error if the VIN is invalid', async () => {
     const systemNumber = '11100136';
     const createdTimestamp = '2023-09-20T15:56:43.608Z';
 
@@ -93,6 +93,6 @@ describe('updateVin', () => {
 
     const json = await response.json() as TechRecordType<'get'>;
 
-    expect(json).toEqual({ errors: 'New VIN is invalid' });
+    expect(json).toEqual({ errors: ['New VIN is invalid'] });
   });
 });

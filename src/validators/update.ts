@@ -26,13 +26,13 @@ export const checkStatusCodeValidity = (oldStatus: string | undefined | null, ne
   if (oldStatus === StatusCode.ARCHIVED) {
     return {
       statusCode: 400,
-      body: ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD,
+      body: formatErrorMessage(ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD),
     };
   }
   if (newStatus === StatusCode.ARCHIVED) {
     return {
       statusCode: 400,
-      body: ERRORS.CANNOT_USE_UPDATE_TO_ARCHIVE,
+      body: formatErrorMessage(ERRORS.CANNOT_USE_UPDATE_TO_ARCHIVE),
     };
   }
   return false;
