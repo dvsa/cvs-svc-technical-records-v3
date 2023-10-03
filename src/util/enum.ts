@@ -41,6 +41,7 @@ export enum ERRORS {
   INVALID_TRAILER_ID_UPDATE = 'Cannot use update API to update the trailer ID',
   MORE_THAN_TWO_NON_ARCHIVED_TECH_RECORDS = 'The vehicle has more than two non archived Tech records.',
   CANNOT_FIND_RECORD = 'Cannot find record',
+  FAILED_UPDATE_MESSAGE = 'Failed to update record',
 }
 export enum ReasonForCreation {
   EU_VEHICLE_CATEGORY_UPDATE = 'EU Vehicle Catergory updated.',

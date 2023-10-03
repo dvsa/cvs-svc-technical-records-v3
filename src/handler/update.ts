@@ -97,7 +97,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     logger.error(`${error}`);
     return addHttpHeaders({
       statusCode: 500,
-      body: formatErrorMessage('Failed to update record'),
+      body: formatErrorMessage(ERRORS.FAILED_UPDATE_MESSAGE),
     });
   }
 };

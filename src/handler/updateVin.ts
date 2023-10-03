@@ -4,10 +4,11 @@ import { UpdateVinBody } from '../models/updateVin';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
 import { getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';
 import { getUserDetails } from '../services/user';
-import { StatusCode } from '../util/enum';
+import { ERRORS, StatusCode } from '../util/enum';
 import { formatErrorMessage } from '../util/errorMessage';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
+import { createPartialVin } from '../util/partialVin';
 import { checkStatusCodeValidity } from '../validators/update';
 import { validateAmendVinPayloadErrors } from '../validators/updateVin';
 import { checkVinValidity } from '../validators/vinValidity';
@@ -18,9 +19,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const amendVinPayloadErrors = validateAmendVinPayloadErrors(event);
 
-    if (amendVinPayloadErrors) {
-      return addHttpHeaders(amendVinPayloadErrors);
-    }
+    if (amendVinPayloadErrors) return addHttpHeaders(amendVinPayloadErrors);
 
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
     const systemNumber = decodeURIComponent(event.pathParameters?.systemNumber ?? '');
@@ -30,21 +29,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
     const statusCodeErrors = checkStatusCodeValidity(recordFromDB.techRecord_statusCode);
-    if (statusCodeErrors) {
-      return addHttpHeaders(statusCodeErrors);
-    }
+    if (statusCodeErrors) return addHttpHeaders(statusCodeErrors);
 
     const vinValidityErrors = checkVinValidity(recordFromDB.vin, body.newVin);
-    if (vinValidityErrors) {
-      return addHttpHeaders(vinValidityErrors);
-    }
+    if (vinValidityErrors) return addHttpHeaders(vinValidityErrors);
 
-    let partialVin;
-    if (body.newVin.length < 6) {
-      partialVin = body.newVin.toUpperCase();
-    } else {
-      partialVin = body.newVin.substring(Math.max(body.newVin.length - 6)).toUpperCase();
-    }
+    const partialVin = createPartialVin(body.newVin);
 
     const updatedRecord = {
       ...recordFromDB, vin: body.newVin.toUpperCase(), partialVin, techRecord_reasonForCreation: 'VIN updated.',
@@ -78,7 +68,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders({
       statusCode: 500,
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      body: formatErrorMessage('Failed to update record'),
+      body: formatErrorMessage(ERRORS.FAILED_UPDATE_MESSAGE),
     });
   }
 };
