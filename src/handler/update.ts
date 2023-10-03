@@ -53,7 +53,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return addHttpHeaders(statusCodeErrors);
     }
 
-    const vinUpdateCheck = recordFromDB.vin === requestBody.vin;
+    const vinUpdateCheck = requestBody.vin && recordFromDB.vin !== requestBody.vin;
     if (vinUpdateCheck) {
       return addHttpHeaders({
         statusCode: 500,

@@ -1,13 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { formatErrorMessage } from '../util/errorMessage';
-import { addHttpHeaders } from '../util/httpHeaders';
-import logger from '../util/logger';
-
+import 'dotenv/config';
 import { UpdateVinBody } from '../models/updateVin';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
 import { getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';
 import { getUserDetails } from '../services/user';
 import { StatusCode } from '../util/enum';
+import { formatErrorMessage } from '../util/errorMessage';
+import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
 import { checkStatusCodeValidity } from '../validators/update';
 import { validateAmendVinPayloadErrors } from '../validators/updateVin';
 import { checkVinValidity } from '../validators/vinValidity';
@@ -39,17 +39,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return addHttpHeaders(vinValidityErrors);
     }
 
+    let partialVin;
+    if (body.newVin.length < 6) {
+      partialVin = body.newVin.toUpperCase();
+    } else {
+      partialVin = body.newVin.substring(Math.max(body.newVin.length - 6)).toUpperCase();
+    }
+
+    const updatedRecord = {
+      ...recordFromDB, vin: body.newVin.toUpperCase(), partialVin, techRecord_reasonForCreation: 'VIN updated.',
+    };
+
     const date = new Date().toISOString();
-    const updatedRecordFromDB = setLastUpdatedAuditDetails(
-      recordFromDB,
-      userDetails.username,
-      userDetails.msOid,
-      date,
-      StatusCode.ARCHIVED,
-    );
-
-    const updatedRecord = { ...recordFromDB, vin: body.newVin, techRecord_reasonForCreation: body.reasonForUpdating };
-
     const updatedNewRecord = setCreatedAuditDetails(
       updatedRecord,
       userDetails.username,
@@ -58,7 +59,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       updatedRecord.techRecord_statusCode as StatusCode,
     );
 
+    const updatedRecordFromDB = setLastUpdatedAuditDetails(
+      recordFromDB,
+      userDetails.username,
+      userDetails.msOid,
+      date,
+      StatusCode.ARCHIVED,
+    );
+
     await updateVehicle([updatedRecordFromDB], [updatedNewRecord]);
+    logger.debug(JSON.stringify(updatedNewRecord));
 
     return addHttpHeaders({
       statusCode: 200,

@@ -29,14 +29,7 @@ export const validateAmendVinPayloadErrors = (event: APIGatewayProxyEvent) => {
   if (!body.newVin) {
     return {
       statusCode: 400,
-      body: formatErrorMessage(ERRORS.VIN_ERROR),
-    };
-  }
-
-  if (!body.reasonForUpdating) {
-    return {
-      statusCode: 400,
-      body: formatErrorMessage(ERRORS.MISSING_REASON_FOR_UPDATING),
+      body: formatErrorMessage('No new VIN provided'),
     };
   }
 
