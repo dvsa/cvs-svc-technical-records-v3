@@ -7,6 +7,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVin';
 import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 import hgvData from '../../resources/techRecordHGVPost.json';
 import { mockToken } from '../util/mockToken';
 
@@ -76,7 +77,7 @@ describe('update vin handler', () => {
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'archived' });
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toEqual(ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD);
+      expect(result.body).toEqual(formatErrorMessage(ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD));
     });
 
     it('should error if the new vin is invalid', async () => {
@@ -84,7 +85,7 @@ describe('update vin handler', () => {
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'current' });
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toEqual(ERRORS.VIN_ERROR);
+      expect(result.body).toEqual(formatErrorMessage(ERRORS.VIN_ERROR));
     });
   });
 });
