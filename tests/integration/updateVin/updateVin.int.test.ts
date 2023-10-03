@@ -71,7 +71,7 @@ describe('updateVin', () => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const json = await response.json();
 
-      expect(json).toEqual({ errors: ['Cannot update an archived record'] });
+      expect(json).toContain({ errors: ['Cannot update an archived record'] });
       expect(response.status).toBe(400);
     });
   });
@@ -91,8 +91,11 @@ describe('updateVin', () => {
       },
     );
 
-    const json = await response.json() as TechRecordType<'get'>;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const json = await response.json();
 
-    expect(json).toEqual({ errors: ['New VIN is invalid'] });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    expect(json.body).toContain({ errors: ['New VIN is invalid'] });
+    expect(response.status).toBe(400);
   });
 });
