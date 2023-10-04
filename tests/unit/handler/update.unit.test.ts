@@ -21,7 +21,6 @@ const trlPayload = {
   techRecord_vehicleConfiguration: 'rigid',
   techRecord_vehicleType: 'trl',
   trailerId: 'C530005',
-  vin: '9080977997',
   techRecord_bodyType_description: 'artic',
   techRecord_bodyType_code: 'a',
 };
@@ -110,8 +109,8 @@ describe('update handler', () => {
         vin: 'testVin',
       });
       const result = await handler(request as unknown as APIGatewayProxyEvent);
-      expect(result.statusCode).toBe(400);
-      expect(result.body).toEqual(ERRORS.VIN_ERROR);
+      expect(result.statusCode).toBe(500);
+      expect(result.body).toBe('{"errors":["Cannot update VIN with patch end point."]}');
     });
     it('should throw error if transaction fails', async () => {
       process.env.AWS_SAM_LOCAL = 'true';

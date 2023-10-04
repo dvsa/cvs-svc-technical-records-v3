@@ -101,6 +101,19 @@ Resources:
             Properties:
               Path: /v3/technical-records/updateVrm/{systemNumber}/{createdTimestamp}
               Method: patch
+    UpdateVinFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: updateVin.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PatchLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/updateVin/{systemNumber}/{createdTimestamp}
+              Method: patch
     GeneratePlateFunction:
       Type: 'AWS::Serverless::Function'
       Properties:

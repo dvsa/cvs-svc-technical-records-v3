@@ -1,4 +1,5 @@
 import { ERRORS } from '../util/enum';
+import { formatErrorMessage } from '../util/errorMessage';
 
 export const checkVinValidity = (currentVin: string, newVin: (string | undefined | null)) => {
   if ((newVin !== undefined && newVin !== null) && newVin !== currentVin) {
@@ -6,10 +7,13 @@ export const checkVinValidity = (currentVin: string, newVin: (string | undefined
       || newVin.length > 21
       || typeof newVin !== 'string'
       || !(/^[0-9a-z]+$/i).test(newVin)
+      || newVin.toUpperCase().includes('O')
+      || newVin.toUpperCase().includes('I')
+      || newVin.toUpperCase().includes('Q')
     ) {
       return ({
         statusCode: 400,
-        body: ERRORS.VIN_ERROR,
+        body: formatErrorMessage(ERRORS.VIN_ERROR),
       });
     }
   }

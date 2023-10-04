@@ -33,6 +33,7 @@ export enum ERRORS {
   MISSING_PAYLOAD = 'Missing payload!',
   MISSING_USER_DETAILS = 'Missing user details',
   MISSING_REASON_FOR_ARCHIVING = 'Reason for archiving not provided',
+  MISSING_REASON_FOR_UPDATING = 'Reason for updating not provided',
   VEHICLE_TYPE_ERROR = '"vehicleType" must be one of [hgv, psv, trl, lgv, car, motorcycle]',
   MISSING_AUTH_HEADER = 'Missing authorization header',
   VIN_ERROR = 'New VIN is invalid',
@@ -40,6 +41,7 @@ export enum ERRORS {
   INVALID_TRAILER_ID_UPDATE = 'Cannot use update API to update the trailer ID',
   MORE_THAN_TWO_NON_ARCHIVED_TECH_RECORDS = 'The vehicle has more than two non archived Tech records.',
   CANNOT_FIND_RECORD = 'Cannot find record',
+  FAILED_UPDATE_MESSAGE = 'Failed to update record',
 }
 export enum ReasonForCreation {
   EU_VEHICLE_CATEGORY_UPDATE = 'EU Vehicle Catergory updated.',

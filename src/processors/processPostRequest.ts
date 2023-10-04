@@ -6,6 +6,7 @@ import { addVehicleClassCode } from '../services/vehicleClass';
 import { ERRORS, HttpMethod, StatusCode } from '../util/enum';
 import { flattenArrays } from '../util/formatTechRecord';
 import logger from '../util/logger';
+import { createPartialVin } from '../util/partialVin';
 import { isObjectEmpty } from '../validators/emptyObject';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
@@ -40,8 +41,7 @@ export const processPostRequest = async (input: TechRecordType<'put'>, userDetai
     requestAsGet.techRecord_statusCode as StatusCode,
   );
   updatedNewRecord.systemNumber = systemNumber;
-  updatedNewRecord.partialVin = updatedNewRecord.vin.length < 6
-    ? updatedNewRecord.vin : updatedNewRecord.vin.substring(updatedNewRecord.vin.length - 6);
+  updatedNewRecord.partialVin = createPartialVin(updatedNewRecord.vin);
   addVehicleClassCode(updatedNewRecord);
   logger.info('Successfully Processed Record');
   return updatedNewRecord;

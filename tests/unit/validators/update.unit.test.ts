@@ -1,8 +1,8 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { ERRORS, StatusCode } from '../../../src/util/enum';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { checkStatusCodeValidity, validateUpdateErrors, validateUpdateVrmRequest } from '../../../src/validators/update';
 import { mockToken } from '../util/mockToken';
-import { formatErrorMessage } from '../../../src/util/errorMessage';
 
 const trlPayload = {
   techRecord_vehicleConfiguration: 'other',
@@ -38,13 +38,13 @@ describe('checkStatusCodeValidity', () => {
   it('throws error if trying to update archived record', () => {
     expect(checkStatusCodeValidity(StatusCode.ARCHIVED)).toEqual({
       statusCode: 400,
-      body: ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD,
+      body: formatErrorMessage(ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD),
     });
   });
   it('throws error if trying to archive a record', () => {
     expect(checkStatusCodeValidity(undefined, StatusCode.ARCHIVED)).toEqual({
       statusCode: 400,
-      body: ERRORS.CANNOT_USE_UPDATE_TO_ARCHIVE,
+      body: formatErrorMessage(ERRORS.CANNOT_USE_UPDATE_TO_ARCHIVE),
     });
   });
   it('returns false if there are no errors', () => {

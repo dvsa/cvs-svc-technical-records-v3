@@ -4,6 +4,7 @@ import { UserDetails } from '../services/user';
 import { addVehicleClassCode } from '../services/vehicleClass';
 import { HttpMethod, StatusCode, UpdateType } from '../util/enum';
 import { flattenArrays } from '../util/formatTechRecord';
+import { createPartialVin } from '../util/partialVin';
 import { validateAndComputeRecordCompleteness } from '../validators/recordCompleteness';
 
 export const processUpdateRequest = (
@@ -59,9 +60,5 @@ export const addVehicleIdentifiers = (recordFromDB: TechRecordType<'get'>, techR
 
   const newVin = techRecord.vin ?? recordFromDB.vin;
   techRecord.vin = newVin.toUpperCase();
-  if (newVin.length < 6) {
-    (techRecord as TechRecordType<'get'>).partialVin = newVin.toUpperCase();
-  } else {
-    (techRecord as TechRecordType<'get'>).partialVin = newVin.substring(Math.max(newVin.length - 6)).toUpperCase();
-  }
+  (techRecord as TechRecordType<'get'>).partialVin = createPartialVin(newVin);
 };
