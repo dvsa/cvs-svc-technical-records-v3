@@ -109,6 +109,7 @@ describe('update function', () => {
           techRecord_applicantDetails_address1: '35 TRL Street',
           techRecord_reasonForCreation: 'update address',
           techRecord_vehicleType: 'hgv',
+          techRecord_vehicleClass_description: 'heavy goods vehicle',
         };
 
         const expected = {
@@ -119,6 +120,7 @@ describe('update function', () => {
           createdTimestamp: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           techRecord_createdAt: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
+          techRecord_vehicleClass_description: 'heavy goods vehicle',
         };
 
         const response = await fetch(
@@ -147,12 +149,14 @@ describe('update function', () => {
           techRecord_applicantDetails_address1: '35 TRL Street',
           techRecord_reasonForCreation: 'update address',
           techRecord_vehicleType: 'trl',
+          techRecord_vehicleClass_description: 'trailer',
         };
 
         const expected = {
           techRecord_vehicleType: 'trl',
           techRecord_createdById: '123123',
           techRecord_createdByName: 'John Doe',
+          techRecord_vehicleClass_description: 'trailer',
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           createdTimestamp: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
