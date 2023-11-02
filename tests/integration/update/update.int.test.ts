@@ -111,6 +111,7 @@ describe('update function', () => {
           techRecord_vehicleType: 'hgv',
           techRecord_vehicleClass_description: 'heavy goods vehicle',
           techRecord_vehicleConfiguration: null,
+          techRecord_euVehicleCategory: 'n1',
         };
 
         const expected = {
@@ -123,6 +124,7 @@ describe('update function', () => {
           techRecord_createdAt: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
           techRecord_vehicleClass_description: 'heavy goods vehicle',
           techRecord_vehicleConfiguration: null,
+          techRecord_euVehicleCategory: 'n1',
         };
 
         const response = await fetch(
@@ -138,9 +140,9 @@ describe('update function', () => {
 
         const json = await response.json() as TechRecordType<'get'>;
 
-        expect(response.status).toBe(200);
         expect(json).toEqual(expect.objectContaining(expected));
         expect(json).not.toHaveProperty('primaryVrm');
+        expect(response.status).toBe(200);
       });
 
       it('should update the vehicleType to  trl', async () => {
@@ -152,6 +154,9 @@ describe('update function', () => {
           techRecord_reasonForCreation: 'update address',
           techRecord_vehicleType: 'trl',
           techRecord_vehicleClass_description: 'trailer',
+          techRecord_euVehicleCategory: 'o3',
+          techRecord_vehicleConfiguration: null,
+
         };
 
         const expected = {
@@ -159,6 +164,8 @@ describe('update function', () => {
           techRecord_createdById: '123123',
           techRecord_createdByName: 'John Doe',
           techRecord_vehicleClass_description: 'trailer',
+          techRecord_euVehicleCategory: 'o3',
+          techRecord_vehicleConfiguration: null,
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           createdTimestamp: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -178,9 +185,9 @@ describe('update function', () => {
 
         const json = await response.json() as TechRecordType<'get'>;
 
-        expect(response.status).toBe(200);
         expect(json).toEqual(expect.objectContaining(expected));
         expect(json).not.toHaveProperty('trailerId');
+        expect(response.status).toBe(200);
       });
     });
   });
