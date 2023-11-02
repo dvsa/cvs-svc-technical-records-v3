@@ -1,4 +1,4 @@
-import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/complete';
+import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/euVehicleCategory.enum.js';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { SearchCriteria } from '../models/search';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
@@ -102,7 +102,7 @@ export const syncTestResultInfo = async (
     const updatedRecordsToArchive: TechRecordType<'get'>[] = [];
     newRecords.forEach((record) => {
       updatedNewRecords.push(setCreatedAuditDetails(
-        record,
+        record as TechRecordType<'get'>,
         createdByName,
         createdById,
         new Date().toISOString(),
