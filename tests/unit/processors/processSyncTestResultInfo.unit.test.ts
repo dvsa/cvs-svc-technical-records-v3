@@ -2,10 +2,10 @@
 const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockUpdateVehicle = jest.fn();
 const mockSearchByCriteria = jest.fn();
+import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/euVehicleCategory.enum.js';
 import { syncTestResultInfo } from '../../../src/processors/processSyncTestResultInfo';
 import { ERRORS } from '../../../src/util/enum';
 import hgvData from '../../resources/tech-records-hgv-get.json';
-import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/euVehicleCategory.enum.js';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
