@@ -110,6 +110,7 @@ describe('update function', () => {
           techRecord_reasonForCreation: 'update address',
           techRecord_vehicleType: 'hgv',
           techRecord_vehicleClass_description: 'heavy goods vehicle',
+          techRecord_vehicleConfiguration: null,
         };
 
         const expected = {
@@ -121,6 +122,7 @@ describe('update function', () => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           techRecord_createdAt: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
           techRecord_vehicleClass_description: 'heavy goods vehicle',
+          techRecord_vehicleConfiguration: null,
         };
 
         const response = await fetch(

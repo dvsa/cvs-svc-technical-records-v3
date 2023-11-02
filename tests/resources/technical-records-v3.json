@@ -1214,7 +1214,7 @@
     "techRecord_variantVersionNumber": "1111",
     "techRecord_vehicleClass_code": "t",
     "techRecord_vehicleClass_description": "trailer",
-    "techRecord_vehicleConfiguration": "articulated",
+    "techRecord_vehicleConfiguration": "semi-trailer",
     "techRecord_vehicleType": "trl",
     "trailerId": "C530005",
     "vin": "654645654645"
