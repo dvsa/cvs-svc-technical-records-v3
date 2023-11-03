@@ -2,6 +2,7 @@
 const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockUpdateVehicle = jest.fn();
 const mockSearchByCriteria = jest.fn();
+import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/euVehicleCategory.enum.js';
 import { syncTestResultInfo } from '../../../src/processors/processSyncTestResultInfo';
 import { ERRORS } from '../../../src/util/enum';
 import hgvData from '../../resources/tech-records-hgv-get.json';
@@ -20,12 +21,12 @@ describe('syncTestResultInfo', () => {
   describe('Error handling', () => {
     it('should throw error if record is not in db', async () => {
       mockSearchByCriteria.mockResolvedValueOnce([]);
-      await expect(syncTestResultInfo('123', 'submitted', 'pass', '47', '012345', 'Test User', 'm2'))
+      await expect(syncTestResultInfo('123', 'submitted', 'pass', '47', '012345', 'Test User', EUVehicleCategory.M2))
         .rejects.toThrow('Cannot find record with systemNumber 123');
     });
     it('should throw error if record is archived', async () => {
       mockSearchByCriteria.mockResolvedValueOnce([{ techRecord_statusCode: 'archived' }]);
-      await expect(syncTestResultInfo('123', 'submitted', 'pass', '47', '012345', 'Test User', 'm2'))
+      await expect(syncTestResultInfo('123', 'submitted', 'pass', '47', '012345', 'Test User', EUVehicleCategory.M2))
         .rejects.toThrow(ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD);
     });
     it('should throw error if more than two non-archived records', async () => {
@@ -33,7 +34,7 @@ describe('syncTestResultInfo', () => {
         { techRecord_statusCode: 'provisional' },
         { techRecord_statusCode: 'provisional' },
         { techRecord_statusCode: 'current' }]);
-      await expect(syncTestResultInfo('123', 'submitted', 'pass', '47', '012345', 'Test User', 'm2'))
+      await expect(syncTestResultInfo('123', 'submitted', 'pass', '47', '012345', 'Test User', EUVehicleCategory.M2))
         .rejects.toThrow(ERRORS.MORE_THAN_TWO_NON_ARCHIVED_TECH_RECORDS);
     });
   });
@@ -43,7 +44,7 @@ describe('syncTestResultInfo', () => {
       mockSearchByCriteria.mockResolvedValueOnce([{ techRecord_statusCode: 'provisional' }]);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce([hgvData[0]]);
       mockUpdateVehicle.mockResolvedValueOnce({ techRecord_statusCode: 'current' });
-      await syncTestResultInfo('5000', 'submitted', 'pass', '47', '012345', 'Test User', 'm2');
+      await syncTestResultInfo('5000', 'submitted', 'pass', '47', '012345', 'Test User', EUVehicleCategory.M2);
 
       expect(mockSearchByCriteria).toHaveBeenCalledTimes(1);
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
@@ -53,7 +54,7 @@ describe('syncTestResultInfo', () => {
       mockSearchByCriteria.mockResolvedValueOnce([{ techRecord_statusCode: 'current' }]);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce([hgvData[1]]);
       mockUpdateVehicle.mockResolvedValueOnce({ techRecord_statusCode: 'current' });
-      await syncTestResultInfo('5000', 'submitted', 'pass', '10', '012345', 'Test User', 'm2');
+      await syncTestResultInfo('5000', 'submitted', 'pass', '10', '012345', 'Test User', EUVehicleCategory.M2);
 
       expect(mockSearchByCriteria).toHaveBeenCalledTimes(1);
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
@@ -64,7 +65,7 @@ describe('syncTestResultInfo', () => {
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData[1]);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData[0]);
       mockUpdateVehicle.mockResolvedValueOnce({ techRecord_statusCode: 'current' });
-      await syncTestResultInfo('5000', 'submitted', 'pass', '10', '012345', 'Test User', 'm2');
+      await syncTestResultInfo('5000', 'submitted', 'pass', '10', '012345', 'Test User', EUVehicleCategory.M2);
 
       expect(mockSearchByCriteria).toHaveBeenCalledTimes(1);
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(2);

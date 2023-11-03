@@ -18,7 +18,7 @@ const trlPayload = {
   techRecord_statusCode: 'provisional',
   techRecord_vehicleClass_code: 't',
   techRecord_vehicleClass_description: 'trailer',
-  techRecord_vehicleConfiguration: 'rigid',
+  techRecord_vehicleConfiguration: 'semi-trailer',
   techRecord_vehicleType: 'trl',
   trailerId: 'C530005',
   techRecord_bodyType_description: 'artic',
