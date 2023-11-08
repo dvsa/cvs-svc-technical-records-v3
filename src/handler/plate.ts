@@ -96,4 +96,3 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders({ statusCode: 500, body: 'Error generating plate' });
   }
 };
-<<<<<<< HEAD
