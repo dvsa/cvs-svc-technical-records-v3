@@ -14,7 +14,7 @@ describe('updateVin', () => {
   describe('happy path', () => {
     it('should update a vin and archive the old record', async () => {
       jest.setTimeout(20000);
-      const systemNumber = '11000162';
+      const systemNumber = '1101234';
       const createdTimestamp = '2023-09-13T13:06:51.221Z';
 
       const response = await fetch(
