@@ -14,7 +14,7 @@ describe('updateVin', () => {
   describe('happy path', () => {
     it('should update a vin and archive the old record', async () => {
       jest.setTimeout(20000);
-      const systemNumber = '11000162';
+      const systemNumber = '1101234';
       const createdTimestamp = '2023-09-13T13:06:51.221Z';
 
       const response = await fetch(
@@ -29,7 +29,7 @@ describe('updateVin', () => {
       );
 
       const json = await response.json() as TechRecordType<'get'>;
-
+      console.log(json.createdTimestamp);
       expect(json.vin).toBe('123456789');
       expect(json.techRecord_statusCode).toBe('provisional');
 
@@ -46,6 +46,7 @@ describe('updateVin', () => {
       const jsonOldRecord = await checkOldRecord.json() as TechRecordType<'get'>;
 
       console.log(jsonOldRecord);
+      console.log(jsonOldRecord.techRecord_lastUpdatedAt);
 
       expect(jsonOldRecord.vin).not.toBe('123456789');
       expect(jsonOldRecord.techRecord_statusCode).toBe('archived');
