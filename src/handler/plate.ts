@@ -2,7 +2,6 @@ import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-defini
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
-import { HGVAxles } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/complete';
 import { PlateRequestBody, Plates } from '../models/plate';
 import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
 import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';
@@ -14,7 +13,7 @@ import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validatePlateErrors, validatePlateInfo } from '../validators/plate';
 import {
-  HgvOrTrl, trlRequiredFields, hgvRequiredFields, axleRequiredFields,
+  HgvOrTrl, trlRequiredFields, hgvRequiredFields,
 } from '../models/plateRequiredFields';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -123,13 +122,8 @@ function cannotGeneratePlate(plateRequiredFields: string[], record: HgvOrTrl): b
     const value = record[field as keyof HgvOrTrl];
     return value === undefined || value === null || value === '';
   });
-  const areAxlesInvalid = record.techRecord_axles?.some((axle) => axleRequiredFields.some(
-    (field) => {
-      const value = (axle as HGVAxles)[field as keyof HGVAxles];
-      return value === undefined || value === null || value === '';
-    },
+  const { techRecord_noOfAxles: noOfAxles, techRecord_axles: axles } = record;
+  const areAxlesInvalid = !noOfAxles || noOfAxles < 1 || !axles || axles[0].weights_gbWeight == null;
 
-  ));
-
-  return isOneFieldEmpty || !record.techRecord_axles?.length || !!areAxlesInvalid;
+  return isOneFieldEmpty || areAxlesInvalid;
 }
