@@ -14,7 +14,7 @@ import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validatePlateErrors, validatePlateInfo } from '../validators/plate';
 import {
-  HgvOrTrl, trlRequiredFields, hgvRequiredFields, axleRequiredFields,
+  HgvOrTrl, trlRequiredFields, hgvRequiredFields, tyreRequiredFields,
 } from '../models/plateRequiredFields';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -123,13 +123,19 @@ function cannotGeneratePlate(plateRequiredFields: string[], record: HgvOrTrl): b
     const value = record[field as keyof HgvOrTrl];
     return value === undefined || value === null || value === '';
   });
-  const areAxlesInvalid = record.techRecord_axles?.some((axle) => axleRequiredFields.some(
-    (field) => {
-      const value = (axle as HGVAxles)[field as keyof HGVAxles];
-      return value === undefined || value === null || value === '';
-    },
+  const { techRecord_noOfAxles: noOfAxles, techRecord_axles: axles } = record;
+  const areAxlesInvalid = !noOfAxles || noOfAxles < 1 || !axles || axles[0].weights_gbWeight == null;
+  const areTyresInvalid = record.techRecord_axles?.some((axle) => {
+    tyreRequiredFields.some(
+      (field) => {
+        const value = (axle as HGVAxles)[field as keyof HGVAxles];
+        return value === undefined || value === null || value === '';
+      },
+    );
+    // either one of ply rating or load index is required
+    const plyOrLoad = axle['tyres_plyRating' as keyof HGVAxles] || axle['tyres_dataTrAxles' as keyof HGVAxles];
+    return plyOrLoad === undefined || plyOrLoad === null || plyOrLoad === '';
+  });
 
-  ));
-
-  return isOneFieldEmpty || !record.techRecord_axles?.length || !!areAxlesInvalid;
+  return isOneFieldEmpty || areAxlesInvalid || !!areTyresInvalid;
 }
