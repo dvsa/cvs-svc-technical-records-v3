@@ -4,6 +4,7 @@ This collections of lambdas interact with the `flat-tech-records` database. Entr
 
 **Requirements**
 
+- docker/docker-desktop
 - node v18.*
 - [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 - npm 8+
@@ -27,6 +28,9 @@ To watch for changes and automatically trigger a new build:
 
 **Run Lambdas Locally**
 
+- Build the docker container if not built already
+- `docker-compose up -d`
+- Ensure docker is running (i.e. start docker desktop)
 - Build the files first
 - `npm run start:dev`
 - To ensure that the lambdas have been successfully served, make requests to the port the lambda is running on e.g. `localhost:3000` through [Postman](https://postman.com/) or `curl`.

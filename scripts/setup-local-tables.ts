@@ -166,7 +166,14 @@ const tablesToSetup: CreateTableInput[] = [
 
 ];
 
-const dynamoConfig: DynamoDBClientConfig = { ...dynamoDBClientConfig, endpoint: process.env.DYNAMO_ENDPOINT };
+const dynamoConfig: DynamoDBClientConfig = {
+  ...dynamoDBClientConfig,
+  endpoint: process.env.DYNAMO_ENDPOINT,
+  credentials: {
+    accessKeyId: String(process.env.DYNAMODB_ACCESS_KEY_ID),
+    secretAccessKey: String(process.env.DYNAMODB_SECRET_ACCESS_KEY),
+  },
+};
 
 const setupLocalTables = async () => {
   const ddb = new DynamoDB(dynamoConfig);
