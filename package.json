@@ -41,7 +41,7 @@
     "@aws-sdk/client-sqs": "^3.382.0",
     "@aws-sdk/lib-dynamodb": "^3.341.0",
     "@aws-sdk/util-dynamodb": "^3.362.0",
-    "@dvsa/cvs-type-definitions": "^4.0.3",
+    "@dvsa/cvs-type-definitions": "^4.3.1",
     "@types/luxon": "^3.3.0",
     "jwt-decode": "^3.1.2",
     "luxon": "^3.3.0",
