@@ -16,6 +16,7 @@ import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateUpdateVrmRequest, validateVrm, validateVrmExists } from '../validators/update';
 import { formatErrorMessage } from '../util/errorMessage';
+import { publish } from '../services/sns';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -66,6 +67,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       );
 
       await updateVehicle(recordsToArchive, recordsToUpdate);
+
+      await publish(JSON.stringify(recordsToUpdate), process.env.VRM_TRANSFERRED_ARN ?? '');
 
       return addHttpHeaders({
         statusCode: 200,
