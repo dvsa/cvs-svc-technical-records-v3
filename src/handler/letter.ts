@@ -33,10 +33,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     });
   }
 
-  if (record.techRecord_statusCode !== StatusCode.CURRENT) {
+  if (record.techRecord_statusCode === StatusCode.ARCHIVED) {
     return addHttpHeaders({
       statusCode: 400,
-      body: 'Tech record provided is not current',
+      body: 'Tech record provided is archived',
     });
   }
 

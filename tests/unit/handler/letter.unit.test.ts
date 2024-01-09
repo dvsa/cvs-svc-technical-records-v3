@@ -60,13 +60,13 @@ describe('Letter Gen Testing', () => {
       });
     });
 
-    it('should error if the record is not current', async () => {
-      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'provisional' });
+    it('should error if the record is archived', async () => {
+      mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'archived' });
       mockValidateLetterErrors.mockReturnValueOnce(undefined);
       const res = await handler({ pathParameters: { systemNumber: '123456', createdTimestamp: '12345' } } as unknown as APIGatewayProxyEvent);
       expect(res).toEqual({
         statusCode: 400,
-        body: 'Tech record provided is not current',
+        body: 'Tech record provided is archived',
         headers,
       });
     });
