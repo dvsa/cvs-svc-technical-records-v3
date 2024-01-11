@@ -1,8 +1,9 @@
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
 import { cloneDeep } from 'lodash';
-import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { SearchCriteria } from '../models/search';
+import { UnarchiveRequestBody } from '../models/unarchive';
 import { setCreatedAuditDetails } from '../services/audit';
 import { getBySystemNumberAndCreatedTimestamp, postTechRecord, searchByCriteria } from '../services/database';
 import { getUserDetails } from '../services/user';
@@ -11,7 +12,6 @@ import { formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateUnarchiveErrors } from '../validators/unarchive';
-import { UnarchiveRequestBody } from '../models/unarchive';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Unarchive end point called');
@@ -41,11 +41,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return addHttpHeaders({ statusCode: 400, body: 'Record provided is not an archived record so cannot be unarchived.' });
     }
 
-    const { primaryVrm } = (record as { primaryVrm?: string });
-    const anyVehicleHasUnarchivedRecords = (await searchByCriteria(SearchCriteria.PRIMARYVRM, primaryVrm as string))
+    const searchCriteria = record.techRecord_vehicleType === 'trl' ? SearchCriteria.TRAILERID : SearchCriteria.PRIMARYVRM;
+    const searchString = record.techRecord_vehicleType === 'trl' ? record.trailerId : record.primaryVrm;
+
+    const anyVehicleHasUnarchivedRecords = (await searchByCriteria(searchCriteria, searchString ?? ''))
       .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED
-        && searchResult.techRecord_vehicleType !== 'trl'
-        && searchResult.primaryVrm === primaryVrm);
+        && (searchResult.primaryVrm === searchString || searchResult.trailerId === searchString));
 
     const thisVehicleHasUnarchivedRecords = (await searchByCriteria(SearchCriteria.SYSTEM_NUMBER, systemNumber))
       .some((searchResult) => searchResult.techRecord_statusCode !== StatusCode.ARCHIVED);
