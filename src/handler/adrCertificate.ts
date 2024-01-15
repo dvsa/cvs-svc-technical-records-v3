@@ -57,7 +57,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       });
     }
 
-    // check is adr
+    if (!record.techRecord_adrDetails_dangerousGoods) {
+      return addHttpHeaders({
+        statusCode: 400,
+        body: 'Tech record does not allow dangerous goods',
+      });
+    }
 
     const body = JSON.parse(event.body ?? '') as AdrCertificateDetailsPayload;
 
