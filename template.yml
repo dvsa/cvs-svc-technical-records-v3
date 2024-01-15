@@ -140,6 +140,20 @@ Resources:
             Properties:
               Path: /v3/technical-records/letter/{systemNumber}/{createdTimestamp}
               Method: post
+
+    GenerateAdrCertificateFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: adrCertificate.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          PlateLambda:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/adrCertificate/{systemNumber}/{createdTimestamp}
+              Method: post
     SyncTestResultInfoFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
