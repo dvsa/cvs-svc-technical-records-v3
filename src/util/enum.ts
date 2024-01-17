@@ -44,7 +44,7 @@ export enum ERRORS {
   FAILED_UPDATE_MESSAGE = 'Failed to update record',
 }
 export enum ReasonForCreation {
-  EU_VEHICLE_CATEGORY_UPDATE = 'EU Vehicle Catergory updated.',
+  EU_VEHICLE_CATEGORY_UPDATE = 'EU Vehicle Category updated.',
   RECORD_PROMOTED = 'Record promoted to current.',
 }
 
