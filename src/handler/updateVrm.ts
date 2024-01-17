@@ -68,7 +68,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
       await updateVehicle(recordsToArchive, recordsToUpdate);
 
-      await publish(JSON.stringify(recordsToUpdate), process.env.VRM_TRANSFERRED_ARN ?? '');
+      const recordsToSend: any[] = [];
+
+      recordsToUpdate.forEach((record) => recordsToSend.push({ ...record, userEmail: userDetails.email }));
+
+      await publish(JSON.stringify(recordsToSend), process.env.VRM_TRANSFERRED_ARN ?? '');
 
       return addHttpHeaders({
         statusCode: 200,
