@@ -13,5 +13,5 @@ export interface SQSRequestBody {
 export const enum DocumentName {
   MINISTRY = 'VTG6_VTG7',
   TRL_INTO_SERVICE = 'TrailerIntoService',
-  ADR_PASS_CERTIFICATE = 'AdrPassCertificate',
+  ADR_PASS_CERTIFICATE = 'ADR_PASS',
 }
