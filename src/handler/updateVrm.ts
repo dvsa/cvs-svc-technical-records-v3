@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
-import { UpdateVrmRequestBody } from '../models/updateVrm';
+import { SNSMessageBody, UpdateVrmRequestBody } from '../models/updateVrm';
 import { processCherishedTransfer } from '../processors/processCherishedTransfer';
 import { processCorrectVrm } from '../processors/processCorrectVrm';
 import {
@@ -68,7 +68,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
       await updateVehicle(recordsToArchive, recordsToUpdate);
 
-      const recordsToSend: any[] = [];
+      const recordsToSend: SNSMessageBody[] = [];
 
       recordsToUpdate.forEach((record) => recordsToSend.push({ ...record, userEmail: userDetails.email }));
 
