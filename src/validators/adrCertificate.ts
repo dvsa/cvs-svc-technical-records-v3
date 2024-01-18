@@ -58,6 +58,13 @@ export const validateAdrCertificateDetails = (adrCert: ADRCertificateDetails): A
     };
   }
 
+  if (adrCert.certificateType !== ADRCertificateTypes.PASS && adrCert.certificateType !== ADRCertificateTypes.REPLACEMENT) {
+    return {
+      statusCode: 500,
+      body: 'Incorrect certificate type information',
+    };
+  }
+
   if (!adrCert.certificateId) {
     return {
       statusCode: 500,
