@@ -67,7 +67,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const body = JSON.parse(event.body ?? '') as AdrCertificateDetailsPayload;
 
     const generatedTimestamp = new Date().toISOString();
-    const certificateId = `adr_pass_${systemNumber}_${generatedTimestamp}`; // TODO: check this?
+    const certificateId = `adr_pass_${systemNumber}_${generatedTimestamp}`;
 
     const newAdrCertificate: ADRCertificateDetails = {
       createdByName: userDetails.username,
