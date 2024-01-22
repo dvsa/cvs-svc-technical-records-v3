@@ -7,6 +7,7 @@ const mockDonorVehicle = jest.fn();
 const mockValidateVrmExists = jest.fn();
 const mockValidateUpdateVrmRequest = jest.fn();
 const mockValidateVrm = jest.fn();
+const mockPublish = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
@@ -26,6 +27,10 @@ jest.mock('../../../src/services/database.ts', () => ({
 
 jest.mock('../../../src/services/donorVehicle', () => ({
   donorVehicle: mockDonorVehicle,
+}));
+
+jest.mock('../../../src/services/sns', () => ({
+  publish: mockPublish,
 }));
 
 jest.mock('../../../src/validators/update', () => ({
@@ -73,9 +78,11 @@ describe('update vrm handler', () => {
       mockValidateVrmExists.mockReturnValueOnce(false);
       mockDonorVehicle.mockReturnValue([{ ...carData, primaryVrm: 'DONORVRM' }, undefined]);
       mockUpdateVehicle.mockResolvedValueOnce({});
+      mockPublish.mockResolvedValueOnce(undefined);
       const result = await handler(request);
 
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
+      expect(mockPublish).toHaveBeenCalledTimes(1);
       expect(result.statusCode).toBe(200);
       expect(result.body).not.toBeNull();
     });

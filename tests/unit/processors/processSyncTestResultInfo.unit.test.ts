@@ -71,7 +71,7 @@ describe('syncTestResultInfo', () => {
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(2);
       expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
     });
-    it('should not call update if record is current and EuVehicleCatergory is not updated', async () => {
+    it('should not call update if record is current and EuVehicleCategory is not updated', async () => {
       mockSearchByCriteria.mockResolvedValueOnce([{ techRecord_statusCode: 'current' }]);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvData[1]);
       await syncTestResultInfo('5000', 'submitted', 'pass', '47', '012345', 'Test User', undefined);

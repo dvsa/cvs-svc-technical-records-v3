@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
-import { UpdateVrmRequestBody } from '../models/updateVrm';
+import { SNSMessageBody, UpdateVrmRequestBody } from '../models/updateVrm';
 import { processCherishedTransfer } from '../processors/processCherishedTransfer';
 import { processCorrectVrm } from '../processors/processCorrectVrm';
 import {
@@ -16,6 +16,7 @@ import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateUpdateVrmRequest, validateVrm, validateVrmExists } from '../validators/update';
 import { formatErrorMessage } from '../util/errorMessage';
+import { publish } from '../services/sns';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -66,6 +67,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       );
 
       await updateVehicle(recordsToArchive, recordsToUpdate);
+
+      const recordsToSend: SNSMessageBody[] = [];
+
+      recordsToUpdate.forEach((record) => recordsToSend.push({ ...record, userEmail: userDetails.email }));
+
+      await publish(JSON.stringify(recordsToSend), process.env.VRM_TRANSFERRED_ARN ?? '');
 
       return addHttpHeaders({
         statusCode: 200,
