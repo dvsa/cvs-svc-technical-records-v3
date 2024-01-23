@@ -22,9 +22,8 @@ jobs:
         id: script
         with:
           script: |
-            let module = require('./webpack/webpack.production.js');
-            let array = module.LAMBDA_NAMES;
-            array.map(item => console.log(item))
+            import { LAMBDA_NAMES } from "./webpack/webpack.production.js";
+            LAMBDA_NAMES.map(item => console.log(item))
           result-encoding: string
 
 
