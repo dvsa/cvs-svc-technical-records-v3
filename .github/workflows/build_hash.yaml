@@ -1,0 +1,41 @@
+name: Build hash and deploy to S3
+run-name: "${{ github.actor }} - ${{ github.ref_name }} - ${{ github.run_id }} 🚀"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'feature/CB2-10412'
+
+jobs:
+  Extract_Services:
+    runs-on: ubuntu-latest
+    steps:
+      - name: extraction
+        run: |
+          SERVICES_LIST=$(yq eval '.Resources | keys | .[]' template.yml)
+          echo "SERVICES_LIST: $SERVICES_LIST"
+
+
+#  Build:
+#    uses: dvsa/cvs-github-actions/.github/workflows/build-node-hash-monorepo.yaml@feature/CB2-10412
+#    with:
+#      services: [service1, service2]
+#    secrets:
+#      CVS_MGMT_AWS_ROLE: ${{ secrets.CVS_MGMT_AWS_ROLE }}
+#      DVSA_AWS_REGION: ${{ secrets.DVSA_AWS_REGION }}
+
+
+#        "cvs-svc-technical-records-v3" : [
+#          'ArchiveLambdaFunction',
+#          'UnarchiveLambdaFunction',
+#          'SearchLambdaFunction',
+#          'GetLambdaFunction',
+#          'PatchLambdaFunction',
+#          'PostLambdaFunction',
+#          'PromoteLambdaFunction',
+#          'UpdateVrmFunction',
+#          'GeneratePlateFunction',
+#          'GenerateLetterFunction',
+#          'SyncTestResultInfoFunction',
+#          'UpdateVinFunction'
