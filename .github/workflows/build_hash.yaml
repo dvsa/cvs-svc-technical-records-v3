@@ -11,14 +11,14 @@ jobs:
   Extract_Services:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: extraction
         run: |
           SERVICES_LIST=$(yq eval '.Resources | keys | .[] | select(. != "LocalQueue")' template.yml)
           echo -e "SERVICES_LIST: \n$SERVICES_LIST"
 
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v7
         id: script
         with:
           script: |
