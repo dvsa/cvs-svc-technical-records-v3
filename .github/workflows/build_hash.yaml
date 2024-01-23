@@ -15,8 +15,8 @@ jobs:
 
       - name: extraction
         run: |
-          SERVICES_LIST=$(yq eval '.Resources | keys | .[]' template.yml)
-          echo "SERVICES_LIST: $SERVICES_LIST"
+          SERVICES_LIST=$(yq eval '.Resources | keys | .[] | select(. != "LocalQueue")' template.yml)
+          echo -e "SERVICES_LIST: \n$SERVICES_LIST"
 
 
 #  Build:
