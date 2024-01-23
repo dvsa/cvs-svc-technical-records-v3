@@ -31,7 +31,7 @@ jobs:
         with:
           script: |
             const LAMBDA_NAMES = require('./webpack/webpack.production.js');
-            LAMBDA_NAMES.map(item => console.log(item))
+            console.log(LAMBDA_NAMES)
           result-encoding: string
 
 
