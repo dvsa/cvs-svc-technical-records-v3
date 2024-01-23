@@ -27,7 +27,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const systemNumber = decodeURIComponent(event?.pathParameters?.systemNumber ?? '');
     const createdTimestamp = decodeURIComponent(event?.pathParameters?.createdTimestamp ?? '');
-    const userDetails = getUserDetails(event.headers.Authorization ?? '');
+    const userDetails = getUserDetails(event?.headers?.Authorization ?? '');
 
     logger.info(`Get from database with sysNum ${systemNumber} and timestamp ${createdTimestamp}`);
 
