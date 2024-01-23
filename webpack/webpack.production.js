@@ -7,7 +7,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const AwsSamPlugin = require("aws-sam-webpack-plugin");
 
 
-export const LAMBDA_NAMES = ['SearchLambdaFunction', 'GetLambdaFunction', 'PostLambdaFunction', 'PatchLambdaFunction',
+const LAMBDA_NAMES = ['SearchLambdaFunction', 'GetLambdaFunction', 'PostLambdaFunction', 'PatchLambdaFunction',
  'ArchiveLambdaFunction', 'UnarchiveLambdaFunction', 'PromoteLambdaFunction', 'UpdateVrmFunction', 'UpdateVinFunction', 'GeneratePlateFunction', 'GenerateLetterFunction', 'SyncTestResultInfoFunction'];
 const OUTPUT_FOLDER = './'
 const REPO_NAME = 'cvs-svc-technical-records-v3';
@@ -59,6 +59,7 @@ class BundlePlugin {
   }
 };
 
+module.exports = LAMBDA_NAMES;
 
 module.exports = env => {
   let commit = env ? env.commit ? env.commit : 'local' : 'local';
