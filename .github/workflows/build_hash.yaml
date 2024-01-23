@@ -32,7 +32,7 @@ jobs:
           script: |
             let module = require('./webpack/webpack.production.js');
             let array = module.LAMBDA_NAMES;
-            console.log(array.toString);
+            console.log(array.toString());
           result-encoding: string
 
 
