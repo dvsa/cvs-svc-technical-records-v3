@@ -18,6 +18,15 @@ jobs:
           SERVICES_LIST=$(yq eval '.Resources | keys | .[] | select(. != "LocalQueue")' template.yml)
           echo -e "SERVICES_LIST: \n$SERVICES_LIST"
 
+      - uses: actions/github-script@v6
+        id: script
+        with:
+          script: |
+            let module = require('./webpack/webpack.production.js');
+            let array = module.LAMBDA_NAMES;
+            array.map(item => console.log(item))
+          result-encoding: string
+
 
 #  Build:
 #    uses: dvsa/cvs-github-actions/.github/workflows/build-node-hash-monorepo.yaml@feature/CB2-10412
