@@ -11,6 +11,8 @@ jobs:
   Extract_Services:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+
       - name: extraction
         run: |
           SERVICES_LIST=$(yq eval '.Resources | keys | .[]' template.yml)
