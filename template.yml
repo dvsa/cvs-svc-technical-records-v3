@@ -167,18 +167,5 @@ Resources:
             Properties:
               Path: !GetAtt LocalQueue.Arn
               BatchSize: 10
-    UpdateTestVRMFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: update-test-vrm.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          SQSEvent:
-            Type: SQS
-            Properties:
-              Path: !GetAtt LocalQueue.Arn
-              BatchSize: 10
     LocalQueue:
       Type: AWS::SQS::Queue
