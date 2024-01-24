@@ -10,38 +10,26 @@ on:
 jobs:
   Extract_Services:
     runs-on: ubuntu-latest
+    outputs:
+      services_list: ${{ steps.extract_services.outputs.SERVICES_LIST }}
     steps:
       - uses: actions/checkout@v4
 
       - name: extract services (YAML)
+        id: extract_services
         run: |
           SERVICES_LIST=$(yq eval '.Resources | keys | .[] | select(. != "LocalQueue")' template.yml)
           echo -e "SERVICES_LIST: \n$SERVICES_LIST"
+          echo "SERVICES_LIST=${SERVICES_LIST}" >> ${GITHUB_OUTPUT}
 
-#      - name: Setup Node.js
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version-file: '.nvmrc'
-#
-#      - name: Install dependencies
-#        run: npm ci
-
-      - name: Extract services (javascript)
-        uses: actions/github-script@v7
-        with:
-          script: |
-            module.exports = { lambdaNames: LAMBDA_NAMES }
-            const { lambdaNames } = require('./webpack/webpack.production.js')
-          result-encoding: string
-
-
-#  Build:
-#    uses: dvsa/cvs-github-actions/.github/workflows/build-node-hash-monorepo.yaml@feature/CB2-10412
-#    with:
-#      services: [service1, service2]
-#    secrets:
-#      CVS_MGMT_AWS_ROLE: ${{ secrets.CVS_MGMT_AWS_ROLE }}
-#      DVSA_AWS_REGION: ${{ secrets.DVSA_AWS_REGION }}
+  Build_Hash:
+    needs: [Extract_Services]
+    uses: dvsa/cvs-github-actions/.github/workflows/build-node-hash-monorepo.yaml@feature/CB2-10412
+    with:
+      services: ${{ needs.Extract_Services.outputs.services_list }}
+    secrets:
+      CVS_MGMT_AWS_ROLE: ${{ secrets.CVS_MGMT_AWS_ROLE }}
+      DVSA_AWS_REGION: ${{ secrets.DVSA_AWS_REGION }}
 
 
 #        "cvs-svc-technical-records-v3" : [
