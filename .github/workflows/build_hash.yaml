@@ -33,7 +33,7 @@ jobs:
     needs: [Extract_Services, Check]
     uses: dvsa/cvs-github-actions/.github/workflows/build-node-hash-monorepo.yaml@feature/CB2-10412
     with:
-      services: ${{ needs.Extract_Services.outputs.services_list }}
+      services_list: ${{ needs.Extract_Services.outputs.services_list }}
     secrets:
       CVS_MGMT_AWS_ROLE: ${{ secrets.CVS_MGMT_AWS_ROLE }}
       DVSA_AWS_REGION: ${{ secrets.DVSA_AWS_REGION }}
