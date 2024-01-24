@@ -1,3 +1,4 @@
+import { ADRCertificateDetails } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/complete';
 import { Letter } from './letter';
 import { Plates } from './plate';
 
@@ -5,7 +6,7 @@ export interface SQSRequestBody {
   techRecord: object;
   plate?: Plates;
   letter?: Letter;
-  adrCertificate?: any;
+  adrCertificate?: ADRCertificateDetails;
   documentName: DocumentName;
   recipientEmailAddress: string;
 }

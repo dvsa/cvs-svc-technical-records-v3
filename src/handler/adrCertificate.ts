@@ -81,8 +81,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return addHttpHeaders(adrCertificateDetailsErrors);
     }
 
-    const arrayifiedRecord = formatTechRecord<TechRecordTypeByVehicle<'hgv'> | TechRecordTypeByVehicle<'trl'>
-    | TechRecordTypeByVehicle<'lgv'>>(record);
+    const arrayifiedRecord = formatTechRecord<TechRecordTypeByVehicle<'hgv' | 'trl' | 'lgv'>>(record);
 
     if (arrayifiedRecord.techRecord_adrPassCertificateDetails) {
       arrayifiedRecord.techRecord_adrPassCertificateDetails.push(newAdrCertificate);
