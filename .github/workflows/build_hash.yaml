@@ -15,18 +15,3 @@ jobs:
     secrets:
       CVS_MGMT_AWS_ROLE: ${{ secrets.CVS_MGMT_AWS_ROLE }}
       DVSA_AWS_REGION: ${{ secrets.DVSA_AWS_REGION }}
-
-
-#        "cvs-svc-technical-records-v3" : [
-#          'ArchiveLambdaFunction',
-#          'UnarchiveLambdaFunction',
-#          'SearchLambdaFunction',
-#          'GetLambdaFunction',
-#          'PatchLambdaFunction',
-#          'PostLambdaFunction',
-#          'PromoteLambdaFunction',
-#          'UpdateVrmFunction',
-#          'GeneratePlateFunction',
-#          'GenerateLetterFunction',
-#          'SyncTestResultInfoFunction',
-#          'UpdateVinFunction'
