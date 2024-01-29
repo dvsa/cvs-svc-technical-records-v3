@@ -59,7 +59,6 @@ class BundlePlugin {
   }
 };
 
-module.exports = LAMBDA_NAMES;
 
 module.exports = env => {
   let commit = env ? env.commit ? env.commit : 'local' : 'local';
