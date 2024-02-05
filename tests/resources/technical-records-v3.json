@@ -1424,10 +1424,10 @@
     "techRecord_vehicleClass_description": "heavy goods vehicle",
     "techRecord_vehicleConfiguration": "rigid",
     "techRecord_vehicleType": "hgv",
-    "vin": "TSTHGV1"
+    "vin": "HGVTST1"
   },
   {
-    "systemNumber": "10000555",
+    "systemNumber": "10001555",
     "createdTimestamp": "2024-02-05T08:26:15.659Z",
     "partialVin": "GVTST2",
     "primaryVrm": "HGVTST2",
@@ -1694,7 +1694,7 @@
     "vin": "HGVTST3"
   },
   {
-    "systemNumber": "10000559",
+    "systemNumber": "10001559",
     "createdTimestamp": "2024-02-05T08:51:54.172Z",
     "partialVin": "GVTST4",
     "primaryVrm": "HGVTST4",
@@ -2480,7 +2480,7 @@
     "vin": "LGVTST1"
   },
   {
-    "systemNumber": "10000556",
+    "systemNumber": "10001556",
     "createdTimestamp": "2024-02-05T08:27:13.558Z",
     "partialVin": "GVTST2",
     "primaryVrm": "LGVTST2",
@@ -2612,7 +2612,7 @@
     "vin": "LGVTST3"
   },
   {
-    "systemNumber": "10000560",
+    "systemNumber": "10001560",
     "createdTimestamp": "2024-02-05T08:53:17.809Z",
     "partialVin": "GVTST4",
     "primaryVrm": "LGVTST4",
@@ -3068,7 +3068,7 @@
     "vin": "TRLTST1"
   },
   {
-    "systemNumber": "10000557",
+    "systemNumber": "10001557",
     "createdTimestamp": "2024-02-05T08:31:56.200Z",
     "partialVin": "RLTST2",
     "techRecord_adrDetails_additionalExaminerNotes": null,
@@ -3366,9 +3366,9 @@
     "vin": "TRLTST3"
   },
   {
-    "systemNumber": "10000564",
+    "systemNumber": "10001564",
     "createdTimestamp": "2024-02-05T09:04:17.170Z",
-    "partialVin": "STTRL3",
+    "partialVin": "RLTST4",
     "techRecord_adrDetails_additionalExaminerNotes": null,
     "techRecord_adrDetails_additionalNotes_number": null,
     "techRecord_adrDetails_adrCertificateNotes": null,
