@@ -105,7 +105,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     return addHttpHeaders({
       statusCode: 200,
-      body: JSON.stringify('ADR certificate generation successful'),
+      body: JSON.stringify({ message: 'ADR certificate generation successful', id: newAdrCertificate.certificateId }),
     });
   } catch (e) {
     logger.error(`Error has been thrown with ${JSON.stringify(e)}`);
