@@ -26,7 +26,8 @@
     "test:integration": "jest int --testTimeout 20000",
     "package": "npm run build:prod",
     "start:ci": "npm run dynamo:seed && sam local start-api --docker-network $(docker network ls | grep github_network | awk '{print $2}') --warm-containers EAGER",
-    "swagger:open": "docker run --name swagger -d -p 80:8080 -v $(pwd)/docs:/tmp -e SWAGGER_FILE=/tmp/spec.yml swaggerapi/swagger-editor"
+    "swagger:open": "docker run --name swagger -d -p 80:8080 -v $(pwd)/docs:/tmp -e SWAGGER_FILE=/tmp/spec.yml swaggerapi/swagger-editor",
+    "sonar-scanner": "sonar-scanner"
   },
   "contributors": [
     {
