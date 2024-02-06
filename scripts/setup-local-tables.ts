@@ -183,19 +183,35 @@ const setupLocalTables = async () => {
 };
 
 export const seedTables = async (seedingRequest: TableSeedRequest[]) => {
-  const command: BatchWriteItemCommandInput = seedingRequest.reduce((prev, { table, data }) => {
-    // eslint-disable-next-line security/detect-object-injection
-    const prevTableData: WriteRequest[] = prev.RequestItems?.[table] ?? [];
-    const marshalledData: WriteRequest[] = data.map((item) => ({ PutRequest: { Item: marshall(item) } }));
-    return {
-      RequestItems: {
-        ...prev.RequestItems,
-        [table]: [...prevTableData, ...marshalledData],
-      },
-    };
-  }, {} as BatchWriteItemCommandInput);
+  const tableWriteRequests = new Map<string, Record<string, unknown>[]>();
+
+  seedingRequest.forEach(({ table, data }) => {
+    const tableWriteRequest = tableWriteRequests.get(table);
+    const tableWriteRequestItems = tableWriteRequest ? [...tableWriteRequest, ...data] : data;
+    tableWriteRequests.set(table, tableWriteRequestItems);
+  });
+
+  const tableWriteCommands: BatchWriteItemCommandInput[] = [];
+  tableWriteRequests.forEach((items, table) => {
+    const chunks = [];
+    while (items.length > 0) {
+      chunks.push(items.splice(0, 25));
+    }
+
+    chunks.forEach((chunk) => {
+      tableWriteCommands.push({
+        RequestItems: {
+          [table]: chunk.map((item) => ({
+            PutRequest: {
+              Item: marshall(item),
+            },
+          })),
+        },
+      });
+    });
+  });
   const docClient = new DynamoDBClient(dynamoConfig);
-  await docClient.send(new BatchWriteItemCommand(command));
+  await Promise.allSettled(tableWriteCommands.map((command) => docClient.send(new BatchWriteItemCommand(command))));
 };
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
