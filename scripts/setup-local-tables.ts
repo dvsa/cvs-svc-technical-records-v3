@@ -2,7 +2,6 @@ import {
   BatchWriteItemCommand, BatchWriteItemCommandInput,
   CreateTableCommandOutput, CreateTableInput, DynamoDB, DynamoDBClient,
   DynamoDBClientConfig,
-  WriteRequest,
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { dynamoDBClientConfig, tableName } from '../src/config';
@@ -183,19 +182,40 @@ const setupLocalTables = async () => {
 };
 
 export const seedTables = async (seedingRequest: TableSeedRequest[]) => {
-  const command: BatchWriteItemCommandInput = seedingRequest.reduce((prev, { table, data }) => {
-    // eslint-disable-next-line security/detect-object-injection
-    const prevTableData: WriteRequest[] = prev.RequestItems?.[table] ?? [];
-    const marshalledData: WriteRequest[] = data.map((item) => ({ PutRequest: { Item: marshall(item) } }));
-    return {
-      RequestItems: {
-        ...prev.RequestItems,
-        [table]: [...prevTableData, ...marshalledData],
-      },
-    };
-  }, {} as BatchWriteItemCommandInput);
+  // combine requests referring to the same table into a single request
+  const tableWriteRequests = new Map<string, Record<string, unknown>[]>();
+  seedingRequest.forEach(({ table, data }) => {
+    const tableWriteRequest = tableWriteRequests.get(table);
+    const tableWriteRequestItems = tableWriteRequest ? [...tableWriteRequest, ...data] : data;
+    tableWriteRequests.set(table, tableWriteRequestItems);
+  });
+
+  // next: build the write item commands, if a table has more than 25 items split it into multiple commands
+  const tableWriteCommands: BatchWriteItemCommandInput[] = [];
+  tableWriteRequests.forEach((items, table) => {
+    const chunks = [];
+    while (items.length > 0) {
+      chunks.push(items.splice(0, 25));
+    }
+
+    // for each chunk push the table write command, first mapping the items to a put request
+    chunks.forEach((chunk) => {
+      tableWriteCommands.push({
+        RequestItems: {
+          [table]: chunk.map((item) => ({
+            PutRequest: {
+              Item: marshall(item),
+            },
+          })),
+        },
+      });
+    });
+  });
+
   const docClient = new DynamoDBClient(dynamoConfig);
-  await docClient.send(new BatchWriteItemCommand(command));
+
+  // finally: await the sending of all the chunked batch write commands
+  await Promise.allSettled(tableWriteCommands.map((command) => docClient.send(new BatchWriteItemCommand(command))));
 };
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
