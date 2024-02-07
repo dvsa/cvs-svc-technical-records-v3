@@ -77,5 +77,6 @@
     "techRecord_vehicleClass_description": "heavy goods vehicle",
     "techRecord_vehicleConfiguration": "rigid",
     "techRecord_vehicleType": "hgv",
-    "vin": "HGVTEST01"
+    "vin": "HGVTEST01",
+    "techRecord_adrDetails_dangerousGoods": true
    }
