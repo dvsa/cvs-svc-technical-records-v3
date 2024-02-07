@@ -1,5 +1,4 @@
 import { DeleteTableCommand, DynamoDB } from '@aws-sdk/client-dynamodb';
-import polly from 'polly-js';
 import { dynamoDBClientConfig } from '../src/config';
 import { setupLocalTables } from './setup-local-tables';
 
@@ -15,6 +14,6 @@ export async function deleteLocalTables() {
 }
 
 export async function truncateLocalTables() {
-  await polly().waitAndRetry(3).executeForPromise(deleteLocalTables);
-  await polly().waitAndRetry(3).executeForPromise(setupLocalTables);
+  await deleteLocalTables();
+  await setupLocalTables();
 }
