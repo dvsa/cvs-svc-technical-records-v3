@@ -24,6 +24,7 @@
     "test-i": "echo 'nothing to do'",
     "test:integration:github": "jest int --globalSetup='./scripts/spin-up-lambdas.ts' --globalTeardown='./scripts/destroy-lambdas.ts' --testTimeout 20000",
     "test:integration": "jest int --testTimeout 20000",
+    "test:hotfix": "jest --testTimeout 20000 hotfix",
     "package": "npm run build:prod",
     "start:ci": "npm run dynamo:seed && sam local start-api --docker-network $(docker network ls | grep github_network | awk '{print $2}') --warm-containers EAGER",
     "swagger:open": "docker run --name swagger -d -p 80:8080 -v $(pwd)/docs:/tmp -e SWAGGER_FILE=/tmp/spec.yml swaggerapi/swagger-editor"
@@ -44,6 +45,7 @@
     "@aws-sdk/util-dynamodb": "^3.362.0",
     "@dvsa/cvs-type-definitions": "^5.1.2",
     "@types/luxon": "^3.3.0",
+    "async-sema": "^3.1.1",
     "jwt-decode": "^3.1.2",
     "luxon": "^3.3.0",
     "polly-js": "^1.8.3"
