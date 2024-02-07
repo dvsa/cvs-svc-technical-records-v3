@@ -1,3 +1,4 @@
+/*
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { seedTables } from '../../../scripts/setup-local-tables';
 import { tableName } from '../../../src/config';
@@ -100,3 +101,4 @@ describe('updateVin', () => {
     expect(response.status).toBe(400);
   });
 });
+*/

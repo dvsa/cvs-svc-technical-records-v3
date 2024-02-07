@@ -167,7 +167,7 @@ const tablesToSetup: CreateTableInput[] = [
 
 const dynamoConfig: DynamoDBClientConfig = { ...dynamoDBClientConfig, endpoint: process.env.DYNAMO_ENDPOINT };
 
-const setupLocalTables = async () => {
+export const setupLocalTables = async () => {
   const ddb = new DynamoDB(dynamoConfig);
   const existingTables = await ddb.listTables({});
   const tables: Promise<CreateTableCommandOutput>[] = [];
@@ -218,14 +218,18 @@ export const seedTables = async (seedingRequest: TableSeedRequest[]) => {
   await Promise.allSettled(tableWriteCommands.map((command) => docClient.send(new BatchWriteItemCommand(command))));
 };
 
+export const seedLocalTables = async () => {
+  await seedTables([{
+    table: tableName,
+    data: techRecordData,
+  }]);
+};
+
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
   try {
     await setupLocalTables();
-    await seedTables([{
-      table: tableName,
-      data: techRecordData,
-    }]);
+    await seedLocalTables();
   } catch (e) {
     console.log(e);
   }
