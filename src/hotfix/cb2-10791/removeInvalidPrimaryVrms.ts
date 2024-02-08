@@ -37,7 +37,7 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
       const recordsToArchive = [];
       const recordsToAdd = [];
 
-      /* eslint-disable-next-line no-restricted-syntax */
+      /* eslint-disable-next-line no-restricted-syntax, @typescript-eslint/naming-convention */
       for (const { system_number, createdAt } of techRecordChunk) {
         /* eslint-disable-next-line no-await-in-loop */
         const currentRecord = await getBySystemNumberAndCreatedTimestamp(
