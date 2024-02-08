@@ -171,7 +171,7 @@ Resources:
     RemoveInvalidPrimaryVrms:
       Type: 'AWS::Serverless::Function'
       Properties:
-        CodeUri: src/hotfix/
+        CodeUri: src/hotfix/cb2-10791/
         Handler: removeInvalidPrimaryVrms.handler
         Runtime: nodejs18.x
         Timeout: 20
