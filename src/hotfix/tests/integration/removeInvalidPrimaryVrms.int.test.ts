@@ -1,49 +1,34 @@
 import { seedTables } from '../../../../scripts/setup-local-tables';
 import { tableName } from '../../../config';
+import { getBySystemNumberAndCreatedTimestamp } from '../../../services/database';
 import { handler as removePrimaryVrm } from '../../removeInvalidPrimaryVrms';
 import techRecordData from './resources/technical-records-v3-invalid-primaryvrm.json';
-import invalidVrms from '../../resources/invalid-primary-vrms.json';
-import * as fs from 'fs';
+import { chunk } from 'lodash';
 
 describe('remove primary vrms function', () => {
-  beforeEach(async () => {
-    await seedTables([{
-      table: tableName,
-      data: techRecordData,
-    }]);
-  });
-
-  describe('update data', () => {
-    const output = [];
-    for (let i = 0; i < invalidVrms.length; i++) {
-      const invalidVrm = invalidVrms[i];
-
-      const techRecord = {
-        ...techRecordData[i],
-        createdTimestamp: new Date(invalidVrm.createdAt).toISOString(),
-        primaryVrm: invalidVrm.trailer_id,
-        systemNumber: invalidVrm.system_number,
-        vin: invalidVrm.vin
-      };
-
-      output.push(techRecord);
+  beforeAll(async () => {
+    const techRecordChunks = chunk(techRecordData, 25);
+    for (const chunk of techRecordChunks) {
+      await seedTables([{
+        table: tableName,
+        data: chunk,
+      }]);
     }
-
-    fs.writeFileSync(`./output.json`, JSON.stringify(output));
   });
 
   describe('happy path', () => {
     it('should remove the primary vrm', async () => {
-      return true;
+      const invalidVrms = require('../../resources/invalid-primary-vrms.json');
+
       process.env.AWS_SAM_LOCAL = 'true';
 
       // Arrange
 
-      // (would be better to DI a DateProvider, generally speaking, but this will do for now)
+      // (would be better to DI a DateProvider, but this will do for now)
       const forceUpdateTimestamp = new Date();
 
       // Act
-      const result = await removePrimaryVrm(forceUpdateTimestamp);
+      const result = await removePrimaryVrm(invalidVrms, forceUpdateTimestamp);
 
       // Assert
       expect(result.statusCode).toEqual(200);
@@ -53,70 +38,77 @@ describe('remove primary vrms function', () => {
 
       // Sanity check, ensure the primary vrm was falsified.
       for (const tr of invalidVrms) {
+        // Verify the insertion
         const systemNumber = tr.system_number;
         const date = forceUpdateTimestamp.toISOString();
 
-        const response = await fetch(`http://127.0.0.1:3000/v3/technical-records/${systemNumber}/${date}`);
-        expect(response.status).toBe(200);
+        const updatedTechRecord = await getBySystemNumberAndCreatedTimestamp(systemNumber, date);
 
-        const updatedTechRecord = await response.json();
         expect('primaryVrm' in updatedTechRecord).toBeFalsy();
+
+        // Verify the archive
+        const archivedTechRecord = await getBySystemNumberAndCreatedTimestamp(
+          tr.system_number,
+          new Date(tr.createdAt).toISOString(),
+        );
+
+        if (!('primaryVrm' in archivedTechRecord)) {
+          throw Error('Primary VRM was not found on the tech record as expected');
+        }
+        expect(archivedTechRecord.primaryVrm).toEqual(tr.trailer_id);
+        expect(archivedTechRecord.techRecord_statusCode).toEqual('archived');
       }
 
-      // const updatedResponse = await fetch(
-      //   `http://127.0.0.1:3000/v3/technical-records/${systemNumber}/${forceUpdateTimestamp.toISOString()}`
-      // );
+      // There are records that should not have been updated, they all have the primary vrm value
+      // UNAFFECTED_PRIMARY_VRMS.
+      // Verify these weren't updated.
+      const UNAFFECTED_PRIMARY_VRMS = 'PRIMARYVRM';
 
-      // expect(updatedResponse.status).toBe(200);
+      for (const unaffectedRecord of techRecordData.filter(tr => tr.primaryVrm == UNAFFECTED_PRIMARY_VRMS)) {
+        const systemNumber = unaffectedRecord.systemNumber;
+        const date = unaffectedRecord.createdTimestamp;
 
-      // const updatedTechRecord = await updatedResponse.json();
+        const techReord = await getBySystemNumberAndCreatedTimestamp(systemNumber, date);
 
-      // expect('primaryVrm' in updatedTechRecord).toBeFalsy();
+        expect('primaryVrm' in techReord).toBeTruthy();
+        if (!('primaryVrm' in techReord)) {
+          throw Error('Primary VRM was not found on the tech record as expected');
+        }
+
+        expect(techReord.primaryVrm).toEqual(UNAFFECTED_PRIMARY_VRMS);
+      }
     });
   });
 
-  // describe('unhappy path', () => {
-  //   it('should return an error message if vehicle type is missing', async () => {
-  //     const response = await fetch(
-  //       'http:/127.0.0.1:3000/v3/technical-records',
-  //       {
-  //         method: 'POST',
-  //         body: JSON.stringify({}),
-  //         headers: {
-  //           Authorization: mockToken,
-  //         },
-  //       },
-  //     );
+  describe('unhappy path', () => {
+    it('should update 0 if vehicle type is wrong', async () => {
+      const invalidVrms =
+        [{
+          "id": "12345",
+          "system_number": "SNINVALIDCLASS",
+          "vin": "1234567890",
+          "vrm_trm": "VRM_TRM",
+          "trailer_id": "TRAILER_ID",
+          "createdAt": "2024-01-08 09:14:36.351"
+        }];
 
-  //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  //     const json = await response.json();
+      const result = await removePrimaryVrm(invalidVrms);
+      expect(result.body).toEqual(`RPVRM: Updated 0 invalid tech records`);
+    });
 
-  //     expect(json).toEqual({ errors: [ERRORS.VEHICLE_TYPE_ERROR] });
-  //     expect(response.status).toBe(400);
-  //   });
+    it('should update 0 if vrm is missing', async () => {
+      const invalidVrms =
+      [{
+        "id": "12345",
+        "system_number": "SNINVALIDVRM",
+        "vin": "1234567890",
+        "vrm_trm": "VRM_TRM",
+        "trailer_id": "TRAILER_ID",
+        "createdAt": "2024-01-08 09:14:36.351"
+      }];
 
-  //   it('should return the required fields to create if the body does not have them', async () => {
-  //     const body = { techRecord_vehicleType: 'psv' };
-  //     const response = await fetch(
-  //       'http:/127.0.0.1:3000/v3/technical-records',
-  //       {
-  //         method: 'POST',
-  //         body: JSON.stringify(body),
-  //         headers: {
-  //           Authorization: mockToken,
-  //         },
-  //       },
-  //     );
-
-  //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  //     const json = await response.json();
-
-  //     const requiredFields = psvSchema.required
-  //       .filter((field) => !Object.keys(body).includes(field))
-  //       .map((field: string) => `must have required property '${field}'`);
-
-  //     expect(json).toEqual({ errors: requiredFields });
-  //     expect(response.status).toBe(400);
-  //   });
-  // });
+      const result = await removePrimaryVrm(invalidVrms);
+      expect(result.body).toEqual(`RPVRM: Updated 0 invalid tech records`);
+    });
+  });
 });

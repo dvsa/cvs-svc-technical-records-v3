@@ -1,11 +1,10 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 
-import { RateLimit } from 'async-sema';
+import { chunk } from 'lodash';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
-import invalidPrimaryVrmRecords from './resources/invalid-primary-vrms.json';
 import {
   getBySystemNumberAndCreatedTimestamp,
   updateVehicle,
@@ -15,48 +14,68 @@ import { addHttpHeaders } from '../util/httpHeaders';
 import { formatErrorMessage } from '../util/errorMessage';
 import logger from '../util/logger';
 
-export const handler = async (forceUpdateTimestamp?: Date): Promise<APIGatewayProxyResult> => {
+type InvalidPrimryVrmRecord = {
+  id: string,
+  system_number: string,
+  vin: string,
+  vrm_trm: string,
+  trailer_id: string,
+  createdAt: string
+};
+
+export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[], forceUpdateTimestamp?: Date): Promise<APIGatewayProxyResult> => {
   try {
-    logger.debug('RPVRM: Remove Primary VRM for Trailers Called');
+    logger.info('RPVRM: Remove Primary VRM for Trailers Called');
 
     const recordsToUpdate = invalidPrimaryVrmRecords.length;
     let numberOfRecordUpdated = 0;
 
-    logger.debug(`RPVRM: ${recordsToUpdate} tech records to update`);
+    logger.info(`RPVRM: ${recordsToUpdate} tech records to update`);
 
-    const limit = RateLimit(25);
-    // const techRecordChunks = chunk(invalidPrimaryVrmRecords, 25);
+    for (const techRecordChunk of chunk(invalidPrimaryVrmRecords, 25)) {
+      const recordsToArchive = [];
+      const recordsToAdd = [];
 
-    for (const techRecord of invalidPrimaryVrmRecords) {
-      await limit();
+      for (const techRecord of techRecordChunk) {
+        const systemNumber = techRecord.system_number;
+        const createdTimestamp = new Date(techRecord.createdAt).toISOString();
+        const currentRecord = await getBySystemNumberAndCreatedTimestamp(
+          systemNumber,
+          createdTimestamp,
+        );
 
-      const systemNumber = techRecord.system_number;
-      const createdTimestamp = new Date(techRecord.createdAt).toISOString();
-      const currentRecord = await getBySystemNumberAndCreatedTimestamp(
-        systemNumber,
-        createdTimestamp,
-      );
+        // Validate the state of the current (invalid) record.
+        if (!validatePrimaryVrmIsInvalid(currentRecord)) {
+          continue;
+        }
 
-      // Validate the state of the current (invalid) record.
-      if (!validatePrimaryVrmIsInvalid(currentRecord)) {
+        // Instantiate a new record from the current one and archive the existing record.
+        // Force a specific update timestamp for assertions.
+        const date = forceUpdateTimestamp ?? new Date();
+        const [newRecord, recordToArchive] = archiveAndInstantiateNewTechRecord(currentRecord, date);
+
+        recordsToArchive.push(recordToArchive);
+        recordsToAdd.push(newRecord);
+      }
+
+      if (recordsToArchive.length == 0 && recordsToAdd.length == 0) {
         continue;
       }
 
-      // Instantiate a new record from the current one and archive the existing record.
-      const date = forceUpdateTimestamp ?? new Date();
-      const [newRecord, recordToArchive] = archiveAndInstantiateNewTechRecord(currentRecord, date);
-
-      // Update sucka
-      const result = await updateVehicle([recordToArchive], [newRecord]) as TechRecordType<'get'>[];
+      // Update
+      const result = await updateVehicle(recordsToArchive, recordsToAdd) as TechRecordType<'get'>[];
       numberOfRecordUpdated += result.length;
     }
+
+    logger.info(`RPVRM: ${numberOfRecordUpdated} tech records updated`);
 
     return addHttpHeaders({
       statusCode: 200,
       body: `RPVRM: Updated ${numberOfRecordUpdated} invalid tech records`,
     });
   }
-  catch {
+  catch (e) {
+    logger.error(e);
     return addHttpHeaders({
       statusCode: 500,
       body: formatErrorMessage(ERRORS.FAILED_UPDATE_MESSAGE),
