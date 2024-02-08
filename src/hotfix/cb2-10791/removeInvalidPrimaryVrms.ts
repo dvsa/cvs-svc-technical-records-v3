@@ -14,7 +14,7 @@ import { addHttpHeaders } from '../../util/httpHeaders';
 import { formatErrorMessage } from '../../util/errorMessage';
 import logger from '../../util/logger';
 
-type InvalidPrimryVrmRecord = {
+export type InvalidPrimryVrmRecord = {
   id: string,
   system_number: string,
   vin: string,
@@ -32,13 +32,16 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
 
     logger.info(`RPVRM: ${recordsToUpdate} tech records to update`);
 
+    /* eslint-disable-next-line no-restricted-syntax */
     for (const techRecordChunk of chunk(invalidPrimaryVrmRecords, 25)) {
       const recordsToArchive = [];
       const recordsToAdd = [];
 
+      /* eslint-disable-next-line no-restricted-syntax */
       for (const techRecord of techRecordChunk) {
         const systemNumber = techRecord.system_number;
         const createdTimestamp = new Date(techRecord.createdAt).toISOString();
+        /* eslint-disable-next-line no-await-in-loop */
         const currentRecord = await getBySystemNumberAndCreatedTimestamp(
           systemNumber,
           createdTimestamp,
@@ -46,6 +49,7 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
 
         // Validate the state of the current (invalid) record.
         if (!validatePrimaryVrmIsInvalid(currentRecord)) {
+          /* eslint-disable-next-line no-continue */
           continue;
         }
 
@@ -58,11 +62,13 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
         recordsToAdd.push(newRecord);
       }
 
-      if (recordsToArchive.length == 0 && recordsToAdd.length == 0) {
+      if (recordsToArchive.length === 0 || recordsToAdd.length === 0) {
+        /* eslint-disable-next-line no-continue */
         continue;
       }
 
       // Update
+      /* eslint-disable-next-line no-await-in-loop */
       const result = await updateVehicle(recordsToArchive, recordsToAdd) as TechRecordType<'get'>[];
       numberOfRecordUpdated += result.length;
     }
@@ -73,15 +79,14 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
       statusCode: 200,
       body: `RPVRM: Updated ${numberOfRecordUpdated} invalid tech records`,
     });
-  }
-  catch (e) {
+  } catch (e) {
     logger.error(e);
     return addHttpHeaders({
       statusCode: 500,
       body: formatErrorMessage(ERRORS.FAILED_UPDATE_MESSAGE),
     });
   }
-}
+};
 
 // Ensures that a technical record meets the criteria to be in an invalid state
 // for the primary vrm data incident.
@@ -89,26 +94,26 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
 const validatePrimaryVrmIsInvalid = (techRecord: TechRecordType<'get'>): boolean => {
   if (techRecord.techRecord_vehicleType !== 'trl') {
     logger.error(
-      `RPVRM: Invalid tech record: type is not 'trl' (${techRecord.systemNumber}, ${techRecord.createdTimestamp})`
+      `RPVRM: Invalid tech record: type is not 'trl' (${techRecord.systemNumber}, ${techRecord.createdTimestamp})`,
     );
     return false;
   }
 
   if (!('primaryVrm' in techRecord)) {
     logger.error(
-      `RPVRM: Invalid tech record: missing primaryVrm (${techRecord.systemNumber}, ${techRecord.createdTimestamp})`
+      `RPVRM: Invalid tech record: missing primaryVrm (${techRecord.systemNumber}, ${techRecord.createdTimestamp})`,
     );
     return false;
   }
 
   return true;
-}
+};
 
 // Takes a technical record, updates it to archived and create a new instance from the input parameter
 // with the primary vrm removed.
 // Updates are made by SYSTEM_USER
 const archiveAndInstantiateNewTechRecord = (currentRecord: TechRecordType<'get'>, updateDate: Date):
-    [TechRecordType<'get'>, TechRecordType<'get'>] => {
+[TechRecordType<'get'>, TechRecordType<'get'>] => {
   const SYSTEM_USER = 'SYSTEM USER';
   const REASON_FOR_CREATION = 'Primary VRM removed for trailer (CB2-10791)';
 
@@ -117,7 +122,7 @@ const archiveAndInstantiateNewTechRecord = (currentRecord: TechRecordType<'get'>
   const newRecord = {
     ...currentRecord,
     primaryVrm: undefined,
-    techRecord_reasonForCreation: REASON_FOR_CREATION
+    techRecord_reasonForCreation: REASON_FOR_CREATION,
   };
 
   const recordToCreate = setCreatedAuditDetails(
@@ -137,4 +142,4 @@ const archiveAndInstantiateNewTechRecord = (currentRecord: TechRecordType<'get'>
   );
 
   return [recordToCreate, recordToArchive];
-}
+};
