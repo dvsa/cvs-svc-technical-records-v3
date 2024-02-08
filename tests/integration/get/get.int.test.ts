@@ -1,29 +1,43 @@
-describe('get function', () => {
+import { seedLocalTables, truncateLocalTables } from '../../../scripts';
+import { API_URL } from '../../util';
+
+describe('get', () => {
+  beforeAll(async () => {
+    await seedLocalTables();
+  });
   describe('happy path', () => {
-    it('should find a record', async () => {
-      const response = await fetch('http:/127.0.0.1:3000/v3/technical-records/XYZEP5JYOMM00020/2019-06-15T10:26:53.903Z');
+    it('should find a record given its systemNumber, and createdTimestamp', async () => {
+      const systemNumber = 'XYZEP5JYOMM00020';
+      const createdTimestamp = '2019-06-15T10:26:53.903Z';
+      const response = await fetch(`${API_URL}/${systemNumber}/${createdTimestamp}`);
       expect(response.status).toBe(200);
-      expect(response.body).toBeTruthy();
+      expect(response.body).toBeDefined();
+      await expect(response.json()).resolves.toEqual(expect.objectContaining({
+        systemNumber,
+        createdTimestamp,
+      }));
     });
   });
 
   describe('unhappy path', () => {
-    it('should return an error with an invalid createdTimestamp', async () => {
-      const response = await fetch('http:/127.0.0.1:3000/v3/technical-records/XYZEP5JYOMM00020/bar');
+    it('should return a 400 response, when provided with a malformed systemNumber', async () => {
+      const response = await fetch(`${API_URL}/XYZEP5JYOMM00020/bar`);
       expect(response.status).toBe(400);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const json = await response.json();
-      expect(json).toEqual({ errors: ['Invalid created timestamp'] });
+      await expect(response.json()).resolves.toEqual({ errors: ['Invalid created timestamp'] });
     });
 
-    it('should return not found', async () => {
-      const tenYearsFromNow = new Date();
-      tenYearsFromNow.setFullYear(new Date().getFullYear() + 10);
-      const response = await fetch(`http:/127.0.0.1:3000/v3/technical-records/XYZEP5JYOMM00020/${tenYearsFromNow.toISOString()}`);
+    it('should return a 404 response, when the tech record does not exist', async () => {
+      const systemNumber = 'ABC';
+      const createdTimestamp = '2019-06-24T10:26:56.903Z';
+      const response = await fetch(`${API_URL}/${systemNumber}/${createdTimestamp}`);
       expect(response.status).toBe(404);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const json = await response.json();
-      expect(json).toEqual({ errors: [`No record found matching systemNumber XYZEP5JYOMM00020 and timestamp ${tenYearsFromNow.toISOString()}`] });
+      await expect(response.json()).resolves.toEqual({
+        errors: [`No record found matching systemNumber ${systemNumber} and timestamp ${createdTimestamp}`],
+      });
     });
+  });
+
+  afterAll(async () => {
+    await truncateLocalTables();
   });
 });
