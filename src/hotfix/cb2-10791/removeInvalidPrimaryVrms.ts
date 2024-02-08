@@ -28,7 +28,7 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
     logger.info('RPVRM: Remove Primary VRM for Trailers Called');
 
     const recordsToUpdate = invalidPrimaryVrmRecords.length;
-    let numberOfRecordUpdated = 0;
+    let numberOfRecordsUpdated = 0;
 
     logger.info(`RPVRM: ${recordsToUpdate} tech records to update`);
 
@@ -38,13 +38,11 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
       const recordsToAdd = [];
 
       /* eslint-disable-next-line no-restricted-syntax */
-      for (const techRecord of techRecordChunk) {
-        const systemNumber = techRecord.system_number;
-        const createdTimestamp = new Date(techRecord.createdAt).toISOString();
+      for (const { system_number, createdAt } of techRecordChunk) {
         /* eslint-disable-next-line no-await-in-loop */
         const currentRecord = await getBySystemNumberAndCreatedTimestamp(
-          systemNumber,
-          createdTimestamp,
+          system_number,
+          new Date(createdAt).toISOString(),
         );
 
         // Validate the state of the current (invalid) record.
@@ -70,14 +68,14 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
       // Update
       /* eslint-disable-next-line no-await-in-loop */
       const result = await updateVehicle(recordsToArchive, recordsToAdd) as TechRecordType<'get'>[];
-      numberOfRecordUpdated += result.length;
+      numberOfRecordsUpdated += result.length;
     }
 
-    logger.info(`RPVRM: ${numberOfRecordUpdated} tech records updated`);
+    logger.info(`RPVRM: ${numberOfRecordsUpdated} tech records updated`);
 
     return addHttpHeaders({
       statusCode: 200,
-      body: `RPVRM: Updated ${numberOfRecordUpdated} invalid tech records`,
+      body: `RPVRM: Updated ${numberOfRecordsUpdated} invalid tech records`,
     });
   } catch (e) {
     logger.error(e);
