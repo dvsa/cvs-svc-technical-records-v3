@@ -45,7 +45,6 @@
     "@aws-sdk/util-dynamodb": "^3.362.0",
     "@dvsa/cvs-type-definitions": "^5.1.2",
     "@types/luxon": "^3.3.0",
-    "async-sema": "^3.1.1",
     "jwt-decode": "^3.1.2",
     "luxon": "^3.3.0",
     "polly-js": "^1.8.3"
