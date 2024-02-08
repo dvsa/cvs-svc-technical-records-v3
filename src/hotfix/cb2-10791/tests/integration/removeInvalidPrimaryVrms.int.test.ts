@@ -1,6 +1,6 @@
-import { seedTables } from '../../../../scripts/setup-local-tables';
-import { tableName } from '../../../config';
-import { getBySystemNumberAndCreatedTimestamp } from '../../../services/database';
+import { seedTables } from '../../../../../scripts/setup-local-tables';
+import { tableName } from '../../../../config';
+import { getBySystemNumberAndCreatedTimestamp } from '../../../../services/database';
 import { handler as removePrimaryVrm } from '../../removeInvalidPrimaryVrms';
 import techRecordData from './resources/technical-records-v3-invalid-primaryvrm.json';
 import { chunk } from 'lodash';

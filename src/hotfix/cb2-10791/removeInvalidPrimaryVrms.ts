@@ -4,15 +4,15 @@ import 'dotenv/config';
 import { chunk } from 'lodash';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 
-import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
+import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../services/audit';
 import {
   getBySystemNumberAndCreatedTimestamp,
   updateVehicle,
-} from '../services/database';
-import { ERRORS, StatusCode } from '../util/enum';
-import { addHttpHeaders } from '../util/httpHeaders';
-import { formatErrorMessage } from '../util/errorMessage';
-import logger from '../util/logger';
+} from '../../services/database';
+import { ERRORS, StatusCode } from '../../util/enum';
+import { addHttpHeaders } from '../../util/httpHeaders';
+import { formatErrorMessage } from '../../util/errorMessage';
+import logger from '../../util/logger';
 
 type InvalidPrimryVrmRecord = {
   id: string,
