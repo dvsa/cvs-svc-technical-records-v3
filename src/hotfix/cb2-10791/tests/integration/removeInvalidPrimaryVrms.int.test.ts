@@ -89,6 +89,21 @@ describe('remove primary vrms function', () => {
   });
 
   describe('unhappy path', () => {
+    it('should update 0 if not found', async () => {
+      const invalidVrms = [{
+        id: '12345',
+        system_number: 'SNINVALIDCLASS123',
+        vin: '1234567890',
+        vrm_trm: 'VRM_TRM',
+        trailer_id: 'TRAILER_ID',
+        createdAt: '2024-01-08 09:14:36.351',
+      }];
+
+      const result = await removePrimaryVrm(invalidVrms);
+      expect(result.statusCode).toBe(200);
+      expect(result.body).toBe('RPVRM: Updated 0 invalid tech records');
+    });
+
     it('should update 0 if vehicle type is wrong', async () => {
       const invalidVrms = [{
         id: '12345',
@@ -100,6 +115,7 @@ describe('remove primary vrms function', () => {
       }];
 
       const result = await removePrimaryVrm(invalidVrms);
+      expect(result.statusCode).toBe(200);
       expect(result.body).toBe('RPVRM: Updated 0 invalid tech records');
     });
 
@@ -114,6 +130,7 @@ describe('remove primary vrms function', () => {
       }];
 
       const result = await removePrimaryVrm(invalidVrms);
+      expect(result.statusCode).toBe(200);
       expect(result.body).toBe('RPVRM: Updated 0 invalid tech records');
     });
   });

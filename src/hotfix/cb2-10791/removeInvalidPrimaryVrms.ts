@@ -1,7 +1,7 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 
-import { chunk } from 'lodash';
+import { chunk, create } from 'lodash';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../services/audit';
@@ -39,25 +39,34 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
 
       /* eslint-disable-next-line no-restricted-syntax, @typescript-eslint/naming-convention */
       for (const { system_number, createdAt } of techRecordChunk) {
-        /* eslint-disable-next-line no-await-in-loop */
-        const currentRecord = await getBySystemNumberAndCreatedTimestamp(
-          system_number,
-          new Date(createdAt).toISOString(),
-        );
+        const dt = new Date(createdAt).toISOString();
 
-        // Validate the state of the current (invalid) record.
-        if (!validatePrimaryVrmIsInvalid(currentRecord)) {
-          /* eslint-disable-next-line no-continue */
-          continue;
+        try {
+          /* eslint-disable-next-line no-await-in-loop */
+          const currentRecord = await getBySystemNumberAndCreatedTimestamp(
+            system_number,
+            dt,
+          );
+
+          // Validate the state of the current (invalid) record.
+          if (!validatePrimaryVrmIsInvalid(currentRecord)) {
+            /* eslint-disable-next-line no-continue */
+            continue;
+          }
+
+          // Instantiate a new record from the current one and archive the existing record.
+          // Force a specific update timestamp for assertions.
+          const date = forceUpdateTimestamp ?? new Date();
+          const [newRecord, recordToArchive] = archiveAndInstantiateNewTechRecord(currentRecord, date);
+
+          recordsToArchive.push(recordToArchive);
+          recordsToAdd.push(newRecord);
         }
-
-        // Instantiate a new record from the current one and archive the existing record.
-        // Force a specific update timestamp for assertions.
-        const date = forceUpdateTimestamp ?? new Date();
-        const [newRecord, recordToArchive] = archiveAndInstantiateNewTechRecord(currentRecord, date);
-
-        recordsToArchive.push(recordToArchive);
-        recordsToAdd.push(newRecord);
+        catch (e) {
+          logger.error(
+            `RPVRM: Tech record not found (${system_number}, ${dt})`
+          );
+        }
       }
 
       if (recordsToArchive.length === 0 || recordsToAdd.length === 0) {
