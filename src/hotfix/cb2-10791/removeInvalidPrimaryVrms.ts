@@ -1,7 +1,7 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import 'dotenv/config';
 
-import { chunk, create } from 'lodash';
+import { chunk } from 'lodash';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../services/audit';
@@ -48,6 +48,8 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
             dt,
           );
 
+          logger.info(`RPVRM: Record found (${currentRecord.systemNumber}, ${currentRecord.createdTimestamp})`);
+
           // Validate the state of the current (invalid) record.
           if (!validatePrimaryVrmIsInvalid(currentRecord)) {
             /* eslint-disable-next-line no-continue */
@@ -61,8 +63,8 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
 
           recordsToArchive.push(recordToArchive);
           recordsToAdd.push(newRecord);
-        } catch (e) {
-          logger.error(e);
+        } catch (error) {
+          logger.error(`Error in search by sysnum and time: ${JSON.stringify(error)}`);
           logger.error(
             `RPVRM: Tech record not found (${system_number}, ${dt})`,
           );
@@ -113,6 +115,7 @@ const validatePrimaryVrmIsInvalid = (techRecord: TechRecordType<'get'>): boolean
     return false;
   }
 
+  logger.info(`RPVRM: Tech record successfully validated`);
   return true;
 };
 

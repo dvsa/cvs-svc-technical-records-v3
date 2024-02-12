@@ -106,7 +106,9 @@ export const getBySystemNumberAndCreatedTimestamp = async (systemNumber: string,
   };
 
   try {
+    logger.info(`RPVRM: Getting item (${systemNumber}, ${createdTimestamp}) from ${tableName}`);
     const data = await ddbClient.send(new GetItemCommand(command));
+    logger.info(`RPVRM: Item found`);
     logger.debug(JSON.stringify(data));
     return unmarshall(data.Item ?? {}) as TechRecordType<'get'>;
   } catch (error) {
