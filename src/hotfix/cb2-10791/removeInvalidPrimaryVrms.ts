@@ -62,6 +62,7 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
           recordsToArchive.push(recordToArchive);
           recordsToAdd.push(newRecord);
         } catch (e) {
+          logger.error(e);
           logger.error(
             `RPVRM: Tech record not found (${system_number}, ${dt})`,
           );
