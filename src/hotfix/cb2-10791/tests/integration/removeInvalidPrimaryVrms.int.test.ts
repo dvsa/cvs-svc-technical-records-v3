@@ -70,11 +70,10 @@ describe('remove primary vrms function', () => {
 
       /* eslint-disable-next-line no-restricted-syntax */
       for (const unaffectedRecord of techRecordData.filter((tr) => tr.primaryVrm === UNAFFECTED_PRIMARY_VRMS)) {
-        const { systemNumber } = unaffectedRecord;
-        const date = unaffectedRecord.createdTimestamp;
+        const { systemNumber, createdTimestamp } = unaffectedRecord;
 
         /* eslint-disable-next-line no-await-in-loop */
-        const techReord = await getBySystemNumberAndCreatedTimestamp(systemNumber, date);
+        const techReord = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
 
         expect('primaryVrm' in techReord).toBeTruthy();
         if (!('primaryVrm' in techReord)) {
