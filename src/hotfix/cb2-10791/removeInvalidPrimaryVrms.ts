@@ -99,8 +99,8 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
 const validatePrimaryVrmIsInvalid = (techRecord: TechRecordType<'get'>): boolean => {
   if (techRecord.techRecord_vehicleType !== 'trl') {
     logger.error(
-      `RPVRM: Invalid tech record: type is not 'trl' (${techRecord.techRecord_vehicleType}) ` +
-      `(${techRecord.systemNumber}, ${techRecord.createdTimestamp})`,
+      `RPVRM: Invalid tech record: type is not 'trl' (${techRecord.techRecord_vehicleType}) `
+      + `(${techRecord.systemNumber}, ${techRecord.createdTimestamp})`,
     );
     return false;
   }
