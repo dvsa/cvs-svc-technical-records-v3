@@ -113,7 +113,7 @@ const validatePrimaryVrmIsInvalid = (techRecord: TechRecordType<'get'>): boolean
     return false;
   }
 
-  logger.info(`RPVRM: Tech record successfully validated`);
+  logger.info('RPVRM: Tech record successfully validated');
   return true;
 };
 
@@ -121,7 +121,7 @@ const validatePrimaryVrmIsInvalid = (techRecord: TechRecordType<'get'>): boolean
 // with the primary vrm removed.
 // Updates are made by SYSTEM_USER
 const archiveAndInstantiateNewTechRecord = (currentRecord: TechRecordType<'get'>):
-    [TechRecordType<'get'>, TechRecordType<'get'>] => {
+[TechRecordType<'get'>, TechRecordType<'get'>] => {
   const SYSTEM_USER = 'SYSTEM USER';
   const REASON_FOR_CREATION = 'Primary VRM removed for trailer (CB2-10791)';
   const date = new Date().toISOString();
