@@ -54,8 +54,6 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
             continue;
           }
 
-          logger.info(`RPVRM: Record found (${currentRecord.systemNumber}, ${currentRecord.createdTimestamp})`);
-
           // Instantiate a new record from the current one and archive the existing record.
           // Force a specific update timestamp for assertions.
           const [newRecord, recordToArchive] = archiveAndInstantiateNewTechRecord(currentRecord);
@@ -101,7 +99,7 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
 const validatePrimaryVrmIsInvalid = (techRecord: TechRecordType<'get'>): boolean => {
   if (techRecord.techRecord_vehicleType !== 'trl') {
     logger.error(
-      `RPVRM: Invalid tech record: type is not 'trl' (${techRecord.systemNumber}, ${techRecord.createdTimestamp})`,
+      `RPVRM: Invalid tech record: type is not 'trl' (${techRecord.techRecord_vehicleType}) (${techRecord.systemNumber}, ${techRecord.createdTimestamp})`,
     );
     return false;
   }
@@ -113,7 +111,6 @@ const validatePrimaryVrmIsInvalid = (techRecord: TechRecordType<'get'>): boolean
     return false;
   }
 
-  logger.info('RPVRM: Tech record successfully validated');
   return true;
 };
 
