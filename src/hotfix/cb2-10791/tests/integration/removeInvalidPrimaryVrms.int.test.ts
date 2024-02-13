@@ -7,6 +7,9 @@ import techRecordData from './resources/technical-records-v3-invalid-primaryvrm.
 
 describe('remove primary vrms function', () => {
   beforeAll(async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date());
+
     const techRecordChunks = chunk(techRecordData, 25);
     /* eslint-disable-next-line no-restricted-syntax */
     for (const techRecordChunk of techRecordChunks) {
@@ -26,12 +29,10 @@ describe('remove primary vrms function', () => {
       process.env.AWS_SAM_LOCAL = 'true';
 
       // Arrange
-
-      // (would be better to DI a DateProvider, but this will do for now)
-      const forceUpdateTimestamp = new Date();
+      const date = new Date().toISOString();
 
       // Act
-      const result = await removePrimaryVrm(invalidVrms, forceUpdateTimestamp);
+      const result = await removePrimaryVrm(invalidVrms);
 
       // Assert
       expect(result.statusCode).toBe(200);
@@ -42,14 +43,11 @@ describe('remove primary vrms function', () => {
       // Sanity check, ensure the primary vrm was falsified.
       /* eslint-disable-next-line no-restricted-syntax */
       for (const tr of invalidVrms) {
-        // Verify the insertion
-        const systemNumber = tr.system_number;
-        const date = forceUpdateTimestamp.toISOString();
-
         /* eslint-disable-next-line no-await-in-loop */
-        const updatedTechRecord = await getBySystemNumberAndCreatedTimestamp(systemNumber, date);
+        const updatedTechRecord = await getBySystemNumberAndCreatedTimestamp(tr.system_number, date);
 
         expect('primaryVrm' in updatedTechRecord).toBeFalsy();
+        expect(updatedTechRecord.createdTimestamp).toEqual(date);
 
         // Verify the archive
         /* eslint-disable-next-line no-await-in-loop */

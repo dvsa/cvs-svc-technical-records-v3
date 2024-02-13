@@ -23,7 +23,7 @@ export type InvalidPrimryVrmRecord = {
   createdAt: string
 };
 
-export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[], forceUpdateTimestamp?: Date): Promise<APIGatewayProxyResult> => {
+export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]): Promise<APIGatewayProxyResult> => {
   try {
     logger.info('RPVRM: Remove Primary VRM for Trailers Called');
 
@@ -48,25 +48,23 @@ export const handler = async (invalidPrimaryVrmRecords: InvalidPrimryVrmRecord[]
             dt,
           );
 
-          logger.info(`RPVRM: Record found (${currentRecord.systemNumber}, ${currentRecord.createdTimestamp})`);
-
           // Validate the state of the current (invalid) record.
           if (!validatePrimaryVrmIsInvalid(currentRecord)) {
             /* eslint-disable-next-line no-continue */
             continue;
           }
 
+          logger.info(`RPVRM: Record found (${currentRecord.systemNumber}, ${currentRecord.createdTimestamp})`);
+
           // Instantiate a new record from the current one and archive the existing record.
           // Force a specific update timestamp for assertions.
-          const date = forceUpdateTimestamp ?? new Date();
-          const [newRecord, recordToArchive] = archiveAndInstantiateNewTechRecord(currentRecord, date);
+          const [newRecord, recordToArchive] = archiveAndInstantiateNewTechRecord(currentRecord);
 
           recordsToArchive.push(recordToArchive);
           recordsToAdd.push(newRecord);
         } catch (error) {
-          logger.error(`Error in search by sysnum and time: ${JSON.stringify(error)}`);
           logger.error(
-            `RPVRM: Tech record not found (${system_number}, ${dt})`,
+            `RPVRM: Tech record not found (${system_number}, ${dt}):  ${JSON.stringify(error)}`,
           );
         }
       }
@@ -122,21 +120,20 @@ const validatePrimaryVrmIsInvalid = (techRecord: TechRecordType<'get'>): boolean
 // Takes a technical record, updates it to archived and create a new instance from the input parameter
 // with the primary vrm removed.
 // Updates are made by SYSTEM_USER
-const archiveAndInstantiateNewTechRecord = (currentRecord: TechRecordType<'get'>, updateDate: Date):
-[TechRecordType<'get'>, TechRecordType<'get'>] => {
+const archiveAndInstantiateNewTechRecord = (currentRecord: TechRecordType<'get'>):
+    [TechRecordType<'get'>, TechRecordType<'get'>] => {
   const SYSTEM_USER = 'SYSTEM USER';
   const REASON_FOR_CREATION = 'Primary VRM removed for trailer (CB2-10791)';
-
-  const date = updateDate.toISOString();
+  const date = new Date().toISOString();
 
   const newRecord = {
     ...currentRecord,
     primaryVrm: undefined,
     techRecord_reasonForCreation: REASON_FOR_CREATION,
-  };
+  } as TechRecordType<'get'>;
 
   const recordToCreate = setCreatedAuditDetails(
-    newRecord as TechRecordType<'get'>,
+    newRecord,
     SYSTEM_USER,
     SYSTEM_USER,
     date,
