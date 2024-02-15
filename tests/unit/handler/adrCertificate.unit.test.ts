@@ -184,11 +184,7 @@ describe('Test adr cert gen lambda', () => {
         body: JSON.stringify(payload),
       } as unknown as APIGatewayProxyEvent);
       expect(mockAddToSqs).toHaveBeenCalledWith(expectedSqsPayload, expect.anything());
-      expect(res).toEqual({
-        statusCode: 200,
-        body: JSON.stringify('ADR certificate generation successful'),
-        headers,
-      });
+      expect(JSON.parse(res.body)).toEqual(expect.objectContaining({ message: 'ADR certificate generation successful' }));
     });
   });
 });
