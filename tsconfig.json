@@ -9,5 +9,5 @@
     "strict": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "hotfix/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"]
+  "include": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"]
 }

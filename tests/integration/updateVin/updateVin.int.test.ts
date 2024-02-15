@@ -1,14 +1,19 @@
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
-import { truncateLocalTables } from '../../../scripts';
-import { seedLocalTables } from '../../../scripts/setup-local-tables';
+import { seedTables } from '../../../scripts/setup-local-tables';
+import { tableName } from '../../../src/config';
+import techRecordData from '../../resources/technical-records-v3.json';
 import { mockToken } from '../../unit/util/mockToken';
 
 describe('updateVin', () => {
-  beforeAll(async () => {
-    await seedLocalTables();
+  beforeEach(async () => {
+    await seedTables([{
+      table: tableName,
+      data: techRecordData,
+    }]);
   });
   describe('happy path', () => {
     it('should update a vin and archive the old record', async () => {
+      jest.setTimeout(20000);
       const systemNumber = '1101234';
       const createdTimestamp = '2023-09-13T13:06:51.221Z';
 
@@ -24,7 +29,7 @@ describe('updateVin', () => {
       );
 
       const json = await response.json() as TechRecordType<'get'>;
-
+      console.log(json.createdTimestamp);
       expect(json.vin).toBe('123456789');
       expect(json.techRecord_statusCode).toBe('provisional');
 
@@ -40,9 +45,12 @@ describe('updateVin', () => {
 
       const jsonOldRecord = await checkOldRecord.json() as TechRecordType<'get'>;
 
+      console.log(jsonOldRecord);
+      console.log(jsonOldRecord.techRecord_lastUpdatedAt);
+
       expect(jsonOldRecord.vin).not.toBe('123456789');
       expect(jsonOldRecord.techRecord_statusCode).toBe('archived');
-    }, 20000);
+    });
   });
 
   describe('unhappy path', () => {
@@ -61,9 +69,12 @@ describe('updateVin', () => {
         },
       );
 
-      await expect(response.json()).resolves.toEqual({ errors: ['Cannot update an archived record'] });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const json = await response.json();
+
+      expect(json).toEqual({ errors: ['Cannot update an archived record'] });
       expect(response.status).toBe(400);
-    }, 20000);
+    });
   });
 
   it('should error if the VIN is invalid', async () => {
@@ -81,11 +92,11 @@ describe('updateVin', () => {
       },
     );
 
-    await expect(response.json()).resolves.toEqual({ errors: ['New VIN is invalid'] });
-    expect(response.status).toBe(400);
-  }, 20000);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const json = await response.json();
 
-  afterAll(async () => {
-    await truncateLocalTables();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    expect(json).toEqual({ errors: ['New VIN is invalid'] });
+    expect(response.status).toBe(400);
   });
 });

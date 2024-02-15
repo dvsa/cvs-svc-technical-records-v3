@@ -1,75 +1,103 @@
-import { VehicleConfiguration } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/vehicleConfigurationHgvPsv.enum.js';
-import { TechRecordPUTHGV } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb-vehicle-type';
-import { seedLocalTables, truncateLocalTables } from '../../../scripts';
-import { REGEXES, post } from '../../util';
+import psvSchema from '@dvsa/cvs-type-definitions/json-schemas/v3/tech-record/put/psv/skeleton/index.json';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
+import { seedTables } from '../../../scripts/setup-local-tables';
+import { tableName } from '../../../src/config';
+import { ERRORS } from '../../../src/util/enum';
+import { formatTechRecord } from '../../../src/util/formatTechRecord';
+import techRecordData from '../../resources/technical-records-v3.json';
+import { mockToken } from '../../unit/util/mockToken';
 
-describe('post function', () => {
-  beforeAll(async () => {
-    await seedLocalTables();
+describe('update function', () => {
+  beforeEach(async () => {
+    await seedTables([{
+      table: tableName,
+      data: techRecordData,
+    }]);
   });
-
   describe('happy path', () => {
-    it('should create a record, and return a 201 response with this record in its body', async () => {
-      const response = await post<TechRecordPUTHGV>({
-        vin: 'AA00AAA0AAAAAA',
-        partialVin: 'AA00AA',
-        techRecord_bodyType_description: 'description',
-        techRecord_noOfAxles: 2,
-        techRecord_reasonForCreation: 'testing post',
-        techRecord_statusCode: 'provisional',
-        techRecord_vehicleClass_description: 'heavy goods vehicle',
-        techRecord_vehicleConfiguration: VehicleConfiguration.ARTICULATED,
-        techRecord_vehicleType: 'hgv',
-      });
+    it('should create the record', async () => {
+      const systemNumber = '11000162';
+      const createdTimestamp = '2023-09-13T13:06:51.221Z';
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const recordToCreate = techRecordData.find((record) => record.systemNumber === systemNumber
+        && record.createdTimestamp === createdTimestamp)!;
 
+      const expected = {
+        ...formatTechRecord<Partial<TechRecordType<'get'>>>(recordToCreate),
+        techRecord_createdById: '123123',
+        techRecord_createdByName: 'John Doe',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        createdTimestamp: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        techRecord_createdAt: expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        systemNumber: expect.anything(),
+      };
+
+      delete expected.techRecord_lastUpdatedAt;
+      delete expected.techRecord_lastUpdatedById;
+      delete expected.techRecord_lastUpdatedByName;
+
+      const response = await fetch(
+        'http:/127.0.0.1:3000/v3/technical-records',
+        {
+          method: 'POST',
+          body: JSON.stringify(formatTechRecord(recordToCreate)),
+          headers: {
+            Authorization: mockToken,
+          },
+        },
+      );
+
+      const json = await response.json() as TechRecordType<'get'>;
+
+      expect(json).toEqual(expected);
       expect(response.status).toBe(201);
-
-      await expect(response.json()).resolves.toEqual(expect.objectContaining({
-        systemNumber: expect.anything() as string,
-        createdTimestamp: expect.stringMatching(REGEXES.timestamp) as string,
-      }));
-    }, 20000);
+    });
   });
 
   describe('unhappy path', () => {
-    it('should return a 400 error response when the request body is malformed', async () => {
-      const response = await post({});
+    it('should return an error message if vehicle type is missing', async () => {
+      const response = await fetch(
+        'http:/127.0.0.1:3000/v3/technical-records',
+        {
+          method: 'POST',
+          body: JSON.stringify({}),
+          headers: {
+            Authorization: mockToken,
+          },
+        },
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const json = await response.json();
+
+      expect(json).toEqual({ errors: [ERRORS.VEHICLE_TYPE_ERROR] });
       expect(response.status).toBe(400);
-    }, 20000);
+    });
 
-    it('should return a 400 error response when the request body is missing a vehicle type', async () => {
-      const response = await post({
-        vin: 'AA00AAA0AAAAAA',
-        partialVin: 'AA00AA',
-      });
+    it('should return the required fields to create if the body does not have them', async () => {
+      const body = { techRecord_vehicleType: 'psv' };
+      const response = await fetch(
+        'http:/127.0.0.1:3000/v3/technical-records',
+        {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: {
+            Authorization: mockToken,
+          },
+        },
+      );
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const json = await response.json();
+
+      const requiredFields = psvSchema.required
+        .filter((field) => !Object.keys(body).includes(field))
+        .map((field: string) => `must have required property '${field}'`);
+
+      expect(json).toEqual({ errors: requiredFields });
       expect(response.status).toBe(400);
-      await expect(response.json()).resolves.toEqual(expect.objectContaining({
-        errors: ['"vehicleType" must be one of [hgv, psv, trl, lgv, car, motorcycle]'],
-      }));
-    }, 20000);
-
-    it('should return a 400 error response when a vehicle type is provided, but is missing required fields for that type', async () => {
-      const response = await post<TechRecordPUTHGV>({
-        vin: 'AA00AAA0AAAAAA',
-        partialVin: 'AA00AA',
-        techRecord_bodyType_description: 'description',
-        techRecord_noOfAxles: 2,
-        techRecord_reasonForCreation: 'testing post',
-        techRecord_statusCode: 'provisional',
-        techRecord_vehicleClass_description: 'heavy goods vehicle',
-        techRecord_vehicleConfiguration: VehicleConfiguration.ARTICULATED,
-        techRecord_vehicleType: undefined as unknown as 'hgv', // pretend vehicle has a vehicle type
-      });
-
-      expect(response.status).toBe(400);
-      await expect(response.json()).resolves.toEqual(expect.objectContaining({
-        errors: ['"vehicleType" must be one of [hgv, psv, trl, lgv, car, motorcycle]'],
-      }));
-    }, 20000);
-  });
-
-  afterAll(async () => {
-    await truncateLocalTables();
+    });
   });
 });

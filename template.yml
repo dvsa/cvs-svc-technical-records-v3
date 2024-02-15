@@ -167,14 +167,5 @@ Resources:
             Properties:
               Path: !GetAtt LocalQueue.Arn
               BatchSize: 10
-
-    RemoveInvalidPrimaryVrms:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/hotfix/cb2-10791/
-        Handler: removeInvalidPrimaryVrms.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-
     LocalQueue:
       Type: AWS::SQS::Queue

@@ -1,0 +1,6 @@
+[
+  {
+    "table-name": "flat-tech-records",
+    "seed-file": "technical-records-v3.json"
+  }
+]
