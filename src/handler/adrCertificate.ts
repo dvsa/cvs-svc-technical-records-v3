@@ -96,7 +96,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       techRecord: arrayifiedRecord,
       adrCertificate: newAdrCertificate,
       documentName: DocumentName.ADR_PASS_CERTIFICATE,
-      recipientEmailAddress: '',
+      recipientEmailAddress: userDetails.email,
     };
 
     logger.debug(JSON.stringify(adrCertSqsPayload));
