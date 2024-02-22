@@ -176,7 +176,7 @@ describe('Test adr cert gen lambda', () => {
         techRecord: { ...formattedRecord as HgvOrTrl, techRecord_adrPassCertificateDetails: [adrCertificate] },
         adrCertificate,
         documentName: DocumentName.ADR_PASS_CERTIFICATE,
-        recipientEmailAddress: '',
+        recipientEmailAddress: undefined,
       };
 
       const res = await handler({
