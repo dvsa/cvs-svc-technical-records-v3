@@ -157,15 +157,6 @@ export const updateVehicle = async (recordsToArchive: TechRecordType<'get'>[], n
 
   const transactWriteParams: TransactWriteCommandInput = { TransactItems: [] };
 
-  newRecords.forEach((record) => {
-    transactWriteParams.TransactItems?.push({
-      Put: {
-        TableName: tableName,
-        Item: marshall(record, { removeUndefinedValues: true }),
-      },
-    });
-  });
-
   recordsToArchive.forEach((record) => {
     transactWriteParams.TransactItems?.push(
       {
@@ -176,6 +167,15 @@ export const updateVehicle = async (recordsToArchive: TechRecordType<'get'>[], n
         },
       },
     );
+  });
+
+  newRecords.forEach((record) => {
+    transactWriteParams.TransactItems?.push({
+      Put: {
+        TableName: tableName,
+        Item: marshall(record, { removeUndefinedValues: true }),
+      },
+    });
   });
 
   const sendTransaction = new Promise<object>((resolve, reject) => {
