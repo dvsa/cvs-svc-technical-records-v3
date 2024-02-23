@@ -1,5 +1,3 @@
-directory="/.aws-sam/build/*"
-outputFolder="./";
 commitHash="${ZIP_NAME:-local}"
 
 cd .aws-sam/build
