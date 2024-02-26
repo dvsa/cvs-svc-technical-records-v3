@@ -24,6 +24,8 @@ Resources:
           EntryPoints:
             - src/handler/search.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     GetLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -42,10 +44,13 @@ Resources:
           Format: esm
           Minify: true
           Target: "es2020"
+          UseNpmCi: true
           Sourcemap: true
           EntryPoints:
             - src/handler/get.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     PostLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -65,10 +70,13 @@ Resources:
           Format: esm
           Minify: true
           Target: "es2020"
+          UseNpmCi: true
           Sourcemap: true
           EntryPoints:
             - src/handler/post.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     ArchiveLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -86,11 +94,14 @@ Resources:
         BuildProperties:
           Format: esm
           Minify: true
+          UseNpmCi: true
           Target: "es2020"
           Sourcemap: true
           EntryPoints:
             - src/handler/archive.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     UnarchiveLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -107,12 +118,15 @@ Resources:
         BuildMethod: esbuild
         BuildProperties:
           Format: esm
+          UseNpmCi: true
           Minify: true
           Target: "es2020"
           Sourcemap: true
           EntryPoints:
             - src/handler/unarchive.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     PatchLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -136,6 +150,8 @@ Resources:
           EntryPoints:
             - src/handler/update.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     PromoteLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -152,12 +168,15 @@ Resources:
         BuildMethod: esbuild
         BuildProperties:
           Format: esm
+          UseNpmCi: true
           Minify: true
           Target: "es2020"
           Sourcemap: true
           EntryPoints:
             - src/handler/promote.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     UpdateVrmFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -177,10 +196,13 @@ Resources:
           Format: esm
           Minify: true
           Target: "es2020"
+          UseNpmCi: true
           Sourcemap: true
           EntryPoints:
             - src/handler/updateVrm.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     UpdateVinFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -199,11 +221,14 @@ Resources:
         BuildProperties:
           Format: esm
           Minify: true
+          UseNpmCi: true
           Target: "es2020"
           Sourcemap: true
           EntryPoints:
             - src/handler/updateVin.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     GeneratePlateFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -222,11 +247,14 @@ Resources:
         BuildProperties:
           Format: esm
           Minify: true
+          UseNpmCi: true
           Target: "es2020"
           Sourcemap: true
           EntryPoints:
             - src/handler/plate.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     GenerateLetterFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -250,7 +278,8 @@ Resources:
           EntryPoints:
             - src/handler/letter.ts
           External: ['winston', 'dotenv']
-
+          OutExtension:
+            - .js=.mjs
     GenerateAdrCertificateFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -269,11 +298,14 @@ Resources:
         BuildProperties:
           Format: esm
           Minify: true
+          UseNpmCi: true
           Target: "es2020"
           Sourcemap: true
           EntryPoints:
             - src/handler/adrCertificate.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     SyncTestResultInfoFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
@@ -292,10 +324,13 @@ Resources:
         BuildProperties:
           Format: esm
           Minify: true
+          UseNpmCi: true
           Target: "es2020"
           Sourcemap: true
           EntryPoints:
             - src/handler/sync-test-result-info.ts
           External: ['winston', 'dotenv']
+          OutExtension:
+            - .js=.mjs
     LocalQueue:
       Type: AWS::SQS::Queue

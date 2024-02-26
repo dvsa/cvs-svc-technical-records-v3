@@ -1,5 +1,5 @@
 {
-  "type": "commonjs",
+  "type": "module",
   "name": "technical-records-v3",
   "version": "1.2.1",
   "description": "An API to access flat technical records",
