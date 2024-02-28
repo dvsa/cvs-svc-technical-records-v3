@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
+    "target": "ES2022",
+    "module": "ES2022",
     "allowJs": true,
     "checkJs": true,
     "sourceMap": true,
     "esModuleInterop": true,
     "strict": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "moduleResolution": "Bundler"
   },
   "include": ["src/**/*.ts", "hotfix/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"]
 }

@@ -3,304 +3,295 @@ Transform: 'AWS::Serverless-2016-10-31'
 
 Globals:
   Function:
+    CodeUri: src/handler/
+    Runtime: nodejs18.x
+    Handler: app.handler
+    Environment:
+      Variables:
+        NODE_ENV: development
+        LOG_LEVEL: debug
+        TABLE_NAME: local-flat-technical-records
+        DYNAMO_ENDPOINT: http://localhost:8000
+        DYNAMO_AWS_REGION: eu-west-1
+        DOCKER_DYNAMO_ENDPOINT: http://local-dynamodb:8000
+        DOCUMENT_GEN_SQS: queue-name
+        POWERTOOLS_DEV: true
     Layers:
       - "arn:aws:lambda:eu-west-1:094274105915:layer:AWSLambdaPowertoolsTypeScript:28"
 
 Resources:
-    SearchLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: search.handler
-        Runtime: nodejs18.x
-        Events:
-          SearchLambdaApi:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/search/{searchIdentifier}
-              Method: get
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: false
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/search.ts
-          External: ['winston', 'dotenv']
-    GetLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: get.handler
-        Runtime: nodejs18.x
-        Events:
-          GetLambdaApi:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
-              Method: get
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/get.ts
-          External: ['winston', 'dotenv']
-    PostLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: post.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          PostLambdaApi:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records
-              Method: post
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/post.ts
-          External: ['winston', 'dotenv']
-    ArchiveLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: archive.handler
-        Runtime: nodejs18.x
-        Events:
-          ArchiveLambdaApi:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/archive/{systemNumber}/{createdTimestamp}
-              Method: patch
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/archive.ts
-          External: ['winston', 'dotenv']
-    UnarchiveLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: unarchive.handler
-        Runtime: nodejs18.x
-        Events:
-          ArchiveLambdaApi:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/unarchive/{systemNumber}/{createdTimestamp}
-              Method: post
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/unarchive.ts
-          External: ['winston', 'dotenv']
-    PatchLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: update.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          PatchLambda:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
-              Method: patch
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/update.ts
-          External: ['winston', 'dotenv']
-    PromoteLambdaFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: promote.handler
-        Runtime: nodejs18.x
-        Events:
-          PromoteLambdaApi:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/promote/{systemNumber}/{createdTimestamp}
-              Method: patch
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/promote.ts
-          External: ['winston', 'dotenv']
-    UpdateVrmFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: updateVrm.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          PatchLambda:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/updateVrm/{systemNumber}/{createdTimestamp}
-              Method: patch
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/updateVrm.ts
-          External: ['winston', 'dotenv']
-    UpdateVinFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: updateVin.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          PatchLambda:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/updateVin/{systemNumber}/{createdTimestamp}
-              Method: patch
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/updateVin.ts
-          External: ['winston', 'dotenv']
-    GeneratePlateFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: plate.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          PlateLambda:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/plate/{systemNumber}/{createdTimestamp}
-              Method: post
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/plate.ts
-          External: ['winston', 'dotenv']
-    GenerateLetterFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: letter.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          LetterLambda:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/letter/{systemNumber}/{createdTimestamp}
-              Method: post
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/letter.ts
-          External: ['winston', 'dotenv']
+  SearchLambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Events:
+        SearchLambdaApi:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/search/{searchIdentifier}
+            Method: get
+      Environment:
+        Variables:
+          AWS_LAMBDA_FUNCTION_NAME: SearchLambdaFunction
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/search.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
 
-    GenerateAdrCertificateFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: adrCertificate.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          PlateLambda:
-            Type: Api
-            Properties:
-              Path: /v3/technical-records/adrCertificate/{systemNumber}/{createdTimestamp}
-              Method: post
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/adrCertificate.ts
-          External: ['winston', 'dotenv']
-    SyncTestResultInfoFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: sync-test-result-info.handler
-        Runtime: nodejs18.x
-        Timeout: 20
-        Events:
-          SQSEvent:
-            Type: SQS
-            Properties:
-              Path: !GetAtt LocalQueue.Arn
-              BatchSize: 10
-      Metadata:
-        BuildMethod: esbuild
-        BuildProperties:
-          Format: esm
-          Minify: true
-          Target: "es2020"
-          Sourcemap: true
-          EntryPoints:
-            - src/handler/sync-test-result-info.ts
-          External: ['winston', 'dotenv']
-    LocalQueue:
-      Type: AWS::SQS::Queue
+  GetLambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Events:
+        GetLambdaApi:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
+            Method: get
+      Environment:
+        Variables:
+          AWS_LAMBDA_FUNCTION_NAME: GetLambdaFunction
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/get.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  PostLambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Timeout: 20
+      Events:
+        PostLambdaApi:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records
+            Method: post
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/post.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  ArchiveLambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Events:
+        ArchiveLambdaApi:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/archive/{systemNumber}/{createdTimestamp}
+            Method: patch
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/archive.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  UnarchiveLambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Events:
+        ArchiveLambdaApi:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/unarchive/{systemNumber}/{createdTimestamp}
+            Method: post
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/unarchive.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  PatchLambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Timeout: 20
+      Events:
+        PatchLambda:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/{systemNumber}/{createdTimestamp}
+            Method: patch
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/update.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  PromoteLambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Events:
+        PromoteLambdaApi:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/promote/{systemNumber}/{createdTimestamp}
+            Method: patch
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/promote.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  UpdateVrmFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Timeout: 20
+      Events:
+        PatchLambda:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/updateVrm/{systemNumber}/{createdTimestamp}
+            Method: patch
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/updateVrm.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  UpdateVinFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Timeout: 20
+      Events:
+        PatchLambda:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/updateVin/{systemNumber}/{createdTimestamp}
+            Method: patch
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/updateVin.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  GeneratePlateFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Timeout: 20
+      Events:
+        PlateLambda:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/plate/{systemNumber}/{createdTimestamp}
+            Method: post
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/plate.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  GenerateLetterFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Timeout: 20
+      Events:
+        LetterLambda:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/letter/{systemNumber}/{createdTimestamp}
+            Method: post
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/letter.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  GenerateAdrCertificateFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Timeout: 20
+      Events:
+        PlateLambda:
+          Type: Api
+          Properties:
+            Path: /v3/technical-records/adrCertificate/{systemNumber}/{createdTimestamp}
+            Method: post
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/adrCertificate.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+
+  SyncTestResultInfoFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Timeout: 20
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Path: !GetAtt LocalQueue.Arn
+            BatchSize: 10
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: true
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints:
+          - src/handler/sync-test-result-info.ts
+        External: ['@aws-sdk', '@aws-lambda-powertools/logger']
+  LocalQueue:
+    Type: AWS::SQS::Queue

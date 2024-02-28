@@ -1,18 +1,9 @@
-import winston from 'winston';
+import { Logger } from '@aws-lambda-powertools/logger';
+import { LogLevel } from '@aws-lambda-powertools/logger/lib/types';
 
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL,
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.Console(),
-  ],
+const logger = new Logger({
+  serviceName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+  logLevel: process.env.LOG_LEVEL as LogLevel,
 });
-
-// Use a colourised `simple()` format when not in production; `simple()` is more readable in the console.
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(winston.format.simple(), winston.format.colorize()),
-  }));
-}
 
 export default logger;
