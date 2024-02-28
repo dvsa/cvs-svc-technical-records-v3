@@ -1,0 +1,15 @@
+{
+  "name": "technical-records-v3",
+  "description": "Flat Technical Records Lambdas",
+  "team": "",
+  "documentation": "",
+  "language": "node",
+  "terraform": false,
+  "monorepo": true,
+  "dynamo_tables": [
+    {
+      "table_name": "flat-tech-records",
+      "seed_file": "technical-records-v3.json"
+    }
+  ]
+}
