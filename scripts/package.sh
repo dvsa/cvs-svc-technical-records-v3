@@ -4,8 +4,6 @@ cd .aws-sam/build
 
 for lambdaName in */; do
   formattedLambdaName=`basename ${lambdaName} /`
-  mv ${formattedLambdaName}/*.js ${formattedLambdaName}/app.js
-  mv ${formattedLambdaName}/*.js.map ${formattedLambdaName}/app.js.map
   cp -r "../../node_modules/@dvsa/cvs-type-definitions/json-schemas/" "${formattedLambdaName}/json-schemas"
   pushd $formattedLambdaName
   zip -qr ../../../${commitHash}-${formattedLambdaName}.zip .
