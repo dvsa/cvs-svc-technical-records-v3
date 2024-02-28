@@ -3,7 +3,6 @@ import { ADRCertificateDetails } from '@dvsa/cvs-type-definitions/types/v3/tech-
 import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import 'dotenv/config';
 import { AdrCertificateDetailsPayload } from '../models/adrCertificateDetails';
 import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
 import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';

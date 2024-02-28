@@ -1,5 +1,4 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
-import 'dotenv/config';
 import { cloneDeep } from 'lodash';
 import { PromoteRecordRequestBody } from '../models/promote';
 import { SearchCriteria } from '../models/search';

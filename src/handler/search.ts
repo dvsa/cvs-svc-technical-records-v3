@@ -1,5 +1,4 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import 'dotenv/config';
 import { SearchCriteria } from '../models/search';
 import { searchByAll, searchByCriteria } from '../services/database';
 import { formatErrorMessage } from '../util/errorMessage';

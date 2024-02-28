@@ -1,5 +1,4 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import 'dotenv/config';
 import { getBySystemNumberAndCreatedTimestamp } from '../services/database';
 import { formatErrorMessage } from '../util/errorMessage';
 import { formatTechRecord } from '../util/formatTechRecord';

@@ -1,5 +1,4 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import 'dotenv/config';
 import { UpdateVinBody } from '../models/updateVin';
 import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../services/audit';
 import { getBySystemNumberAndCreatedTimestamp, updateVehicle } from '../services/database';

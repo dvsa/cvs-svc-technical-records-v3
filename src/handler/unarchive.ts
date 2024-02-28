@@ -1,6 +1,5 @@
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
-import 'dotenv/config';
 import { cloneDeep } from 'lodash';
 import { SearchCriteria } from '../models/search';
 import { UnarchiveRequestBody } from '../models/unarchive';

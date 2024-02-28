@@ -1,6 +1,5 @@
 import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/euVehicleCategory.enum.js';
 import { SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
-import 'dotenv/config';
 import { TestResult, TestType } from '../models/testResult';
 import { processRecord } from '../processors/processSQSRecord';
 import { syncTestResultInfo } from '../processors/processSyncTestResultInfo';
