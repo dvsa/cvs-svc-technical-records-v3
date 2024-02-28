@@ -1,6 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 
+Globals:
+  Function:
+    Layers:
+      - "arn:aws:lambda:eu-west-1:094274105915:layer:AWSLambdaPowertoolsTypeScript:28"
+
 Resources:
     SearchLambdaFunction:
       Type: 'AWS::Serverless::Function'
