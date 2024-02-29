@@ -4,6 +4,7 @@ import { TestResult, TestType } from '../models/testResult';
 import { processRecord } from '../processors/processSQSRecord';
 import { syncTestResultInfo } from '../processors/processSyncTestResultInfo';
 import logger from '../util/logger';
+import { LogItemExtraInput } from '@aws-lambda-powertools/logger/lib/types';
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   logger.info('sync-test-result-info lambda triggered');
@@ -15,9 +16,9 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const promisesArray: Promise<object | undefined>[] = [];
   try {
     event.Records.forEach((record: SQSRecord) => {
-      logger.debug('payload received from queue:', record);
+      logger.debug('payload received from queue:', record as any);
       const test = processRecord(record) as TestResult;
-      logger.debug('processed record:', test ?? 'no test');
+      logger.debug('processed record:', test as any ?? 'no test');
 
       let promiseUpdateStatus: Promise<object | undefined> | undefined;
 
@@ -50,7 +51,7 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
       }
     });
 
-    logger.info('resolved promises:', results);
+    logger.info('resolved promises:', results as any);
     return response;
   } catch (error) {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

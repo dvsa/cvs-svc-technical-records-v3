@@ -27,7 +27,7 @@ export const archiveRecord = async (record: TechRecordType<'get'>) : Promise<obj
 
   try {
     return await ddbClient.send(new PutItemCommand(command));
-  } catch (e) {
+  } catch (e: any) {
     logger.error('Error in archive record: ', e);
     throw new Error(
       `database client failed in archiving the record with systemNumber ${record.systemNumber} and createdTimestamp ${record.createdTimestamp} `,
@@ -54,7 +54,7 @@ export const searchByCriteria = async (searchCriteria: Exclude<SearchCriteria, S
     const data = await ddbClient.send(new QueryCommand(query));
     logger.debug(`DATA FROM DB ${JSON.stringify(data)}`);
     return (data.Items?.map((item) => unmarshall(item)) ?? []) as SearchResult[];
-  } catch (e) {
+  } catch (e: any) {
     logger.error('Error in search by criteria: ', e);
     throw new Error(`database client failed getting data by ${searchCriteria} with ${searchIdentifier}`);
   }
@@ -79,7 +79,7 @@ export const searchByAll = async (searchIdentifier: string): Promise<SearchResul
       ddbClient.send(new QueryCommand(query)).then((data) => {
         logger.debug(`data for ${searchCriteria}: ${JSON.stringify(data)}`);
         resolve((data.Items?.map((item) => unmarshall(item)) ?? []) as SearchResult[]);
-      }).catch((e) => {
+      }).catch((e: any) => {
         logger.error('Error in search by criteria: ', e);
         reject(new Error(`database client failed getting data by ${searchCriteria} with ${searchIdentifier}`));
       });
@@ -200,7 +200,7 @@ export const inPlaceRecordUpdate = async (updatedRecord: TechRecordType<'get'>) 
 
   try {
     return await ddbClient.send(new PutItemCommand(command));
-  } catch (e) {
+  } catch (e: any) {
     logger.error('Error in record in place update: ', e);
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     throw new Error(
