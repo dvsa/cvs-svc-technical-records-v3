@@ -1,21 +1,24 @@
+import { HGVAxles } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/complete';
 import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
-import { HGVAxles } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/complete';
+import { v4 as uuidv4 } from 'uuid';
 import { PlateRequestBody, Plates } from '../models/plate';
+import {
+  HgvOrTrl,
+  hgvRequiredFields,
+  trlRequiredFields,
+  tyreRequiredFields,
+} from '../models/plateRequiredFields';
 import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
 import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';
 import { addToSqs } from '../services/sqs';
-import { NumberTypes, generateNewNumber } from '../services/testNumber';
 import { StatusCode } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validatePlateErrors, validatePlateInfo } from '../validators/plate';
-import {
-  HgvOrTrl, trlRequiredFields, hgvRequiredFields, tyreRequiredFields,
-} from '../models/plateRequiredFields';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.debug('Plate end point called');
@@ -57,7 +60,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const body = JSON.parse(event.body ?? '') as PlateRequestBody;
 
   const newPlate: Plates = {
-    plateSerialNumber: await generateNewNumber(NumberTypes.PlateSerialNumber),
+    plateSerialNumber: uuidv4(),
     plateIssueDate: new Date().toISOString(),
     plateReasonForIssue: body.reasonForCreation,
     plateIssuer: body.vtmUsername,
