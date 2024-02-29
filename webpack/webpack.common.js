@@ -23,13 +23,10 @@ module.exports = {
   // Target node
   target: 'node',
 
-  // AWS recommends always including the aws-sdk in your Lambda package but excluding can significantly reduce
-  // the size of your deployment package. If you want to always include it then comment out this line. It has
-  // been included conditionally because the node10.x docker image used by SAM local doesn't include it.
-  // externals: process.env.NODE_ENV === 'development' ? [] : ['aws-sdk'],
-  externals: {
-    fsevents: 'require(\'fsevents\')',
-  },
+  externals: [
+    /aws-sdk/,
+    'fsevents'
+  ],
 
   // Add the TypeScript loader
   module: {
