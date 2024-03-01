@@ -1,0 +1,10 @@
+{
+  "name": "v3",
+  "description": "",
+  "team": "",
+  "documentation": "",
+  "language": "typescript",
+  "terraform": false,
+  "monorepo": false,
+  "dynamo_tables": []
+}
