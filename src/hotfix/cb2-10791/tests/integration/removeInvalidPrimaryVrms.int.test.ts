@@ -2,7 +2,7 @@ import { chunk } from 'lodash';
 import { seedTables } from '../../../../../scripts/setup-local-tables';
 import { tableName } from '../../../../config';
 import { getBySystemNumberAndCreatedTimestamp } from '../../../../services/database';
-import { handler as removePrimaryVrm, InvalidPrimryVrmRecord } from '../../removeInvalidPrimaryVrms';
+import { InvalidPrimryVrmRecord, handler as removePrimaryVrm } from '../../removeInvalidPrimaryVrms';
 import techRecordData from './resources/technical-records-v3-invalid-primaryvrm.json';
 
 describe('remove primary vrms function', () => {
