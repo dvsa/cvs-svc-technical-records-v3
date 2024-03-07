@@ -7,11 +7,11 @@ const mockAddToSqs = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy';
 import { handler } from '../../../src/handler/plate';
+import { HgvOrTrl } from '../../../src/models/plateRequiredFields';
 import { DocumentName } from '../../../src/models/sqsPayload';
+import { formatTechRecord } from '../../../src/util/formatTechRecord';
 import hgvTechRecord from '../../resources/techRecordCompleteHGVPlate.json';
 import incompleteHgvTechRecord from '../../resources/techRecordIncompleteHGVPlate.json';
-import { formatTechRecord } from '../../../src/util/formatTechRecord';
-import { HgvOrTrl } from '../../../src/models/plateRequiredFields';
 
 jest.mock('../../../src/validators/plate', () => ({
   validatePlateErrors: mockValidatePlateErrors,
@@ -26,6 +26,8 @@ jest.mock('../../../src/services/database.ts', () => ({
 jest.mock('../../../src/services/sqs', () => ({
   addToSqs: mockAddToSqs,
 }));
+
+jest.mock('uuid', () => ({ v4: () => '123' }));
 
 const headers = {
   'Access-Control-Allow-Headers':
