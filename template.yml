@@ -176,5 +176,16 @@ Resources:
         Runtime: nodejs18.x
         Timeout: 20
 
+    BatchPlateCreation:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/hotfix/cb2-11175/
+        Handler: batchPlateCreation.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+
     LocalQueue:
       Type: AWS::SQS::Queue
+
+
+
