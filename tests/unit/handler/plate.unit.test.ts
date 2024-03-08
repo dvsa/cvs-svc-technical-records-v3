@@ -4,18 +4,22 @@ const mockValidatePlateInfo = jest.fn();
 const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockInPlaceRecordUpdate = jest.fn();
 const mockAddToSqs = jest.fn();
+const mockValidatePlateRecordErrors = jest.fn();
+const mockValidateTechRecordPlates = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy';
 import { handler } from '../../../src/handler/plate';
+import { HgvOrTrl } from '../../../src/models/plateRequiredFields';
 import { DocumentName } from '../../../src/models/sqsPayload';
+import { formatTechRecord } from '../../../src/util/formatTechRecord';
 import hgvTechRecord from '../../resources/techRecordCompleteHGVPlate.json';
 import incompleteHgvTechRecord from '../../resources/techRecordIncompleteHGVPlate.json';
-import { formatTechRecord } from '../../../src/util/formatTechRecord';
-import { HgvOrTrl } from '../../../src/models/plateRequiredFields';
 
 jest.mock('../../../src/validators/plate', () => ({
-  validatePlateErrors: mockValidatePlateErrors,
+  validatePlateRequestBody: mockValidatePlateErrors,
   validatePlateInfo: mockValidatePlateInfo,
+  validatePlateRecordErrors: mockValidatePlateRecordErrors,
+  validateTechRecordPlates: mockValidateTechRecordPlates,
 }));
 
 jest.mock('../../../src/services/database.ts', () => ({
@@ -26,6 +30,8 @@ jest.mock('../../../src/services/database.ts', () => ({
 jest.mock('../../../src/services/sqs', () => ({
   addToSqs: mockAddToSqs,
 }));
+
+jest.mock('uuid', () => ({ v4: () => '123' }));
 
 const headers = {
   'Access-Control-Allow-Headers':
@@ -50,6 +56,7 @@ describe('Test plate gen lambda', () => {
   describe('Error handling', () => {
     it('should return an error when no reason for creation', async () => {
       mockValidatePlateErrors.mockReturnValueOnce({ statusCode: 400, body: 'Reason for creation not provided' });
+      mockValidatePlateRecordErrors.mockReturnValueOnce(undefined);
       const res = await handler({ pathParameters: { foo: 'undefined' } } as unknown as APIGatewayProxyEvent);
       expect(res).toEqual({ statusCode: 400, body: 'Reason for creation not provided', headers });
     });
@@ -58,6 +65,11 @@ describe('Test plate gen lambda', () => {
   it('should error if it does not find a record', async () => {
     mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({});
     mockValidatePlateErrors.mockReturnValueOnce(undefined);
+    mockValidatePlateRecordErrors.mockReturnValueOnce({
+      statusCode: 404,
+      body: 'No record found matching systemNumber 123456 and timestamp 12345',
+      headers,
+    });
     const res = await handler({ pathParameters: { systemNumber: '123456', createdTimestamp: '12345' } } as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 404,
@@ -69,6 +81,11 @@ describe('Test plate gen lambda', () => {
   it('should error if the record is not current', async () => {
     mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'provisional' });
     mockValidatePlateErrors.mockReturnValueOnce(undefined);
+    mockValidatePlateRecordErrors.mockReturnValueOnce({
+      statusCode: 400,
+      body: 'Tech record provided is not current',
+      headers,
+    });
     const res = await handler({ pathParameters: { systemNumber: '123456', createdTimestamp: '12345' } } as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
@@ -80,6 +97,11 @@ describe('Test plate gen lambda', () => {
   it('should error if the record is not hgv or trl', async () => {
     mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({ techRecord_statusCode: 'current', techRecord_vehicleType: 'psv' });
     mockValidatePlateErrors.mockReturnValueOnce(undefined);
+    mockValidatePlateRecordErrors.mockReturnValueOnce({
+      statusCode: 400,
+      body: 'Tech record is not a HGV or TRL',
+      headers,
+    });
     const res = await handler({ pathParameters: { systemNumber: '123456', createdTimestamp: '12345' } } as unknown as APIGatewayProxyEvent);
     expect(res).toEqual({
       statusCode: 400,
@@ -92,6 +114,7 @@ describe('Test plate gen lambda', () => {
     mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvTechRecord);
     mockValidatePlateErrors.mockReturnValueOnce(undefined);
     mockValidatePlateInfo.mockReturnValueOnce({ statusCode: 500, body: 'Missing plate information' });
+    mockValidatePlateRecordErrors.mockReturnValueOnce(undefined);
     process.env.AWS_SAM_LOCAL = 'true';
     const res = await handler({
       pathParameters: { systemNumber: '123456', createdTimestamp: '12345' },
@@ -108,6 +131,11 @@ describe('Test plate gen lambda', () => {
     mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(incompleteHgvTechRecord);
     mockValidatePlateErrors.mockReturnValueOnce(undefined);
     mockValidatePlateInfo.mockReturnValueOnce(undefined);
+    mockValidatePlateRecordErrors.mockReturnValueOnce(undefined);
+    mockValidateTechRecordPlates.mockReturnValueOnce({
+      statusCode: 400,
+      body: 'Tech record is missing mandatory fields for a plate',
+    });
     process.env.AWS_SAM_LOCAL = 'true';
     const res = await handler({
       pathParameters: { systemNumber: '123456', createdTimestamp: '12345' },
@@ -125,6 +153,9 @@ describe('Test plate gen lambda', () => {
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce(hgvTechRecord);
       mockValidatePlateErrors.mockReturnValueOnce(undefined);
       mockValidatePlateInfo.mockReturnValueOnce(undefined);
+      mockValidatePlateRecordErrors.mockReturnValueOnce(undefined);
+      mockValidateTechRecordPlates.mockReturnValueOnce(undefined);
+
       process.env.AWS_SAM_LOCAL = 'true';
 
       const plate = {

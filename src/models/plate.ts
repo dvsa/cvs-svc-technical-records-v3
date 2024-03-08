@@ -1,3 +1,5 @@
+import { TechRecordGETHGV, TechRecordGETTRL } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb-vehicle-type';
+
 export type PlateRequestBody = {
   vtmUsername: string;
   recipientEmailAddress: string;
@@ -19,3 +21,5 @@ export interface Plates {
   plateReasonForIssue?: PlateReasonForIssue;
   plateIssuer?: string;
 }
+
+export type TechRecordGETHGVOrTRL = TechRecordGETHGV | TechRecordGETTRL;
