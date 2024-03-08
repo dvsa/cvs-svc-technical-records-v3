@@ -1,31 +1,25 @@
-import { HGVAxles } from '@dvsa/cvs-type-definitions/types/v3/tech-record/get/hgv/complete';
 import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
 import { v4 as uuidv4 } from 'uuid';
-import { PlateRequestBody, Plates } from '../models/plate';
-import {
-  HgvOrTrl,
-  hgvRequiredFields,
-  trlRequiredFields,
-  tyreRequiredFields,
-} from '../models/plateRequiredFields';
+import { PlateRequestBody, Plates, TechRecordGETHGVOrTRL } from '../models/plate';
 import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
 import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';
 import { addToSqs } from '../services/sqs';
-import { StatusCode } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
-import { validatePlateErrors, validatePlateInfo } from '../validators/plate';
+import {
+  validatePlateInfo, validatePlateRecordErrors, validatePlateRequestBody, validateTechRecordPlates,
+} from '../validators/plate';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.debug('Plate end point called');
 
-  const plateErrors = validatePlateErrors(event);
-  if (plateErrors) {
-    return addHttpHeaders(plateErrors);
+  const plateRequestBodyErrors = validatePlateRequestBody(event);
+  if (plateRequestBodyErrors) {
+    return addHttpHeaders(plateRequestBodyErrors);
   }
 
   const systemNumber: string = decodeURIComponent(event.pathParameters?.systemNumber as string);
@@ -36,25 +30,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   logger.debug(`result is: ${JSON.stringify(record)}`);
 
-  if (!record || !Object.keys(record).length) {
-    return addHttpHeaders({
-      statusCode: 404,
-      body: `No record found matching systemNumber ${systemNumber} and timestamp ${createdTimestamp}`,
-    });
-  }
-
-  if (record.techRecord_statusCode !== StatusCode.CURRENT) {
-    return addHttpHeaders({
-      statusCode: 400,
-      body: 'Tech record provided is not current',
-    });
-  }
-
-  if (record.techRecord_vehicleType !== 'trl' && record.techRecord_vehicleType !== 'hgv') {
-    return addHttpHeaders({
-      statusCode: 400,
-      body: 'Tech record is not a HGV or TRL',
-    });
+  const plateRecordErrors = validatePlateRecordErrors(record as TechRecordGETHGVOrTRL, systemNumber, createdTimestamp);
+  if (plateRecordErrors) {
+    return plateRecordErrors;
   }
 
   const body = JSON.parse(event.body ?? '') as PlateRequestBody;
@@ -108,37 +86,3 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return addHttpHeaders({ statusCode: 500, body: 'Error generating plate' });
   }
 };
-
-function validateTechRecordPlates(record: HgvOrTrl): APIGatewayProxyResult | undefined {
-  const plateValidationTable = record.techRecord_vehicleType === 'trl' ? trlRequiredFields : hgvRequiredFields;
-
-  if (cannotGeneratePlate(plateValidationTable, record)) {
-    return {
-      statusCode: 400,
-      body: 'Tech record is missing mandatory fields for a plate',
-    };
-  }
-  return undefined;
-}
-
-function cannotGeneratePlate(plateRequiredFields: string[], record: HgvOrTrl): boolean {
-  const isOneFieldEmpty = plateRequiredFields.some((field) => {
-    const value = record[field as keyof HgvOrTrl];
-    return value === undefined || value === null || value === '';
-  });
-  const { techRecord_noOfAxles: noOfAxles, techRecord_axles: axles } = record;
-  const areAxlesInvalid = !noOfAxles || noOfAxles < 1 || !axles || axles[0].weights_gbWeight == null;
-  const areTyresInvalid = record.techRecord_axles?.some((axle) => {
-    tyreRequiredFields.some(
-      (field) => {
-        const value = (axle as HGVAxles)[field as keyof HGVAxles];
-        return value === undefined || value === null || value === '';
-      },
-    );
-    // either one of ply rating or load index is required
-    const plyOrLoad = axle['tyres_plyRating' as keyof HGVAxles] || axle['tyres_dataTrAxles' as keyof HGVAxles];
-    return plyOrLoad === undefined || plyOrLoad === null || plyOrLoad === '';
-  });
-
-  return isOneFieldEmpty || areAxlesInvalid || !!areTyresInvalid;
-}
