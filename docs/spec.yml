@@ -176,6 +176,13 @@ paths:
             type: string
           required: true
           description: Date at which the record was created. Sort key of the DynamoDB table.
+      requestBody:
+        required: true
+        description: The tech record to be updated
+        content:
+            application/json:
+              schema:
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/develop/json-schemas/v3/tech-record/put/psv/complete/index.json"
       responses:
         '200':
           description: Returns the updated tech record
@@ -243,7 +250,6 @@ paths:
           description: Unprocessable request
         '500':
           description: Validation Error
-components:
   securitySchemes:
     OAuth2:
       type: oauth2
@@ -261,3 +267,4 @@ security:
       - write
 servers:
   - url: 'https://url/api/v1'
+  - url: 'localhost:3000'
