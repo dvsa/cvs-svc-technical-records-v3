@@ -267,4 +267,3 @@ security:
       - write
 servers:
   - url: 'https://url/api/v1'
-  - url: 'localhost:3000'
