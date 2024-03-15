@@ -2,11 +2,11 @@ import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-defini
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import 'dotenv/config';
-import { v4 as uuidv4 } from 'uuid';
 import { PlateRequestBody, Plates, TechRecordGETHGVOrTRL } from '../models/plate';
 import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
 import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';
 import { addToSqs } from '../services/sqs';
+import { NumberTypes, generateNewNumber } from '../services/testNumber';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
@@ -38,7 +38,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const body = JSON.parse(event.body ?? '') as PlateRequestBody;
 
   const newPlate: Plates = {
-    plateSerialNumber: uuidv4(),
+    plateSerialNumber: await generateNewNumber(NumberTypes.PlateSerialNumber),
     plateIssueDate: new Date().toISOString(),
     plateReasonForIssue: body.reasonForCreation,
     plateIssuer: body.vtmUsername,
