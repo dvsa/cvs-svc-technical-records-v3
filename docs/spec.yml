@@ -107,6 +107,13 @@ paths:
             type: string
           required: true
           description: Date at which the record was created. Sort key of the DynamoDB table.
+      requestBody:
+        required: true
+        description: The tech record to be updated
+        content:
+            application/json:
+              schema:
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/develop/json-schemas/v3/tech-record/put/psv/complete/index.json"
       responses:
         '200':
           description: Returns the technical record
