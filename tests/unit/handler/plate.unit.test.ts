@@ -31,8 +31,6 @@ jest.mock('../../../src/services/sqs', () => ({
   addToSqs: mockAddToSqs,
 }));
 
-jest.mock('uuid', () => ({ v4: () => '123' }));
-
 const headers = {
   'Access-Control-Allow-Headers':
   'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
