@@ -1,9 +1,9 @@
 {
-  "name": "v3",
+  "name": "technical-records-v3",
   "description": "",
   "team": "",
   "documentation": "",
-  "language": "node",
+  "language": "typescript",
   "terraform": false,
   "monorepo": false,
   "dynamo_tables": []
