@@ -5,6 +5,6 @@
   "documentation": "",
   "language": "node",
   "terraform": false,
-  "monorepo": false,
+  "monorepo": true,
   "dynamo_tables": []
 }
