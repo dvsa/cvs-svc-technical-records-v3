@@ -1,9 +1,12 @@
 /* eslint-disable import/first */
 const mockValidateSysNumTimestampPathParams = jest.fn();
 
+import { VehicleConfiguration } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/vehicleConfigurationHgvPsv.enum.js';
+import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { PlateReasonForIssue, Plates } from '../../../src/models/plate';
-import { validatePlateInfo, validatePlateRequestBody } from '../../../src/validators/plate';
+import { hgvRequiredFields } from '../../../src/models/plateRequiredFields';
+import { cannotGeneratePlate, validatePlateInfo, validatePlateRequestBody } from '../../../src/validators/plate';
 
 jest.mock('../../../src/validators/sysNumTimestamp', () => ({
   validateSysNumTimestampPathParams: mockValidateSysNumTimestampPathParams,
@@ -104,6 +107,153 @@ describe('Test plate validator', () => {
         plateSerialNumber: 'bar', plateIssueDate: 'bar', plateReasonForIssue: PlateReasonForIssue.FREE_REPLACEMENT, plateIssuer: 'test',
       });
       expect(res).toBeUndefined();
+    });
+  });
+
+  describe('cannotGeneratePlate', () => {
+    it('should not generate if a load/plyRating', () => {
+      const techRecord = {
+        primaryVrm: 'thing',
+        vin: 'thing',
+        techRecord_brakes_dtpNumber: 'thing',
+        techRecord_regnDate: 'thing',
+        techRecord_manufactureYear: 1,
+        techRecord_speedLimiterMrk: true,
+        techRecord_variantNumber: 'thing',
+        techRecord_make: 'thing',
+        techRecord_model: 'thing',
+        techRecord_functionCode: 'thing',
+        techRecord_frontVehicleTo5thWheelCouplingMin: 1,
+        techRecord_frontVehicleTo5thWheelCouplingMax: 1,
+        techRecord_dimensions_length: 1,
+        techRecord_dimensions_width: 1,
+        techRecord_tyreUseCode: '2R',
+        techRecord_roadFriendly: true,
+        techRecord_vehicleConfiguration: VehicleConfiguration.ARTICULATED,
+        techRecord_axles: [{
+          tyres_fitmentCode: 'single', tyres_tyreSize: '215/25', weights_gbWeight: '123',
+        },
+        {
+          tyres_fitmentCode: 'single', tyres_tyreSize: '215/25', weights_gbWeight: '123',
+        }],
+        techRecord_noOfAxles: 2,
+      } as unknown as TechRecordType<'hgv'>;
+      const res = cannotGeneratePlate(hgvRequiredFields, techRecord);
+      expect(res).toBeTruthy();
+    });
+    it('should not generate if missing axles', () => {
+      const techRecord = {
+        primaryVrm: 'thing',
+        vin: 'thing',
+        techRecord_brakes_dtpNumber: 'thing',
+        techRecord_regnDate: 'thing',
+        techRecord_manufactureYear: 1,
+        techRecord_speedLimiterMrk: true,
+        techRecord_variantNumber: 'thing',
+        techRecord_make: 'thing',
+        techRecord_model: 'thing',
+        techRecord_functionCode: 'thing',
+        techRecord_frontVehicleTo5thWheelCouplingMin: 1,
+        techRecord_frontVehicleTo5thWheelCouplingMax: 1,
+        techRecord_dimensions_length: 1,
+        techRecord_dimensions_width: 1,
+        techRecord_tyreUseCode: '2R',
+        techRecord_roadFriendly: true,
+        techRecord_vehicleConfiguration: VehicleConfiguration.ARTICULATED,
+        techRecord_axles: [],
+        techRecord_noOfAxles: 0,
+      } as unknown as TechRecordType<'hgv'>;
+      const res = cannotGeneratePlate(hgvRequiredFields, techRecord);
+      expect(res).toBeTruthy();
+    });
+    it('should not generate without gbWeight on axle 1', () => {
+      const techRecord = {
+        primaryVrm: 'thing',
+        vin: 'thing',
+        techRecord_brakes_dtpNumber: 'thing',
+        techRecord_regnDate: 'thing',
+        techRecord_manufactureYear: 1,
+        techRecord_speedLimiterMrk: true,
+        techRecord_variantNumber: 'thing',
+        techRecord_make: 'thing',
+        techRecord_model: 'thing',
+        techRecord_functionCode: 'thing',
+        techRecord_frontVehicleTo5thWheelCouplingMin: 1,
+        techRecord_frontVehicleTo5thWheelCouplingMax: 1,
+        techRecord_dimensions_length: 1,
+        techRecord_dimensions_width: 1,
+        techRecord_tyreUseCode: '2R',
+        techRecord_roadFriendly: true,
+        techRecord_vehicleConfiguration: VehicleConfiguration.ARTICULATED,
+        techRecord_axles: [{
+          tyres_fitmentCode: 'single', tyres_tyreSize: '215/25', tyres_plyRating: '2R',
+        },
+        {
+          tyres_fitmentCode: 'single', tyres_tyreSize: '215/25', tyres_plyRating: '2R',
+        }],
+        techRecord_noOfAxles: 2,
+      } as unknown as TechRecordType<'hgv'>;
+      const res = cannotGeneratePlate(hgvRequiredFields, techRecord);
+      expect(res).toBeTruthy();
+    });
+    it('should not generate with a missing required hgv validation field', () => {
+      const techRecord = {
+        primaryVrm: 'thing',
+        vin: 'thing',
+        techRecord_brakes_dtpNumber: 'thing',
+        techRecord_regnDate: 'thing',
+        techRecord_manufactureYear: 1,
+        techRecord_speedLimiterMrk: true,
+        techRecord_variantNumber: 'thing',
+        techRecord_model: 'thing',
+        techRecord_functionCode: 'thing',
+        techRecord_frontVehicleTo5thWheelCouplingMin: 1,
+        techRecord_frontVehicleTo5thWheelCouplingMax: 1,
+        techRecord_dimensions_length: 1,
+        techRecord_dimensions_width: 1,
+        techRecord_tyreUseCode: '2R',
+        techRecord_roadFriendly: true,
+        techRecord_vehicleConfiguration: VehicleConfiguration.ARTICULATED,
+        techRecord_axles: [{
+          tyres_fitmentCode: 'single', tyres_tyreSize: '215/25', weights_gbWeight: '123', tyres_plyRating: '2R',
+        },
+        {
+          tyres_fitmentCode: 'single', tyres_tyreSize: '215/25', weights_gbWeight: '123', tyres_plyRating: '2R',
+        }],
+        techRecord_noOfAxles: 2,
+      } as unknown as TechRecordType<'hgv'>;
+      const res = cannotGeneratePlate(hgvRequiredFields, techRecord);
+      expect(res).toBeTruthy();
+    });
+    it('should generate with a hgv plate', () => {
+      const techRecord = {
+        primaryVrm: 'thing',
+        vin: 'thing',
+        techRecord_brakes_dtpNumber: 'thing',
+        techRecord_regnDate: 'thing',
+        techRecord_manufactureYear: 1,
+        techRecord_speedLimiterMrk: true,
+        techRecord_variantNumber: 'thing',
+        techRecord_make: 'thing',
+        techRecord_model: 'thing',
+        techRecord_functionCode: 'thing',
+        techRecord_frontVehicleTo5thWheelCouplingMin: 1,
+        techRecord_frontVehicleTo5thWheelCouplingMax: 1,
+        techRecord_dimensions_length: 1,
+        techRecord_dimensions_width: 1,
+        techRecord_tyreUseCode: '2R',
+        techRecord_roadFriendly: true,
+        techRecord_vehicleConfiguration: VehicleConfiguration.ARTICULATED,
+        techRecord_axles: [{
+          tyres_fitmentCode: 'single', tyres_tyreSize: '215/25', weights_gbWeight: '123', tyres_plyRating: '2R',
+        },
+        {
+          tyres_fitmentCode: 'single', tyres_tyreSize: '215/25', weights_gbWeight: '123', tyres_plyRating: '2R',
+        }],
+        techRecord_noOfAxles: 2,
+      } as unknown as TechRecordType<'hgv'>;
+      const res = cannotGeneratePlate(hgvRequiredFields, techRecord);
+      expect(res).toBeFalsy();
     });
   });
 });
