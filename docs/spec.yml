@@ -4,7 +4,6 @@ info:
     API spec for technical records v3 api
   version: 1.0.0
   title: "Technical Record v3"
-  termsOfService: ''
   contact:
     email: user@email.com
   license:
@@ -47,7 +46,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v2.0.21/json-schemas/v3/tech-record/get/search/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/search/index.json"
         '401':
           description: Not authenticated
         '403':
@@ -78,7 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v2.0.21/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
@@ -114,14 +113,14 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/develop/json-schemas/v3/tech-record/put/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
       responses:
         '200':
           description: Returns the technical record
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v2.0.21/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
@@ -145,14 +144,14 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/develop/json-schemas/v3/tech-record/put/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
       responses:
         '200':
           description: Returns the created tech record
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v2.0.21/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
@@ -189,7 +188,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v2.0.21/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
@@ -220,24 +219,69 @@ paths:
             type: string
           required: true
           description: Date at which the record was created. Sort key of the DynamoDB table.
-        - in: body
-          description: The desired status code of the new tech record and the reason for the unarchival
-          schema:
-            type: object
-            required: status, reasonForUnarchiving
-            properties:
-              status:
-                type: string
-              reasonForUnarchiving:
-                type: string
-
+      requestBody:
+        description: The desired status code of the new tech record and the reason for the unarchival
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status, reasonForUnarchiving]
+              properties:
+                status:
+                  type: string
+                reasonForUnarchiving:
+                  type: string
       responses:
         '200':
           description: Returns the unarchived tech record with the supplied status
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v2.0.21/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+        '400':
+          description: Bad request
+        '401':
+          description: Not authenticated
+        '403':
+          description: Unauthorised Access
+        '404':
+          description: Operation not supported
+        '422':
+          description: Unprocessable request
+        '500':
+          description: Validation Error
+  '/v3/technical-records{systemNumber}/{createdTimestamp}':
+    patch:
+      summary: 'Updates and archives record'
+      tags:
+        - Update technical record
+      parameters:
+        - in: path
+          name: systemNumber
+          schema:
+            type: string
+          required: true
+          description: This represents the systemNumber of the vehicle. Partition key of the DynamoDB table.
+        - in: path
+          name: createdTimestamp
+          schema:
+            type: string
+          required: true
+          description: Date at which the record was created. Sort key of the DynamoDB table.
+      requestBody:
+        required: true
+        description: The tech record to be updated
+        content:
+            application/json:
+              schema:
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
+      responses:
+        '200':
+          description: Returns the new upadted tech record
+          content:
+            application/json:
+              schema:
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
@@ -266,5 +310,3 @@ security:
   - OAuth2:
       - read
       - write
-servers:
-  - url: 'https://url/api/v1'
