@@ -113,7 +113,7 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/develop/json-schemas/v3/tech-record/put/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
       responses:
         '200':
           description: Returns the technical record
@@ -144,7 +144,7 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/develop/json-schemas/v3/tech-record/put/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
       responses:
         '200':
           description: Returns the created tech record
@@ -274,7 +274,7 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/develop/json-schemas/v3/tech-record/put/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
       responses:
         '200':
           description: Returns the new upadted tech record
@@ -310,5 +310,3 @@ security:
   - OAuth2:
       - read
       - write
-servers:
-  - url: 'https://url/api/v1'
