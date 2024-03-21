@@ -25,7 +25,7 @@ export const getUserDetails = (jwt: string): UserDetails => {
     // TODO: Can we replace this with custom claims in the Entra app registration. This way we can define
     //       'client' (data remediation app) contact details for use here.
     // TODO: The token dependency here should be refactored into the authorizer context object.
-    if (process.env.ENABLE_SYSTEM_USER_IMPERSONATION === "true") {
+    if (process.env.ENABLE_SYSTEM_USER_IMPERSONATION === 'true') {
       userDetails.username = 'SYSTEM_USER';
       userDetails.email = 'SYSTEM_USER';
       return userDetails;

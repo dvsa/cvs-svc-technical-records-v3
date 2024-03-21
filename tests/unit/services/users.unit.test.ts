@@ -24,8 +24,8 @@ describe('Test User Service', () => {
       process.env.ENABLE_SYSTEM_USER_IMPERSONATION = undefined;
     });
 
-    it ('should successfully get the system user', () => {
-      process.env.ENABLE_SYSTEM_USER_IMPERSONATION = "true";
+    it('should successfully get the system user', () => {
+      process.env.ENABLE_SYSTEM_USER_IMPERSONATION = 'true';
 
       const header = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
       const payload = 'eyJvaWQiOjE1MTYyMzkwMjJ9';
@@ -37,7 +37,7 @@ describe('Test User Service', () => {
       expect(res.email).toBe('SYSTEM_USER');
     });
 
-    it ('should throw an error if the environment variable is not set', () => {
+    it('should throw an error if the environment variable is not set', () => {
       console.log('process.env.ENABLE_SYSTEM_USER_IMPERSONATION', process.env.ENABLE_SYSTEM_USER_IMPERSONATION);
       const header = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
       const payload = 'eyJvaWQiOjE1MTYyMzkwMjJ9';
