@@ -6,5 +6,9 @@
   "language": "node",
   "terraform": false,
   "monorepo": true,
-  "dynamo_tables": []
+  "dynamo_tables": [
+    {
+      "flat-tech-records": "technical-records-v3.json"
+    }
+  ]
 }
