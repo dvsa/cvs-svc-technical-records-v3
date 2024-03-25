@@ -250,11 +250,11 @@ paths:
           description: Unprocessable request
         '500':
           description: Validation Error
-  '/v3/technical-records{systemNumber}/{createdTimestamp}':
-    patch:
-      summary: 'Updates and archives record'
+  '/v3/technical-records/adrCertificate/{systemNumber}/{createdTimestamp}':
+    post:
+      summary: 'Generate a new ADR certificate for specific tech record'
       tags:
-        - Update technical record
+        - Generate a ADR Certificate
       parameters:
         - in: path
           name: systemNumber
@@ -270,18 +270,28 @@ paths:
           description: Date at which the record was created. Sort key of the DynamoDB table.
       requestBody:
         required: true
-        description: The tech record to be updated
         content:
-            application/json:
-              schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
+          application/json:
+            schema:
+              type: object 
+              required:
+                - certificateType
+              properties:
+                certificateType:
+                  type: string
       responses:
         '200':
-          description: Returns the new upadted tech record
+          description: Returns the new certificate id with the supplied status
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                type: object
+                required: [message, id]
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
         '400':
           description: Bad request
         '401':
