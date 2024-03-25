@@ -250,7 +250,7 @@ paths:
           description: Unprocessable request
         '500':
           description: Validation Error
- '/v3/technical-records/adrCertificate/{systemNumber}/{createdTimestamp}':
+  '/v3/technical-records/adrCertificate/{systemNumber}/{createdTimestamp}':
     post:
       summary: 'Generate a new ADR certificate for specific tech record'
       tags:
@@ -268,15 +268,17 @@ paths:
             type: string
           required: true
           description: Date at which the record was created. Sort key of the DynamoDB table.
-        - in: body
-          description: The desired certificate type for new ADR certificate
-          schema:
-            type: object
-            required: [certificateType]
-            properties:
-              certificateType:
-                type: string
-
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object 
+              required:
+                - certificateType
+              properties:
+                certificateType:
+                  type: string
       responses:
         '200':
           description: Returns the new certificate id with the supplied status
