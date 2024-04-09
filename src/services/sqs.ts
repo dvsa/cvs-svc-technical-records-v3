@@ -14,7 +14,7 @@ export const addToSqs = async (messageBody: SQSRequestBody, queueUrl: string) =>
   };
 
   try {
-    await sqsClient.send(new SendMessageCommand(params));
+    await sqsClient.send(new SendMessageCommand(params) as any);
     return undefined;
   } catch (err: unknown) {
     logger.error(err);

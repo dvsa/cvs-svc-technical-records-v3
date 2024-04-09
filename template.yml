@@ -168,6 +168,14 @@ Resources:
               Path: !GetAtt LocalQueue.Arn
               BatchSize: 10
 
+    MotFilterCherishedTransfer:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: mot-filter-cherished-transfer.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+
     RemoveInvalidPrimaryVrms:
       Type: 'AWS::Serverless::Function'
       Properties:
