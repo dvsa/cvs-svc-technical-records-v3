@@ -1,10 +1,11 @@
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { SQSRequestBody } from '../models/sqsPayload';
 import logger from '../util/logger';
+import { MotSQSRequestBody } from '../models/motSqsPayload';
 
 const sqsClient = new SQSClient({ region: process.env.DYNAMO_AWS_REGION });
 
-export const addToSqs = async (messageBody: SQSRequestBody, queueUrl: string) => {
+export const addToSqs = async (messageBody: SQSRequestBody | MotSQSRequestBody, queueUrl: string) => {
   if (process.env.AWS_SAM_LOCAL) {
     return '123';
   }
