@@ -6,6 +6,9 @@ import { SearchCriteria } from "../models/search";
 import { GetObjectFromS3 } from "../services/s3";
 import { processMotCherishedTransfer } from "../processors/processMotCherishedTransfer";
 import { StatusCode } from "../util/enum";
+import { addToSqs } from "../services/sqs";
+import { SQSRequestBody } from "../models/sqsPayload";
+import { MotSQSRequestBody } from "../models/motSqsPayload";
 
 
 export const handler = async (event: S3Event) => {
@@ -30,7 +33,12 @@ export const handler = async (event: S3Event) => {
         logger.info(`No update needed for VRM ${cherishedTransfer.vrm} and VIN ${cherishedTransfer.vin}`);
       }
       else {
+        const requestBody: MotSQSRequestBody = {
+          techRecord: allCurrentRecords[0],
+          vrm: cherishedTransfer.vrm
+        };
 
+        await addToSqs(requestBody, process.env.UPDATE_VRM_SQS_QUEUE ?? '');
       }
     });
   }
