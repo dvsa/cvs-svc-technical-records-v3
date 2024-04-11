@@ -39,7 +39,11 @@ export const handler = async (event: S3Event) => {
       }
       else {
         const { recordsToArchive, recordsToUpdate } = processCherishedTransfer(
-          {} as any,
+          {
+            msOid: 'something@goes.here',
+            username: 'something@goes.here',
+            email: 'something@goes.here'
+          },
           cherishedTransfer.vrm,
           allCurrentRecords[0] as TechRecordType<'get'>,
         );
