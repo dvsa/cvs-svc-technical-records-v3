@@ -23,6 +23,8 @@ export const handler = async (batchPlateRecords: BatchPlateData[]) => {
   try {
     logger.info('Batch plate generation called');
 
+    logger.info(`Payload in is ${JSON.stringify(batchPlateRecords)}`);
+
     const batchData = batchPlateRecords ?? batchPlatesData;
 
     const batchIssuerName = 'CVS Batch Plate Generation';
