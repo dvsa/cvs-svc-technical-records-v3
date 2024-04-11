@@ -4,9 +4,11 @@ const mockValidateSysNumTimestampPathParams = jest.fn();
 import { VehicleConfiguration } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/vehicleConfigurationHgvPsv.enum.js';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { PlateReasonForIssue, Plates } from '../../../src/models/plate';
+import { PlateReasonForIssue, Plates, TechRecordGETHGVOrTRL } from '../../../src/models/plate';
 import { hgvRequiredFields } from '../../../src/models/plateRequiredFields';
-import { cannotGeneratePlate, validatePlateInfo, validatePlateRequestBody } from '../../../src/validators/plate';
+import {
+  cannotGeneratePlate, validatePlateInfo, validatePlateRecordErrors, validatePlateRequestBody,
+} from '../../../src/validators/plate';
 
 jest.mock('../../../src/validators/sysNumTimestamp', () => ({
   validateSysNumTimestampPathParams: mockValidateSysNumTimestampPathParams,
@@ -254,6 +256,37 @@ describe('Test plate validator', () => {
       } as unknown as TechRecordType<'hgv'>;
       const res = cannotGeneratePlate(hgvRequiredFields, techRecord);
       expect(res).toBeFalsy();
+    });
+  });
+  describe('validatePlateRecordErrors', () => {
+    const headers = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+      'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
+    };
+
+    it('should error if no record', () => {
+      const record = {};
+      const res = validatePlateRecordErrors(record as unknown as TechRecordGETHGVOrTRL, '123', '123');
+      expect(res).toStrictEqual({ headers, statusCode: 404, body: 'No record found matching systemNumber 123 and timestamp 123' });
+    });
+
+    it('should error if not current', () => {
+      const record = { techRecord_statusCode: 'provisional' };
+      const res = validatePlateRecordErrors(record as unknown as TechRecordGETHGVOrTRL, '123', '123');
+      expect(res).toStrictEqual({ headers, statusCode: 400, body: 'Tech record provided is not current' });
+    });
+
+    it('should error if not a trl', () => {
+      const record = { techRecord_statusCode: 'current', techRecord_vehicleType: 'psv' };
+      const res = validatePlateRecordErrors(record as unknown as TechRecordGETHGVOrTRL, '123', '123');
+      expect(res).toStrictEqual({ headers, statusCode: 400, body: 'Tech record is not a HGV or TRL' });
+    });
+
+    it('should not error', () => {
+      const record = { techRecord_statusCode: 'current', techRecord_vehicleType: 'trl' };
+      const res = validatePlateRecordErrors(record as unknown as TechRecordGETHGVOrTRL, '123', '123');
+      expect(res).toBeUndefined();
     });
   });
 });
