@@ -12,11 +12,11 @@ const mockPublish = jest.fn();
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../../src/handler/updateVrm';
 import * as UserDetails from '../../../src/services/user';
+import { ERRORS } from '../../../src/util/enum';
 import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { addHttpHeaders } from '../../../src/util/httpHeaders';
 import carData from '../../resources/techRecordCarPost.json';
 import { mockToken } from '../util/mockToken';
-import { ERRORS } from '../../../src/util/enum';
 
 jest.mock('../../../src/services/database.ts', () => ({
   getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
@@ -183,6 +183,24 @@ describe('update vrm handler', () => {
       const result = await handler(request as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe('Primary VRM SJG1020 already exists');
+    });
+    it('should fail when the third mark is in use', async () => {
+      request.body = JSON.stringify({ newVrm: 'SJG1020', isCherishedTransfer: true, thirdMark: 'L101RS' });
+      mockGetBySystemNumberAndCreatedTimestamp.mockReturnValueOnce({
+        techRecord_manufactureYear: 'null',
+        primaryVrm: 'SJG1020',
+        techRecord_make: 'null',
+        vin: 'DP76UMK4DQLTOT400021',
+        techRecord_statusCode: 'current',
+        systemNumber: 'XYZEP5JYOMM00020',
+        techRecord_vehicleType: 'car',
+        createdTimestamp: '2019-06-24T10:26:54.903Z',
+        techRecord_model: 'null',
+      });
+      mockValidateVrmExists.mockReturnValueOnce(addHttpHeaders({ statusCode: 400, body: 'Primary VRM L101RS already exists' }));
+      const result = await handler(request as unknown as APIGatewayProxyEvent);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toBe('Primary VRM L101RS already exists');
     });
     it('should return an error when there is an error with the donor record', async () => {
       request.body = JSON.stringify({ newVrm: 'SJG1020', isCherishedTransfer: true, thirdMark: 'testing' });
