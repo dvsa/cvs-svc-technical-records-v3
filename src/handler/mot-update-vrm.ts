@@ -1,65 +1,55 @@
-import { S3Event } from "aws-lambda";
+import { SQSEvent } from "aws-lambda";
 import logger from '../util/logger';
-import { ProcessedMotCherishedTransfers } from "../models/motCherishedTransfer";
+import { MotCherishedTransfer } from "../models/motCherishedTransfer";
 import { searchByCriteria, updateVehicle } from "../services/database";
 import { SearchCriteria } from "../models/search";
-import { GetObjectFromS3 } from "../services/s3";
-import { processMotCherishedTransfer } from "../processors/processMotCherishedTransfer";
 import { StatusCode } from "../util/enum";
 import { publish } from "../services/sns";
 import { SNSMessageBody } from "../models/updateVrm";
 import { processCherishedTransfer } from "../processors/processCherishedTransfer";
 import { TechRecordType } from "@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb";
 
-export const handler = async (event: S3Event) => {
+export const handler = async (event: SQSEvent) => {
   logger.info('mot-update-vrm lambda triggered');
 
   try {
-    const bucket: string = event.Records[0].s3.bucket.name;
-    const key: string = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
-    const rawObjectBody = await GetObjectFromS3(bucket, key);
-    const processedTransfers: ProcessedMotCherishedTransfers = processMotCherishedTransfer(rawObjectBody);
-    const cherishedTransfers = processedTransfers.cherishedTransfers;
-
     let recordsToSend: SNSMessageBody[] = [];
-    let recordsFailed: number = 0;
 
-    cherishedTransfers.forEach(async (cherishedTransfer) => {
-      const allRecords = await searchByCriteria(SearchCriteria.VIN, cherishedTransfer.vin);
+    event.Records.forEach(async (cherishedTransfer) => {
+      const parsedRecord: MotCherishedTransfer = JSON.parse(cherishedTransfer.body);
+      const allRecords = await searchByCriteria(SearchCriteria.VIN, parsedRecord.vin);
       const allCurrentRecords = allRecords.filter(x => x.techRecord_statusCode === StatusCode.CURRENT);
-      const matchingCurrentVrmRecords = allCurrentRecords.find(x => x.primaryVrm === cherishedTransfer.vrm);
+      const matchingCurrentVrmRecords = allCurrentRecords.find(x => x.primaryVrm === parsedRecord.vrm);
 
       if(allCurrentRecords.length > 1) {
-        recordsFailed++;
-        logger.info(`Duplicate current records found for VIN ${cherishedTransfer.vin}`);
+        logger.info(`Duplicate current records found for VIN ${parsedRecord.vin}`);
       }
       else if(matchingCurrentVrmRecords){
-        recordsFailed++;
-        logger.info(`No update needed for VRM ${cherishedTransfer.vrm} and VIN ${cherishedTransfer.vin}`);
+        logger.info(`No update needed for VRM ${parsedRecord.vrm} and VIN ${parsedRecord.vin}`);
       }
       else {
+        const currentRecord = allCurrentRecords[0];
         const { recordsToArchive, recordsToUpdate } = processCherishedTransfer(
           {
             msOid: 'something@goes.here',
             username: 'something@goes.here',
             email: 'something@goes.here'
           },
-          cherishedTransfer.vrm,
-          allCurrentRecords[0] as TechRecordType<'get'>,
+          parsedRecord.vrm,
+          currentRecord as TechRecordType<'get'>,
         );
 
         await updateVehicle(recordsToArchive, recordsToUpdate);
+
+        logger.info(`Updated systemNumber ${currentRecord.systemNumber} with VRM ${parsedRecord.vrm}`)
 
         recordsToUpdate.forEach((record) => recordsToSend.push({ ...record, userEmail: 'something@goes.here' }));
       }
     });
 
     await publish(JSON.stringify(recordsToSend), process.env.VRM_TRANSFERRED_ARN ?? '');
-    logger.info(`File name: ${processedTransfers.fileName}`);
-    logger.info(`Total Records Processed: ${cherishedTransfers.length}`);
-    logger.info(`Total Failures: ${recordsFailed}`);
-    logger.info(`Total Not Matched: ${cherishedTransfers.length - recordsToSend.length}`);
-    logger.info(`Total Records Successfully Matched & Processed: ${recordsToSend.length}`);
+
+    logger.info("All records processed in SQS event");
   }
   catch(error) {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
