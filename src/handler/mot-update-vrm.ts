@@ -47,7 +47,11 @@ export const handler = async (event: SQSEvent) => {
       }
     });
 
-    await publish(JSON.stringify(recordsToSend), process.env.VRM_TRANSFERRED_ARN ?? '');
+    await new Promise(process.nextTick);
+
+    if(recordsToSend.length) {
+      await publish(JSON.stringify(recordsToSend), process.env.VRM_TRANSFERRED_ARN ?? '');
+    }
 
     logger.info("All records processed in SQS event");
   }
