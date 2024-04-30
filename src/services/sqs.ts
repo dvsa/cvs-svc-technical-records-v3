@@ -1,4 +1,6 @@
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import {
+  SQSClient, SendMessageCommand,
+} from '@aws-sdk/client-sqs';
 import { SQSRequestBody } from '../models/sqsPayload';
 import logger from '../util/logger';
 
@@ -14,6 +16,7 @@ export const addToSqs = async (messageBody: SQSRequestBody, queueUrl: string) =>
   };
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     await sqsClient.send(new SendMessageCommand(params) as any);
     return undefined;
   } catch (err: unknown) {
