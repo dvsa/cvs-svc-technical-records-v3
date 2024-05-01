@@ -28,6 +28,7 @@ export const handler = async (event: SQSEvent) => {
       }
 
       const allCurrentRecords = allRecords.filter((x) => x.techRecord_statusCode === StatusCode.CURRENT);
+
       if (!allCurrentRecords.length) {
         logger.info(`No current record found for VIN: ${parsedRecord.vin}`);
         continue;
@@ -43,9 +44,9 @@ export const handler = async (event: SQSEvent) => {
         const currentRecord = allCurrentRecords[0];
         const { recordsToArchive, recordsToUpdate } = processCherishedTransfer(
           {
-            msOid: 'something@goes.here',
-            username: 'something@goes.here',
-            email: 'something@goes.here',
+            msOid: 'CVS Automated Cherished Transfer',
+            username: 'CVS Automated Cherished Transfer',
+            email: '',
           },
           parsedRecord.vrm,
           currentRecord as TechRecordType<'get'>,
