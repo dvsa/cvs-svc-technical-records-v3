@@ -1,5 +1,7 @@
+/* eslint-disable no-continue */
+/* eslint-disable no-await-in-loop */
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
-import { SQSEvent, SQSRecord } from 'aws-lambda';
+import { SQSEvent } from 'aws-lambda';
 import { MotCherishedTransfer } from '../models/motCherishedTransfer';
 import { SearchCriteria } from '../models/search';
 import { SNSMessageBody } from '../models/updateVrm';
@@ -15,13 +17,22 @@ export const handler = async (event: SQSEvent) => {
   try {
     const recordsToSend: SNSMessageBody[] = [];
 
-    await Promise.all(event.Records.map(async (cherishedTransfer: SQSRecord) => {
-      console.log(cherishedTransfer);
+    // eslint-disable-next-line no-restricted-syntax
+    for (const cherishedTransfer of event.Records) {
       const parsedRecord: MotCherishedTransfer = JSON.parse(cherishedTransfer.body) as MotCherishedTransfer;
-      console.log(parsedRecord);
-      console.log(parsedRecord.vin);
       const allRecords = await searchByCriteria(SearchCriteria.VIN, parsedRecord.vin);
+
+      if (!allRecords.length) {
+        logger.info(`No record found for VIN: ${parsedRecord.vin}`);
+        continue;
+      }
+
       const allCurrentRecords = allRecords.filter((x) => x.techRecord_statusCode === StatusCode.CURRENT);
+      if (!allCurrentRecords.length) {
+        logger.info(`No current record found for VIN: ${parsedRecord.vin}`);
+        continue;
+      }
+
       const matchingCurrentVrmRecords = allCurrentRecords.find((x) => x.primaryVrm === parsedRecord.vrm);
 
       if (allCurrentRecords.length > 1) {
@@ -46,7 +57,7 @@ export const handler = async (event: SQSEvent) => {
 
         recordsToUpdate.forEach((record) => recordsToSend.push({ ...record, userEmail: 'something@goes.here' }));
       }
-    }));
+    }
 
     if (recordsToSend.length) {
       await publish(JSON.stringify(recordsToSend), process.env.VRM_TRANSFERRED_ARN ?? '');
