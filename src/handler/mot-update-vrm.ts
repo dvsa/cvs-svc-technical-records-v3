@@ -1,13 +1,13 @@
-import { SQSEvent, SQSRecord } from 'aws-lambda';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
-import logger from '../util/logger';
+import { SQSEvent, SQSRecord } from 'aws-lambda';
 import { MotCherishedTransfer } from '../models/motCherishedTransfer';
-import { searchByCriteria, updateVehicle } from '../services/database';
 import { SearchCriteria } from '../models/search';
-import { StatusCode } from '../util/enum';
-import { publish } from '../services/sns';
 import { SNSMessageBody } from '../models/updateVrm';
 import { processCherishedTransfer } from '../processors/processCherishedTransfer';
+import { searchByCriteria, updateVehicle } from '../services/database';
+import { publish } from '../services/sns';
+import { StatusCode } from '../util/enum';
+import logger from '../util/logger';
 
 export const handler = async (event: SQSEvent) => {
   logger.info('mot-update-vrm lambda triggered');
@@ -16,7 +16,10 @@ export const handler = async (event: SQSEvent) => {
     const recordsToSend: SNSMessageBody[] = [];
 
     await Promise.all(event.Records.map(async (cherishedTransfer: SQSRecord) => {
+      console.log(cherishedTransfer);
       const parsedRecord: MotCherishedTransfer = JSON.parse(cherishedTransfer.body) as MotCherishedTransfer;
+      console.log(parsedRecord);
+      console.log(parsedRecord.vin);
       const allRecords = await searchByCriteria(SearchCriteria.VIN, parsedRecord.vin);
       const allCurrentRecords = allRecords.filter((x) => x.techRecord_statusCode === StatusCode.CURRENT);
       const matchingCurrentVrmRecords = allCurrentRecords.find((x) => x.primaryVrm === parsedRecord.vrm);
