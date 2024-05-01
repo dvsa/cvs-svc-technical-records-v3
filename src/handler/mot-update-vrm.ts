@@ -1,4 +1,4 @@
-import { SQSEvent } from 'aws-lambda';
+import { SQSEvent, SQSRecord } from 'aws-lambda';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import logger from '../util/logger';
 import { MotCherishedTransfer } from '../models/motCherishedTransfer';
@@ -15,8 +15,7 @@ export const handler = async (event: SQSEvent) => {
   try {
     const recordsToSend: SNSMessageBody[] = [];
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    event.Records.forEach(async (cherishedTransfer) => {
+    await Promise.all(event.Records.map(async (cherishedTransfer: SQSRecord) => {
       const parsedRecord: MotCherishedTransfer = JSON.parse(cherishedTransfer.body) as MotCherishedTransfer;
       const allRecords = await searchByCriteria(SearchCriteria.VIN, parsedRecord.vin);
       const allCurrentRecords = allRecords.filter((x) => x.techRecord_statusCode === StatusCode.CURRENT);
@@ -44,10 +43,7 @@ export const handler = async (event: SQSEvent) => {
 
         recordsToUpdate.forEach((record) => recordsToSend.push({ ...record, userEmail: 'something@goes.here' }));
       }
-    });
-
-    // eslint-disable-next-line  @typescript-eslint/unbound-method
-    await new Promise(process.nextTick);
+    }));
 
     if (recordsToSend.length) {
       await publish(JSON.stringify(recordsToSend), process.env.VRM_TRANSFERRED_ARN ?? '');
