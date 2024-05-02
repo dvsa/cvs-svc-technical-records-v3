@@ -14,6 +14,8 @@ import logger from '../util/logger';
 export const handler = async (event: SQSEvent) => {
   logger.info('mot-update-vrm lambda triggered');
 
+  const SYSTEM_USER = 'CVS Automated Cherished Transfer';
+
   try {
     const recordsToSend: SNSMessageBody[] = [];
 
@@ -44,8 +46,8 @@ export const handler = async (event: SQSEvent) => {
         const currentRecord = allCurrentRecords[0];
         const { recordsToArchive, recordsToUpdate } = processCherishedTransfer(
           {
-            msOid: 'CVS Automated Cherished Transfer',
-            username: 'CVS Automated Cherished Transfer',
+            msOid: SYSTEM_USER,
+            username: SYSTEM_USER,
             email: '',
           },
           parsedRecord.vrm,
@@ -56,7 +58,7 @@ export const handler = async (event: SQSEvent) => {
 
         logger.info(`Updated systemNumber ${currentRecord.systemNumber} with VRM ${parsedRecord.vrm}`);
 
-        recordsToUpdate.forEach((record) => recordsToSend.push({ ...record, userEmail: 'something@goes.here' }));
+        recordsToUpdate.forEach((record) => recordsToSend.push({ ...record, userEmail: SYSTEM_USER }));
       }
     }
 
