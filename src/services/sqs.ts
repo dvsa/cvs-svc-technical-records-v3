@@ -16,8 +16,8 @@ export const addToSqs = async (messageBody: SQSRequestBody, queueUrl: string) =>
   };
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    await sqsClient.send(new SendMessageCommand(params) as any);
+    const command = new SendMessageCommand(params);
+    await sqsClient.send(command);
     return undefined;
   } catch (err: unknown) {
     logger.error(err);
