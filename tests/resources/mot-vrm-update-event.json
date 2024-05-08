@@ -1,0 +1,22 @@
+{
+	"Records": [
+		{
+			"attributes": {
+					"ApproximateFirstReceiveTimestamp": "1691599233730",
+					"ApproximateReceiveCount": "1",
+					"SenderId": "AROAQC27VTVQFNB6YB3PQ:75df3f853a5436f0871d40b179d4ba5e",
+					"SentTimestamp": "1691599233712"
+			},
+			"awsRegion": "eu-west-1",
+			"eventSource": "aws:sqs",
+      "body": "",
+			"eventSourceARN": "arn:aws:sqs:eu-west-1:006106226016:sync-test-result-info-cb2-8663-queue",
+			"level": "info",
+			"md5OfBody": "94860332cba78c4d0d888c6556e6f57b",
+			"message": "payload recieved from queue:",
+			"messageAttributes": {},
+			"messageId": "5695c906-9796-4a79-839c-c887cfd3ea5b",
+			"receiptHandle": "AQEBmrbVJpOCy7CxMt94wxfmXe9aJQ3spunsOq5XfsRRgFxYFmG1e0WPsH9EJ863z5+7wNjlC+ZExU0cWrcUeXlgvPrgTDchhr9etZXmC8DeeHe4WU7WI59tZwKgA9BBcnAstwxjVChVSAi+FBaL7rZwd6X3Kn8+bA46UJjF8wmrDit9pXqnRUtSSL9fUn/7eEsO6VQ/2UKbhRXIwmF3sBRsiuF5RXuXKukOtrWlK5fepAQJVngHc2NV8tcxnHDyiLBc+k/rpRuF3NR4OhT56bJW33LPWvl6Sl4C92NLzS3L5lnvMLUvQFoEE6aP3/IYZD29HxgmQON0mzsvnnvuXOWNa9ZBmBKl+01Z7Xd3W4w9jfSucPRf4EjsCRoDXUkpb5WlJ0xGnnyK3ouoCjLc943OabFeqT1ELyxmhJnWo08Vtaw="
+		}
+	]
+}

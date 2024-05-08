@@ -168,6 +168,14 @@ Resources:
               Path: !GetAtt LocalQueue.Arn
               BatchSize: 10
 
+    MotUpdateVrm:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: mot-update-vrm.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+
     RemoveInvalidPrimaryVrms:
       Type: 'AWS::Serverless::Function'
       Properties:
