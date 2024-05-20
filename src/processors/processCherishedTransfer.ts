@@ -52,12 +52,16 @@ export const processCherishedTransfer = (
     StatusCode.ARCHIVED,
   );
 
+  const newStatusCode = recipientRecord.techRecord_statusCode === StatusCode.CURRENT
+    ? StatusCode.CURRENT
+    : recipientRecord.techRecord_statusCode as StatusCode;
+
   const updatedRecipientNewRecord = setCreatedAuditDetails(
     newRecord,
     userDetails.username,
     userDetails.msOid,
     new Date().toISOString(),
-    recipientRecord.techRecord_statusCode as StatusCode,
+    newStatusCode,
   );
   if (updatedRecipientNewRecord.techRecord_vehicleType !== 'trl') {
     updatedRecipientNewRecord.primaryVrm = newVrm.toUpperCase();

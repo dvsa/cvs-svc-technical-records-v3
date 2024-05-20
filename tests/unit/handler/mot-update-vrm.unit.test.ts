@@ -2,6 +2,7 @@
 const mockSearchByCriteria = jest.fn();
 const mockUpdateVehicle = jest.fn();
 const mockPublish = jest.fn();
+const mockSqs = jest.fn();
 
 import { handler } from '../../../src/handler/mot-update-vrm';
 import { StatusCode } from '../../../src/util/enum';
@@ -16,6 +17,10 @@ jest.mock('../../../src/services/database.ts', () => ({
 
 jest.mock('../../../src/services/sns', () => ({
   publish: mockPublish,
+}));
+
+jest.mock('../../../src/services/sqs', () => ({
+  addToSqs: mockSqs,
 }));
 
 describe('Test Mot Update Vrm Lambda Function', () => {
@@ -113,6 +118,7 @@ describe('Test Mot Update Vrm Lambda Function', () => {
   });
 
   it('should log when there is a current record with a matching VIN and no matching VRM', async () => {
+    mockSqs.mockResolvedValueOnce(undefined);
     mockSearchByCriteria.mockReturnValue([{
       primaryVrm: '1',
       vin: '2',
@@ -138,6 +144,8 @@ describe('Test Mot Update Vrm Lambda Function', () => {
   });
 
   it('should run three events, pass one, fail one, pass the third one', async () => {
+    mockSqs.mockResolvedValueOnce(undefined);
+
     mockSearchByCriteria.mockReturnValueOnce([{
       primaryVrm: '1',
       vin: '2',
