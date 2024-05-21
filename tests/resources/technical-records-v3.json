@@ -13753,8 +13753,8 @@
   },
   {
     "systemNumber": "90000015",
-    "createdTimestamp": "2024-03-25T17:14:23.349Z",
-    "vin": "AUTOQATRA000000010",
+    "createdTimestamp": "AUTOQATRA000000012024-03-25T17:14:23.349Z",
+    "vin": "0",
     "partialVin": "000010",
     "trailerId": "Q111120",
     "techRecord_alterationMarker": false,
@@ -13951,7 +13951,7 @@
     "techRecord_vehicleConfiguration": "semi-trailer",
     "techRecord_vehicleType": "trl",
     "trailerId": "Q111116",
-    "vin": "AUTOQATRA000000006"
+    "vin": "AUTOQATRA00000006"
   },
   {
     "systemNumber": "90000012",
@@ -14047,7 +14047,7 @@
     "techRecord_vehicleConfiguration": "semi-trailer",
     "techRecord_vehicleType": "trl",
     "trailerId": "Q111117",
-    "vin": "AUTOQATRA000000007"
+    "vin": "AUTOQATRA00000007"
   },
   {
     "systemNumber": "90000013",
@@ -14131,7 +14131,7 @@
     "techRecord_vehicleConfiguration": "drawbar",
     "techRecord_vehicleType": "trl",
     "trailerId": "Q111118",
-    "vin": "AUTOQATRA000000008"
+    "vin": "AUTOQATRA00000008"
   },
   {
     "systemNumber": "90000014",
@@ -14228,7 +14228,7 @@
     "techRecord_vehicleConfiguration": "semi-trailer",
     "techRecord_vehicleType": "trl",
     "trailerId": "Q111119",
-    "vin": "AUTOQATRA000000009"
+    "vin": "AUTOQATRA00000009"
   },
   {
     "systemNumber": "90000015",
