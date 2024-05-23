@@ -113,7 +113,7 @@ const processRecord = async (cherishedTransfer: SQSRecord): Promise<SNSMessageBo
 
   logger.info('formatting technical record');
 
-  const formattedTechRecord = formatTechRecord<TechRecordTypeByVehicle<'hgv' | 'trl' | 'lgv'>>(currentRecord);
+  const formattedTechRecord = formatTechRecord<TechRecordTypeByVehicle<'hgv' | 'trl' | 'lgv'>>(completeTechRecord);
   formattedTechRecord.techRecord_adrPassCertificateDetails = formattedTechRecord.techRecord_adrPassCertificateDetails
     ? [...formattedTechRecord.techRecord_adrPassCertificateDetails, newAdrCertificate]
     : [newAdrCertificate];
