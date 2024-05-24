@@ -9,7 +9,6 @@ const mockSqs = jest.fn();
 import { handler } from '../../../src/handler/mot-update-vrm';
 import { StatusCode } from '../../../src/util/enum';
 import logger from '../../../src/util/logger';
-import updateEventMultiple from '../../resources/mot-vrm-update-event-multiple.json';
 import updateEvent from '../../resources/mot-vrm-update-event.json';
 
 jest.mock('../../../src/services/database.ts', () => ({
