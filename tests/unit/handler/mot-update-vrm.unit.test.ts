@@ -4,11 +4,11 @@ const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockSearchByCriteria = jest.fn();
 const mockUpdateVehicle = jest.fn();
 const mockPublish = jest.fn();
-const mockSqs = jest.fn();
 
 import { handler } from '../../../src/handler/mot-update-vrm';
 import { StatusCode } from '../../../src/util/enum';
 import logger from '../../../src/util/logger';
+import updateEventMultiple from '../../resources/mot-vrm-update-event-multiple.json';
 import updateEvent from '../../resources/mot-vrm-update-event.json';
 
 jest.mock('../../../src/services/database.ts', () => ({
@@ -19,10 +19,6 @@ jest.mock('../../../src/services/database.ts', () => ({
 
 jest.mock('../../../src/services/sns', () => ({
   publish: mockPublish,
-}));
-
-jest.mock('../../../src/services/sqs', () => ({
-  addToSqs: mockSqs,
 }));
 
 describe('Test Mot Update Vrm Lambda Function', () => {
@@ -120,7 +116,6 @@ describe('Test Mot Update Vrm Lambda Function', () => {
   });
 
   it('should log when there is a current record with a matching VIN and no matching VRM', async () => {
-    mockSqs.mockResolvedValueOnce(undefined);
     mockSearchByCriteria.mockReturnValue([{
       primaryVrm: '1',
       vin: '2',
@@ -144,5 +139,50 @@ describe('Test Mot Update Vrm Lambda Function', () => {
     expect(loggerSpy).toHaveBeenCalledWith('Updated systemNumber 15 with VRM 3');
     expect(mockUpdateVehicle).toHaveBeenCalled();
     expect(mockPublish).toHaveBeenCalled();
+  });
+
+  it('should run three events, pass one, fail one, pass the third one', async () => {
+    mockSearchByCriteria.mockReturnValueOnce([{
+      primaryVrm: '1',
+      vin: '2',
+      techRecord_statusCode: StatusCode.CURRENT,
+      systemNumber: '15',
+    },
+    ]).mockReturnValueOnce([]).mockReturnValue([
+      {
+        primaryVrm: '10',
+        vin: '5',
+        techRecord_statusCode: StatusCode.CURRENT,
+        systemNumber: '16',
+      },
+    ]);
+
+    mockUpdateVehicle.mockResolvedValue(true);
+    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValue({});
+    const loggerSpy = jest.spyOn(logger, 'info');
+
+    updateEventMultiple.Records[0].body = JSON.stringify({
+      vin: '2',
+      vrm: '3',
+    });
+
+    updateEventMultiple.Records[1].body = JSON.stringify({
+      vin: '3',
+      vrm: '4',
+    });
+
+    updateEventMultiple.Records[2].body = JSON.stringify({
+      vin: '5',
+      vrm: '6',
+    });
+
+    await handler(updateEventMultiple);
+
+    expect(loggerSpy).toHaveBeenCalledWith('Updated systemNumber 15 with VRM 3');
+    expect(loggerSpy).toHaveBeenCalledWith('No record found for VIN: 3');
+    expect(loggerSpy).toHaveBeenCalledWith('Updated systemNumber 16 with VRM 6');
+    expect(mockUpdateVehicle).toHaveBeenCalledTimes(2);
+    expect(mockPublish).toHaveBeenCalled();
+    expect(loggerSpy).toHaveBeenLastCalledWith('All records processed in SQS event');
   });
 });
