@@ -44,7 +44,6 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 };
 
 const processRecord = async (cherishedTransfer: SQSRecord): Promise<SNSMessageBody[]> => {
-  console.log('processing record...');
   const parsedRecord = JSON.parse(cherishedTransfer.body) as MotCherishedTransfer;
   const allRecords = await searchByCriteria(SearchCriteria.VIN, parsedRecord.vin);
 
@@ -52,7 +51,6 @@ const processRecord = async (cherishedTransfer: SQSRecord): Promise<SNSMessageBo
     logger.info(`No record found for VIN: ${parsedRecord.vin}`);
     return [];
   }
-  logger.info('records found from search');
 
   const allCurrentRecords = allRecords.filter(({ techRecord_statusCode }) => techRecord_statusCode === StatusCode.CURRENT);
 
@@ -65,9 +63,6 @@ const processRecord = async (cherishedTransfer: SQSRecord): Promise<SNSMessageBo
     logger.info(`Duplicate current records found for VIN ${parsedRecord.vin}`);
     return [];
   }
-
-  logger.info('current record found for vin');
-
   const currentRecord = allCurrentRecords[0];
   if (currentRecord.primaryVrm === parsedRecord.vrm) {
     logger.info(`No update needed for VRM ${parsedRecord.vrm} and VIN ${parsedRecord.vin}`);
@@ -79,9 +74,6 @@ const processRecord = async (cherishedTransfer: SQSRecord): Promise<SNSMessageBo
     currentRecord.createdTimestamp,
   );
 
-  logger.info('completeTechRecord found for VIN');
-  logger.info(completeTechRecord);
-
   const { recordsToArchive, recordsToUpdate } = processCherishedTransfer(
     {
       msOid: SYSTEM_USER,
@@ -91,35 +83,19 @@ const processRecord = async (cherishedTransfer: SQSRecord): Promise<SNSMessageBo
     parsedRecord.vrm,
     completeTechRecord,
   );
-
-  logger.info('processed cherished transfer');
-
   await updateVehicle(recordsToArchive, recordsToUpdate);
-  logger.info(`Updated systemNumber ${currentRecord.systemNumber} with VRM ${parsedRecord.vrm}`);
 
-  logger.info('creating new adr cert');
   const newAdrCertificate = createAdrCertificate(currentRecord.systemNumber);
-
-  logger.info('newAdrCertificate');
-  logger.info(newAdrCertificate);
-
   const adrCertificateDetailsErrors = validateAdrCertificateDetails(newAdrCertificate);
   if (adrCertificateDetailsErrors) {
-    logger.info(`error adr certificate details: ${adrCertificateDetailsErrors.body}`);
     addHttpHeaders(adrCertificateDetailsErrors);
     return [];
   }
-  logger.info('no adr certificate errors');
-
-  logger.info('formatting technical record');
 
   const formattedTechRecord = formatTechRecord<TechRecordTypeByVehicle<'hgv' | 'trl' | 'lgv'>>(completeTechRecord);
   formattedTechRecord.techRecord_adrPassCertificateDetails = formattedTechRecord.techRecord_adrPassCertificateDetails
     ? [...formattedTechRecord.techRecord_adrPassCertificateDetails, newAdrCertificate]
     : [newAdrCertificate];
-
-  logger.info(formattedTechRecord);
-  logger.info('formatting technical record completed');
 
   const adrCertSqsPayload: SQSRequestBody = {
     techRecord: formattedTechRecord,
@@ -128,11 +104,7 @@ const processRecord = async (cherishedTransfer: SQSRecord): Promise<SNSMessageBo
     recipientEmailAddress: '',
   };
 
-  logger.info('adr cert payload');
-  logger.info(adrCertSqsPayload);
-
   await addToSqs(adrCertSqsPayload, process.env.DOC_GEN_SQS_QUEUE ?? '');
-  logger.info('added to sqs queue');
   return recordsToUpdate.map((record) => ({ ...record, userEmail: SYSTEM_USER }));
 };
 
