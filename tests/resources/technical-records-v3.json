@@ -15036,7 +15036,7 @@
     "techRecord_vehicleClass_description": "trailer",
     "techRecord_vehicleConfiguration": "centre axle drawbar",
     "techRecord_vehicleType": "trl",
-    "trailerId": "4000056T",
+    "trailerId": "99999999",
     "vin": "VTAU1AUT0SMLTRL01"
   },
   {
@@ -15064,7 +15064,7 @@
     "techRecord_vehicleClass_description": "trailer",
     "techRecord_vehicleConfiguration": "centre axle drawbar",
     "techRecord_vehicleType": "trl",
-    "trailerId": "4000057T",
+    "trailerId": "99999998",
     "vin": "VTAU1AUT0SMLTRL02"
   },
   {
@@ -15092,7 +15092,7 @@
     "techRecord_vehicleClass_description": "trailer",
     "techRecord_vehicleConfiguration": "centre axle drawbar",
     "techRecord_vehicleType": "trl",
-    "trailerId": "4000058T",
+    "trailerId": "99999997",
     "vin": "VTAU1AUT0SMLTRL03"
   },
   {
@@ -15120,7 +15120,7 @@
     "techRecord_vehicleClass_description": "trailer",
     "techRecord_vehicleConfiguration": "drawbar",
     "techRecord_vehicleType": "trl",
-    "trailerId": "4000059T",
+    "trailerId": "99999996",
     "vin": "VTAU1AUT0SMLTRL04"
   },
   {
@@ -15148,7 +15148,7 @@
     "techRecord_vehicleClass_description": "trailer",
     "techRecord_vehicleConfiguration": "centre axle drawbar",
     "techRecord_vehicleType": "trl",
-    "trailerId": "4000060T",
+    "trailerId": "99999995",
     "vin": "VTAU1AUT0SMLTRL05"
   },
   {
