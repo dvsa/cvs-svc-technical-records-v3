@@ -84,6 +84,7 @@ const processRecord = async (cherishedTransfer: SQSRecord): Promise<SNSMessageBo
     completeTechRecord,
   );
   await updateVehicle(recordsToArchive, recordsToUpdate);
+  logger.info(`Updated systemNumber ${currentRecord.systemNumber} with VRM ${parsedRecord.vrm}`);
 
   const newAdrCertificate = createAdrCertificate(currentRecord.systemNumber);
   const adrCertificateDetailsErrors = validateAdrCertificateDetails(newAdrCertificate);
