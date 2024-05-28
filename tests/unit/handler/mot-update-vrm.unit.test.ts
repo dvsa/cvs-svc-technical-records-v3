@@ -1,4 +1,6 @@
 /* eslint-disable import/first */
+
+const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockSearchByCriteria = jest.fn();
 const mockUpdateVehicle = jest.fn();
 const mockPublish = jest.fn();
@@ -12,6 +14,7 @@ import updateEvent from '../../resources/mot-vrm-update-event.json';
 jest.mock('../../../src/services/database.ts', () => ({
   searchByCriteria: mockSearchByCriteria,
   updateVehicle: mockUpdateVehicle,
+  getBySystemNumberAndCreatedTimestamp: mockGetBySystemNumberAndCreatedTimestamp,
 }));
 
 jest.mock('../../../src/services/sns', () => ({
@@ -121,6 +124,7 @@ describe('Test Mot Update Vrm Lambda Function', () => {
     },
     ]);
 
+    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({});
     mockUpdateVehicle.mockResolvedValue(true);
 
     const loggerSpy = jest.spyOn(logger, 'info');
@@ -154,7 +158,7 @@ describe('Test Mot Update Vrm Lambda Function', () => {
     ]);
 
     mockUpdateVehicle.mockResolvedValue(true);
-
+    mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValue({});
     const loggerSpy = jest.spyOn(logger, 'info');
 
     updateEventMultiple.Records[0].body = JSON.stringify({
