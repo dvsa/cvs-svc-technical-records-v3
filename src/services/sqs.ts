@@ -1,4 +1,6 @@
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import {
+  SQSClient, SendMessageCommand,
+} from '@aws-sdk/client-sqs';
 import { SQSRequestBody } from '../models/sqsPayload';
 import logger from '../util/logger';
 
@@ -14,7 +16,8 @@ export const addToSqs = async (messageBody: SQSRequestBody, queueUrl: string) =>
   };
 
   try {
-    await sqsClient.send(new SendMessageCommand(params));
+    const command = new SendMessageCommand(params);
+    await sqsClient.send(command);
     return undefined;
   } catch (err: unknown) {
     logger.error(err);
