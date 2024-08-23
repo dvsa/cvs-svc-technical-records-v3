@@ -39,14 +39,13 @@ paths:
           description: >-
             The parameter is used to specify which search criteria
             should be used.
-      operationId: getTechRecords
       responses:
         '200':
           description: Search result returned
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/search/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/search/index.json"
         '401':
           description: Not authenticated
         '403':
@@ -77,7 +76,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
@@ -113,14 +112,14 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
       responses:
         '200':
           description: Returns the technical record
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
@@ -144,14 +143,14 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
       responses:
         '200':
           description: Returns the created tech record
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
@@ -188,7 +187,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
@@ -237,7 +236,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.1.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
@@ -304,6 +303,266 @@ paths:
           description: Unprocessable request
         '500':
           description: Validation Error
+  '/v3/technical-records/updateVrm/{systemNumber}/{createdTimestamp}':
+    patch:
+      summary: 'Update VRM on a technical record'
+      tags:
+        - Update VRM
+      parameters:
+        - in: path
+          name: systemNumber
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 21
+          required: true
+          description: This represents the systemNumber of the vehicle. Partition key of the DynamoDB table.
+        - in: path
+          name: createdTimestamp
+          schema:
+            type: string
+            pattern: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{0,20}Z
+          required: true
+          description: Date at which the record was created. Sort key of the DynamoDB table.
+      operationId: updateVrm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object 
+              required:
+                - newVrm
+              properties:
+                newVrm:
+                  type: string
+                isCherishedTransfer:
+                  type: boolean
+                thirdMark:
+                  type: string
+      responses:
+        '200':
+          description: Returns the updated technical record
+          content:
+            application/json:
+              schema:
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+        '401':
+          description: Not authenticated
+        '403':
+          description: Unauthorised Access
+        '404':
+          description: Operation not supported
+  '/v3/technical-records/updateVin/{systemNumber}/{createdTimestamp}':
+    patch:
+      summary: 'Update VIN on a technical record'
+      tags:
+        - Update VIN
+      parameters:
+        - in: path
+          name: systemNumber
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 21
+          required: true
+          description: This represents the systemNumber of the vehicle. Partition key of the DynamoDB table.
+        - in: path
+          name: createdTimestamp
+          schema:
+            type: string
+            pattern: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{0,20}Z
+          required: true
+          description: Date at which the record was created. Sort key of the DynamoDB table.
+      operationId: updateVin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object 
+              required:
+                - newVin
+              properties:
+                newVin:
+                  type: string
+      responses:
+        '200':
+          description: Returns the updated technical record
+          content:
+            application/json:
+              schema:
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+        '401':
+          description: Not authenticated
+        '403':
+          description: Unauthorised Access
+        '404':
+          description: Operation not supported
+  '/v3/technical-records/plate/{systemNumber}/{createdTimestamp}':
+    post:
+      summary: 'Generates a plate for a technical record'
+      tags:
+        - Generate Plate
+      parameters:
+        - in: path
+          name: systemNumber
+          schema:
+            type: string
+          required: true
+          description: This represents the systemNumber of the vehicle. Partition key of the DynamoDB table.
+        - in: path
+          name: createdTimestamp
+          schema:
+            type: string
+          required: true
+          description: Date at which the record was created. Sort key of the DynamoDB table.
+      operationId: plate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object 
+              required:
+                - vtmUsername
+                - reasonForCreation
+                - recipientEmailAddress
+              properties:
+                vtmUsername:
+                  type: string
+                recipientEmailAddress:
+                  type: string
+                reasonForCreation:
+                  type: string
+                  enum:
+                    - 'Free replacement'
+                    - 'Replacement'
+                    - 'Destroyed'
+                    - 'Provisional'
+                    - 'Original'
+                    - 'Manual'
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Not authenticated
+        '403':
+          description: Unauthorised Access
+        '404':
+          description: Operation not supported
+  '/v3/technical-records/letter/{systemNumber}/{createdTimestamp}':
+    post:
+      summary: 'Generates a letter for a technical record'
+      tags:
+        - Generate Letter
+      parameters:
+        - in: path
+          name: systemNumber
+          schema:
+            type: string
+          required: true
+          description: This represents the systemNumber of the vehicle. Partition key of the DynamoDB table.
+        - in: path
+          name: createdTimestamp
+          schema:
+            type: string
+          required: true
+          description: Date at which the record was created. Sort key of the DynamoDB table.
+      operationId: letter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object 
+              required:
+                - vtmUsername
+                - recipientEmailAddress
+                - letterType
+                - paragraphId
+              properties:
+                vtmUsername:
+                  type: string
+                recipientEmailAddress:
+                  type: string
+                letterType:
+                  type: string
+                  enum:
+                    - 'trailer acceptance'
+                    - 'trailer rejection'
+                paragraphId:
+                  type: number
+                  enum:
+                   - 3
+                   - 4
+                   - 5
+                   - 6
+                   - 7
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Not authenticated
+        '403':
+          description: Unauthorised Access
+        '404':
+          description: Operation not supported
+  '/v3/technical-records/promote/{systemNumber}/{createdTimestamp}':
+    post:
+      summary: 'Promotes the specified technical record to current'
+      tags:
+        - Promote a technical record
+      parameters:
+        - in: path
+          name: systemNumber
+          schema:
+            type: string
+          required: true
+          description: This represents the systemNumber of the vehicle. Partition key of the DynamoDB table.
+        - in: path
+          name: createdTimestamp
+          schema:
+            type: string
+          required: true
+          description: Date at which the record was created. Sort key of the DynamoDB table.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object 
+              required:
+                - reasonForPromoting
+              properties:
+                reasonForPromoting:
+                  type: string
+      responses:
+        '200':
+          description: Returns the promoted technical record
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message, id]
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+        '400':
+          description: Bad request
+        '401':
+          description: Not authenticated
+        '403':
+          description: Unauthorised Access
+        '404':
+          description: Operation not supported
+        '422':
+          description: Unprocessable request
+        '500':
+          description: Validation Error
+
 components:
   securitySchemes:
     OAuth2:
