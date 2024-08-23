@@ -543,13 +543,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required: [message, id]
-                properties:
-                  message:
-                    type: string
-                  id:
-                    type: string
+                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         '400':
           description: Bad request
         '401':
