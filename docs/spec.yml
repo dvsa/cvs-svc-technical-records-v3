@@ -33,9 +33,10 @@ paths:
             enum:
               - all
               - vin
-              - vrm
+              - primaryVrm
               - partialVin
               - trailerId
+              - systemNumber
           description: >-
             The parameter is used to specify which search criteria
             should be used.
@@ -105,7 +106,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Date at which the record was created. Sort key of the DynamoDB table.
+          description: Datetime at which the record was created. Sort key of the DynamoDB table.
       requestBody:
         required: true
         description: The tech record to be updated
@@ -136,7 +137,7 @@ paths:
     post:
       summary: 'Creates a new tech-record'
       tags:
-        - Create technical record
+        - Create Technical Record
       requestBody:
         required: true
         description: The tech record to be created
@@ -180,7 +181,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Date at which the record was created. Sort key of the DynamoDB table.
+          description: Datetime at which the record was created. Sort key of the DynamoDB table.
       responses:
         '200':
           description: Returns the updated tech record
@@ -217,7 +218,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Date at which the record was created. Sort key of the DynamoDB table.
+          description: Datetime at which the record was created. Sort key of the DynamoDB table.
       requestBody:
         description: The desired status code of the new tech record and the reason for the unarchival
         content:
@@ -266,7 +267,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Date at which the record was created. Sort key of the DynamoDB table.
+          description: Datetime at which the record was created. Sort key of the DynamoDB table.
       requestBody:
         required: true
         content:
@@ -323,7 +324,7 @@ paths:
             type: string
             pattern: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{0,20}Z
           required: true
-          description: Date at which the record was created. Sort key of the DynamoDB table.
+          description: Datetime at which the record was created. Sort key of the DynamoDB table.
       operationId: updateVrm
       requestBody:
         required: true
@@ -373,7 +374,7 @@ paths:
             type: string
             pattern: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{0,20}Z
           required: true
-          description: Date at which the record was created. Sort key of the DynamoDB table.
+          description: Datetime at which the record was created. Sort key of the DynamoDB table.
       operationId: updateVin
       requestBody:
         required: true
@@ -416,7 +417,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Date at which the record was created. Sort key of the DynamoDB table.
+          description: Datetime at which the record was created. Sort key of the DynamoDB table.
       operationId: plate
       requestBody:
         required: true
@@ -468,7 +469,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Date at which the record was created. Sort key of the DynamoDB table.
+          description: Datetime at which the record was created. Sort key of the DynamoDB table.
       operationId: letter
       requestBody:
         required: true
@@ -512,7 +513,7 @@ paths:
     post:
       summary: 'Promotes the specified technical record to current'
       tags:
-        - Promote a technical record
+        - Promote a Technical Record
       parameters:
         - in: path
           name: systemNumber
@@ -525,7 +526,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Date at which the record was created. Sort key of the DynamoDB table.
+          description: Datetime at which the record was created. Sort key of the DynamoDB table.
       requestBody:
         required: true
         content:
@@ -552,10 +553,6 @@ paths:
           description: Unauthorised Access
         '404':
           description: Operation not supported
-        '422':
-          description: Unprocessable request
-        '500':
-          description: Validation Error
 
 components:
   securitySchemes:
