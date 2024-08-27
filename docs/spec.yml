@@ -52,7 +52,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
   '/v3/technical-records/{systemNumber}/{createdTimestamp}':
     get:
       summary: 'Get a technical record'
@@ -85,7 +85,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
         '422':
           description: Unprocessable request
         '500':
@@ -128,7 +128,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
         '422':
           description: Unprocessable request
         '500':
@@ -159,7 +159,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
         '422':
           description: Unprocessable request
         '500':
@@ -196,7 +196,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
         '422':
           description: Unprocessable request
         '500':
@@ -245,7 +245,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
         '422':
           description: Unprocessable request
         '500':
@@ -299,7 +299,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
         '422':
           description: Unprocessable request
         '500':
@@ -353,7 +353,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
   '/v3/technical-records/updateVin/{systemNumber}/{createdTimestamp}':
     patch:
       summary: 'Update VIN on a technical record'
@@ -399,7 +399,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
   '/v3/technical-records/plate/{systemNumber}/{createdTimestamp}':
     post:
       summary: 'Generates a plate for a technical record'
@@ -451,7 +451,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
   '/v3/technical-records/letter/{systemNumber}/{createdTimestamp}':
     post:
       summary: 'Generates a letter for a technical record'
@@ -508,7 +508,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
   '/v3/technical-records/promote/{systemNumber}/{createdTimestamp}':
     post:
       summary: 'Promotes the specified technical record to current'
@@ -552,7 +552,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: Operation not supported
+          description: No resource found which matches identifiers
 
 components:
   securitySchemes:
