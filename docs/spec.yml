@@ -631,7 +631,7 @@ components:
           type: string
         techRecord_createdByName:
           type: string
-        techRecord_euVehicleCategory: # make a ref to the enum
+        techRecord_euVehicleCategory:
           nullable: true
           $ref: "#/components/schemas/euVehicleCategory"
         techRecord_lastUpdatedAt:
