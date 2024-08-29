@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   description: >-
     API spec for technical records v3 api
@@ -46,8 +46,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                $ref: "#/components/schemas/techRecordGetCarComplete"
+                  $ref: '#/components/schemas/techRecordGETComplete'
         '401':
           description: Not authenticated
         '403':
@@ -567,184 +566,15 @@ components:
             read: Grants read access
             write: Grants write access
   schemas:
-    techRecordGetCarComplete:
-      type: object
-      additionalProperties: false
-      required:
-        - systemNumber
-        - vin
-        - createdTimestamp
-        - techRecord_vehicleSubclass
-        - techRecord_vehicleType
-        - techRecord_createdAt
-        - techRecord_createdById
-        - techRecord_createdByName
-        - techRecord_reasonForCreation
-        - techRecord_statusCode
-        - techRecord_noOfAxles
-        - primaryVrm
-      properties:
-        techRecord_applicantDetails_name:
-          nullable: true
-          type: string
-          maxLength: 150
-        techRecord_applicantDetails_address1:
-          nullable: true
-          type: string
-          maxLength: 60
-        techRecord_applicantDetails_address2:
-          nullable: true
-          type: string
-          maxLength: 60
-        techRecord_applicantDetails_postTown:
-          nullable: true
-          type: string
-          maxLength: 60
-        techRecord_applicantDetails_address3:
-          nullable: true
-          type: string
-          maxLength: 60
-        techRecord_applicantDetails_postCode:
-          nullable: true
-          type: string
-          maxLength: 12
-        techRecord_applicantDetails_telephoneNumber:
-          nullable: true
-          type: string
-          maxLength: 25
-        techRecord_applicantDetails_emailAddress:
-          nullable: true
-          type: string
-          maxLength: 255
-        createdTimestamp:
-          type: string
-        partialVin:
-          nullable: true
-          type: string
-        primaryVrm:
-          type: string
-        systemNumber:
-          type: string
-        techRecord_createdAt:
-          type: string
-        techRecord_createdById:
-          type: string
-        techRecord_createdByName:
-          type: string
-        techRecord_euVehicleCategory:
-          nullable: true
-          $ref: "#/components/schemas/euVehicleCategory"
-        techRecord_lastUpdatedAt:
-          nullable: true
-          type: string
-        techRecord_lastUpdatedById:
-          nullable: true
-          type: string
-        techRecord_lastUpdatedByName:
-          nullable: true
-          type: string
-        techRecord_manufactureYear:
-          type: integer
-          nullable: true
-        techRecord_recordCompleteness:
-          type: string
-          enum: 
-            - complete
-        techRecord_noOfAxles:
-          type: integer
-        techRecord_notes:
-          nullable: true
-          type: string
-        techRecord_reasonForCreation:
-          type: string
-        techRecord_regnDate:
-          nullable: true
-          type: string
-        techRecord_statusCode:
-          nullable: true
-          $ref: "#/components/schemas/statusCode"
-        techRecord_vehicleConfiguration:
-          nullable: true
-          $ref: "#/components/schemas/vehicleConfiguration"
-        techRecord_vehicleType:
-          type: string
-          enum: 
-            - car
-        vin:
-          type: string
-        techRecord_vehicleSubclass:
-          title: Vehicle Subclass
-          type: array
-          items:
-            $ref: "#/components/schemas/vehicleSubclass"
-        techRecord_hiddenInVta:
-          nullable: true
-          type: boolean
-        techRecord_updateType:
-          nullable: true
-          type: string          
-        secondaryVrms:
-          nullable: true
-          type: array
-          items:
-            type: string
-    euVehicleCategory:
-      type: string
-      enum:
-        - m1
-        - m2
-        - m3
-        - n1
-        - n2
-        - n3
-        - o1
-        - o2
-        - o3
-        - o4
-        - l1e-a
-        - l1e
-        - l2e
-        - l3e
-        - l4e
-        - l5e
-        - l6e
-        - l7e
-    statusCode:
-      type: string
-      enum:
-        - provisional
-        - current
-        - archived
-    vehicleSubclass:
-      title: Vehicle Subclass
-      type: string
-      enum:
-        - 'n'
-        - p
-        - a
-        - s
-        - c
-        - l
-        - t
-        - e
-        - m
-        - r
-        - w
-    vehicleConfiguration:
-      type: string
-      enum:
-        - rigid
-        - articulated
-        - centre axle drawbar
-        - semi-car transporter
-        - semi-trailer
-        - long semi-trailer
-        - low loader
-        - other
-        - drawbar
-        - four-in-line
-        - dolly
-        - full drawba
+    techRecordGETComplete:
+      description: schemas for complete technical records
+      anyOf:
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/car/complete/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/lgv/complete/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/motorcycle/complete/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/hgv/complete/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/trl/complete/index.json"
 
 security:
   - OAuth2:
