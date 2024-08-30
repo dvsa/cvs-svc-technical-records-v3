@@ -77,7 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/car/complete/index.json"
+                $ref: "#/components/schemas/techRecordGETComplete"
         '400':
           description: Bad request
         '401':
@@ -113,14 +113,14 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
+                $ref: "#/components/schemas/techRecordPUTComplete"
       responses:
         '200':
           description: Returns the technical record
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "#/components/schemas/techRecordGETComplete"
         '400':
           description: Bad request
         '401':
@@ -144,14 +144,14 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
+                $ref: "#/components/schemas/techRecordPUTComplete"
       responses:
         '200':
           description: Returns the created tech record
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "#/components/schemas/techRecordGETComplete"
         '400':
           description: Bad request
         '401':
@@ -188,7 +188,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "#/components/schemas/techRecordGETComplete"
         '400':
           description: Bad request
         '401':
@@ -237,7 +237,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "#/components/schemas/techRecordGETComplete"
         '400':
           description: Bad request
         '401':
@@ -347,7 +347,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "#/components/schemas/techRecordGETComplete"
         '401':
           description: Not authenticated
         '403':
@@ -393,7 +393,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "#/components/schemas/techRecordGETComplete"
         '401':
           description: Not authenticated
         '403':
@@ -544,7 +544,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
+                $ref: "#/components/schemas/techRecordGETComplete"
         '400':
           description: Bad request
         '401':
@@ -567,7 +567,7 @@ components:
             write: Grants write access
   schemas:
     techRecordGETComplete:
-      description: schemas for complete technical records
+      description: schemas for retrievied complete technical records
       anyOf:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/car/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/lgv/complete/index.json"
@@ -575,6 +575,15 @@ components:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/hgv/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/trl/complete/index.json"
+    techRecordPUTComplete:
+      description: schemas for creating and updating complete technical records
+      anyOf:
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/car/complete/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/lgv/complete/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/motorcycle/complete/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/hgv/complete/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/trl/complete/index.json"
 
 security:
   - OAuth2:
