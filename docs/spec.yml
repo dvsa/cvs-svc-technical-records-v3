@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   description: >-
-    API spec for technical records v3 api
+    API spec for technical records v3 service
   version: 1.0.0
   title: "Technical Record v3"
   contact:
@@ -55,7 +55,7 @@ paths:
           description: No resource found which matches identifiers
   '/v3/technical-records/{systemNumber}/{createdTimestamp}':
     get:
-      summary: 'Get a technical record'
+      summary: 'Get a complete technical record'
       tags:
         - Get a Technical Record
       parameters:
@@ -70,10 +70,10 @@ paths:
           schema:
             type: string
           required: true
-          description: The timestamp at which the record was created. Sort key of the DynamoDB table.
+          description: String representation of a DateTime at which the technical record was created. Sort key of the DynamoDB table.
       responses:
         '200':
-          description: Returns the updated tech record
+          description: Returns the updated technical record
           content:
             application/json:
               schema:
@@ -86,10 +86,8 @@ paths:
           description: Unauthorised Access
         '404':
           description: No resource found which matches identifiers
-        '422':
-          description: Unprocessable request
         '500':
-          description: Validation Error
+          description: Internal Server Error
     patch:
       summary: 'Patch a Technical Record'
       tags:
@@ -106,17 +104,17 @@ paths:
           schema:
             type: string
           required: true
-          description: Datetime at which the record was created. Sort key of the DynamoDB table.
+          description: String representation of a DateTime at which the technical record was created. Sort key of the DynamoDB table.
       requestBody:
         required: true
-        description: The tech record to be updated
+        description: The technical record to be updated
         content:
             application/json:
               schema:
                 $ref: "#/components/schemas/techRecordPUTComplete"
       responses:
         '200':
-          description: Returns the technical record
+          description: Returns the complete technical record
           content:
             application/json:
               schema:
@@ -140,14 +138,14 @@ paths:
         - Create Technical Record
       requestBody:
         required: true
-        description: The tech record to be created
+        description: The technical record to be created
         content:
             application/json:
               schema:
                 $ref: "#/components/schemas/techRecordPUTComplete"
       responses:
         '200':
-          description: Returns the created tech record
+          description: Returns the created technical record
           content:
             application/json:
               schema:
@@ -166,7 +164,7 @@ paths:
           description: Validation Error
   '/v3/technical-records/archive/{systemNumber}/{createdTimestamp}':
     patch:
-      summary: 'Archive an existing current or provisional tech record'
+      summary: 'Archive an existing current or provisional technical record'
       tags:
         - Archive Technical Record
       parameters:
@@ -181,10 +179,10 @@ paths:
           schema:
             type: string
           required: true
-          description: Datetime at which the record was created. Sort key of the DynamoDB table.
+          description: String representation of a DateTime at which the technical record was created. Sort key of the DynamoDB table.
       responses:
         '200':
-          description: Returns the updated tech record
+          description: Returns the updated technical record
           content:
             application/json:
               schema:
@@ -203,7 +201,7 @@ paths:
           description: Validation Error
   '/v3/technical-records/unarchive/{systemNumber}/{createdTimestamp}':
     post:
-      summary: 'Unarchive an archived tech record which has no other non-archived tech records which share the same VRM'
+      summary: 'Unarchive an archived technical record which has no other non-archived technical records which share the same VRM'
       tags:
         - Unarchive Technical Record
       parameters:
@@ -218,9 +216,9 @@ paths:
           schema:
             type: string
           required: true
-          description: Datetime at which the record was created. Sort key of the DynamoDB table.
+          description: String representation of a DateTime at which the technical record was created. Sort key of the DynamoDB table.
       requestBody:
-        description: The desired status code of the new tech record and the reason for the unarchival
+        description: The desired status code of the new technical record and the reason for the unarchival
         content:
           application/json:
             schema:
@@ -233,7 +231,7 @@ paths:
                   type: string
       responses:
         '200':
-          description: Returns the unarchived tech record with the supplied status
+          description: Returns the unarchived technical record with the supplied status
           content:
             application/json:
               schema:
@@ -252,7 +250,7 @@ paths:
           description: Validation Error
   '/v3/technical-records/adrCertificate/{systemNumber}/{createdTimestamp}':
     post:
-      summary: 'Generate a new ADR certificate for specific tech record'
+      summary: 'Generate a new ADR certificate for specific technical record'
       tags:
         - Generate a ADR Certificate
       parameters:
@@ -267,7 +265,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Datetime at which the record was created. Sort key of the DynamoDB table.
+          description: String representation of a DateTime at which the technical record was created. Sort key of the DynamoDB table.
       requestBody:
         required: true
         content:
@@ -324,7 +322,7 @@ paths:
             type: string
             pattern: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{0,20}Z
           required: true
-          description: Datetime at which the record was created. Sort key of the DynamoDB table.
+          description: String representation of a DateTime at which the technical record was created. Sort key of the DynamoDB table.
       operationId: updateVrm
       requestBody:
         required: true
@@ -374,7 +372,7 @@ paths:
             type: string
             pattern: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{0,20}Z
           required: true
-          description: Datetime at which the record was created. Sort key of the DynamoDB table.
+          description: String representation of a DateTime at which the technical record was created. Sort key of the DynamoDB table.
       operationId: updateVin
       requestBody:
         required: true
@@ -389,7 +387,7 @@ paths:
                   type: string
       responses:
         '200':
-          description: Returns the updated technical record
+          description: Returns the complete updated technical record
           content:
             application/json:
               schema:
@@ -417,7 +415,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Datetime at which the record was created. Sort key of the DynamoDB table.
+          description: String representation of the Datetime at which the technical record was created. Sort key of the DynamoDB table.
       operationId: plate
       requestBody:
         required: true
@@ -469,7 +467,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Datetime at which the record was created. Sort key of the DynamoDB table.
+          description: String representation of a DateTime at which the technical record was created. Sort key of the DynamoDB table.
       operationId: letter
       requestBody:
         required: true
@@ -503,6 +501,8 @@ paths:
       responses:
         '200':
           description: Success
+        '400':
+          description: Bad request
         '401':
           description: Not authenticated
         '403':
@@ -511,7 +511,7 @@ paths:
           description: No resource found which matches identifiers
   '/v3/technical-records/promote/{systemNumber}/{createdTimestamp}':
     post:
-      summary: 'Promotes the specified technical record to current'
+      summary: 'Promotes the specified provisional technical record to current'
       tags:
         - Promote a Technical Record
       parameters:
@@ -526,7 +526,7 @@ paths:
           schema:
             type: string
           required: true
-          description: Datetime at which the record was created. Sort key of the DynamoDB table.
+          description: String representation of a DateTime at which the technical record was created. Sort key of the DynamoDB table.
       requestBody:
         required: true
         content:
