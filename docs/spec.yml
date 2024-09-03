@@ -52,7 +52,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
   '/v3/technical-records/{systemNumber}/{createdTimestamp}':
     get:
       summary: 'Get a complete technical record'
@@ -77,7 +77,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/techRecordGETComplete"
+                oneof:
+                  - $ref: "#/components/schemas/techRecordGETComplete"
+                  - $ref: "#/components/schemas/techRecordGETSkeleton"
+                  - $ref: "#/components/schemas/techRecordGETTestable"
+
         '400':
           description: Bad request
         '401':
@@ -85,7 +89,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
         '500':
           description: Internal Server Error
     patch:
@@ -111,14 +115,20 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "#/components/schemas/techRecordPUTComplete"
+                oneof:
+                  - $ref: "#/components/schemas/techRecordPUTComplete"
+                  - $ref: "#/components/schemas/techRecordPUTSkeleton"
+                  - $ref: "#/components/schemas/techRecordPUTTestable"
       responses:
         '200':
           description: Returns the complete technical record
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/techRecordGETComplete"
+                oneof:
+                  - $ref: "#/components/schemas/techRecordGETComplete"
+                  - $ref: "#/components/schemas/techRecordGETSkeleton"
+                  - $ref: "#/components/schemas/techRecordGETTestable"
         '400':
           description: Bad request
         '401':
@@ -126,7 +136,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
         '422':
           description: Unprocessable request
         '500':
@@ -142,14 +152,20 @@ paths:
         content:
             application/json:
               schema:
-                $ref: "#/components/schemas/techRecordPUTComplete"
+                oneof:
+                  - $ref: "#/components/schemas/techRecordPUTComplete"
+                  - $ref: "#/components/schemas/techRecordPUTSkeleton"
+                  - $ref: "#/components/schemas/techRecordPUTTestable"
       responses:
         '200':
           description: Returns the created technical record
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/techRecordGETComplete"
+                oneof:
+                  - $ref: "#/components/schemas/techRecordGETComplete"
+                  - $ref: "#/components/schemas/techRecordGETSkeleton"
+                  - $ref: "#/components/schemas/techRecordGETTestable"
         '400':
           description: Bad request
         '401':
@@ -157,7 +173,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
         '422':
           description: Unprocessable request
         '500':
@@ -186,7 +202,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/techRecordGETComplete"
+                oneof:
+                  - $ref: "#/components/schemas/techRecordGETComplete"
+                  - $ref: "#/components/schemas/techRecordGETSkeleton"
+                  - $ref: "#/components/schemas/techRecordGETTestable"
         '400':
           description: Bad request
         '401':
@@ -194,7 +213,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
         '422':
           description: Unprocessable request
         '500':
@@ -235,7 +254,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/techRecordGETComplete"
+                oneof:
+                  - $ref: "#/components/schemas/techRecordGETComplete"
+                  - $ref: "#/components/schemas/techRecordGETSkeleton"
+                  - $ref: "#/components/schemas/techRecordGETTestable"
         '400':
           description: Bad request
         '401':
@@ -243,7 +265,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
         '422':
           description: Unprocessable request
         '500':
@@ -297,7 +319,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
         '422':
           description: Unprocessable request
         '500':
@@ -345,13 +367,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/techRecordGETComplete"
+                oneof:
+                  - $ref: "#/components/schemas/techRecordGETComplete"
+                  - $ref: "#/components/schemas/techRecordGETSkeleton"
+                  - $ref: "#/components/schemas/techRecordGETTestable"
         '401':
           description: Not authenticated
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
   '/v3/technical-records/updateVin/{systemNumber}/{createdTimestamp}':
     patch:
       summary: 'Update VIN on a technical record'
@@ -391,16 +416,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/techRecordGETComplete"
+                oneof:
+                  - $ref: "#/components/schemas/techRecordGETComplete"
+                  - $ref: "#/components/schemas/techRecordGETSkeleton"
+                  - $ref: "#/components/schemas/techRecordGETTestable"
         '401':
           description: Not authenticated
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
   '/v3/technical-records/plate/{systemNumber}/{createdTimestamp}':
     post:
-      summary: 'Generates a plate for a technical record'
+      summary: 'Generates a plate for a TRL or HGV technical record'
       tags:
         - Generate Plate
       parameters:
@@ -449,7 +477,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
   '/v3/technical-records/letter/{systemNumber}/{createdTimestamp}':
     post:
       summary: 'Generates a letter for a technical record'
@@ -508,7 +536,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
   '/v3/technical-records/promote/{systemNumber}/{createdTimestamp}':
     post:
       summary: 'Promotes the specified provisional technical record to current'
@@ -544,7 +572,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/techRecordGETComplete"
+                oneof:
+                  - $ref: "#/components/schemas/techRecordGETComplete"
+                  - $ref: "#/components/schemas/techRecordGETSkeleton"
+                  - $ref: "#/components/schemas/techRecordGETTestable"
         '400':
           description: Bad request
         '401':
@@ -552,7 +583,7 @@ paths:
         '403':
           description: Unauthorised Access
         '404':
-          description: No resource found which matches identifiers
+          description: No records found matching identifier and criteria 
 
 components:
   securitySchemes:
@@ -565,6 +596,7 @@ components:
           scopes:
             read: Grants read access
             write: Grants write access
+
   schemas:
     techRecordGETComplete:
       description: schemas for retrievied complete technical records
@@ -575,6 +607,20 @@ components:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/hgv/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/trl/complete/index.json"
+    techRecordGETSkeleton:
+      anyOf:
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/car/skeleton/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/lgv/skeleton/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/motorcycle/skeleton/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/skeleton/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/hgv/skeleton/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/trl/skeleton/index.json"
+    techRecordGETTestable:
+      anyOf:
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/testable/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/hgv/testable/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/trl/testable/index.json"
+
     techRecordPUTComplete:
       description: schemas for creating and updating complete technical records
       anyOf:
@@ -584,6 +630,20 @@ components:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/psv/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/hgv/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/trl/complete/index.json"
+    techRecordPUTSkeleton:
+      anyOf:
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/car/skeleton/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/lgv/skeleton/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/motorcycle/skeleton/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/psv/skeleton/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/hgv/skeleton/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/trl/skeleton/index.json"
+    techRecordPUTTestable:
+      anyOf:
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/psv/testable/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/hgv/testable/index.json"
+        - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/trl/testable/index.json"
+
 
 security:
   - OAuth2:
