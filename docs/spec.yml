@@ -77,7 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                oneof:
+                oneOf:
                   - $ref: "#/components/schemas/techRecordGETComplete"
                   - $ref: "#/components/schemas/techRecordGETSkeleton"
                   - $ref: "#/components/schemas/techRecordGETTestable"
@@ -115,7 +115,7 @@ paths:
         content:
             application/json:
               schema:
-                oneof:
+                oneOf:
                   - $ref: "#/components/schemas/techRecordPUTComplete"
                   - $ref: "#/components/schemas/techRecordPUTSkeleton"
                   - $ref: "#/components/schemas/techRecordPUTTestable"
@@ -125,7 +125,7 @@ paths:
           content:
             application/json:
               schema:
-                oneof:
+                oneOf:
                   - $ref: "#/components/schemas/techRecordGETComplete"
                   - $ref: "#/components/schemas/techRecordGETSkeleton"
                   - $ref: "#/components/schemas/techRecordGETTestable"
@@ -152,7 +152,7 @@ paths:
         content:
             application/json:
               schema:
-                oneof:
+                oneOf:
                   - $ref: "#/components/schemas/techRecordPUTComplete"
                   - $ref: "#/components/schemas/techRecordPUTSkeleton"
                   - $ref: "#/components/schemas/techRecordPUTTestable"
@@ -162,7 +162,7 @@ paths:
           content:
             application/json:
               schema:
-                oneof:
+                oneOf:
                   - $ref: "#/components/schemas/techRecordGETComplete"
                   - $ref: "#/components/schemas/techRecordGETSkeleton"
                   - $ref: "#/components/schemas/techRecordGETTestable"
@@ -202,7 +202,7 @@ paths:
           content:
             application/json:
               schema:
-                oneof:
+                oneOf:
                   - $ref: "#/components/schemas/techRecordGETComplete"
                   - $ref: "#/components/schemas/techRecordGETSkeleton"
                   - $ref: "#/components/schemas/techRecordGETTestable"
@@ -254,7 +254,7 @@ paths:
           content:
             application/json:
               schema:
-                oneof:
+                oneOf:
                   - $ref: "#/components/schemas/techRecordGETComplete"
                   - $ref: "#/components/schemas/techRecordGETSkeleton"
                   - $ref: "#/components/schemas/techRecordGETTestable"
@@ -367,7 +367,7 @@ paths:
           content:
             application/json:
               schema:
-                oneof:
+                oneOf:
                   - $ref: "#/components/schemas/techRecordGETComplete"
                   - $ref: "#/components/schemas/techRecordGETSkeleton"
                   - $ref: "#/components/schemas/techRecordGETTestable"
@@ -416,7 +416,7 @@ paths:
           content:
             application/json:
               schema:
-                oneof:
+                oneOf:
                   - $ref: "#/components/schemas/techRecordGETComplete"
                   - $ref: "#/components/schemas/techRecordGETSkeleton"
                   - $ref: "#/components/schemas/techRecordGETTestable"
@@ -572,7 +572,7 @@ paths:
           content:
             application/json:
               schema:
-                oneof:
+                oneOf:
                   - $ref: "#/components/schemas/techRecordGETComplete"
                   - $ref: "#/components/schemas/techRecordGETSkeleton"
                   - $ref: "#/components/schemas/techRecordGETTestable"
@@ -600,7 +600,7 @@ components:
   schemas:
     techRecordGETComplete:
       description: schemas for retrievied complete technical records
-      anyOf:
+      oneOf:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/car/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/lgv/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/motorcycle/complete/index.json"
@@ -608,7 +608,7 @@ components:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/hgv/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/trl/complete/index.json"
     techRecordGETSkeleton:
-      anyOf:
+      oneOf:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/car/skeleton/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/lgv/skeleton/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/motorcycle/skeleton/index.json"
@@ -616,14 +616,14 @@ components:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/hgv/skeleton/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/trl/skeleton/index.json"
     techRecordGETTestable:
-      anyOf:
+      oneOf:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/psv/testable/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/hgv/testable/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/get/trl/testable/index.json"
 
     techRecordPUTComplete:
       description: schemas for creating and updating complete technical records
-      anyOf:
+      oneOf:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/car/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/lgv/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/motorcycle/complete/index.json"
@@ -631,7 +631,7 @@ components:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/hgv/complete/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/trl/complete/index.json"
     techRecordPUTSkeleton:
-      anyOf:
+      oneOf:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/car/skeleton/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/lgv/skeleton/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/motorcycle/skeleton/index.json"
@@ -639,7 +639,7 @@ components:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/hgv/skeleton/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/trl/skeleton/index.json"
     techRecordPUTTestable:
-      anyOf:
+      oneOf:
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/psv/testable/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/hgv/testable/index.json"
         - $ref: "https://raw.githubusercontent.com/dvsa/cvs-type-definitions/v6.4.0/json-schemas/v3/tech-record/put/trl/testable/index.json"
