@@ -196,7 +196,7 @@ Resources:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
-        Handler: loadBatchPlates.handler
+        Handler: loadBatchPlate.handler
         Runtime: nodejs18.x
         Timeout: 20
         Events:
