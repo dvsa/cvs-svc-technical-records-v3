@@ -17,8 +17,6 @@ export const handler = async (event: SQSEvent): Promise<void> => {
   let numberOfRecordsUpdated = 0;
   let numberOfSqsAdded = 0;
 
-  logger.info('Batch plate generation started');
-
   try {
     const processPromises = event.Records.map(async ({ body }) => {
       const data: BatchPlateData = JSON.parse(body) as BatchPlateData;
