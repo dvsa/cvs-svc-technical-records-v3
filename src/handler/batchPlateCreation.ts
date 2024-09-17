@@ -58,7 +58,7 @@ export const handler = async (event: SQSEvent): Promise<void> => {
     logger.info(`Batch Plate: Updated ${numberOfRecordsUpdated} tech records and added ${numberOfSqsAdded} to SQS`);
   } catch (err: unknown) {
     logError('Error in batch processing', err);
-    await Promise.reject(err);
+    throw (err);
   }
 };
 /**
