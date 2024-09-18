@@ -1,4 +1,6 @@
-import { TechRecordType as TechRecordTypeByVehicle } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
+import {
+  TechRecordType as TechRecordTypeByVehicle,
+} from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import 'dotenv/config';
 import { v4 as uuidv4 } from 'uuid';
@@ -30,24 +32,45 @@ export const handler = async (event: SQSEvent): Promise<void> => {
         throw new Error(`Missing record: sysNum ${systemNumber}, timestamp ${createdTimestamp}`);
       }
 
-      validateRecord(dbRecord);
+      if (dbRecord.techRecord_statusCode !== StatusCode.CURRENT) {
+        throw new Error(`Non current record: statusCode ${dbRecord.techRecord_statusCode}`);
+      }
+      if (dbRecord.techRecord_vehicleType !== 'trl' && dbRecord.techRecord_vehicleType !== 'hgv') {
+        throw new Error(`Invalid vehicle type: ${dbRecord.techRecord_vehicleType}`);
+      }
 
-      const newPlate: Plates = createNewPlate(batchIssuerName);
+      const newPlate: Plates = {
+        plateSerialNumber: uuidv4(),
+        plateIssueDate: new Date().toISOString(),
+        plateReasonForIssue: PlateReasonForIssue.REPLACEMENT,
+        plateIssuer: batchIssuerName,
+      };
 
       const formattedTechRecord = formatTechRecord<TechRecordTypeByVehicle<'hgv' | 'trl'>>(dbRecord);
 
-      if (isPlateAlreadyIssued(formattedTechRecord, batchIssuerName)) {
+      if (formattedTechRecord.techRecord_plates?.some((plate) => plate.plateIssuer === batchIssuerName) ?? false) {
         logger.info(`Plate already issued for: sysNum ${systemNumber}, timestamp ${createdTimestamp}`);
         return;
       }
 
-      updateRecordWithNewPlate(formattedTechRecord, newPlate);
-
+      if (formattedTechRecord.techRecord_plates) {
+        formattedTechRecord.techRecord_plates.push(newPlate);
+      } else {
+        formattedTechRecord.techRecord_plates = [newPlate];
+      }
       const flattenedTechRecord = flattenArrays(formattedTechRecord) as TechRecordType<'get'>;
       await inPlaceRecordUpdate(flattenedTechRecord);
       numberOfRecordsUpdated++;
 
-      await sendToDocGenQueue(formattedTechRecord, newPlate);
+      const plateSqsPayload: SQSRequestBody = {
+        techRecord: formattedTechRecord,
+        plate: newPlate,
+        documentName: DocumentName.MINISTRY,
+        recipientEmailAddress: '',
+      };
+      logger.debug('Sending to Doc Gen Queue', JSON.stringify(plateSqsPayload));
+      await addToSqs(plateSqsPayload, process.env.DOC_GEN_SQS_QUEUE ?? '');
+
       numberOfSqsAdded++;
 
       logger.info(`Successfully processed: sysNum ${systemNumber}, timestamp ${createdTimestamp}`);
@@ -60,66 +83,4 @@ export const handler = async (event: SQSEvent): Promise<void> => {
     logError('Error in batch processing', err);
     throw (err);
   }
-};
-/**
- * This function will validate the status code and the vehicle type on the technical record.
- * @param dbRecord
- */
-const validateRecord = (dbRecord: TechRecordType<'get'>) => {
-  if (dbRecord.techRecord_statusCode !== StatusCode.CURRENT) {
-    throw new Error(`Non current record: statusCode ${dbRecord.techRecord_statusCode}`);
-  }
-  if (dbRecord.techRecord_vehicleType !== 'trl' && dbRecord.techRecord_vehicleType !== 'hgv') {
-    throw new Error(`Invalid vehicle type: ${dbRecord.techRecord_vehicleType}`);
-  }
-};
-
-/**
- * This function will create a new plate object.
- * @param batchIssuerName
- */
-const createNewPlate = (batchIssuerName: string): Plates => ({
-  plateSerialNumber: uuidv4(),
-  plateIssueDate: new Date().toISOString(),
-  plateReasonForIssue: PlateReasonForIssue.REPLACEMENT,
-  plateIssuer: batchIssuerName,
-});
-
-/**
- * This function will check if a technical record already has a plate issued.
- * @param record
- * @param batchIssuerName
- */
-const isPlateAlreadyIssued = <T extends TechRecordTypeByVehicle<'hgv' | 'trl'>>(
-  record: T,
-  batchIssuerName: string,
-): boolean => record.techRecord_plates?.some((plate) => plate.plateIssuer === batchIssuerName) ?? false;
-
-/**
- * This function will update the technical record with the new plate that has been generated.
- * @param record
- * @param newPlate
- */
-const updateRecordWithNewPlate = (record: TechRecordTypeByVehicle<'hgv' | 'trl'>, newPlate: Plates) => {
-  if (record.techRecord_plates) {
-    record.techRecord_plates.push(newPlate);
-  } else {
-    record.techRecord_plates = [newPlate];
-  }
-};
-
-/**
- * This function will send the processed record to the designated SQS queue.
- * @param techRecord
- * @param plate
- */
-const sendToDocGenQueue = async (techRecord: TechRecordTypeByVehicle<'hgv' | 'trl'>, plate: Plates) => {
-  const plateSqsPayload: SQSRequestBody = {
-    techRecord,
-    plate,
-    documentName: DocumentName.MINISTRY,
-    recipientEmailAddress: '',
-  };
-  logger.debug('Sending to Doc Gen Queue', JSON.stringify(plateSqsPayload));
-  await addToSqs(plateSqsPayload, process.env.DOC_GEN_SQS_QUEUE ?? '');
 };
