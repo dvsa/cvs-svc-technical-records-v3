@@ -2,35 +2,35 @@ import {
   S3Client, GetObjectCommand, CopyObjectCommand, DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
-import { S3CreateEvent } from 'aws-lambda';
+import { S3Event } from 'aws-lambda';
 import { BatchPlateData } from '../models/batchPlate';
-import { logError } from '../util/logger';
+import logger, { logError } from '../util/logger';
 
 const s3Client = new S3Client({ region: process.env.DYNAMO_AWS_REGION });
 const sqsClient = new SQSClient({ region: process.env.DYNAMO_AWS_REGION });
 
-export const handler = async (event: S3CreateEvent): Promise<void> => {
-  console.log('Load batch plate lambda has been invoked.');
+export const handler = async (event: S3Event): Promise<void> => {
+  logger.info('Update end point called');
 
   try {
     await Promise.all(event.Records.map(processRecord));
-    console.log(`Successfully processed ${event.Records.length} files.`);
+    logger.info(`Successfully processed ${event.Records.length} files.`);
   } catch (error) {
     logError('Failed to process one or more files', error);
     throw error;
   }
 };
-async function processRecord(record: S3CreateEvent['Records'][0]): Promise<void> {
+async function processRecord(record: S3Event['Records'][0]): Promise<void> {
   const bucket = record.s3.bucket.name;
   const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
 
-  console.log(`Processing file: ${key} from ${bucket}`);
+  logger.info(`Processing file: ${key} from ${bucket}`);
 
   try {
     const data = await retrieveJSON(bucket, key);
     await Promise.all(data.map((item) => sendToQueue(item)));
     await moveProcessedFile(bucket, key);
-    console.log(`Successfully processed and moved file: ${key}}`);
+    logger.info(`Successfully processed and moved file: ${key}}`);
   } catch (error) {
     logError(`Error processing file ${key}`, error);
     throw error;
