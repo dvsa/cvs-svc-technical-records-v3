@@ -145,7 +145,7 @@ for(var i = 1021; i<=1030; i++)
 }
 
 const output = [...existingSeed, ...records]
-fs.writeFile('tests/resources/technical-records-v3.json', JSON.stringify(output, null, 2), (err)=> 
+fs.writeFile('tests/resources/technical-records-v3-with-batch-plates.json', JSON.stringify(output, null, 2), (err)=> 
     {if(err){
         throw err
     }
