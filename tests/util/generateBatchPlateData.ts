@@ -14,7 +14,7 @@ let records = []
 let triggerData = []
 console.log("starting")
 //complete HGVs
-for(var i = 1; i<=40000; i++)
+for(var i = 1; i<=40; i++)
 {
     const record = JSON.parse(JSON.stringify(completeTRLTechRecord)) as TechRecordGETTRL
     const paddedIterator = padZeroes(i.toString(), 6)
@@ -26,7 +26,7 @@ for(var i = 1; i<=40000; i++)
     triggerData.push({systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp})
 }
 //Complete TRLs
-for(var i = 40001; i<=80000; i++)
+for(var i = 41; i<=80; i++)
 {
     const record = JSON.parse(JSON.stringify(completeHGVTechRecord)) as TechRecordGETHGV
     const paddedIterator = padZeroes(i.toString(), 6)
@@ -41,7 +41,7 @@ for(var i = 40001; i<=80000; i++)
 }
 
 //Missing functionCode
-for(var i = 80001; i<=85000; i++)
+for(var i = 81; i<=85; i++)
 {
     const record = JSON.parse(JSON.stringify(completeTRLTechRecord)) as TechRecordGETTRL
     const paddedIterator = padZeroes(i.toString(), 6)
@@ -54,7 +54,7 @@ for(var i = 80001; i<=85000; i++)
     triggerData.push({systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp})
 }
 //missing model and functionCode
-for(var i = 85001; i<=90000; i++)
+for(var i = 86; i<=90; i++)
 {
     const record = JSON.parse(JSON.stringify(completeTRLTechRecord)) as TechRecordGETTRL
     const paddedIterator = padZeroes(i.toString(), 6)
@@ -68,7 +68,7 @@ for(var i = 85001; i<=90000; i++)
     triggerData.push({systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp})
 }
 //missing variantNumber
-for(var i = 90001; i<=98000; i++)
+for(var i = 91; i<=98; i++)
 {
     const record = JSON.parse(JSON.stringify(completeHGVTechRecord)) as TechRecordGETHGV
     const paddedIterator = padZeroes(i.toString(), 6)
@@ -83,7 +83,7 @@ for(var i = 90001; i<=98000; i++)
     triggerData.push({systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp})
 }
 //missing roadFriendly
-for(var i = 98001; i<=100000; i++)
+for(var i = 99; i<=100; i++)
 {
     const record = JSON.parse(JSON.stringify(completeHGVTechRecord)) as TechRecordGETHGV
     const paddedIterator = padZeroes(i.toString(), 6)
@@ -98,7 +98,7 @@ for(var i = 98001; i<=100000; i++)
     triggerData.push({systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp})
 }
 const output = [...existingSeed, ...records]
-fs.writeFile('tests/resources/technical-records-v3-with-batch.json', JSON.stringify(output, null, 2), (err)=> 
+fs.writeFile('tests/resources/technical-records-v3.json', JSON.stringify(output, null, 2), (err)=> 
     {if(err){
         throw err
     }
