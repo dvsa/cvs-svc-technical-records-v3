@@ -187,7 +187,7 @@ Resources:
     BatchPlateCreation:
       Type: 'AWS::Serverless::Function'
       Properties:
-        CodeUri: src/hotfix/cb2-11175/
+        CodeUri: src/handler/
         Handler: batchPlateCreation.handler
         Runtime: nodejs18.x
         Timeout: 20
