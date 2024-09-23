@@ -29,7 +29,7 @@ export const generateBatchPlateData = () => {
     record.vin = `BPV${paddedIterator}`;
     record.partialVin = paddedIterator;
     records.push(record);
-    triggerData.push({ systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp });
+    triggerData.push({ systemNumber: record.systemNumber, createdTimestamp: record.createdTimestamp });
 
     if (i % 1000 === 0) {
       const fileName = `/tmp/technical-records-v3-with-batch-plates-${fileCount.toString()}.json`;
@@ -53,7 +53,7 @@ export const generateBatchPlateData = () => {
     record.primaryVrm = `${paddedIterator}Z`;
 
     records.push(record);
-    triggerData.push({ systemNumber: record.systemNumber, createdtimestamp: record.createdTimestamp });
+    triggerData.push({ systemNumber: record.systemNumber, createdTimestamp: record.createdTimestamp });
 
     if (i % 1000 === 0) {
       const fileName = `/tmp/technical-records-v3-with-batch-plates-${fileCount.toString()}.json`;
@@ -75,7 +75,7 @@ export const generateBatchPlateData = () => {
     record.partialVin = paddedIterator;
     delete record.techRecord_functionCode;
     records.push(record);
-    triggerData.push({ systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp });
+    triggerData.push({ systemNumber: record.systemNumber, createdTimestamp: record.createdTimestamp });
   }
 
   const fileName1 = `/tmp/technical-records-v3-with-batch-plates-${fileCount.toString()}.json`;
@@ -95,7 +95,7 @@ export const generateBatchPlateData = () => {
     delete record.techRecord_functionCode;
     delete record.techRecord_model;
     records.push(record);
-    triggerData.push({ systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp });
+    triggerData.push({ systemNumber: record.systemNumber, createdTimestamp: record.createdTimestamp });
 
     if (i % 1000 === 0) {
       const fileName = `/tmp/technical-records-v3-with-batch-plates-${fileCount.toString()}.json`;
@@ -120,7 +120,7 @@ export const generateBatchPlateData = () => {
     delete record.techRecord_variantNumber;
 
     records.push(record);
-    triggerData.push({ systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp });
+    triggerData.push({ systemNumber: record.systemNumber, createdTimestamp: record.createdTimestamp });
 
     if (i % 1000 === 0) {
       const fileName = `/tmp/technical-records-v3-with-batch-plates-${fileCount.toString()}.json`;
@@ -145,7 +145,7 @@ export const generateBatchPlateData = () => {
     delete record.techRecord_roadFriendly;
 
     records.push(record);
-    triggerData.push({ systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp });
+    triggerData.push({ systemNumber: record.systemNumber, createdTimestamp: record.createdTimestamp });
   }
   console.log('100K');
   const fileName3 = `/tmp/technical-records-v3-with-batch-plates-${fileCount.toString()}.json`;
@@ -167,7 +167,7 @@ export const generateBatchPlateData = () => {
     record.techRecord_recordCompleteness = 'skeleton';
 
     records.push(record);
-    triggerData.push({ systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp });
+    triggerData.push({ systemNumber: record.systemNumber, createdTimestamp: record.createdTimestamp });
   }
   const fileName4 = `/tmp/technical-records-v3-with-batch-plates-${fileCount.toString()}.json`;
   fileNames.push(fileName4);
@@ -185,7 +185,7 @@ export const generateBatchPlateData = () => {
     record.techRecord_recordCompleteness = 'skeleton';
 
     records.push(record);
-    triggerData.push({ systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp });
+    triggerData.push({ systemNumber: record.systemNumber, createdTimestamp: record.createdTimestamp });
   }
 
   const fileName5 = `/tmp/technical-records-v3-with-batch-plates-${fileCount.toString()}.json`;
@@ -204,7 +204,7 @@ export const generateBatchPlateData = () => {
     record.partialVin = paddedIterator;
 
     records.push(record);
-    triggerData.push({ systemnumber: record.systemNumber, createdtimestamp: record.createdTimestamp });
+    triggerData.push({ systemNumber: record.systemNumber, createdTimestamp: record.createdTimestamp });
   }
 
   const fileName6 = `/tmp/technical-records-v3-with-batch-plates-${fileCount.toString()}.json`;
