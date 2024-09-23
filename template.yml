@@ -192,6 +192,21 @@ Resources:
         Runtime: nodejs18.x
         Timeout: 20
 
+    UploadPlateSeed:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: uploadPlateSeedData.handler
+        Runtime: nodejs18.x
+        Timeout: 900
+        MemorySize: 10240
+        Events:
+          PlateSeed:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/uploadPlateSeed
+              Method: get
+                 
     LocalQueue:
       Type: AWS::SQS::Queue
 
