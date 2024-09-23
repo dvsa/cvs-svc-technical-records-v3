@@ -187,7 +187,7 @@ Resources:
     BatchPlateCreation:
       Type: 'AWS::Serverless::Function'
       Properties:
-        CodeUri: src/hotfix/cb2-11175/
+        CodeUri: src/handler/
         Handler: batchPlateCreation.handler
         Runtime: nodejs18.x
         Timeout: 20
@@ -207,6 +207,23 @@ Resources:
               Path: /v3/technical-records/uploadPlateSeed
               Method: get
                  
+    LoadBatchPlate:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: loadBatchPlate.handler
+        Runtime: nodejs18.x
+        Timeout: 20
+        Events:
+          S3Event:
+            Type: S3
+            Events: s3:ObjectCreated:*
+        Filter:
+          S3Key:
+            Rules:
+              - Name: prefix
+                Value: value
+
     LocalQueue:
       Type: AWS::SQS::Queue
 
