@@ -8,7 +8,7 @@
   "monorepo": true,
   "dynamo_tables": [
     {
-      "flat-tech-records": "technical-records-v3.json"
+      "flat-tech-records": "technical-records-v3-with-batch-plates.json"
     }
   ]
 }
