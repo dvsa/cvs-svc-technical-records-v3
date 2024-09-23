@@ -5,7 +5,7 @@ import { TechRecordGETTRLTestable } from '@dvsa/cvs-type-definitions/types/v3/te
 import { TechRecordGETHGV, TechRecordGETTRL } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb-vehicle-type';
 import * as fs from 'fs';
 import completeHGVTechRecord from '../../tests/resources/techRecordCompleteHGVPlate.json'; // This record is labeled complete, and has all information for generating a plate. But ius actually marked as testable
-import completeTRLTechRecords from '../hotfix/cb2-11175/tests/resources/technical-records-v3-no-plates.json';
+import completeTRLTechRecords from '../../tests/resources/technical-records-v3-no-plates.json';
 
 function padZeroes(number: string, size: number) {
   number = number.toString();
