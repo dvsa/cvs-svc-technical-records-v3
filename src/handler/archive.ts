@@ -24,8 +24,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const body: ArchiveRecordRequestBody = JSON.parse(event.body as string) as ArchiveRecordRequestBody;
 
-    const systemNumber = event?.pathParameters?.systemNumber ?? '';
-    const createdTimestamp = event?.pathParameters?.createdTimestamp ?? '';
+    const systemNumber = decodeURIComponent(event?.pathParameters?.systemNumber ?? '');
+    const createdTimestamp = decodeURIComponent(event?.pathParameters?.createdTimestamp ?? '');
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
 
     logger.debug(`Get from database with systemNumber ${systemNumber} and timestamp ${createdTimestamp}`);
