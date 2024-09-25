@@ -15,6 +15,8 @@ import { validateArchiveErrors } from '../validators/archive';
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Archive end point called');
 
+  logger.info(`${JSON.stringify(event)}`);
+
   try {
     const archiveErrors = validateArchiveErrors(event);
 
