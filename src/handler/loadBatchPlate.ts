@@ -1,5 +1,7 @@
 import {
-  S3Client, GetObjectCommand, CopyObjectCommand, DeleteObjectCommand,
+  CopyObjectCommand, DeleteObjectCommand,
+  GetObjectCommand,
+  S3Client,
 } from '@aws-sdk/client-s3';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { S3Event } from 'aws-lambda';

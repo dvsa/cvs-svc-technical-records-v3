@@ -212,6 +212,7 @@ export const inPlaceRecordUpdate = async (updatedRecord: TechRecordType<'get'>) 
 };
 
 // DO NOT USE THIS UNLESS FOR SEED DATA FOR PLATES
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const insertBatchPlateSeedData = async (putRequests: any) => {
   const command = new BatchWriteItemCommand({
     RequestItems: {
