@@ -38,7 +38,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@dvsa/cvs-type-definitions": "^6.4.0",
+    "@dvsa/cvs-type-definitions": "^7.5.0",
     "@types/luxon": "^3.3.0",
     "jwt-decode": "^3.1.2",
     "luxon": "^3.3.0",
