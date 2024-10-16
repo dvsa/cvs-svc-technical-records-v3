@@ -110,5 +110,6 @@ dist
 # Output files
 .aws-sam/**
 *Function.zip
+local-*.zip
 
 .idea/
