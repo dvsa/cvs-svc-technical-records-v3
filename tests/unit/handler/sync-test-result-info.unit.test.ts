@@ -4,6 +4,7 @@ const mockSyncTestResultInfo = jest.fn();
 import { handler } from '../../../src/handler/sync-test-result-info';
 import parsedRecord from '../../resources/queue-event-parsed-body.json';
 import queueEvent from '../../resources/queue-event.json';
+import logger from '../../../src/util/logger';
 
 jest.mock('../../../src/processors/processSQSRecord.ts', () => ({
   processRecord: mockProcessRecord,
@@ -25,6 +26,16 @@ describe('syncTestResultInfo handler', () => {
       expect(failures).toHaveLength(1);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       expect(failures[0]).toEqual({ itemIdentifier: queueEvent.Records[0].messageId });
+    });
+
+    it('should log and re-throw error in top-level catch block', async () => {
+      const error = new Error('some random error');
+      mockProcessRecord.mockImplementationOnce(() => { throw error; });
+
+      const loggerErrorSpy = jest.spyOn(logger, 'error');
+
+      await expect(handler(queueEvent)).rejects.toThrow(error);
+      expect(loggerErrorSpy).toHaveBeenCalledWith('an error occurred in the promises Error: some random error');
     });
   });
   describe('Success response', () => {
