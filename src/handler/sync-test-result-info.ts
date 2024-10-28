@@ -35,7 +35,9 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
               test.euVehicleCategory as EUVehicleCategory || undefined,
             );
           } catch (error) {
-            logger.error(`an error occurred while processing test type for record ${record.messageId}: ${JSON.stringify(error)}`);
+            logger.error(`an error occurred while processing record ${record.messageId}: ${error instanceof Error
+              ? error.message
+              : JSON.stringify(error)}`);
             throw new Error('An error occurred while processing test type');
           }
         }
