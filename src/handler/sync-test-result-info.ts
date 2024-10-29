@@ -23,27 +23,22 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
       if (test) {
         // eslint-disable-next-line no-restricted-syntax
         for (const testType of test.testTypes) {
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            await syncTestResultInfo(
-              test.systemNumber,
-              test.testStatus,
-              testType.testResult ?? '',
-              testType.testTypeId,
-              test.createdById,
-              test.createdByName,
-              test.euVehicleCategory as EUVehicleCategory || undefined,
-            );
-          } catch (error) {
-            logger.error(`an error occurred while processing record ${record.messageId}: ${error instanceof Error
-              ? error.message
-              : JSON.stringify(error)}`);
-            throw new Error('An error occurred while processing test type');
-          }
+          // eslint-disable-next-line no-await-in-loop
+          await syncTestResultInfo(
+            test.systemNumber,
+            test.testStatus,
+            testType.testResult ?? '',
+            testType.testTypeId,
+            test.createdById,
+            test.createdByName,
+            test.euVehicleCategory as EUVehicleCategory || undefined,
+          );
         }
       }
     } catch (error) {
-      logger.error(`an error occurred while processing record ${record.messageId}: ${JSON.stringify(error)}`);
+      logger.error(`an error occurred while processing record ${record.messageId}: ${error instanceof Error
+        ? error.message
+        : JSON.stringify(error)}`);
       response.batchItemFailures.push({ itemIdentifier: record.messageId });
     }
   }
