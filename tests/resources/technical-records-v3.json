@@ -19395,7 +19395,7 @@
     "techRecord_vehicleClass_description": "trailer",
     "techRecord_vehicleConfiguration": "other",
     "techRecord_vehicleType": "trl",
-    "trailerId": "SMCTRL001",
+    "trailerId": "STRL01",
     "vin": "SMCPLATETRL001"
   },
   {
@@ -19533,14 +19533,14 @@
     "techRecord_vehicleClass_description": "trailer",
     "techRecord_vehicleConfiguration": "other",
     "techRecord_vehicleType": "trl",
-    "trailerId": "SMCTRL002",
+    "trailerId": "STRL02",
     "vin": "SMCPLATETRL002"
   },
   {
     "systemNumber": "6000034",
     "createdTimestamp": "2024-09-09T09:23:44.664Z",
     "partialVin": "HGV001",
-    "primaryVrm": "SMCHGV001",
+    "primaryVrm": "SHGV01",
     "techRecord_adrDetails_additionalExaminerNotes": null,
     "techRecord_adrDetails_additionalNotes_number": null,
     "techRecord_adrDetails_adrCertificateNotes": null,
@@ -19671,7 +19671,7 @@
     "systemNumber": "6000035",
     "createdTimestamp": "2024-09-09T09:23:44.664Z",
     "partialVin": "HGV002",
-    "primaryVrm": "SMCHGV002",
+    "primaryVrm": "SHGV02",
     "techRecord_adrDetails_additionalExaminerNotes": null,
     "techRecord_adrDetails_additionalNotes_number": null,
     "techRecord_adrDetails_adrCertificateNotes": null,
