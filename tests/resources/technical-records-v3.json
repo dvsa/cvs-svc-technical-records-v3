@@ -19395,7 +19395,7 @@
     "techRecord_vehicleClass_description": "trailer",
     "techRecord_vehicleConfiguration": "other",
     "techRecord_vehicleType": "trl",
-    "trailerId": "STRL01",
+    "trailerId": "S123456",
     "vin": "SMCPLATETRL001"
   },
   {
@@ -19533,7 +19533,7 @@
     "techRecord_vehicleClass_description": "trailer",
     "techRecord_vehicleConfiguration": "other",
     "techRecord_vehicleType": "trl",
-    "trailerId": "STRL02",
+    "trailerId": "S654321",
     "vin": "SMCPLATETRL002"
   },
   {
