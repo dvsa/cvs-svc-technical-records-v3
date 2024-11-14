@@ -172,7 +172,7 @@ Resources:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
-        Handler: recallsTemp.handler
+        Handler: recalls.handler
         Runtime: nodejs18.x
         Events:
           GetRecallsApi:
