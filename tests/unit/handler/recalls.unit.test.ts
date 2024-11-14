@@ -1,8 +1,7 @@
-import type {APIGatewayProxyResult} from "aws-lambda";
+import { APIGatewayProxyEvent } from "aws-lambda/trigger/api-gateway-proxy";
 import { handler } from '../../../src/handler/recalls';
-import {motRecalls} from "../../../src/models/motRecalls";
-import {APIGatewayProxyEvent} from "aws-lambda/trigger/api-gateway-proxy";
-import {ERRORS} from "../../../src/util/enum";
+import { MotRecalls } from "../../../src/models/motRecalls";
+import { ERRORS } from "../../../src/util/enum";
 
 describe("Test Recalls endpoint", () => {
   beforeEach(() => {
@@ -71,7 +70,7 @@ describe("Test Recalls endpoint", () => {
 
   });
   describe("Constructing return object", () => {
-    const mockMotRecall : motRecalls = {
+    const mockMotRecall: MotRecalls = {
       vin: "",
       manufacturer: "audi",
       recalls:
