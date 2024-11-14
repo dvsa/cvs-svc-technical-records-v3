@@ -50,6 +50,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         { fromYaml: true }
       );
 
+      console.log(motSecret);
+
       if(!motSecret) {
         logger.error('no secrets found')
         return generalResponse;
