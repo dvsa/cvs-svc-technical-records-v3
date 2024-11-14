@@ -76,7 +76,7 @@ export const getBearerToken = async (motSecret: MotSecret): Promise<string | und
   params.append("client_secret", motSecret.clientSecret);
   params.append("scope", motSecret.scopeURL);
 
-  console.log(JSON.stringify(motSecret))
+  console.log(JSON.stringify(params))
 
   const tokenResponse = await fetch(motSecret.accessTokenURL, {
     method: 'POST',
@@ -86,8 +86,12 @@ export const getBearerToken = async (motSecret: MotSecret): Promise<string | und
     body: params
   });
 
-  if(tokenResponse.body){
-    return JSON.parse(tokenResponse.body.toString()).access_token;
+  logger.debug('after token fetch')
+
+  const body = await tokenResponse.json()
+
+  if(body){
+    return body.access_token;
   }
   return undefined;
   }
