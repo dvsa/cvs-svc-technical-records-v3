@@ -3,8 +3,8 @@
  * @param vin - query param
  * @returns boolean - valid/invalid format
  */
-export const validateSingleVin = (vin : any) => {
-    if (vin !== undefined && vin !== null) {
+export const validateSingleVin = (vin: string) => {
+    if (vin) {
       if (vin.length < 3
         || vin.length > 21
         || typeof vin !== 'string'
@@ -15,6 +15,8 @@ export const validateSingleVin = (vin : any) => {
       ) {
         return false;
       }
+    } else {
+        return false;
     }
     return true;
   }
