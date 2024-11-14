@@ -1,13 +1,13 @@
+import { TechRecordComplete } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-status';
+import { TechRecordGETHGV, TechRecordGETTRL } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb-vehicle-type';
 import { SQSEvent } from 'aws-lambda';
 import { v4 as uuidv4 } from 'uuid';
-import { TechRecordGETHGV, TechRecordGETTRL } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb-vehicle-type';
-import { TechRecordComplete } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-status';
-import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../../../src/services/database';
-import { formatTechRecord } from '../../../src/util/formatTechRecord';
-import { addToSqs } from '../../../src/services/sqs';
 import { handler } from '../../../src/handler/batchPlateCreation';
-import logger, { logError } from '../../../src/util/logger';
+import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../../../src/services/database';
+import { addToSqs } from '../../../src/services/sqs';
 import { StatusCode } from '../../../src/util/enum';
+import { formatTechRecord } from '../../../src/util/formatTechRecord';
+import logger, { logError } from '../../../src/util/logger';
 
 jest.mock('uuid');
 jest.mock('../../../src/services/database');
@@ -131,7 +131,7 @@ describe('Batch Plate Handler', () => {
           plateSerialNumber: 'existing-batch-plate',
           plateIssueDate: '2024-01-01T00:00:00.000Z',
           plateReasonForIssue: 'Replacement',
-          plateIssuer: 'CVS Batch Plate Generation',
+          plateIssuer: 'CVS Batch Plate Generation 2',
         },
       ],
     } as TechRecordGETHGV;
