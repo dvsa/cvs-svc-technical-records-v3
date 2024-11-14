@@ -70,12 +70,18 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string 
 export const getBearerToken = async (motSecret: MotSecret): Promise<string | undefined> => {
   logger.debug('Calling MOT Token')
 
+  const params = new URLSearchParams();
+  params.append("grant_type", "client_credentials");
+  params.append("client_id", motSecret.clientID);
+  params.append("client_secret", motSecret.clientSecret);
+  params.append("scope", motSecret.scopeURL);
+
   const tokenResponse = await fetch(motSecret.accessTokenURL, {
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded'
-    },
     method: 'POST',
-    body: `grant_type=client_credentials&client_id=${motSecret.clientID}&client_secret=${motSecret.clientSecret}&scope=${motSecret.scopeURL}`
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: params
   });
 
   if(tokenResponse.body){
