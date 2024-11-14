@@ -2,6 +2,7 @@ import { SecretsManager } from '@dvsa/aws-utilities/classes/secrets-manager-clie
 import { getProfile } from '@dvsa/cvs-feature-flags/profiles/vtx';
 import { EnvironmentVariables } from '@dvsa/cvs-microservice-common/classes/misc/env-vars';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { MotSecret } from '../models/motRecalls';
 import { ERRORS } from "../util/enum";
 import { formatErrorMessage } from "../util/errorMessage";
 import { addHttpHeaders } from "../util/httpHeaders";
@@ -9,7 +10,7 @@ import logger from "../util/logger";
 import { filterMotRecalls, getBearerToken, getMotRecallsByVin } from '../util/recalls';
 import { validateSingleVin } from '../validators/recalls';
 
-const cache: Map<string, string | Map<string, string>> = new Map();
+const cache: Map<string, string | MotSecret> = new Map();
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Recalls end point called');
@@ -50,8 +51,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         { fromYaml: true }
       );
 
-      console.log(motSecret);
-
       if(!motSecret) {
         logger.error('no secrets found')
         return generalResponse;
@@ -62,7 +61,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
 
       const cachedBearerToken = cache.get('bearerToken');
-      const bearerToken = cachedBearerToken ?? await getBearerToken(motSecret as Map<string, string>);
+      const bearerToken = cachedBearerToken ?? await getBearerToken(motSecret as MotSecret);
+
+      if(!bearerToken) {
+        logger.error('bearer token not found')
+        return generalResponse;
+      }
 
       if (!cache.has('bearerToken')) {
         cache.set('bearerToken', bearerToken);
