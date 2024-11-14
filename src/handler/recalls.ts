@@ -2,20 +2,27 @@ import { SecretsManager } from '@dvsa/aws-utilities/classes/secrets-manager-clie
 import { getProfile } from '@dvsa/cvs-feature-flags/profiles/vtx';
 import { EnvironmentVariables } from '@dvsa/cvs-microservice-common/classes/misc/env-vars';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { env } from "process";
 import { motRecalls } from "../models/motRecalls";
-import { recallSecret } from "../models/recallSecret";
 import { ERRORS } from "../util/enum";
 import { formatErrorMessage } from "../util/errorMessage";
 import { addHttpHeaders } from "../util/httpHeaders";
 import logger from "../util/logger";
 
-const cache: Map<string, Map<string, string>> = new Map();
+const cache: Map<string, string | Map<string, string>> = new Map();
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Recalls end point called');
     try {
+      const generalResponse = addHttpHeaders({
+        statusCode: 200,
+        body: JSON.stringify({
+          manufacturer: null,
+          hasRecall: false
+        })
+      });
+
       const featureFlags = await getProfile();
+
       if(!featureFlags.recallsApi){
         logger.error("Recall Feature Flag is undefined")
         return addHttpHeaders( {
@@ -23,30 +30,47 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           body: "Recall Feature Flag is undefined"
         });
       }
+
       if(!featureFlags.recallsApi.enabled){
         logger.warn('Flag disabled: please enable for recalls functionality');
-        return addHttpHeaders( {
-          statusCode: 200,
-          body: JSON.stringify({
-            manufacturer: null,
-            hasRecall: false
-          })
-        });
+        return generalResponse;
       }
 
       const vin: string = decodeURIComponent(event.pathParameters?.vin as string);
       if (!validateVin(vin)) {
         logger.error(formatErrorMessage(ERRORS.VIN_ERROR));
-        return addHttpHeaders({
-          statusCode: 200,
-          body: JSON.stringify({
-            manufacturer: null,
-            hasRecall: false
-          })
-        });
+        return generalResponse;
       }
 
-      const recalls: motRecalls = await getMotRecallsByVin(vin);
+      const cachedMotSecret = cache.get('motSecret');
+      const motSecret = cachedMotSecret ?? await SecretsManager.get(
+        { SecretId: EnvironmentVariables.get("MOT_RECALL_SECRET") },
+        {},
+        { fromYaml: true }
+      );
+
+      if(!motSecret) {
+        logger.error('no secrets found')
+        return generalResponse;
+      }
+
+      if (!cache.has('motSecret')) {
+        cache.set('motSecret', motSecret as any);
+      }
+
+      const cachedBearerToken = cache.get('bearerToken');
+      const bearerToken = cachedBearerToken ?? await getBearerToken(motSecret as Map<string, string>);
+
+      if (!cache.has('bearerToken')) {
+        cache.set('bearerToken', bearerToken);
+      }
+
+      const recalls = await getMotRecallsByVin(vin, bearerToken as string, motSecret as Map<string, string>);
+
+      if(!recalls){
+        return generalResponse;
+      }
+
       const recallsResponse = filterMotRecalls(recalls);
 
       return addHttpHeaders({
@@ -54,7 +78,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         body: JSON.stringify(recallsResponse),
       });
 
-    } catch (err : any) {
+    } catch (err: any) {
       return addHttpHeaders({
         statusCode: 500,
         body: err.message
@@ -63,27 +87,46 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   };
 
 /**
+ * Retrieve bearer token from MOT for recall API
+ * @param vin - vin is query parameter
+ * @returns Promise<BearerToken> - JWT bearer token for recalls
+ */
+const getBearerToken = async (motSecret: Map<string, string>): Promise<string> => {
+  // TODO: secrets & auth
+  console.log(motSecret);
+  return 'bearer'
+}
+
+
+/**
  * Retrieve vehicle recall data from MOT recall API
  * @param vin - vin is query parameter
  * @returns Promise<motRecalls> - vehicle recall information
  */
-const getMotRecallsByVin = async (vin: string): Promise<motRecalls> => {
-  // TODO: secrets & auth
-  const secretResult: recallSecret = await SecretsManager.get(
-    { SecretId: EnvironmentVariables.get("MOT_RECALL_SECRET") },
-    {},
-    { fromYaml: true }
-  );
-
-  // check cache, get token if empty, cache it
-
-
-  return await fetch(`mot placeholder`, {
+const getMotRecallsByVin = async (vin: string, bearerToken: string, motSecret: Map<string, string>): Promise<motRecalls | undefined> => {
+  let recallResponse = await fetch(`mot placeholder`, {
     headers: {
       authorization: ""
     }
-  }) as unknown as motRecalls;
+  })
+
+  if(recallResponse.status == 403 || recallResponse.status == 401){
+    const newBearerToken = await getBearerToken(motSecret);
+    cache.set('bearerToken', newBearerToken)
+    recallResponse = await fetch(`mot placeholder`, {
+      headers: {
+        authorization: `Bearer `
+      }
+    });
+  }
+
+  if(recallResponse.status == 200){
+    return JSON.parse(recallResponse.body!.toString());
+  }
+
+  return undefined;
 }
+
 
 
 /**
