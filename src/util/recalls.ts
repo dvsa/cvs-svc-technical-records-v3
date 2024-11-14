@@ -28,7 +28,7 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string 
     logger.debug('Calling MOT Recalls')
     const motSecret = cache.get('motSecret') as MotSecret;
     const bearerToken = cache.get('bearerToken') as string
-    const motApiUrl = `${motSecret.apiURL}/recalls/${vin}`
+    const motApiUrl = `${motSecret.apiURL}recalls/${vin}`
 
     let recallResponse = await fetch(motApiUrl, {
       headers: {
