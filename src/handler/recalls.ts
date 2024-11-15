@@ -85,7 +85,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         statusCode: 200,
         body: JSON.stringify(recallsResponse),
       });
-
     } catch (err: any) {
       console.error(err);
       return addHttpHeaders({
