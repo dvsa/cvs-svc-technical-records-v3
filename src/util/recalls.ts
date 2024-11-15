@@ -7,17 +7,17 @@ import logger from "./logger";
  * @returns
  */
 export const filterMotRecalls = (vehicleRecalls: MotRecalls) => {
-    const time = new Date();
-    const recall = vehicleRecalls.recalls.find((recall) => {
-      if (recall.repairStatus == "NOT_FIXED" && Date.parse(recall.recallCampaignStartDate) < time.getDate()) {
-        return recall;
-      }
-    });
-    return {
-      manufacturer: recall ? vehicleRecalls.manufacturer : null,
-      hasRecall: !!recall,
+  const time = new Date();
+  const recall = vehicleRecalls.recalls.find((recall) => {
+    if (recall.repairStatus == "NOT_FIXED" && Date.parse(recall.recallCampaignStartDate) < time.getDate()) {
+      return recall;
     }
+  });
+  return {
+    manufacturer: recall ? vehicleRecalls.manufacturer : null,
+    hasRecall: !!recall,
   }
+}
 
 /**
  * Retrieve vehicle recall data from MOT recall API
@@ -25,7 +25,8 @@ export const filterMotRecalls = (vehicleRecalls: MotRecalls) => {
  * @returns Promise<motRecalls> - vehicle recall information
  */
 export const getMotRecallsByVin = async (vin: string, cache: Map<string, string | MotSecret>): Promise<MotRecalls | undefined> => {
-    logger.debug('Calling MOT Recalls')
+  logger.debug('Calling MOT Recalls')
+  try {
     const motSecret = cache.get('motSecret') as MotSecret;
     const bearerToken = cache.get('bearerToken') as string
     const motApiUrl = `${motSecret.apiURL}recalls/${vin}`
@@ -36,13 +37,15 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string 
         "X-API-Key": motSecret.apiKey,
       }
     })
+
+    logger.debug(`first recall response: ${recallResponse}`);
   
-    if(recallResponse.status == 403 || recallResponse.status == 401){
-      const newBearerToken = await getBearerToken(cache.get('motSecret') as MotSecret);
-      
+    if(recallResponse.status == 403 || recallResponse.status == 401) {
+      const newBearerToken = await getBearerToken(motSecret);
       if(!newBearerToken) {
         return undefined;
       }
+      logger.debug('got a new bearer token');
 
       cache.set('bearerToken', newBearerToken)
       recallResponse = await fetch(motApiUrl, {
@@ -51,15 +54,15 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string 
           "X-API-Key": motSecret.apiKey,
         }
       });
+      logger.debug(`second recall response if called: ${recallResponse}`);
     }
-    logger.debug(JSON.stringify(recallResponse));
 
-    if(recallResponse.status == 200){
-      return JSON.parse(recallResponse.body!.toString());
-    }
-  
+    return await recallResponse.json()
+  } catch (err) {
+    console.error(`failed calling MOT endpoint: ${err}`)
     return undefined;
-  }
+  };
+}
   
 
   /**
@@ -76,23 +79,19 @@ export const getBearerToken = async (motSecret: MotSecret): Promise<string | und
   params.append("client_secret", motSecret.clientSecret);
   params.append("scope", motSecret.scopeURL);
 
-  console.log(JSON.stringify(params))
+  try {
+    const tokenResponse = await fetch(motSecret.accessTokenURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params
+    });
 
-  const tokenResponse = await fetch(motSecret.accessTokenURL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: params
-  });
-
-  logger.debug('after token fetch')
-
-  const body = await tokenResponse.json()
-
-  if(body){
-    return body.access_token;
+    const body = await tokenResponse.json()
+    return body.access_token
+  } catch (err) {
+    logger.error(`Failed to get bearer token: ${err}`)
+    return undefined;
   }
-  return undefined;
-  }
-  
+}

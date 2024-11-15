@@ -1,6 +1,4 @@
-import { SecretsManager } from '@dvsa/aws-utilities/classes/secrets-manager-client';
 import { getProfile } from '@dvsa/cvs-feature-flags/profiles/vtx';
-import { EnvironmentVariables } from '@dvsa/cvs-microservice-common/classes/misc/env-vars';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { MotSecret } from '../models/motRecalls';
 import { ERRORS } from "../util/enum";
@@ -45,11 +43,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
 
       const cachedMotSecret = cache.get('motSecret');
-      const motSecret = cachedMotSecret ?? await SecretsManager.get(
-        { SecretId: EnvironmentVariables.get("MOT_RECALL_SECRET") },
-        {},
-        { fromYaml: true }
-      );
+      const motSecret = cachedMotSecret ?? {
+        clientID: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        scopeURL: process.env.SCOPE_URL,
+        accessTokenURL: process.env.ACCESS_TOKEN_URL,
+        apiKey: process.env.API_KEY,
+        apiURL: process.env.API_URL,
+      }
 
       if(!motSecret) {
         logger.error('no secrets found')
