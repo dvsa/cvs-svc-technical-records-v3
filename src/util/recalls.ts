@@ -7,9 +7,8 @@ import logger from "./logger";
  * @returns
  */
 export const filterMotRecalls = (vehicleRecalls: MotRecalls) => {
-  const time = new Date();
   const recall = vehicleRecalls.recalls.find((recall) => {
-    if (recall.repairStatus == "NOT_FIXED" && Date.parse(recall.recallCampaignStartDate) < time.getDate()) {
+    if (recall.repairStatus == "NOT_FIXED" && Date.parse(recall.recallCampaignStartDate) < Date.now()) {
       return recall;
     }
   });
@@ -38,7 +37,7 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string 
       }
     })
 
-    logger.debug(`first recall response: ${recallResponse}`);
+    logger.debug(`first recall response: ${JSON.stringify(recallResponse)}`);
   
     if(recallResponse.status == 403 || recallResponse.status == 401) {
       const newBearerToken = await getBearerToken(motSecret);
@@ -54,7 +53,7 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string 
           "X-API-Key": motSecret.apiKey,
         }
       });
-      logger.debug(`second recall response if called: ${recallResponse}`);
+      logger.debug(`second recall response if called: ${JSON.stringify(recallResponse)}`);
     }
 
     return await recallResponse.json()
