@@ -2,9 +2,10 @@ import {
   TechRecordType as TechRecordTypeByVehicle,
 } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-vehicle-type';
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
+import { SQSEvent } from 'aws-lambda';
 import 'dotenv/config';
 import { v4 as uuidv4 } from 'uuid';
-import { SQSEvent } from 'aws-lambda';
+import { BatchPlateData } from '../models/batchPlate';
 import { PlateReasonForIssue, Plates } from '../models/plate';
 import { DocumentName, SQSRequestBody } from '../models/sqsPayload';
 import { getBySystemNumberAndCreatedTimestamp, inPlaceRecordUpdate } from '../services/database';
@@ -12,10 +13,9 @@ import { addToSqs } from '../services/sqs';
 import { StatusCode } from '../util/enum';
 import { flattenArrays, formatTechRecord } from '../util/formatTechRecord';
 import logger, { logError } from '../util/logger';
-import { BatchPlateData } from '../models/batchPlate';
 
 export const handler = async (event: SQSEvent): Promise<void> => {
-  const batchIssuerName = 'CVS Batch Plate Generation';
+  const batchIssuerName = 'CVS Batch Plate Generation 2';
   let numberOfRecordsUpdated = 0;
   let numberOfSqsAdded = 0;
 
