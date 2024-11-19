@@ -6,9 +6,8 @@ const mockValidateSingleVin = jest.fn();
 
 import type { APIGatewayProxyResult } from 'aws-lambda';
 import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy';
-import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { handler } from '../../../src/handler/recalls';
-import { ERRORS } from '../../../src/util/enum';
+import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { addHttpHeaders } from '../../../src/util/httpHeaders';
 import logger from '../../../src/util/logger';
 
@@ -81,7 +80,7 @@ describe('Test Recalls Endpoint', () => {
       const res = await handler({} as APIGatewayProxyEvent);
       expect(res.statusCode).toEqual(mockDefaultResponse.statusCode);
       expect(res.body).toEqual(mockDefaultResponse.body);
-      expect(logger.error).toHaveBeenCalledWith(formatErrorMessage(ERRORS.VIN_ERROR));
+      expect(logger.error).toHaveBeenCalledWith(formatErrorMessage('VIN provided in path parameter is not valid.'));
     });
   });
   describe('WHEN it cannot retrieve the bearer token from the MOT API', () => {

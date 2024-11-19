@@ -1,6 +1,6 @@
 import { MotRecalls, MotSecret } from '../../../src/models/motRecalls';
-import * as RecallUtils from '../../../src/util/recalls';
 import logger from '../../../src/util/logger';
+import * as RecallUtils from '../../../src/util/recalls';
 
 jest.mock('../../../src/util/logger');
 
@@ -192,8 +192,7 @@ describe('Recalls util functions', () => {
       apiURL: 'ApiUrl',
     } as MotSecret;
     it('SHOULD use the bearer token in cache, and call MOT API', async () => {
-      const cache: Map<string, string | MotSecret> = new Map();
-      cache.set('motSecret', mockMotSecret);
+      const cache: Map<string, string> = new Map();
       cache.set('bearerToken', 'grizzly');
 
       global.fetch = jest.fn().mockImplementation(() => ({
@@ -205,7 +204,7 @@ describe('Recalls util functions', () => {
 
       const bearerSpy = jest.spyOn(RecallUtils, 'getBearerToken');
 
-      const res = await RecallUtils.getMotRecallsByVin('test', cache);
+      const res = await RecallUtils.getMotRecallsByVin('test', cache, mockMotSecret);
       expect(bearerSpy).not.toHaveBeenCalled();
       expect(res).toBeDefined();
     });
@@ -216,22 +215,20 @@ describe('Recalls util functions', () => {
         } as unknown as Response));
       });
       it('SHOULD return undefined when it fails to retrieve a new bearer token', async () => {
-        const cache: Map<string, string | MotSecret> = new Map();
-        cache.set('motSecret', mockMotSecret);
+        const cache: Map<string, string> = new Map();
         cache.set('bearerToken', 'grizzly');
 
         const bearerSpy = jest.spyOn(RecallUtils, 'getBearerToken').mockResolvedValue(undefined);
 
-        const res = await RecallUtils.getMotRecallsByVin('test', cache);
+        const res = await RecallUtils.getMotRecallsByVin('test', cache, mockMotSecret);
         expect(bearerSpy).toBeCalledWith(mockMotSecret);
         expect(res).toBeUndefined();
       });
       it('SHOULD assign new bearer token to the cache', async () => {
-        const cache: Map<string, string | MotSecret> = new Map();
-        cache.set('motSecret', mockMotSecret);
+        const cache: Map<string, string> = new Map();
         const bearerSpy = jest.spyOn(RecallUtils, 'getBearerToken').mockResolvedValue('polar');
 
-        const res = await RecallUtils.getMotRecallsByVin('test', cache);
+        const res = await RecallUtils.getMotRecallsByVin('test', cache, mockMotSecret);
         expect(cache.get('bearerToken')).toBe('polar');
         expect(bearerSpy).toBeCalledWith(mockMotSecret);
       });

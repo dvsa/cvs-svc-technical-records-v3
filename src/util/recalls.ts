@@ -7,6 +7,7 @@ import logger from "./logger";
  * @returns
  */
 export const filterMotRecalls = (vehicleRecalls: MotRecalls) => {
+  logger.debug('Filter Recall Response')
   const recall = vehicleRecalls.recalls.find((recall) => {
     if (recall.repairStatus == "NOT_FIXED" && Date.parse(recall.recallCampaignStartDate) < Date.now()) {
       return recall;
@@ -23,10 +24,9 @@ export const filterMotRecalls = (vehicleRecalls: MotRecalls) => {
  * @param vin - vin is query parameter
  * @returns Promise<motRecalls> - vehicle recall information
  */
-export const getMotRecallsByVin = async (vin: string, cache: Map<string, string | MotSecret>): Promise<MotRecalls | undefined> => {
+export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>, motSecret: MotSecret): Promise<MotRecalls | undefined> => {
   logger.debug('Calling MOT Recalls')
   try {
-    const motSecret = cache.get('motSecret') as MotSecret;
     const bearerToken = cache.get('bearerToken') as string
     const motApiUrl = `${motSecret.apiURL}recalls/${vin}`
 
