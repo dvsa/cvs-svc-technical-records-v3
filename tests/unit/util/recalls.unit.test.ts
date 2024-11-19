@@ -228,7 +228,7 @@ describe('Recalls util functions', () => {
         const cache: Map<string, string> = new Map();
         const bearerSpy = jest.spyOn(RecallUtils, 'getBearerToken').mockResolvedValue('polar');
 
-        const res = await RecallUtils.getMotRecallsByVin('test', cache, mockMotSecret);
+        await RecallUtils.getMotRecallsByVin('test', cache, mockMotSecret);
         expect(cache.get('bearerToken')).toBe('polar');
         expect(bearerSpy).toBeCalledWith(mockMotSecret);
       });

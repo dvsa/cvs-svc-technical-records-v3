@@ -1,4 +1,4 @@
-import { MotRecalls, MotSecret } from '../models/motRecalls';
+import { BearerResponse, MotRecalls, MotSecret } from '../models/motRecalls';
 import logger from './logger';
 
 /**
@@ -8,14 +8,15 @@ import logger from './logger';
  */
 export const filterMotRecalls = (vehicleRecalls: MotRecalls) => {
   logger.debug('Filter Recall Response');
-  const recall = vehicleRecalls.recalls.find((recall) => {
-    if (recall.repairStatus == 'NOT_FIXED' && Date.parse(recall.recallCampaignStartDate) < Date.now()) {
+  const foundRecall = vehicleRecalls.recalls.find((recall) => {
+    if (recall.repairStatus === 'NOT_FIXED' && Date.parse(recall.recallCampaignStartDate) < Date.now()) {
       return recall;
     }
+    return false;
   });
   return {
-    manufacturer: recall ? vehicleRecalls.manufacturer : null,
-    hasRecall: !!recall,
+    manufacturer: foundRecall ? vehicleRecalls.manufacturer : null,
+    hasRecall: !!foundRecall,
   };
 };
 
@@ -39,7 +40,7 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
 
     logger.debug(`first recall response: ${JSON.stringify(recallResponse)}`);
 
-    if (recallResponse.status == 403 || recallResponse.status == 401) {
+    if (recallResponse.status === 403 || recallResponse.status === 401) {
       const newBearerToken = await getBearerToken(motSecret);
       if (!newBearerToken) {
         return undefined;
@@ -56,9 +57,9 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
       logger.debug(`second recall response if called: ${JSON.stringify(recallResponse)}`);
     }
 
-    return await recallResponse.json();
+    return await recallResponse.json() as MotRecalls;
   } catch (err) {
-    console.error(`failed calling MOT endpoint: ${err}`);
+    logger.error(`failed calling MOT endpoint: Error: ${(err as Error).message}`);
     return undefined;
   }
 };
@@ -86,10 +87,10 @@ export const getBearerToken = async (motSecret: MotSecret): Promise<string | und
       body: params,
     });
 
-    const body = await tokenResponse.json();
+    const body = await tokenResponse.json() as BearerResponse;
     return body.access_token;
   } catch (err) {
-    logger.error(`Failed to get bearer token: ${err}`);
+    logger.error(`Failed to get bearer token: Error: ${(err as Error).message}`);
     return undefined;
   }
 };

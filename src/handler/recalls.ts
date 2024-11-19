@@ -74,16 +74,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const recallsResponse = filterMotRecalls(recalls);
 
-    logger.debug(`Final response: ${recallsResponse}`);
+    logger.debug(`Final response: ${JSON.stringify(recallsResponse)}`);
     return addHttpHeaders({
       statusCode: 200,
       body: JSON.stringify(recallsResponse),
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
     return addHttpHeaders({
       statusCode: 500,
-      body: err.message,
+      body: 'Error calling recalls API',
     });
   }
 };

@@ -22,3 +22,11 @@ export interface MotSecret {
   apiKey: string,
   apiURL: string,
 }
+
+export interface BearerResponse {
+  token_type: string,
+  expires_in: number,
+  ext_expires_in: number,
+  access_token: string
+
+}
