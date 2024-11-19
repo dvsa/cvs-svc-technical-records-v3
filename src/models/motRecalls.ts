@@ -12,7 +12,7 @@ export interface Recall {
   repairStatus: RepairStatus
 }
 
-type RepairStatus = "FIXED" | "NOT_FIXED"
+export type RepairStatus = "FIXED" | "NOT_FIXED"
 
 export interface MotSecret {
   clientID: string,

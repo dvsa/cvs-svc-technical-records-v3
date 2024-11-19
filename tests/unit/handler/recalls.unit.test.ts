@@ -115,4 +115,38 @@ describe('Test Recalls Endpoint', () => {
       expect(res.body).toEqual(mockDefaultResponse.body);
     });
   });
+  describe('happy path', () => {
+    it('SHOULD return a 200 response with a valid recall response', async () => {
+      const motRecallResponse = {
+        vin: '1234',
+        manufacturer: 'Manufacturer',
+        recalls: [
+          {
+            manufacturerCampaignReference: 'ref1',
+            dvsaCampaignReference: 'ref123',
+            recallCampaignStartDate: '12345',
+            repairStatus: "NOT_FIXED"
+          }
+        ],
+        lastUpdatedDate: '1234'
+      }
+
+      mockGetProfile.mockResolvedValue({
+        recallsApi: {
+          enabled: true,
+        },
+      });
+      mockValidateSingleVin.mockReturnValue(true);
+      mockGetBearerToken.mockReturnValue('test');
+      mockGetMotRecallsByVin.mockReturnValue(motRecallResponse);
+      mockFilterMotRecalls.mockReturnValue({manufacturer: 'Manufacturer', hasRecall: true})
+
+      const res = await handler({} as APIGatewayProxyEvent);
+      expect(res.statusCode).toEqual(mockDefaultResponse.statusCode);
+      expect(res.body).toEqual(JSON.stringify({
+        manufacturer: 'Manufacturer',
+        hasRecall: true,
+      }));
+    });
+  });
 });
