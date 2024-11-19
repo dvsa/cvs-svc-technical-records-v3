@@ -600,6 +600,17 @@ paths:
       responses:
         '200':
           description: Returns recall information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  manufacturer:
+                    type: string
+                  hasRecall:
+                    type: boolean
+        '500':
+          description: Internal server error
       
 components:
   securitySchemes:
