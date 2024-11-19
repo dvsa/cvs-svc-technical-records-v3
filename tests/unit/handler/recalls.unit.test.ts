@@ -1,15 +1,15 @@
-const mockGetProfile = jest.fn();
-const mockFilterMotRecalls = jest.fn();
-const mockGetMotRecallsByVin = jest.fn();
-const mockGetBearerToken = jest.fn();
-const mockValidateSingleVin = jest.fn();
-
 import type { APIGatewayProxyResult } from 'aws-lambda';
 import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy';
 import { handler } from '../../../src/handler/recalls';
 import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { addHttpHeaders } from '../../../src/util/httpHeaders';
 import logger from '../../../src/util/logger';
+
+const mockGetProfile = jest.fn();
+const mockFilterMotRecalls = jest.fn();
+const mockGetMotRecallsByVin = jest.fn();
+const mockGetBearerToken = jest.fn();
+const mockValidateSingleVin = jest.fn();
 
 jest.mock('@dvsa/cvs-feature-flags/profiles/vtx', () => ({
   getProfile: mockGetProfile,
@@ -125,11 +125,11 @@ describe('Test Recalls Endpoint', () => {
             manufacturerCampaignReference: 'ref1',
             dvsaCampaignReference: 'ref123',
             recallCampaignStartDate: '12345',
-            repairStatus: "NOT_FIXED"
-          }
+            repairStatus: 'NOT_FIXED',
+          },
         ],
-        lastUpdatedDate: '1234'
-      }
+        lastUpdatedDate: '1234',
+      };
 
       mockGetProfile.mockResolvedValue({
         recallsApi: {
@@ -139,7 +139,7 @@ describe('Test Recalls Endpoint', () => {
       mockValidateSingleVin.mockReturnValue(true);
       mockGetBearerToken.mockReturnValue('test');
       mockGetMotRecallsByVin.mockReturnValue(motRecallResponse);
-      mockFilterMotRecalls.mockReturnValue({manufacturer: 'Manufacturer', hasRecall: true})
+      mockFilterMotRecalls.mockReturnValue({ manufacturer: 'Manufacturer', hasRecall: true });
 
       const res = await handler({} as APIGatewayProxyEvent);
       expect(res.statusCode).toEqual(mockDefaultResponse.statusCode);

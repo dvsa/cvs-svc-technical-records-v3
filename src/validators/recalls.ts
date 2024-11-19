@@ -16,7 +16,7 @@ export const validateSingleVin = (vin: string) => {
       return false;
     }
   } else {
-      return false;
+    return false;
   }
   return true;
-}
+};

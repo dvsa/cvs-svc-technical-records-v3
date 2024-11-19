@@ -1,5 +1,5 @@
-import { MotRecalls, MotSecret } from "../models/motRecalls";
-import logger from "./logger";
+import { MotRecalls, MotSecret } from '../models/motRecalls';
+import logger from './logger';
 
 /**
  * Search retrieved recall data for an active recall then construct return object.
@@ -7,17 +7,17 @@ import logger from "./logger";
  * @returns
  */
 export const filterMotRecalls = (vehicleRecalls: MotRecalls) => {
-  logger.debug('Filter Recall Response')
+  logger.debug('Filter Recall Response');
   const recall = vehicleRecalls.recalls.find((recall) => {
-    if (recall.repairStatus == "NOT_FIXED" && Date.parse(recall.recallCampaignStartDate) < Date.now()) {
+    if (recall.repairStatus == 'NOT_FIXED' && Date.parse(recall.recallCampaignStartDate) < Date.now()) {
       return recall;
     }
   });
   return {
     manufacturer: recall ? vehicleRecalls.manufacturer : null,
     hasRecall: !!recall,
-  }
-}
+  };
+};
 
 /**
  * Retrieve vehicle recall data from MOT recall API
@@ -25,72 +25,71 @@ export const filterMotRecalls = (vehicleRecalls: MotRecalls) => {
  * @returns Promise<motRecalls> - vehicle recall information
  */
 export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>, motSecret: MotSecret): Promise<MotRecalls | undefined> => {
-  logger.debug('Calling MOT Recalls')
+  logger.debug('Calling MOT Recalls');
   try {
-    const bearerToken = cache.get('bearerToken') as string
-    const motApiUrl = `${motSecret.apiURL}recalls/${vin}`
+    const bearerToken = cache.get('bearerToken') as string;
+    const motApiUrl = `${motSecret.apiURL}recalls/${vin}`;
 
     let recallResponse = await fetch(motApiUrl, {
       headers: {
         Authorization: `Bearer ${bearerToken}`,
-        "X-API-Key": motSecret.apiKey,
-      }
-    })
+        'X-API-Key': motSecret.apiKey,
+      },
+    });
 
     logger.debug(`first recall response: ${JSON.stringify(recallResponse)}`);
-  
-    if(recallResponse.status == 403 || recallResponse.status == 401) {
+
+    if (recallResponse.status == 403 || recallResponse.status == 401) {
       const newBearerToken = await getBearerToken(motSecret);
-      if(!newBearerToken) {
+      if (!newBearerToken) {
         return undefined;
       }
       logger.debug('got a new bearer token');
 
-      cache.set('bearerToken', newBearerToken)
+      cache.set('bearerToken', newBearerToken);
       recallResponse = await fetch(motApiUrl, {
         headers: {
           Authorization: `Bearer ${bearerToken}`,
-          "X-API-Key": motSecret.apiKey,
-        }
+          'X-API-Key': motSecret.apiKey,
+        },
       });
       logger.debug(`second recall response if called: ${JSON.stringify(recallResponse)}`);
     }
 
-    return await recallResponse.json()
+    return await recallResponse.json();
   } catch (err) {
-    console.error(`failed calling MOT endpoint: ${err}`)
+    console.error(`failed calling MOT endpoint: ${err}`);
     return undefined;
-  };
-}
-  
+  }
+};
 
-  /**
+/**
  * Retrieve bearer token from MOT for recall API
  * @param vin - vin is query parameter
  * @returns Promise<BearerToken> - JWT bearer token for recalls
  */
 export const getBearerToken = async (motSecret: MotSecret): Promise<string | undefined> => {
-  logger.debug('Calling MOT Token')
+  logger.debug('Calling MOT Token');
 
   const params = new URLSearchParams();
-  params.append("grant_type", "client_credentials");
-  params.append("client_id", motSecret.clientID);
-  params.append("client_secret", motSecret.clientSecret);
-  params.append("scope", motSecret.scopeURL);
+  params.append('grant_type', 'client_credentials');
+  params.append('client_id', motSecret.clientID);
+  params.append('client_secret', motSecret.clientSecret);
+  params.append('scope', motSecret.scopeURL);
 
   try {
     const tokenResponse = await fetch(motSecret.accessTokenURL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: params
+      body: params,
     });
 
-    const body = await tokenResponse.json()
-    return body.access_token
+    const body = await tokenResponse.json();
+    return body.access_token;
   } catch (err) {
-    logger.error(`Failed to get bearer token: ${err}`)
+    logger.error(`Failed to get bearer token: ${err}`);
     return undefined;
   }
-}
+};
