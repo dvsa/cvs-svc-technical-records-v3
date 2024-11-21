@@ -4,6 +4,7 @@ const mockFilterMotRecalls = jest.fn();
 const mockGetMotRecallsByVin = jest.fn();
 const mockGetBearerToken = jest.fn();
 const mockValidateSingleVin = jest.fn();
+const mockPopulateMotSecret = jest.fn();
 
 import type { APIGatewayProxyResult } from 'aws-lambda';
 import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy';
@@ -20,6 +21,7 @@ jest.mock('../../../src/util/recalls.ts', () => ({
   filterMotRecalls: mockFilterMotRecalls,
   getMotRecallsByVin: mockGetMotRecallsByVin,
   getBearerToken: mockGetBearerToken,
+  populateMotSecret: mockPopulateMotSecret
 }));
 
 jest.mock('../../../src/validators/recalls.ts', () => ({
@@ -32,6 +34,7 @@ describe('Test Recalls Endpoint', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
+    mockPopulateMotSecret.mockReturnValue({});
   });
 
   const mockDefaultResponse: APIGatewayProxyResult = addHttpHeaders({

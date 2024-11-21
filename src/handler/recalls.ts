@@ -1,10 +1,9 @@
 import { getProfile } from '@dvsa/cvs-feature-flags/profiles/vtx';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { MotSecret } from '../models/motRecalls';
 import { formatErrorMessage } from '../util/errorMessage';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
-import { filterMotRecalls, getBearerToken, getMotRecallsByVin } from '../util/recalls';
+import { filterMotRecalls, getBearerToken, getMotRecallsByVin, populateMotSecret } from '../util/recalls';
 import { validateSingleVin } from '../validators/recalls';
 
 const cache: Map<string, string> = new Map();
@@ -40,19 +39,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return defaultResponse;
     }
 
-    const motSecret = {
-      clientID: process.env.CLIENT_ID,
-      clientSecret: process.env.CLIENT_SECRET,
-      scopeURL: process.env.SCOPE_URL,
-      accessTokenURL: process.env.ACCESS_TOKEN_URL,
-      apiKey: process.env.API_KEY,
-      apiURL: process.env.API_URL,
-    } as MotSecret;
-
-    if (!motSecret) {
-      logger.error('no secrets found');
-      return defaultResponse;
-    }
+    const motSecret = populateMotSecret();
 
     const cachedBearerToken = cache.get('bearerToken');
     const bearerToken = cachedBearerToken ?? await getBearerToken(motSecret);

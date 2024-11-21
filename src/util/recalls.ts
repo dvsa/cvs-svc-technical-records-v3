@@ -1,3 +1,4 @@
+import { RecallsSchema } from '@dvsa/cvs-type-definitions/types/v1/recalls';
 import { BearerResponse, MotRecalls, MotSecret } from '../models/motRecalls';
 import logger from './logger';
 
@@ -6,7 +7,7 @@ import logger from './logger';
  * @param vehicleRecalls
  * @returns
  */
-export const filterMotRecalls = (vehicleRecalls: MotRecalls) => {
+export const filterMotRecalls = (vehicleRecalls: MotRecalls): RecallsSchema => {
   logger.debug('Filter Recall Response');
   const foundRecall = vehicleRecalls.recalls.find((recall) => {
     if (recall.repairStatus === 'NOT_FIXED' && Date.parse(recall.recallCampaignStartDate) < Date.now()) {
@@ -93,4 +94,19 @@ export const getBearerToken = async (motSecret: MotSecret): Promise<string | und
     logger.error(`Failed to get bearer token: Error: ${(err as Error).message}`);
     return undefined;
   }
+};
+
+/**
+ * Create MOT secret
+ * @returns MotSecret - Object with MOT secret details
+ */
+export const populateMotSecret = (): MotSecret => {
+  return {
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    scopeURL: process.env.SCOPE_URL,
+    accessTokenURL: process.env.ACCESS_TOKEN_URL,
+    apiKey: process.env.API_KEY,
+    apiURL: process.env.API_URL,
+  } as MotSecret;
 };
