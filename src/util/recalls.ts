@@ -30,11 +30,14 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
   logger.debug('Calling MOT Recalls');
   try {
     const bearerToken = cache.get('bearerToken') as string;
-    const motApiUrl = `${motSecret.apiURL}recalls/${vin}`;
+    const motApiUrl = `${motSecret.apiURL}/${vin}`;
+
+    logger.debug(`calling: ${motApiUrl}`);
+    logger.debug(`using: ${motSecret.apiKey}`);
 
     let recallResponse = await fetch(motApiUrl, {
       headers: {
-        'Authorization': `Bearer ${bearerToken}`,
+        Authorization: `Bearer ${bearerToken}`,
         'x-api-key': motSecret.apiKey,
       },
     });
@@ -53,7 +56,7 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
       recallResponse = await fetch(motApiUrl, {
         headers: {
           Authorization: `Bearer ${bearerToken}`,
-          'X-API-Key': motSecret.apiKey,
+          'x-api-key': motSecret.apiKey,
         },
       });
       logger.debug(`second recall status code: ${recallResponse.status}`);
