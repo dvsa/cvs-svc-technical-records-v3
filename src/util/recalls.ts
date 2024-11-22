@@ -28,30 +28,15 @@ export const filterMotRecalls = (vehicleRecalls: MotRecalls): RecallsSchema => {
  */
 export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>, motSecret: MotSecret): Promise<MotRecalls | undefined> => {
   logger.debug('Calling MOT Recalls');
-
-  let ip = await fetch('https://api.ipify.org?format=json');
-  logger.debug(`IPADDR: ${JSON.stringify(await ip.json())}`);
-  
-  
-  logger.debug(`clientID: ${process.env.CLIENT_ID}`);
-  logger.debug(`clientSecret: ${process.env.CLIENT_SECRET}`);
-  logger.debug(`scopeURL: ${process.env.SCOPE_URL}`);
-  logger.debug(`accessTokenURL: ${process.env.ACCESS_TOKEN_URL}`);
-  logger.debug(`apiKey: ${process.env.API_KEY}`);
-  logger.debug(`apiURL: ${process.env.API_URL}`);
   
   try {
     const bearerToken = cache.get('bearerToken') as string;
     const motApiUrl = `${motSecret.apiURL}/${vin}`;
 
-    logger.debug(`calling: ${motApiUrl}`);
-    logger.debug(`x-api-key: ${motSecret.apiKey}`);
-    logger.debug(`Authorization: Bearer ${bearerToken}`);
-
     let recallResponse = await fetch(motApiUrl, {
       headers: {
         Authorization: `Bearer ${bearerToken}`,
-        'x-api-key': `${motSecret.apiKey}`,
+        'x-api-key': motSecret.apiKey,
       },
     });
 
@@ -69,13 +54,9 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
       recallResponse = await fetch(motApiUrl, {
         headers: {
           Authorization: `Bearer ${bearerToken}`,
-          'x-api-key': `${motSecret.apiKey}`,
+          'x-api-key': motSecret.apiKey,
         },
       });
-      
-      logger.debug(`calling: ${motApiUrl}`);
-      logger.debug(`x-api-key: ${motSecret.apiKey}`);
-      logger.debug(`Authorization: Bearer ${bearerToken}`);
       
       logger.debug(`second recall status code: ${recallResponse.status}`);
       logger.debug(`second recall response: ${JSON.stringify(await recallResponse.json())}`);
