@@ -28,6 +28,10 @@ export const filterMotRecalls = (vehicleRecalls: MotRecalls): RecallsSchema => {
  */
 export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>, motSecret: MotSecret): Promise<MotRecalls | undefined> => {
   logger.debug('Calling MOT Recalls');
+
+  let ip = await fetch('https://api.ipify.org?format=json');
+  logger.debug(`IPADDR: ${ip.ip}`);
+  
   
   logger.debug(`clientID: ${process.env.CLIENT_ID}`);
   logger.debug(`clientSecret: ${process.env.CLIENT_SECRET}`);
