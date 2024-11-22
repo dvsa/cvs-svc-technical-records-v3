@@ -39,7 +39,8 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
       },
     });
 
-    logger.debug(`first recall response: ${JSON.stringify(recallResponse)}`);
+    logger.debug(`first recall status code: ${recallResponse.status}`);
+    logger.debug(`first recall response: ${JSON.stringify(recallResponse.json())}`);
 
     if (recallResponse.status === 403 || recallResponse.status === 401) {
       const newBearerToken = await getBearerToken(motSecret);
@@ -55,10 +56,15 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
           'X-API-Key': motSecret.apiKey,
         },
       });
-      logger.debug(`second recall response if called: ${JSON.stringify(recallResponse)}`);
+      logger.debug(`second recall status code: ${recallResponse.status}`);
+      logger.debug(`second recall response: ${JSON.stringify(recallResponse.json())}`);
     }
 
-    return await recallResponse.json() as MotRecalls;
+    if (recallResponse.status === 200) {
+      return await recallResponse.json() as MotRecalls;
+    }
+
+    return undefined;
   } catch (err) {
     logger.error(`failed calling MOT endpoint: Error: ${(err as Error).message}`);
     return undefined;
@@ -100,13 +106,11 @@ export const getBearerToken = async (motSecret: MotSecret): Promise<string | und
  * Create MOT secret
  * @returns MotSecret - Object with MOT secret details
  */
-export const populateMotSecret = (): MotSecret => {
-  return {
-    clientID: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    scopeURL: process.env.SCOPE_URL,
-    accessTokenURL: process.env.ACCESS_TOKEN_URL,
-    apiKey: process.env.API_KEY,
-    apiURL: process.env.API_URL,
-  } as MotSecret;
-};
+export const populateMotSecret = (): MotSecret => ({
+  clientID: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
+  scopeURL: process.env.SCOPE_URL,
+  accessTokenURL: process.env.ACCESS_TOKEN_URL,
+  apiKey: process.env.API_KEY,
+  apiURL: process.env.API_URL,
+} as MotSecret);

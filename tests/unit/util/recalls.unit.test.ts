@@ -212,6 +212,7 @@ describe('Recalls util functions', () => {
       beforeEach(() => {
         global.fetch = jest.fn().mockImplementation(() => ({
           status: 403,
+          json: () => ({}),
         } as unknown as Response));
       });
       it('SHOULD return undefined when it fails to retrieve a new bearer token', async () => {

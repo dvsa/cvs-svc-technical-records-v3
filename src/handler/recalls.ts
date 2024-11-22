@@ -3,7 +3,9 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { formatErrorMessage } from '../util/errorMessage';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
-import { filterMotRecalls, getBearerToken, getMotRecallsByVin, populateMotSecret } from '../util/recalls';
+import {
+  filterMotRecalls, getBearerToken, getMotRecallsByVin, populateMotSecret,
+} from '../util/recalls';
 import { validateSingleVin } from '../validators/recalls';
 
 const cache: Map<string, string> = new Map();

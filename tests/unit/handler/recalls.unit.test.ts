@@ -21,7 +21,7 @@ jest.mock('../../../src/util/recalls.ts', () => ({
   filterMotRecalls: mockFilterMotRecalls,
   getMotRecallsByVin: mockGetMotRecallsByVin,
   getBearerToken: mockGetBearerToken,
-  populateMotSecret: mockPopulateMotSecret
+  populateMotSecret: mockPopulateMotSecret,
 }));
 
 jest.mock('../../../src/validators/recalls.ts', () => ({
