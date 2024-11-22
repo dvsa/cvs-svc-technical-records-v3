@@ -28,17 +28,19 @@ export const filterMotRecalls = (vehicleRecalls: MotRecalls): RecallsSchema => {
  */
 export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>, motSecret: MotSecret): Promise<MotRecalls | undefined> => {
   logger.debug('Calling MOT Recalls');
+  logger.debug(`MotSecret: ${motSecret}`);
   try {
     const bearerToken = cache.get('bearerToken') as string;
     const motApiUrl = `${motSecret.apiURL}/${vin}`;
 
     logger.debug(`calling: ${motApiUrl}`);
-    logger.debug(`using: ${motSecret.apiKey}`);
+    logger.debug(`x-api-key: ${motSecret.apiKey}`);
+    logger.debug(`Authorization: Bearer ${bearerToken}`);
 
     let recallResponse = await fetch(motApiUrl, {
       headers: {
-        Authorization: `Bearer ${bearerToken}`,
-        'x-api-key': motSecret.apiKey,
+        'Authorization': `Bearer ${bearerToken}`,
+        'x-api-key': `${motSecret.apiKey}`,
       },
     });
 
@@ -55,10 +57,15 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
       cache.set('bearerToken', newBearerToken);
       recallResponse = await fetch(motApiUrl, {
         headers: {
-          Authorization: `Bearer ${bearerToken}`,
-          'x-api-key': motSecret.apiKey,
+          'Authorization': `Bearer ${bearerToken}`,
+          'x-api-key': `${motSecret.apiKey}`,
         },
       });
+      
+      logger.debug(`calling: ${motApiUrl}`);
+      logger.debug(`x-api-key: ${motSecret.apiKey}`);
+      logger.debug(`Authorization: Bearer ${bearerToken}`);
+      
       logger.debug(`second recall status code: ${recallResponse.status}`);
       logger.debug(`second recall response: ${JSON.stringify(await recallResponse.json())}`);
     }
