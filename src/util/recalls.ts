@@ -34,8 +34,8 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
 
     let recallResponse = await fetch(motApiUrl, {
       headers: {
-        Authorization: `Bearer ${bearerToken}`,
-        'X-API-Key': motSecret.apiKey,
+        'Authorization': `Bearer ${bearerToken}`,
+        'x-api-key': motSecret.apiKey,
       },
     });
 
