@@ -30,7 +30,7 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
   logger.debug('Calling MOT Recalls');
 
   let ip = await fetch('https://api.ipify.org?format=json');
-  logger.debug(`IPADDR: ${ip.ip}`);
+  logger.debug(`IPADDR: ${JSON.stringify(await ip.json())}`);
   
   
   logger.debug(`clientID: ${process.env.CLIENT_ID}`);
