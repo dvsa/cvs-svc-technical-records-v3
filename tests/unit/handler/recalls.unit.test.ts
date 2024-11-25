@@ -4,8 +4,8 @@ const mockFilterMotRecalls = jest.fn();
 const mockGetMotRecallsByVin = jest.fn();
 const mockGetBearerToken = jest.fn();
 const mockValidateSingleVin = jest.fn();
-const mockPopulateMotSecret = jest.fn();
 
+import { SecretsManager } from '@dvsa/aws-utilities/classes/secrets-manager-client';
 import type { APIGatewayProxyResult } from 'aws-lambda';
 import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy';
 import { handler } from '../../../src/handler/recalls';
@@ -17,11 +17,11 @@ jest.mock('@dvsa/cvs-feature-flags/profiles/vtx', () => ({
   getProfile: mockGetProfile,
 }));
 
+
 jest.mock('../../../src/util/recalls.ts', () => ({
   filterMotRecalls: mockFilterMotRecalls,
   getMotRecallsByVin: mockGetMotRecallsByVin,
   getBearerToken: mockGetBearerToken,
-  populateMotSecret: mockPopulateMotSecret,
 }));
 
 jest.mock('../../../src/validators/recalls.ts', () => ({
@@ -30,11 +30,13 @@ jest.mock('../../../src/validators/recalls.ts', () => ({
 
 jest.mock('../../../src/util/logger');
 
+jest.mock('@dvsa/aws-utilities/classes/secrets-manager-client');
+
 describe('Test Recalls Endpoint', () => {
+  process.env.MOT_RECALL_SECRET = 'secret';
   beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
-    mockPopulateMotSecret.mockReturnValue({});
   });
 
   const mockDefaultResponse: APIGatewayProxyResult = addHttpHeaders({
@@ -89,6 +91,7 @@ describe('Test Recalls Endpoint', () => {
   });
   describe('WHEN it cannot retrieve the bearer token from the MOT API', () => {
     it('SHOULD log error and return a 200 response with no recalls', async () => {
+			(SecretsManager.get as jest.Mock).mockResolvedValue({});
       mockGetProfile.mockResolvedValue({
         recallsApi: {
           enabled: true,

@@ -26,9 +26,10 @@ export const filterMotRecalls = (vehicleRecalls: MotRecalls): RecallsSchema => {
  * @param vin - vin is query parameter
  * @returns Promise<motRecalls> - vehicle recall information
  */
-export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>, motSecret: MotSecret): Promise<MotRecalls | undefined> => {
+export const getMotRecallsByVin = async (vin: string, cache: Map<string, (string | MotSecret)>, motSecret: MotSecret):
+Promise<MotRecalls | undefined> => {
   logger.debug('Calling MOT Recalls');
-  
+
   try {
     const bearerToken = cache.get('bearerToken') as string;
     const motApiUrl = `${motSecret.apiURL}/${vin}`;
@@ -40,7 +41,7 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
       },
     });
 
-    let parsedRecallResponse = await recallResponse.json()
+    let parsedRecallResponse = await recallResponse.json() as MotRecalls;
 
     logger.debug(`first recall status code: ${recallResponse.status}`);
     logger.debug(`first recall response: ${JSON.stringify(parsedRecallResponse)}`);
@@ -60,14 +61,14 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
         },
       });
 
-      parsedRecallResponse = await recallResponse.json()
-      
+      parsedRecallResponse = await recallResponse.json() as MotRecalls;
+
       logger.debug(`second recall status code: ${recallResponse.status}`);
       logger.debug(`second recall response: ${JSON.stringify(parsedRecallResponse)}`);
     }
 
     if (recallResponse.status === 200) {
-      return parsedRecallResponse as MotRecalls;
+      return parsedRecallResponse;
     }
 
     return undefined;
@@ -107,16 +108,3 @@ export const getBearerToken = async (motSecret: MotSecret): Promise<string | und
     return undefined;
   }
 };
-
-/**
- * Create MOT secret
- * @returns MotSecret - Object with MOT secret details
- */
-export const populateMotSecret = (): MotSecret => ({
-  clientID: process.env.CLIENT_ID,
-  clientSecret: process.env.CLIENT_SECRET,
-  scopeURL: process.env.SCOPE_URL,
-  accessTokenURL: process.env.ACCESS_TOKEN_URL,
-  apiKey: process.env.API_KEY,
-  apiURL: process.env.API_URL,
-} as MotSecret);

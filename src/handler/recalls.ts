@@ -1,14 +1,17 @@
+import { SecretsManager } from '@dvsa/aws-utilities/classes/secrets-manager-client';
 import { getProfile } from '@dvsa/cvs-feature-flags/profiles/vtx';
+import { EnvironmentVariables } from '@dvsa/cvs-microservice-common/classes/misc/env-vars';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { MotSecret } from '../models/motRecalls';
 import { formatErrorMessage } from '../util/errorMessage';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import {
-  filterMotRecalls, getBearerToken, getMotRecallsByVin, populateMotSecret,
+  filterMotRecalls, getBearerToken, getMotRecallsByVin,
 } from '../util/recalls';
 import { validateSingleVin } from '../validators/recalls';
 
-const cache: Map<string, string> = new Map();
+const cache: Map<string, (string | MotSecret)> = new Map();
 const defaultResponse = addHttpHeaders({
   statusCode: 200,
   body: JSON.stringify({
@@ -41,7 +44,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return defaultResponse;
     }
 
-    const motSecret = populateMotSecret();
+    const cachedMotSecret = cache.get('motSecret') as MotSecret;
+    const motSecret = cachedMotSecret ?? await SecretsManager.get(
+      { SecretId: EnvironmentVariables.get('MOT_RECALL_SECRET') },
+      {},
+      { fromYaml: true },
+    );
+
+    if (!cache.has('motSecret')) {
+      cache.set('motSecret', motSecret);
+    }
 
     const cachedBearerToken = cache.get('bearerToken');
     const bearerToken = cachedBearerToken ?? await getBearerToken(motSecret);
