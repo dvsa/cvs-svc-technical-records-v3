@@ -17,7 +17,6 @@ jest.mock('@dvsa/cvs-feature-flags/profiles/vtx', () => ({
   getProfile: mockGetProfile,
 }));
 
-
 jest.mock('../../../src/util/recalls.ts', () => ({
   filterMotRecalls: mockFilterMotRecalls,
   getMotRecallsByVin: mockGetMotRecallsByVin,
@@ -91,7 +90,7 @@ describe('Test Recalls Endpoint', () => {
   });
   describe('WHEN it cannot retrieve the bearer token from the MOT API', () => {
     it('SHOULD log error and return a 200 response with no recalls', async () => {
-			(SecretsManager.get as jest.Mock).mockResolvedValue({});
+      (SecretsManager.get as jest.Mock).mockResolvedValue({});
       mockGetProfile.mockResolvedValue({
         recallsApi: {
           enabled: true,
