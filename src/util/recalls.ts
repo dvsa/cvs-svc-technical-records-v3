@@ -40,8 +40,10 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
       },
     });
 
+    let parsedRecallResponse = await recallResponse.json()
+
     logger.debug(`first recall status code: ${recallResponse.status}`);
-    logger.debug(`first recall response: ${JSON.stringify(await recallResponse.json())}`);
+    logger.debug(`first recall response: ${JSON.stringify(parsedRecallResponse)}`);
 
     if (recallResponse.status === 403 || recallResponse.status === 401) {
       const newBearerToken = await getBearerToken(motSecret);
@@ -57,13 +59,15 @@ export const getMotRecallsByVin = async (vin: string, cache: Map<string, string>
           'x-api-key': motSecret.apiKey,
         },
       });
+
+      parsedRecallResponse = await recallResponse.json()
       
       logger.debug(`second recall status code: ${recallResponse.status}`);
-      logger.debug(`second recall response: ${JSON.stringify(await recallResponse.json())}`);
+      logger.debug(`second recall response: ${JSON.stringify(parsedRecallResponse)}`);
     }
 
     if (recallResponse.status === 200) {
-      return await recallResponse.json() as MotRecalls;
+      return parsedRecallResponse as MotRecalls;
     }
 
     return undefined;
