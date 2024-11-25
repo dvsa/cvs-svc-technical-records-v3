@@ -1,6 +1,6 @@
 import { MotRecalls, MotSecret } from '../../../src/models/motRecalls';
 import logger from '../../../src/util/logger';
-import * as RecallUtils from '../../../src/util/recalls';
+import * as RecallUtils from '../../../src/util/motRecalls';
 
 jest.mock('../../../src/util/logger');
 
@@ -234,5 +234,19 @@ describe('Recalls util functions', () => {
         expect(bearerSpy).toBeCalledWith(mockMotSecret);
       });
     });
+    describe('when the service errors', () => {
+      it('should throw an error and log it', async () => {
+        const cache: Map<string, string> = new Map();
+        cache.set('bearerToken', 'grizzly');
+
+        global.fetch = jest.fn().mockImplementation(() => ({
+          json: '123',
+        } as unknown as Response));
+
+        const res = await RecallUtils.getMotRecallsByVin('test', cache, mockMotSecret);
+        expect(logger.error).toHaveBeenCalledWith(expect.stringContaining(`failed calling MOT endpoint: Error:`));
+        expect(res).toBeUndefined();
+      })
+    })
   });
 });

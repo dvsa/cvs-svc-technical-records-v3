@@ -1,30 +1,28 @@
 /* eslint-disable import/first */
-const mockGetProfile = jest.fn();
 const mockFilterMotRecalls = jest.fn();
 const mockGetMotRecallsByVin = jest.fn();
 const mockGetBearerToken = jest.fn();
 const mockValidateSingleVin = jest.fn();
+const mockValidateFeatureFlags = jest.fn();
 
 import { SecretsManager } from '@dvsa/aws-utilities/classes/secrets-manager-client';
 import type { APIGatewayProxyResult } from 'aws-lambda';
 import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy';
-import { handler } from '../../../src/handler/recalls';
+import { handler } from '../../../src/handler/motRecalls';
 import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { addHttpHeaders } from '../../../src/util/httpHeaders';
 import logger from '../../../src/util/logger';
 
-jest.mock('@dvsa/cvs-feature-flags/profiles/vtx', () => ({
-  getProfile: mockGetProfile,
-}));
 
-jest.mock('../../../src/util/recalls.ts', () => ({
+jest.mock('../../../src/util/motRecalls.ts', () => ({
   filterMotRecalls: mockFilterMotRecalls,
   getMotRecallsByVin: mockGetMotRecallsByVin,
   getBearerToken: mockGetBearerToken,
 }));
 
-jest.mock('../../../src/validators/recalls.ts', () => ({
+jest.mock('../../../src/validators/motRecalls.ts', () => ({
   validateSingleVin: mockValidateSingleVin,
+  validateFeatureFlags: mockValidateFeatureFlags,
 }));
 
 jest.mock('../../../src/util/logger');
@@ -36,6 +34,7 @@ describe('Test Recalls Endpoint', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
+    mockValidateFeatureFlags.mockResolvedValue(undefined);
   });
 
   const mockDefaultResponse: APIGatewayProxyResult = addHttpHeaders({
@@ -46,40 +45,21 @@ describe('Test Recalls Endpoint', () => {
     }),
   });
 
-  describe('WHEN the feature flag is not defined', () => {
+  describe('WHEN the feature flag validation fails', () => {
     it('SHOULD return a 500 response', async () => {
-      mockGetProfile.mockResolvedValue({
-        someIncorrectFlag: {
-          enabled: true,
-        },
-      });
+      mockValidateFeatureFlags.mockResolvedValueOnce(addHttpHeaders({
+        statusCode: 500,
+        body: 'Recall Feature Flag is undefined',
+      }))
 
       const res = await handler({} as APIGatewayProxyEvent);
       expect(res.statusCode).toBe(500);
       expect(res.body).toBe('Recall Feature Flag is undefined');
     });
   });
-  describe('WHEN the feature flag is disabled (FALSE)', () => {
-    it('SHOULD return a 200 response and no recalls', async () => {
-      mockGetProfile.mockResolvedValue({
-        recallsApi: {
-          enabled: false,
-        },
-      });
-
-      const res = await handler({} as APIGatewayProxyEvent);
-      expect(res.statusCode).toEqual(mockDefaultResponse.statusCode);
-      expect(res.body).toEqual(mockDefaultResponse.body);
-    });
-  });
 
   describe('WHEN the VIN validation fails', () => {
     it('SHOULD log VIN ERROR and return a 200 response with no recalls', async () => {
-      mockGetProfile.mockResolvedValue({
-        recallsApi: {
-          enabled: true,
-        },
-      });
       mockValidateSingleVin.mockReturnValue(false);
 
       const res = await handler({} as APIGatewayProxyEvent);
@@ -91,11 +71,6 @@ describe('Test Recalls Endpoint', () => {
   describe('WHEN it cannot retrieve the bearer token from the MOT API', () => {
     it('SHOULD log error and return a 200 response with no recalls', async () => {
       (SecretsManager.get as jest.Mock).mockResolvedValue({});
-      mockGetProfile.mockResolvedValue({
-        recallsApi: {
-          enabled: true,
-        },
-      });
       mockValidateSingleVin.mockReturnValue(true);
       mockGetBearerToken.mockReturnValue(undefined);
 
@@ -107,20 +82,24 @@ describe('Test Recalls Endpoint', () => {
   });
   describe('WHEN it cannot retrieve the recall data from the MOT API', () => {
     it('SHOULD return a 200 response with no recalls', async () => {
-      mockGetProfile.mockResolvedValue({
-        recallsApi: {
-          enabled: true,
-        },
-      });
+      mockValidateSingleVin.mockReturnValue(true);
+      mockGetBearerToken.mockReturnValue('test');
+      mockGetMotRecallsByVin.mockImplementationOnce(() => {throw new Error('it went bad')});
+
+      const res = await handler({} as APIGatewayProxyEvent);
+      expect(res.statusCode).toEqual(500);
+      expect(res.body).toEqual('Error calling recalls API');
+    });
+  });
+  describe('WHEN an error is thrown in the code body', () => {
+    it('should log out the error and return a 500 response', async () => {
       mockValidateSingleVin.mockReturnValue(true);
       mockGetBearerToken.mockReturnValue('test');
       mockGetMotRecallsByVin.mockReturnValue(undefined);
 
       const res = await handler({} as APIGatewayProxyEvent);
-      expect(res.statusCode).toEqual(mockDefaultResponse.statusCode);
-      expect(res.body).toEqual(mockDefaultResponse.body);
-    });
-  });
+    })
+  })
   describe('happy path', () => {
     it('SHOULD return a 200 response with a valid recall response', async () => {
       const motRecallResponse = {
@@ -137,11 +116,7 @@ describe('Test Recalls Endpoint', () => {
         lastUpdatedDate: '1234',
       };
 
-      mockGetProfile.mockResolvedValue({
-        recallsApi: {
-          enabled: true,
-        },
-      });
+
       mockValidateSingleVin.mockReturnValue(true);
       mockGetBearerToken.mockReturnValue('test');
       mockGetMotRecallsByVin.mockReturnValue(motRecallResponse);

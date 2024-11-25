@@ -1,5 +1,4 @@
 import { SecretsManager } from '@dvsa/aws-utilities/classes/secrets-manager-client';
-import { getProfile } from '@dvsa/cvs-feature-flags/profiles/vtx';
 import { EnvironmentVariables } from '@dvsa/cvs-microservice-common/classes/misc/env-vars';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { MotSecret } from '../models/motRecalls';
@@ -8,8 +7,8 @@ import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import {
   filterMotRecalls, getBearerToken, getMotRecallsByVin,
-} from '../util/recalls';
-import { validateSingleVin } from '../validators/recalls';
+} from '../util/motRecalls';
+import { validateFeatureFlags, validateSingleVin } from '../validators/motRecalls';
 
 const cache: Map<string, (string | MotSecret)> = new Map();
 const defaultResponse = addHttpHeaders({
@@ -23,21 +22,11 @@ const defaultResponse = addHttpHeaders({
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Recalls end point called');
   try {
-    const featureFlags = await getProfile();
-
-    if (!featureFlags.recallsApi) {
-      logger.error('Recall Feature Flag is undefined');
-      return addHttpHeaders({
-        statusCode: 500,
-        body: 'Recall Feature Flag is undefined',
-      });
+    const validateFeatureFlagsRecalls = await validateFeatureFlags();
+    if (validateFeatureFlagsRecalls) {
+      return validateFeatureFlagsRecalls;
     }
-
-    if (!featureFlags.recallsApi.enabled) {
-      logger.warn('Flag disabled: please enable for recalls functionality');
-      return defaultResponse;
-    }
-
+    
     const vin: string = decodeURIComponent(event.pathParameters?.vin as string);
     if (!validateSingleVin(vin)) {
       logger.error(formatErrorMessage('VIN provided in path parameter is not valid.'));

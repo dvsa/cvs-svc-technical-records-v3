@@ -24,6 +24,8 @@ export const filterMotRecalls = (vehicleRecalls: MotRecalls): RecallsSchema => {
 /**
  * Retrieve vehicle recall data from MOT recall API
  * @param vin - vin is query parameter
+ * @param cache - the stored cache with string or mot secret
+ * @param motSecret - mot secret
  * @returns Promise<motRecalls> - vehicle recall information
  */
 export const getMotRecallsByVin = async (vin: string, cache: Map<string, (string | MotSecret)>, motSecret: MotSecret):
@@ -80,7 +82,7 @@ Promise<MotRecalls | undefined> => {
 
 /**
  * Retrieve bearer token from MOT for recall API
- * @param vin - vin is query parameter
+ * @param motSecret - the mot secret details
  * @returns Promise<BearerToken> - JWT bearer token for recalls
  */
 export const getBearerToken = async (motSecret: MotSecret): Promise<string | undefined> => {
