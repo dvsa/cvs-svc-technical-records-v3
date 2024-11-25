@@ -26,7 +26,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (validateFeatureFlagsRecalls) {
       return validateFeatureFlagsRecalls;
     }
-    
+
     const vin: string = decodeURIComponent(event.pathParameters?.vin as string);
     if (!validateSingleVin(vin)) {
       logger.error(formatErrorMessage('VIN provided in path parameter is not valid.'));

@@ -13,7 +13,6 @@ import { formatErrorMessage } from '../../../src/util/errorMessage';
 import { addHttpHeaders } from '../../../src/util/httpHeaders';
 import logger from '../../../src/util/logger';
 
-
 jest.mock('../../../src/util/motRecalls.ts', () => ({
   filterMotRecalls: mockFilterMotRecalls,
   getMotRecallsByVin: mockGetMotRecallsByVin,
@@ -50,7 +49,7 @@ describe('Test Recalls Endpoint', () => {
       mockValidateFeatureFlags.mockResolvedValueOnce(addHttpHeaders({
         statusCode: 500,
         body: 'Recall Feature Flag is undefined',
-      }))
+      }));
 
       const res = await handler({} as APIGatewayProxyEvent);
       expect(res.statusCode).toBe(500);
@@ -84,22 +83,24 @@ describe('Test Recalls Endpoint', () => {
     it('SHOULD return a 200 response with no recalls', async () => {
       mockValidateSingleVin.mockReturnValue(true);
       mockGetBearerToken.mockReturnValue('test');
-      mockGetMotRecallsByVin.mockImplementationOnce(() => {throw new Error('it went bad')});
+      mockGetMotRecallsByVin.mockReturnValue(undefined);
 
       const res = await handler({} as APIGatewayProxyEvent);
-      expect(res.statusCode).toEqual(500);
-      expect(res.body).toEqual('Error calling recalls API');
+      expect(res.statusCode).toEqual(mockDefaultResponse.statusCode);
+      expect(res.body).toEqual(mockDefaultResponse.body);
     });
   });
   describe('WHEN an error is thrown in the code body', () => {
     it('should log out the error and return a 500 response', async () => {
       mockValidateSingleVin.mockReturnValue(true);
       mockGetBearerToken.mockReturnValue('test');
-      mockGetMotRecallsByVin.mockReturnValue(undefined);
+      mockGetMotRecallsByVin.mockImplementationOnce(() => { throw new Error('error is bad'); });
 
       const res = await handler({} as APIGatewayProxyEvent);
-    })
-  })
+      expect(res.statusCode).toBe(500);
+      expect(res.body).toBe('Error calling recalls API');
+    });
+  });
   describe('happy path', () => {
     it('SHOULD return a 200 response with a valid recall response', async () => {
       const motRecallResponse = {
@@ -115,7 +116,6 @@ describe('Test Recalls Endpoint', () => {
         ],
         lastUpdatedDate: '1234',
       };
-
 
       mockValidateSingleVin.mockReturnValue(true);
       mockGetBearerToken.mockReturnValue('test');

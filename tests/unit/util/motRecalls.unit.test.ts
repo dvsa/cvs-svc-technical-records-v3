@@ -244,9 +244,9 @@ describe('Recalls util functions', () => {
         } as unknown as Response));
 
         const res = await RecallUtils.getMotRecallsByVin('test', cache, mockMotSecret);
-        expect(logger.error).toHaveBeenCalledWith(expect.stringContaining(`failed calling MOT endpoint: Error:`));
+        expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('failed calling MOT endpoint: Error:'));
         expect(res).toBeUndefined();
-      })
-    })
+      });
+    });
   });
 });

@@ -1,7 +1,6 @@
 import { getProfile } from '@dvsa/cvs-feature-flags/profiles/vtx';
-import { addHttpHeaders } from "../util/httpHeaders";
-import logger from "../util/logger";
-
+import { addHttpHeaders } from '../util/httpHeaders';
+import logger from '../util/logger';
 
 /**
  * validate the input vin has a valid format
@@ -50,4 +49,4 @@ export const validateFeatureFlags = async () => {
   }
 
   return undefined;
-}
+};
