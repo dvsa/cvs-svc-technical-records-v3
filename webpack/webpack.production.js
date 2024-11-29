@@ -11,7 +11,7 @@ const LAMBDA_NAMES = ['SearchLambdaFunction', 'GetLambdaFunction', 'PostLambdaFu
  'ArchiveLambdaFunction', 'UnarchiveLambdaFunction', 'PromoteLambdaFunction', 'UpdateVrmFunction',
  'UpdateVinFunction', 'GeneratePlateFunction', 'GenerateLetterFunction', 'SyncTestResultInfoFunction',
  'GenerateAdrCertificateFunction', 'RemoveInvalidPrimaryVrms', 'BatchPlateCreation', 'MotUpdateVrm','LoadBatchPlate',
- 'UploadPlateSeed'];
+ 'UploadPlateSeed', 'RecallsLambdaFunction'];
 const OUTPUT_FOLDER = './'
 const REPO_NAME = 'cvs-svc-technical-records-v3';
 const BRANCH_NAME = branchName().replace(/\//g, "-");

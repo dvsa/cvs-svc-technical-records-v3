@@ -167,6 +167,19 @@ Resources:
             Properties:
               Path: !GetAtt LocalQueue.Arn
               BatchSize: 10
+    
+    RecallsLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: motRecalls.handler
+        Runtime: nodejs18.x
+        Events:
+          GetRecallsApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/recalls/{vin}
+              Method: get
 
     MotUpdateVrm:
       Type: 'AWS::Serverless::Function'

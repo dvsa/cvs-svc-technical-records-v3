@@ -585,6 +585,33 @@ paths:
         '404':
           description: No records found matching identifier and criteria 
 
+  '/v3/technical-records/recalls/{vin}':
+    get:
+      summary: 'Brokering API with MOT recalls API'
+      tags:
+        - Call MOT Recalls
+      parameters:
+        - in: path
+          name: vin
+          schema:
+            type: string
+          required: true
+          description: This represents the vin of the vehicle. Used to call MOT Recalls API.
+      responses:
+        '200':
+          description: Returns recall information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  manufacturer:
+                    type: string
+                  hasRecall:
+                    type: boolean
+        '500':
+          description: Internal server error
+      
 components:
   securitySchemes:
     OAuth2:

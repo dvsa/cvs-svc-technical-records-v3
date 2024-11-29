@@ -38,13 +38,17 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@dvsa/cvs-type-definitions": "^7.6.3",
+    "@dvsa/aws-utilities": "^1.2.0",
+    "@dvsa/cvs-feature-flags": "^0.15.0",
+    "@dvsa/cvs-microservice-common": "^1.2.4",
+    "@dvsa/cvs-type-definitions": "^7.7.1",
     "@types/luxon": "^3.3.0",
     "jwt-decode": "^3.1.2",
     "luxon": "^3.3.0",
     "polly-js": "^1.8.3"
   },
   "devDependencies": {
+    "@aws-sdk/client-appconfigdata": "^3.693.0",
     "@aws-sdk/client-dynamodb": "^3.359.0",
     "@aws-sdk/client-lambda": "^3.362.0",
     "@aws-sdk/client-s3": "^3.550.0",
