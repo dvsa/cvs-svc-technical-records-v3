@@ -18,7 +18,7 @@ describe('syncTestResultInfo handler', () => {
     jest.resetModules();
   });
   describe('Error handling', () => {
-    it('should now throw error if promise is rejected, but report on that failure', async () => {
+    it('should now throw error if problem with syncTestResulInfo method', async () => {
       mockProcessRecord.mockReturnValue(parsedRecord);
       mockSyncTestResultInfo.mockImplementation(() => Promise.reject(new Error('test error')));
       const failures = (await handler(queueEvent)).batchItemFailures;
