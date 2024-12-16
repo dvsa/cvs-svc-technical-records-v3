@@ -1,5 +1,5 @@
-import {getUserDetails, UserDetails} from '../../../src/services/user';
-import {ERRORS} from '../../../src/util/enum';
+import { getUserDetails, UserDetails } from '../../../src/services/user';
+import { ERRORS } from '../../../src/util/enum';
 
 describe('Test User Service', () => {
   describe('Should process user details and return them', () => {
