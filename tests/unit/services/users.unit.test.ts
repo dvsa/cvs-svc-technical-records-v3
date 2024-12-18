@@ -58,15 +58,15 @@ describe('Test User Service', () => {
 
   describe('Should override with ATI system user when the ATI environment variable is set', () => {
     beforeEach(() => {
-      process.env.ATI_APP_ID = undefined;
+      process.env.ATI_APP_IDS = undefined;
     });
 
     afterEach(() => {
-      process.env.ATI_APP_ID = undefined;
+      process.env.ATI_APP_IDS = undefined;
     });
 
     it('should successfully get the system user', () => {
-      process.env.ATI_APP_ID = 'app-id-123';
+      process.env.ATI_APP_IDS = 'app-id-123';
 
       // eslint-disable-next-line max-len
       const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqd3QtYnVpbGRlciIsImlhdCI6MTczNDM2NTcyMywiZXhwIjoxNzY1OTAxNzIzLCJhdWQiOiJzb21lLWF1ZCIsInN1YiI6InNvbWUtc3ViIiwiYXBwaWQiOiJhcHAtaWQtMTIzIiwib2lkIjoib2lkLTEyMyIsImVtYWlsIjoic29tZW9uZUBzb21ld2hlcmUuY29tIn0.itSUmFZOGP6sVAGXzr3rCpTTNd9kL5UB7qou__2EVdI';
