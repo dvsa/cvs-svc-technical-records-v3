@@ -19,6 +19,7 @@
     "max-len":["error", {
       "code": 150,
       "ignoreComments": true
-    }]
+    }],
+    "@typescript-eslint/no-unsafe-enum-comparison": "off"
   }
 }
