@@ -29,7 +29,7 @@ export const validateFeatureFlags = async () => {
   logger.debug('validating the mot recalls feature flags');
   const featureFlags = await getProfile();
 
-  if (!featureFlags.recallsApi) {
+  if (!featureFlags?.recallsApi) {
     logger.error('Recall Feature Flag is undefined');
     return addHttpHeaders({
       statusCode: 500,
@@ -37,7 +37,7 @@ export const validateFeatureFlags = async () => {
     });
   }
 
-  if (!featureFlags.recallsApi.enabled) {
+  if (!featureFlags.recallsApi?.enabled) {
     logger.warn('Flag disabled: please enable for recalls functionality');
     return addHttpHeaders({
       statusCode: 200,
