@@ -5,13 +5,13 @@ const mockProcessUpdateRequest = jest.fn();
 
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/euVehicleCategoryTrl.enum.js';
 import { handler } from '../../../src/handler/update';
 import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
 import { formatErrorMessage } from '../../../src/util/errorMessage';
 import hgvData from '../../resources/techRecordHGVPost.json';
 import { mockToken } from '../util/mockToken';
-import { EUVehicleCategory } from "@dvsa/cvs-type-definitions/types/v3/tech-record/enums/euVehicleCategoryTrl.enum.js";
 
 const trlPayload = {
   techRecord_reasonForCreation: 'Test Update',
@@ -24,7 +24,7 @@ const trlPayload = {
   trailerId: 'C530005',
   techRecord_bodyType_description: 'artic',
   techRecord_bodyType_code: 'a',
-  techRecord_euVehicleCategory: EUVehicleCategory.O3
+  techRecord_euVehicleCategory: EUVehicleCategory.O3,
 };
 
 jest.mock('../../../src/services/database.ts', () => ({
