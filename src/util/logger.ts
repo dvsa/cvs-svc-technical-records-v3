@@ -15,4 +15,12 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
+export const logError = (message: string, error: unknown): void => {
+  const errorInfo = error instanceof Error
+    ? { errorMessage: error.message }
+    : { error: String(error) };
+
+  logger.error(message, { ...errorInfo });
+};
+
 export default logger;
