@@ -1,0 +1,53 @@
+service: cvs-technical-records-v3
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  stage: dev
+  timeout: 60
+  region: eu-west-1
+  environment:
+    BRANCH: local
+    DDB_OFFLINE_ENDPOINT: http://localhost:8000
+    AWS_ACCESS_KEY_ID: accessKeyId
+    AWS_SECRET_ACCESS_KEY: secretAccessKey
+    
+resources:
+  Resources:
+    testNumber:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: cvs-${self:provider.environment.BRANCH}-flat-tech-records
+        AttributeDefinitions:
+          - AttributeName: systemNumber
+            AttributeType: S
+          - AttributeName: createdTimestamp
+            AttributeType: S
+        KeySchema:
+          - AttributeName: systemNumber
+            KeyType: HASH
+          - AttributeName: createdTimestamp
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
+    seed:
+      dev:
+        sources:
+          - table: cvs-${self:provider.environment.BRANCH}-flat-tech-records
+            sources: [./tests/resources/technical-records-v3.json]
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-dynamodb
+  - serverless-offline
