@@ -19,18 +19,151 @@ resources:
       Properties:
         TableName: cvs-${self:provider.environment.BRANCH}-flat-tech-records
         AttributeDefinitions:
-          - AttributeName: systemNumber
-            AttributeType: S
           - AttributeName: createdTimestamp
-            AttributeType: S
+            AttributeType: "S"
+          - AttributeName: trailerId
+            AttributeType: "S"
+          - AttributeName: partialVin
+            AttributeType: "S"
+          - AttributeName: primaryVrm
+            AttributeType: "S"
+          - AttributeName: vin
+            AttributeType: "S"
+          - AttributeName: systemNumber
+            AttributeType: "S"
         KeySchema:
           - AttributeName: systemNumber
             KeyType: HASH
           - AttributeName: createdTimestamp
             KeyType: RANGE
         ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+          ReadCapacityUnits: 0
+          WriteCapacityUnits: 0
+        GlobalSecondaryIndexes:
+          - IndexName: PartialVinIndex
+            KeySchema:
+              - AttributeName: partialVin
+                KeyType: HASH
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes: 
+                - techRecord_createdByName
+                - techRecord_chassisModel
+                - techRecord_make
+                - trailerId
+                - techRecord_chassisMake
+                - techRecord_reasonForCreation
+                - techRecord_manufactureYear
+                - primaryVrm
+                - vin
+                - techRecord_statusCode
+                - createdTimestamp
+                - techRecord_vehicleType
+                - systemNumber
+                - techRecord_model
+            ProvisionedThroughput:
+              ReadCapacityUnits: 0
+              WriteCapacityUnits: 0
+
+          - IndexName: SysNumIndex
+            KeySchema:
+              - AttributeName: systemNumber
+                KeyType: HASH
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes: 
+                - techRecord_createdByName
+                - techRecord_chassisModel
+                - techRecord_make
+                - trailerId
+                - techRecord_chassisMake
+                - techRecord_reasonForCreation
+                - techRecord_manufactureYear
+                - primaryVrm
+                - vin
+                - techRecord_statusCode
+                - createdTimestamp
+                - techRecord_vehicleType
+                - systemNumber
+                - techRecord_model
+            ProvisionedThroughput:
+              ReadCapacityUnits: 0
+              WriteCapacityUnits: 0
+
+          - IndexName: TrailerIdIndex
+            KeySchema:
+              - AttributeName: trailerId
+                KeyType: HASH
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes: 
+                - techRecord_createdByName
+                - techRecord_chassisModel
+                - techRecord_make
+                - trailerId
+                - techRecord_chassisMake
+                - techRecord_reasonForCreation
+                - techRecord_manufactureYear
+                - primaryVrm
+                - vin
+                - techRecord_statusCode
+                - createdTimestamp
+                - techRecord_vehicleType
+                - systemNumber
+                - techRecord_model
+            ProvisionedThroughput:
+              ReadCapacityUnits: 0
+              WriteCapacityUnits: 0
+
+          - IndexName: VRMIndex
+            KeySchema:
+              - AttributeName: primaryVrm
+                KeyType: HASH
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes: 
+                - techRecord_createdByName
+                - techRecord_chassisModel
+                - techRecord_make
+                - trailerId
+                - techRecord_chassisMake
+                - techRecord_reasonForCreation
+                - techRecord_manufactureYear
+                - primaryVrm
+                - vin
+                - techRecord_statusCode
+                - createdTimestamp
+                - techRecord_vehicleType
+                - systemNumber
+                - techRecord_model
+            ProvisionedThroughput:
+              ReadCapacityUnits: 0
+              WriteCapacityUnits: 0
+
+          - IndexName: VinIndex
+            KeySchema:
+              - AttributeName: vin
+                KeyType: HASH
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes: 
+                - techRecord_createdByName
+                - techRecord_chassisModel
+                - techRecord_make
+                - trailerId
+                - techRecord_chassisMake
+                - techRecord_reasonForCreation
+                - techRecord_manufactureYear
+                - primaryVrm
+                - vin
+                - techRecord_statusCode
+                - createdTimestamp
+                - techRecord_vehicleType
+                - systemNumber
+                - techRecord_model
+            ProvisionedThroughput:
+              ReadCapacityUnits: 0
+              WriteCapacityUnits: 0
 
 custom:
   dynamodb:
