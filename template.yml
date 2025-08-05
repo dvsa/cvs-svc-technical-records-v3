@@ -7,7 +7,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: search.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           SearchLambdaApi:
             Type: Api
@@ -19,7 +19,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: get.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           GetLambdaApi:
             Type: Api
@@ -31,7 +31,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: post.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PostLambdaApi:
@@ -44,7 +44,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: archive.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           ArchiveLambdaApi:
             Type: Api
@@ -56,7 +56,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: unarchive.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           ArchiveLambdaApi:
             Type: Api
@@ -68,7 +68,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: update.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PatchLambda:
@@ -81,7 +81,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: promote.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           PromoteLambdaApi:
             Type: Api
@@ -93,7 +93,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: updateVrm.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PatchLambda:
@@ -106,7 +106,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: updateVin.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PatchLambda:
@@ -119,7 +119,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: plate.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PlateLambda:
@@ -132,7 +132,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: letter.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           LetterLambda:
@@ -146,7 +146,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: adrCertificate.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PlateLambda:
@@ -159,7 +159,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: sync-test-result-info.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           SQSEvent:
@@ -167,13 +167,13 @@ Resources:
             Properties:
               Path: !GetAtt LocalQueue.Arn
               BatchSize: 10
-    
+
     RecallsLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
         Handler: motRecalls.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           GetRecallsApi:
             Type: Api
@@ -186,7 +186,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: mot-update-vrm.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
 
     RemoveInvalidPrimaryVrms:
@@ -194,7 +194,7 @@ Resources:
       Properties:
         CodeUri: src/hotfix/cb2-10791/
         Handler: removeInvalidPrimaryVrms.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
 
     BatchPlateCreation:
@@ -202,7 +202,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: batchPlateCreation.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
 
     UploadPlateSeed:
@@ -210,7 +210,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: uploadPlateSeedData.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 900
         MemorySize: 10240
         Events:
@@ -219,13 +219,13 @@ Resources:
             Properties:
               Path: /v3/technical-records/uploadPlateSeed
               Method: get
-                 
+
     LoadBatchPlate:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
         Handler: loadBatchPlate.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           S3Event:
