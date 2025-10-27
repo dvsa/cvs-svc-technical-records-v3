@@ -1,10 +1,13 @@
 import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/euVehicleCategory.enum.js';
 import { SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import 'dotenv/config';
+import { FeatureFlags, getProfile } from '@dvsa/cvs-feature-flags/profiles/vtx';
 import { TestResult } from '../models/testResult';
 import { processRecord } from '../processors/processSQSRecord';
 import { syncTestResultInfo } from '../processors/processSyncTestResultInfo';
 import logger from '../util/logger';
+
+let featureFlags: FeatureFlags;
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   logger.info('sync-test-result-info lambda triggered');
@@ -12,6 +15,18 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const response: SQSBatchResponse = {
     batchItemFailures: [],
   };
+
+  if (!featureFlags) {
+    logger.debug('Retrieving feature flags');
+    featureFlags = await getProfile();
+  } else {
+    logger.debug('Using cached feature flags');
+  }
+
+  if (featureFlags.skipAutomatedProcesses?.syncTestResultInfo) {
+    logger.info('Skip automated process is enabled for syncTestResultInfo - exiting function');
+    return response;
+  }
 
   // eslint-disable-next-line no-restricted-syntax
   for (const record of event.Records) {
