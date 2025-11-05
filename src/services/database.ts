@@ -1,5 +1,6 @@
 import {
   AttributeValue,
+  BatchWriteItemCommand,
   DynamoDBClient,
   GetItemCommand,
   GetItemCommandInput,
@@ -206,6 +207,28 @@ export const inPlaceRecordUpdate = async (updatedRecord: TechRecordType<'get'>) 
     throw new Error(
       // eslint-disable-next-line max-len
       `database client failed in updating in place the record with systemNumber ${updatedRecord.systemNumber} and createdTimestamp ${updatedRecord.createdTimestamp}`,
+    );
+  }
+};
+
+// DO NOT USE THIS UNLESS FOR SEED DATA FOR PLATES
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const insertBatchPlateSeedData = async (putRequests: any) => {
+  const command = new BatchWriteItemCommand({
+    RequestItems: {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      [tableName]: putRequests,
+    },
+  });
+
+  try {
+    await ddbClient.send((command));
+  } catch (err) {
+    logger.error('Error in batch upload for plates: ', err);
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    throw new Error(
+      // eslint-disable-next-line max-len
+      'database client failed in batch plate uploader',
     );
   }
 };

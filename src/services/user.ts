@@ -31,6 +31,19 @@ export const getUserDetails = (jwt: string): UserDetails => {
       return userDetails;
     }
 
+    // Similarly, if the token is from the ATI app, we can set the username and email to ATI_SYSTEM_USER.
+    // We don't want to use the above path as the ATI app is a different entity to the data remediation app.
+
+    // There are possibly multiple app ids per env in VTx based on how Dynamics envs are configured.
+    const atiAppIds = process.env.ATI_APP_IDS?.split(',') ?? [];
+
+    // Longer term, this and the above data bypass would be better served using role based access control.
+    if (!!decodedToken.appid && atiAppIds.includes(decodedToken.appid)) {
+      userDetails.username = 'ATI_SYSTEM_USER';
+      userDetails.email = 'ATI_SYSTEM_USER';
+      return userDetails;
+    }
+
     throw new Error(ERRORS.MISSING_USER_DETAILS);
   }
   return userDetails;
