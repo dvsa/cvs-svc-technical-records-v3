@@ -16,11 +16,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   const searchCriteria: SearchCriteria = event.queryStringParameters?.searchCriteria as SearchCriteria ?? SearchCriteria.ALL;
+  const removeArchived = event.queryStringParameters?.removeArchived === 'true';
   const searchIdentifier: string = decodeURIComponent(event.pathParameters?.searchIdentifier as string).toUpperCase();
-  logger.info(`Search database with identifier ${searchIdentifier} and criteria ${searchCriteria}`);
 
-  const searchResult = searchCriteria === SearchCriteria.ALL
-    ? await searchByAll(searchIdentifier) : await searchByCriteria(searchCriteria, searchIdentifier);
+  logger.info(`Search database with identifier ${searchIdentifier} and criteria ${searchCriteria} (w/ removeArchived: ${removeArchived}`);
+
+  let searchResult = searchCriteria === SearchCriteria.ALL
+    ? await searchByAll(searchIdentifier)
+    : await searchByCriteria(searchCriteria, searchIdentifier);
 
   logger.debug(JSON.stringify(searchResult));
 
@@ -29,6 +32,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       statusCode: 404,
       body: formatErrorMessage(`No records found matching identifier ${searchIdentifier} and criteria ${searchCriteria}`),
     });
+  }
+
+  if (removeArchived) {
+    logger.info('Removing archived records from search results');
+    searchResult = searchResult.filter((record) => record.techRecord_statusCode !== 'archived');
   }
 
   return addHttpHeaders({

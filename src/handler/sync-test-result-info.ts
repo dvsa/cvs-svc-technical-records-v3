@@ -1,10 +1,13 @@
 import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/euVehicleCategory.enum.js';
-import { SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
+import { SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import 'dotenv/config';
-import { TestResult, TestType } from '../models/testResult';
+import { FeatureFlags, getProfile } from '@dvsa/cvs-feature-flags/profiles/vtx';
+import { TestResult } from '../models/testResult';
 import { processRecord } from '../processors/processSQSRecord';
 import { syncTestResultInfo } from '../processors/processSyncTestResultInfo';
 import logger from '../util/logger';
+
+let featureFlags: FeatureFlags;
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   logger.info('sync-test-result-info lambda triggered');
@@ -13,49 +16,47 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
     batchItemFailures: [],
   };
 
-  const promisesArray: Promise<object | undefined>[] = [];
-  try {
-    event.Records.forEach((record: SQSRecord) => {
+  if (!featureFlags) {
+    logger.debug('Retrieving feature flags');
+    featureFlags = await getProfile();
+  } else {
+    logger.debug('Using cached feature flags');
+  }
+
+  if (featureFlags.skipAutomatedProcesses?.syncTestResultInfo) {
+    logger.info('Skip automated process is enabled for syncTestResultInfo - exiting function');
+    return response;
+  }
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const record of event.Records) {
+    try {
       logger.debug('payload received from queue:', record);
       const test = processRecord(record) as TestResult;
       logger.debug('processed record:', test ?? 'no test');
 
-      let promiseUpdateStatus: Promise<object | undefined> | undefined;
-
       if (test) {
-        test.testTypes.forEach((testType: TestType) => {
-          if (promiseUpdateStatus === undefined) {
-            promiseUpdateStatus = syncTestResultInfo(
-              test.systemNumber,
-              test.testStatus,
-              testType.testResult ?? '',
-              testType.testTypeId,
-              test.createdById,
-              test.createdByName,
-              test.euVehicleCategory as EUVehicleCategory || undefined,
-            );
-            promisesArray.push(promiseUpdateStatus);
-          }
-        });
+        // eslint-disable-next-line no-restricted-syntax
+        for (const testType of test.testTypes) {
+          // eslint-disable-next-line no-await-in-loop
+          await syncTestResultInfo(
+            test.systemNumber,
+            test.testStatus,
+            testType.testResult ?? '',
+            testType.testTypeId,
+            test.createdById,
+            test.createdByName,
+            test.euVehicleCategory as EUVehicleCategory || undefined,
+          );
+        }
       }
-    });
-
-    const results = await Promise.allSettled(promisesArray);
-
-    results.forEach((r, i) => {
-      if (r.status === 'rejected' || !r.value) {
-        response.batchItemFailures.push({
-          // eslint-disable-next-line security/detect-object-injection
-          itemIdentifier: event.Records[i].messageId,
-        });
-      }
-    });
-
-    logger.info('resolved promises:', results);
-    return response;
-  } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    logger.error(`an error occurred in the promises ${error}`);
-    throw error;
+    } catch (error) {
+      logger.error(`an error occurred while processing record ${record.messageId}: ${error instanceof Error
+        ? error.message
+        : JSON.stringify(error)}`);
+      response.batchItemFailures.push({ itemIdentifier: record.messageId });
+    }
   }
+
+  return response;
 };
