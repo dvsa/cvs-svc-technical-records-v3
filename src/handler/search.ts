@@ -16,6 +16,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   const searchCriteria: SearchCriteria = event.queryStringParameters?.searchCriteria as SearchCriteria ?? SearchCriteria.ALL;
+  const additionalInfo = event.queryStringParameters?.additionalInfo === 'true';
   const removeArchived = event.queryStringParameters?.removeArchived === 'true';
   const searchIdentifier: string = decodeURIComponent(event.pathParameters?.searchIdentifier as string).toUpperCase();
 
@@ -37,6 +38,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   if (removeArchived) {
     logger.info('Removing archived records from search results');
     searchResult = searchResult.filter((record) => record.techRecord_statusCode !== 'archived');
+  }
+
+  if (!additionalInfo) {
+    logger.info('Removing additional info from search results');
+    searchResult = searchResult.map(({ techRecord_applicantDetails_emailAddress, ...filteredResult }) => filteredResult);
   }
 
   return addHttpHeaders({
