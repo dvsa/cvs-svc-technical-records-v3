@@ -4,11 +4,8 @@ const mockSearchByAll = jest.fn();
 const mockSearchByCriteria = jest.fn();
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
-import { VehicleType } from '@dvsa/cvs-type-definitions/types/v1/enums/vehicleType.enum';
 import { handler } from '../../../src/handler/search';
 import { formatErrorMessage } from '../../../src/util/errorMessage';
-import { SearchResult } from '../../../src/models/search';
-import { StatusCode } from '../../../src/util/enum';
 
 jest.mock('../../../src/validators/search.ts', () => ({
   validateSearchErrors: mockValidateSearchErrors,
@@ -23,43 +20,6 @@ const headers = {
   'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
   'Access-Control-Allow-Origin': '*',
 };
-
-const mockSearchResponse = [
-  {
-    primaryVrm: 'AB12CDE',
-    vin: '1HGCM82633A004352',
-    techRecord_statusCode: StatusCode.CURRENT,
-    techRecord_vehicleType: VehicleType.TRL,
-    createdTimestamp: '2026-01-01T12:00:000Z',
-    trailerId: 'TRL00001',
-    systemNumber: '123456',
-    techRecord_chassisMake: 'make',
-    techRecord_chassisModel: 'model',
-    techRecord_make: 'make',
-    techRecord_model: 'model',
-    techRecord_manufactureYear: 2025,
-    techRecord_reasonForCreation: 'updated record',
-    techRecord_createdByName: 'John Doe',
-    techRecord_applicantDetails_emailAddress: 'john.doe@example.com',
-  },
-  {
-    primaryVrm: 'AB12CDE',
-    vin: '1HGCM82633A004352',
-    techRecord_statusCode: StatusCode.ARCHIVED,
-    techRecord_vehicleType: VehicleType.TRL,
-    createdTimestamp: '2025-12-01T12:00:000Z',
-    trailerId: 'TRL00001',
-    systemNumber: '123456',
-    techRecord_chassisMake: 'make',
-    techRecord_chassisModel: 'model',
-    techRecord_make: 'make',
-    techRecord_model: 'model',
-    techRecord_manufactureYear: 2025,
-    techRecord_reasonForCreation: 'new record',
-    techRecord_createdByName: 'John Doe',
-    techRecord_applicantDetails_emailAddress: 'john.doe@example.com',
-  },
-] as SearchResult[];
 
 describe('Test Search Lambda Function', () => {
   beforeEach(() => {
@@ -84,72 +44,42 @@ describe('Test Search Lambda Function', () => {
   describe('successful calls', () => {
     it('should return results when given a search identifier', async () => {
       mockValidateSearchErrors.mockReturnValueOnce(null);
-      mockSearchByCriteria.mockResolvedValueOnce(mockSearchResponse);
+      mockSearchByCriteria.mockResolvedValueOnce(['record 1', 'record 2']);
       const result = await handler({
         pathParameters: { searchIdentifier: '123456' },
-        queryStringParameters: { searchCriteria: 'systemNumber', additionalInfo: 'true' },
+        queryStringParameters: { searchCriteria: 'systemNumber' },
       } as unknown as APIGatewayProxyEvent);
       expect(mockSearchByCriteria).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ statusCode: 200, body: JSON.stringify(mockSearchResponse), headers });
+      expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]', headers });
     });
 
     it('should return results when given the optional removed archived search criteria', async () => {
       mockValidateSearchErrors.mockReturnValueOnce(null);
-      mockSearchByCriteria.mockResolvedValueOnce(mockSearchResponse);
+      mockSearchByCriteria.mockResolvedValueOnce(['record 1', 'record 2']);
       const result = await handler({
         pathParameters: { searchIdentifier: '123456' },
-        queryStringParameters: { searchCriteria: 'systemNumber', removeArchived: 'true', additionalInfo: 'true' },
+        queryStringParameters: { searchCriteria: 'systemNumber', removeArchived: true },
       } as unknown as APIGatewayProxyEvent);
       expect(mockSearchByCriteria).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ statusCode: 200, body: JSON.stringify([mockSearchResponse[0]]), headers });
-    });
-
-    it('should return results when additional info is false', async () => {
-      mockValidateSearchErrors.mockReturnValueOnce(null);
-      mockSearchByCriteria.mockResolvedValueOnce(mockSearchResponse);
-      const result = await handler({
-        pathParameters: { searchIdentifier: '123456' },
-        queryStringParameters: { searchCriteria: 'systemNumber', removeArchived: 'true' },
-      } as unknown as APIGatewayProxyEvent);
-      const expectedResponse = mockSearchResponse.map(({ techRecord_applicantDetails_emailAddress, ...filtered }) => filtered);
-      expect(mockSearchByCriteria).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ statusCode: 200, body: JSON.stringify([expectedResponse[0]]), headers });
+      expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]', headers });
     });
 
     it('should return results when not given a search criteria', async () => {
       mockValidateSearchErrors.mockReturnValueOnce(null);
-      mockSearchByAll.mockResolvedValueOnce(mockSearchResponse);
-      const result = await handler({
-        pathParameters: { searchIdentifier: '123456' },
-        queryStringParameters: { additionalInfo: 'true' },
-      } as unknown as APIGatewayProxyEvent);
+      mockSearchByAll.mockResolvedValueOnce(['record 1', 'record 2']);
+      const result = await handler({ pathParameters: { searchIdentifier: '123456' } } as unknown as APIGatewayProxyEvent);
       expect(mockSearchByAll).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ statusCode: 200, body: JSON.stringify(mockSearchResponse), headers });
-    });
-
-    it('should return results when not given a search criteria and additional info is false', async () => {
-      mockValidateSearchErrors.mockReturnValueOnce(null);
-      mockSearchByAll.mockResolvedValueOnce(mockSearchResponse);
-      const result = await handler({
-        pathParameters: { searchIdentifier: '123456' },
-        queryStringParameters: { additionalInfo: 'false' },
-      } as unknown as APIGatewayProxyEvent);
-      const expectedResponse = mockSearchResponse.map(({ techRecord_applicantDetails_emailAddress, ...filtered }) => filtered);
-      expect(mockSearchByAll).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ statusCode: 200, body: JSON.stringify(expectedResponse), headers });
+      expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]', headers });
     });
 
     it('should capitalise the searchIdentifier', async () => {
       const searchIdentifier = 'a lower case string';
       mockValidateSearchErrors.mockReturnValueOnce(null);
-      mockSearchByAll.mockResolvedValueOnce(mockSearchResponse);
-      const result = await handler({
-        pathParameters: { searchIdentifier },
-        queryStringParameters: { additionalInfo: 'true' },
-      } as unknown as APIGatewayProxyEvent);
+      mockSearchByAll.mockResolvedValueOnce(['record 1', 'record 2']);
+      const result = await handler({ pathParameters: { searchIdentifier } } as unknown as APIGatewayProxyEvent);
       expect(mockSearchByAll).toHaveBeenCalledTimes(1);
       expect(mockSearchByAll).toHaveBeenLastCalledWith(searchIdentifier.toUpperCase());
-      expect(result).toEqual({ statusCode: 200, body: JSON.stringify(mockSearchResponse), headers });
+      expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]', headers });
     });
   });
 });
