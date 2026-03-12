@@ -42,12 +42,23 @@ describe('Test Search Lambda Function', () => {
   });
 
   describe('successful calls', () => {
-    it('should return results when given a search criteria', async () => {
+    it('should return results when given a search identifier', async () => {
       mockValidateSearchErrors.mockReturnValueOnce(null);
       mockSearchByCriteria.mockResolvedValueOnce(['record 1', 'record 2']);
       const result = await handler({
         pathParameters: { searchIdentifier: '123456' },
         queryStringParameters: { searchCriteria: 'systemNumber' },
+      } as unknown as APIGatewayProxyEvent);
+      expect(mockSearchByCriteria).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]', headers });
+    });
+
+    it('should return results when given the optional removed archived search criteria', async () => {
+      mockValidateSearchErrors.mockReturnValueOnce(null);
+      mockSearchByCriteria.mockResolvedValueOnce(['record 1', 'record 2']);
+      const result = await handler({
+        pathParameters: { searchIdentifier: '123456' },
+        queryStringParameters: { searchCriteria: 'systemNumber', removeArchived: true },
       } as unknown as APIGatewayProxyEvent);
       expect(mockSearchByCriteria).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ statusCode: 200, body: '["record 1","record 2"]', headers });
