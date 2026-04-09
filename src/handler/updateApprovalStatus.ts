@@ -15,7 +15,7 @@ import {
 } from '../validators/updateApprovalStatus';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.info('Patch end point called');
+  logger.info('Update approval status end point called');
 
   try {
     const isRequestInvalid = validateSysNumTimestampPathParams(event);
