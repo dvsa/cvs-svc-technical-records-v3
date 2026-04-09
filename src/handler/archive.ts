@@ -48,7 +48,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       });
     }
 
-    const updatedRecord = setLastUpdatedAuditDetails(record, 'ash', 'oid', new Date().toISOString(), StatusCode.ARCHIVED);
+    const updatedRecord = setLastUpdatedAuditDetails(record, userDetails.username, userDetails.msOid, new Date().toISOString(), StatusCode.ARCHIVED);
 
     updateNotes(body.reasonForArchiving, updatedRecord, record);
 
