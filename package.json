@@ -41,7 +41,7 @@
     "@dvsa/aws-utilities": "^1.2.0",
     "@dvsa/cvs-feature-flags": "^0.24.0",
     "@dvsa/cvs-microservice-common": "^1.2.4",
-    "@dvsa/cvs-type-definitions": "10.0.0",
+    "@dvsa/cvs-type-definitions": "12.6.0",
     "@types/luxon": "^3.3.0",
     "jwt-decode": "^3.1.2",
     "luxon": "^3.3.0",

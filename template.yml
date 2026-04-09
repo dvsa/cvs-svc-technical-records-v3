@@ -14,6 +14,18 @@ Resources:
             Properties:
               Path: /v3/technical-records/search/{searchIdentifier}
               Method: get
+    UpdateApprovalStatus:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: updateApprovalStatus.handler
+        Runtime: nodejs22.x
+        Events:
+          GetLambdaApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/updateApprovalStatus/{systemNumber}/{createdTimestamp}
+              Method: patch
     GetLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
