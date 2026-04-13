@@ -1,5 +1,5 @@
 import { validateUpdateApprovalStatusErrors } from '../../../src/validators/updateApprovalStatus';
-import {ERRORS} from "../../../src/util/enum";
+import { ERRORS } from '../../../src/util/enum';
 
 describe('validateUpdateApprovalStatusErrors', () => {
   const validDate = '2023-04-13';
@@ -72,8 +72,3 @@ describe('validateUpdateApprovalStatusErrors', () => {
     expect(result).toBeFalsy();
   });
 });
-
-
-
-
-

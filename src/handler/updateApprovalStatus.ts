@@ -36,7 +36,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const statusCodeErrors = checkStatusCodeValidity(recordFromDB.techRecord_statusCode);
     if (statusCodeErrors) return addHttpHeaders(statusCodeErrors);
 
-    if ("techRecord_adrDetails_dangerousGoods" in recordFromDB && recordFromDB.techRecord_adrDetails_dangerousGoods === false) {
+    if ('techRecord_adrDetails_dangerousGoods' in recordFromDB && recordFromDB.techRecord_adrDetails_dangerousGoods === false) {
       return addHttpHeaders({ statusCode: 404, body: JSON.stringify({ message: 'Record does not have ADR details' }) });
     }
 

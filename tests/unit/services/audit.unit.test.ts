@@ -2,7 +2,7 @@ import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/
 import {
   setCreatedAuditDetails,
   setLastUpdatedAuditDetails,
-  setPatchUpdatedAuditDetails
+  setPatchUpdatedAuditDetails,
 } from '../../../src/services/audit';
 import { StatusCode } from '../../../src/util/enum';
 
