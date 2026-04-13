@@ -49,19 +49,19 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       techRecord_adrDetails_receivedDate: parsedBody.receivedDate,
     } as unknown as TechRecordType<'get'>;
 
-    const date = new Date().toISOString();
+    const auditDate = new Date().toISOString();
     const updatedNewRecord = setPatchUpdatedAuditDetails(
       updatedRecord,
       userDetails.username,
       userDetails.msOid,
-      date,
+      auditDate,
     );
 
     const updatedRecordFromDB = setLastUpdatedAuditDetails(
       recordFromDB,
       userDetails.username,
       userDetails.msOid,
-      date,
+      auditDate,
       StatusCode.ARCHIVED,
     );
 

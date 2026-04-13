@@ -2,7 +2,7 @@ import { isObjectEmpty } from './emptyObject';
 import { formatErrorMessage } from '../util/errorMessage';
 import { ERRORS } from '../util/enum';
 
-const receivedDateFormat = /^\\d{4}-\\d{2}-\\d{2}$/;
+const receivedDateFormat = /^\d{4}-\d{2}-\d{2}$/;
 
 export const validateUpdateApprovalStatusErrors = (requestBody: string | null) => {
   if (!requestBody) {

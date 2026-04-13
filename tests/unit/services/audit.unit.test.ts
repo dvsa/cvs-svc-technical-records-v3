@@ -1,5 +1,9 @@
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
-import { setCreatedAuditDetails, setLastUpdatedAuditDetails } from '../../../src/services/audit';
+import {
+  setCreatedAuditDetails,
+  setLastUpdatedAuditDetails,
+  setPatchUpdatedAuditDetails
+} from '../../../src/services/audit';
 import { StatusCode } from '../../../src/util/enum';
 
 describe('Audit details tests', () => {
@@ -34,6 +38,21 @@ describe('Audit details tests', () => {
         techRecord_createdByName: 'user',
         techRecord_createdById: '123',
         techRecord_statusCode: StatusCode.CURRENT,
+      });
+    });
+  });
+
+  describe('setPatchUpdatedAuditDetails', () => {
+    it('should set the correct details', () => {
+      const date = new Date().toISOString();
+
+      const res = setPatchUpdatedAuditDetails({} as TechRecordType<'get'>, 'user', '123', date);
+
+      expect(res).toEqual({
+        techRecord_lastUpdatedAt: date,
+        techRecord_reasonForCreation: 'ADR approval details updated',
+        techRecord_lastUpdatedByName: 'user',
+        techRecord_lastUpdatedById: '123',
       });
     });
   });
