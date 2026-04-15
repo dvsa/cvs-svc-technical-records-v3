@@ -4,7 +4,7 @@ import { ERRORS } from '../util/enum';
 
 const receivedDateFormat = /^\d{4}-\d{2}-\d{2}$/;
 
-export const validateUpdateApprovalStatusErrors = (requestBody: string | null) => {
+export const validateUpdateADRErrors = (requestBody: string | null) => {
   if (!requestBody) {
     return { statusCode: 400, body: formatErrorMessage(ERRORS.MISSING_PAYLOAD) };
   }

@@ -3,7 +3,7 @@ const mockGetBySystemNumberAndCreatedTimestamp = jest.fn();
 const mockUpdateVehicle = jest.fn();
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { handler } from '../../../src/handler/updateApprovalStatus';
+import { handler } from '../../../src/handler/updateADR';
 import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
 import { formatErrorMessage } from '../../../src/util/errorMessage';

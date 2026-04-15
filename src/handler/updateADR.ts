@@ -11,8 +11,8 @@ import { validateSysNumTimestampPathParams } from '../validators/sysNumTimestamp
 import { checkStatusCodeValidity } from '../validators/update';
 import { setLastUpdatedAuditDetails, setPatchUpdatedAuditDetails } from '../services/audit';
 import {
-  validateUpdateApprovalStatusErrors,
-} from '../validators/updateApprovalStatus';
+  validateUpdateADRErrors,
+} from '../validators/updateADR';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Update ADR approval status end point called');
@@ -23,7 +23,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const { body } = event;
 
-    const isRequestBodyInvalid = validateUpdateApprovalStatusErrors(body);
+    const isRequestBodyInvalid = validateUpdateADRErrors(body);
     if (isRequestBodyInvalid) return addHttpHeaders(isRequestBodyInvalid);
 
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
@@ -36,11 +36,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const statusCodeErrors = checkStatusCodeValidity(recordFromDB.techRecord_statusCode);
     if (statusCodeErrors) return addHttpHeaders(statusCodeErrors);
 
-    if ('techRecord_adrDetails_dangerousGoods' in recordFromDB && recordFromDB.techRecord_adrDetails_dangerousGoods === false) {
+    logger.info('Record found', { recordFromDB });
+
+    if (!('techRecord_adrDetails_dangerousGoods' in recordFromDB)
+      || !recordFromDB.techRecord_adrDetails_dangerousGoods) {
+      logger.info('No ADR details found on record, cannot update ADR approval status');
       return addHttpHeaders({ statusCode: 404, body: JSON.stringify({ message: 'Record does not have ADR details' }) });
     }
 
     const parsedBody = JSON.parse(body ?? '{}') as { adrApproved: boolean; receivedDate: string; };
+    logger.info('Request body', {parsedBody});
 
     // Casting as unknown to bypass TS error for now
     const updatedRecord = {

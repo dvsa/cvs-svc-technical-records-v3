@@ -14,17 +14,17 @@ Resources:
             Properties:
               Path: /v3/technical-records/search/{searchIdentifier}
               Method: get
-    UpdateApprovalStatus:
+    UpdateADRFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
-        Handler: updateApprovalStatus.handler
+        Handler: updateADR.ts
         Runtime: nodejs22.x
         Events:
-          GetLambdaApi:
+          UpdateADRApi:
             Type: Api
             Properties:
-              Path: /v3/technical-records/updateApprovalStatus/{systemNumber}/{createdTimestamp}
+              Path: /v3/technical-records/updateADR/{systemNumber}/{createdTimestamp}
               Method: patch
     GetLambdaFunction:
       Type: 'AWS::Serverless::Function'
