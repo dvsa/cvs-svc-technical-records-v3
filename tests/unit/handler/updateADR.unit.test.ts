@@ -24,7 +24,7 @@ const mockUserDetails = {
   username: 'Test User', msOid: '123456', email: 'testUser@test.com',
 };
 
-describe('update approval status handler', () => {
+describe('update adr handler', () => {
   let request: APIGatewayProxyEvent;
   beforeEach(() => {
     request = {
@@ -148,14 +148,14 @@ describe('update approval status handler', () => {
       expect(result.body).toEqual(formatErrorMessage(ERRORS.CANNOT_UPDATE_ARCHIVED_RECORD));
     });
 
-    it('should return 404 if record has dangerousGoods set to false', async () => {
+    it('should return 400 if record has dangerousGoods set to false', async () => {
       jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
       mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({
         techRecord_statusCode: 'current',
         techRecord_adrDetails_dangerousGoods: false,
       });
       const result = await handler(request);
-      expect(result.statusCode).toBe(404);
+      expect(result.statusCode).toBe(400);
       expect(result.body).toBe(JSON.stringify({ message: 'Record does not have ADR details' }));
     });
 
@@ -166,24 +166,5 @@ describe('update approval status handler', () => {
       expect(result.statusCode).toBe(500);
       expect(result.body).toEqual(formatErrorMessage(ERRORS.FAILED_UPDATE_MESSAGE));
     });
-
-    // it('should return 500 if getUserDetails throws', async () => {
-    //   jest.spyOn(UserDetails, 'getUserDetails').mockImplementationOnce(() => { throw new Error('Bad token'); });
-    //   const result = await handler(request);
-    //   expect(result.statusCode).toBe(500);
-    //   expect(result.body).toEqual(formatErrorMessage(ERRORS.FAILED_UPDATE_MESSAGE));
-    // });
-    //
-    // it('should handle missing Authorization header gracefully', async () => {
-    //   request.headers = {};
-    //   jest.spyOn(UserDetails, 'getUserDetails').mockReturnValueOnce(mockUserDetails);
-    //   mockGetBySystemNumberAndCreatedTimestamp.mockResolvedValueOnce({
-    //     techRecord_statusCode: 'current',
-    //     techRecord_adrDetails_dangerousGoods: true,
-    //   });
-    //   mockUpdateVehicle.mockResolvedValueOnce(undefined);
-    //   const result = await handler(request);
-    //   expect(result.statusCode).toBe(204);
-    // });
   });
 });

@@ -1,7 +1,7 @@
 import { validateUpdateADRErrors } from '../../../src/validators/updateADR';
 import { ERRORS } from '../../../src/util/enum';
 
-describe('validateUpdateApprovalStatusErrors', () => {
+describe('validateUpdateADRErrors', () => {
   const validDate = '2023-04-13';
   const today = new Date().toISOString().slice(0, 10);
   const futureDate = '2999-01-01';
