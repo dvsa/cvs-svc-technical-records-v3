@@ -9,16 +9,25 @@ export const validateUpdateADRErrors = (requestBody: string | null) => {
     return { statusCode: 400, body: formatErrorMessage(ERRORS.MISSING_PAYLOAD) };
   }
 
-  const parsedBody = JSON.parse(requestBody) as { adrApproved: boolean | undefined; receivedDate: string | undefined; };
+  const parsedBody = JSON.parse(requestBody) as { adrApproved: boolean; receivedDate: string; applicationNumber: string };
+  console.log('Parsed body:', parsedBody);
   if (!parsedBody || isObjectEmpty(parsedBody)) {
     return { statusCode: 400, body: formatErrorMessage(ERRORS.MISSING_PAYLOAD) };
   }
 
-  if (typeof parsedBody.adrApproved !== 'boolean') {
-    return { statusCode: 400, body: formatErrorMessage('adrApproved must be a boolean') };
+  if (parsedBody.adrApproved === undefined || parsedBody.adrApproved === null) {
+    return { statusCode: 400, body: formatErrorMessage('payload missing adrApproved') };
   }
 
-  if (typeof parsedBody.receivedDate !== 'string' || !receivedDateFormat.test(parsedBody.receivedDate)) {
+  if (!parsedBody.receivedDate) {
+    return { statusCode: 400, body: formatErrorMessage('payload missing receivedDate') };
+  }
+
+  if (!parsedBody.applicationNumber) {
+    return { statusCode: 400, body: formatErrorMessage('payload missing applicationNumber') };
+  }
+
+  if (!receivedDateFormat.test(parsedBody.receivedDate)) {
     return { statusCode: 400, body: formatErrorMessage('Invalid receivedDate provided') };
   }
 

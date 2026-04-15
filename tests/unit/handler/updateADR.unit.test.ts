@@ -18,6 +18,7 @@ jest.mock('../../../src/services/database.ts', () => ({
 const payload = {
   adrApproved: true,
   receivedDate: '2024-01-01',
+  applicationNumber: '123',
 };
 
 const mockUserDetails = {
@@ -68,6 +69,7 @@ describe('update adr handler', () => {
         techRecord_statusCode: 'current',
         techRecord_adrDetails_approved: payload.adrApproved,
         techRecord_adrDetails_receivedDate: payload.receivedDate,
+        techRecord_adrDetails_applicationNumber: payload.applicationNumber,
         techRecord_reasonForCreation: 'ADR approval details updated',
       });
       expect(newRecords[0].createdTimestamp).not.toBe(recordsToArchive[0].createdTimestamp);
@@ -104,29 +106,36 @@ describe('update adr handler', () => {
       expect(result.body).toBe(formatErrorMessage(ERRORS.MISSING_PAYLOAD));
     });
 
-    it('should error if adrApproved is not a boolean', async () => {
-      request.body = JSON.stringify({ adrApproved: 'yes', receivedDate: '2024-01-01' });
+    it('should error if adrApproved is missing', async () => {
+      request.body = JSON.stringify({ receivedDate: '2024-01-01', applicationNumber: '123' });
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toBe(formatErrorMessage('adrApproved must be a boolean'));
+      expect(result.body).toBe(formatErrorMessage('payload missing adrApproved'));
     });
 
     it('should error if receivedDate is not provided', async () => {
-      request.body = JSON.stringify({ adrApproved: true });
+      request.body = JSON.stringify({ adrApproved: true, applicationNumber: '123' });
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
-      expect(result.body).toBe(formatErrorMessage('Invalid receivedDate provided'));
+      expect(result.body).toBe(formatErrorMessage('payload missing receivedDate'));
+    });
+
+    it('should error if applicationNumber is not provided', async () => {
+      request.body = JSON.stringify({ adrApproved: true, receivedDate: '2024-01-01' });
+      const result = await handler(request);
+      expect(result.statusCode).toBe(400);
+      expect(result.body).toBe(formatErrorMessage('payload missing applicationNumber'));
     });
 
     it('should error if receivedDate has invalid format', async () => {
-      request.body = JSON.stringify({ adrApproved: true, receivedDate: '01-01-2024' });
+      request.body = JSON.stringify({ adrApproved: true, receivedDate: '01-01-2024', applicationNumber: '123' });
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe(formatErrorMessage('Invalid receivedDate provided'));
     });
 
     it('should error if receivedDate is in the future', async () => {
-      request.body = JSON.stringify({ adrApproved: true, receivedDate: '2099-01-01' });
+      request.body = JSON.stringify({ adrApproved: true, receivedDate: '2099-01-01', applicationNumber: '123' });
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe(formatErrorMessage('receivedDate cannot be in the future'));

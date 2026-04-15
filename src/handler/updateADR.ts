@@ -23,6 +23,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const { body } = event;
 
+    logger.info('Validating request body', { body });
     const isRequestBodyInvalid = validateUpdateADRErrors(body);
     if (isRequestBodyInvalid) return addHttpHeaders(isRequestBodyInvalid);
 
@@ -44,13 +45,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return addHttpHeaders({ statusCode: 400, body: JSON.stringify({ message: 'Record does not have ADR details' }) });
     }
 
-    const parsedBody = JSON.parse(body ?? '{}') as { adrApproved: boolean; receivedDate: string; };
+    const parsedBody = JSON.parse(body ?? '{}') as { adrApproved: boolean; receivedDate: string; applicationNumber: string };
 
     // Casting as unknown to bypass TS error for now
     const updatedRecord = {
       ...recordFromDB,
       techRecord_adrDetails_approved: parsedBody.adrApproved,
       techRecord_adrDetails_receivedDate: parsedBody.receivedDate,
+      techRecord_adrDetails_applicationNumber: parsedBody.applicationNumber,
     } as unknown as TechRecordType<'get'>;
 
     const auditDate = new Date().toISOString();
