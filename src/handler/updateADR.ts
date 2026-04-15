@@ -45,7 +45,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     const parsedBody = JSON.parse(body ?? '{}') as { adrApproved: boolean; receivedDate: string; };
-    logger.info('Request body', {parsedBody});
+    logger.info('Request body', { parsedBody });
 
     // Casting as unknown to bypass TS error for now
     const updatedRecord = {
