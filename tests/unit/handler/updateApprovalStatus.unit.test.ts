@@ -54,6 +54,23 @@ describe('update approval status handler', () => {
 
       expect(mockGetBySystemNumberAndCreatedTimestamp).toHaveBeenCalledTimes(1);
       expect(mockUpdateVehicle).toHaveBeenCalledTimes(1);
+      const [recordsToArchive, newRecords] = mockUpdateVehicle.mock.calls[0] as [
+        Array<Record<string, unknown>>,
+        Array<Record<string, unknown>>,
+      ];
+      expect(recordsToArchive[0]).toMatchObject({
+        systemNumber: '10000067',
+        createdTimestamp: '2023-06-16T11:26:30.196Z',
+        techRecord_statusCode: 'archived',
+      });
+      expect(newRecords[0]).toMatchObject({
+        systemNumber: '10000067',
+        techRecord_statusCode: 'current',
+        techRecord_adrDetails_approved: payload.adrApproved,
+        techRecord_adrDetails_receivedDate: payload.receivedDate,
+        techRecord_reasonForCreation: 'ADR approval details updated',
+      });
+      expect(newRecords[0].createdTimestamp).not.toBe(recordsToArchive[0].createdTimestamp);
       expect(result.body).not.toBeNull();
     });
   });

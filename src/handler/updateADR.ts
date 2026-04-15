@@ -60,6 +60,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       userDetails.username,
       userDetails.msOid,
       auditDate,
+      updatedRecord.techRecord_statusCode as StatusCode,
     );
 
     const updatedRecordFromDB = setLastUpdatedAuditDetails(

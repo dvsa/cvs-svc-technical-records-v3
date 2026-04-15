@@ -38,10 +38,8 @@ export const setPatchUpdatedAuditDetails = (
   createdByName: string,
   createdById: string,
   date: string,
+  statusCode: StatusCode,
 ): TechRecordType<'get'> => {
-  techRecord.techRecord_lastUpdatedAt = date;
   techRecord.techRecord_reasonForCreation = 'ADR approval details updated';
-  techRecord.techRecord_lastUpdatedByName = createdByName;
-  techRecord.techRecord_lastUpdatedById = createdById;
-  return techRecord;
+  return setCreatedAuditDetails(techRecord, createdByName, createdById, date, statusCode);
 };

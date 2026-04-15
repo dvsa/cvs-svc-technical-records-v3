@@ -46,13 +46,15 @@ describe('Audit details tests', () => {
     it('should set the correct details', () => {
       const date = new Date().toISOString();
 
-      const res = setPatchUpdatedAuditDetails({} as TechRecordType<'get'>, 'user', '123', date);
+      const res = setPatchUpdatedAuditDetails({} as TechRecordType<'get'>, 'user', '123', date, StatusCode.CURRENT);
 
       expect(res).toEqual({
-        techRecord_lastUpdatedAt: date,
         techRecord_reasonForCreation: 'ADR approval details updated',
-        techRecord_lastUpdatedByName: 'user',
-        techRecord_lastUpdatedById: '123',
+        techRecord_createdAt: date,
+        createdTimestamp: date,
+        techRecord_createdByName: 'user',
+        techRecord_createdById: '123',
+        techRecord_statusCode: StatusCode.CURRENT,
       });
     });
   });
