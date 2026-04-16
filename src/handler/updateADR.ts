@@ -32,7 +32,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const createdTimestamp = decodeURIComponent(event.pathParameters?.createdTimestamp ?? '');
 
     const recordFromDB = await getBySystemNumberAndCreatedTimestamp(systemNumber, createdTimestamp);
-    if (!recordFromDB) return addHttpHeaders({ statusCode: 404, body: JSON.stringify({ message: 'Record not found.' }) });
+    if ((!recordFromDB) || (Object.keys(recordFromDB).length === 0)) {
+      logger.info('Technical record not found', { recordFromDB });
+      return addHttpHeaders({ statusCode: 404, body: JSON.stringify({ message: 'Record not found.' }) });
+    }
 
     const statusCodeErrors = checkStatusCodeValidity(recordFromDB.techRecord_statusCode);
     if (statusCodeErrors) return addHttpHeaders(statusCodeErrors);
