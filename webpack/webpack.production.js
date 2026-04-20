@@ -9,7 +9,7 @@ const LAMBDA_NAMES = ['SearchLambdaFunction', 'GetLambdaFunction', 'PostLambdaFu
  'ArchiveLambdaFunction', 'UnarchiveLambdaFunction', 'PromoteLambdaFunction', 'UpdateVrmFunction',
  'UpdateVinFunction', 'GeneratePlateFunction', 'GenerateLetterFunction', 'SyncTestResultInfoFunction',
  'GenerateAdrCertificateFunction', 'RemoveInvalidPrimaryVrms', 'BatchPlateCreation', 'MotUpdateVrm','LoadBatchPlate',
- 'UploadPlateSeed', 'RecallsLambdaFunction'];
+ 'UploadPlateSeed', 'RecallsLambdaFunction','UpdateADRFunction'];
 
 const OUTPUT_FOLDER = './'
 

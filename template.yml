@@ -14,6 +14,18 @@ Resources:
             Properties:
               Path: /v3/technical-records/search/{searchIdentifier}
               Method: get
+    UpdateADRFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: updateADR.ts
+        Runtime: nodejs22.x
+        Events:
+          UpdateADRApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/updateADR/{systemNumber}/{createdTimestamp}
+              Method: patch
     GetLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
