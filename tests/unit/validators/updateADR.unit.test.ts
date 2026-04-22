@@ -5,7 +5,7 @@ describe('validateUpdateADRErrors', () => {
   const validDate = '2023-04-13';
   const today = new Date().toISOString().slice(0, 10);
   const futureDate = '2999-01-01';
-  const applicationNumber = '12345';
+  const applicationNumber = 'APP-0123456-0101-01';
 
   it('should return error if requestBody is null', () => {
     const result = validateUpdateADRErrors(null);
@@ -60,6 +60,14 @@ describe('validateUpdateADRErrors', () => {
     expect(result).toEqual({
       statusCode: 400,
       body: JSON.stringify({ errors: ['payload missing applicationNumber'] }),
+    });
+  });
+
+  it('should return error if applicationNumber is not in valid format', () => {
+    const result = validateUpdateADRErrors(JSON.stringify({ adrApproved: true, receivedDate: validDate, applicationNumber: '12345' }));
+    expect(result).toEqual({
+      statusCode: 400,
+      body: JSON.stringify({ errors: ['Invalid applicationNumber provided'] }),
     });
   });
 
