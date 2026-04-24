@@ -15,10 +15,12 @@ jest.mock('../../../src/services/database.ts', () => ({
   updateVehicle: mockUpdateVehicle,
 }));
 
+const applicationNumber = 'APP-0123456-0101-01';
+
 const payload = {
   adrApproved: true,
   receivedDate: '2024-01-01',
-  applicationNumber: '123',
+  applicationNumber,
 };
 
 const mockUserDetails = {
@@ -107,14 +109,14 @@ describe('update adr handler', () => {
     });
 
     it('should error if adrApproved is missing', async () => {
-      request.body = JSON.stringify({ receivedDate: '2024-01-01', applicationNumber: '123' });
+      request.body = JSON.stringify({ receivedDate: '2024-01-01', applicationNumber });
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe(formatErrorMessage('payload missing adrApproved'));
     });
 
     it('should error if receivedDate is not provided', async () => {
-      request.body = JSON.stringify({ adrApproved: true, applicationNumber: '123' });
+      request.body = JSON.stringify({ adrApproved: true, applicationNumber });
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe(formatErrorMessage('payload missing receivedDate'));
@@ -128,14 +130,14 @@ describe('update adr handler', () => {
     });
 
     it('should error if receivedDate has invalid format', async () => {
-      request.body = JSON.stringify({ adrApproved: true, receivedDate: '01-01-2024', applicationNumber: '123' });
+      request.body = JSON.stringify({ adrApproved: true, receivedDate: '01-01-2024', applicationNumber });
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe(formatErrorMessage('Invalid receivedDate provided'));
     });
 
     it('should error if receivedDate is in the future', async () => {
-      request.body = JSON.stringify({ adrApproved: true, receivedDate: '2099-01-01', applicationNumber: '123' });
+      request.body = JSON.stringify({ adrApproved: true, receivedDate: '2099-01-01', applicationNumber });
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe(formatErrorMessage('receivedDate cannot be in the future'));

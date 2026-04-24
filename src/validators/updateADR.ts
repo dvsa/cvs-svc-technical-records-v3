@@ -3,6 +3,7 @@ import { formatErrorMessage } from '../util/errorMessage';
 import { ERRORS } from '../util/enum';
 
 const receivedDateFormat = /^\d{4}-\d{2}-\d{2}$/;
+const receivedApplicationNumberFormat = /^APP-\d{7}-\d{4}-\d{1,2}$/;
 
 export const validateUpdateADRErrors = (requestBody: string | null) => {
   if (!requestBody) {
@@ -25,6 +26,10 @@ export const validateUpdateADRErrors = (requestBody: string | null) => {
 
   if (!parsedBody.applicationNumber) {
     return { statusCode: 400, body: formatErrorMessage('payload missing applicationNumber') };
+  }
+
+  if (!receivedApplicationNumberFormat.test(parsedBody.applicationNumber)) {
+    return { statusCode: 400, body: formatErrorMessage('Invalid applicationNumber provided') };
   }
 
   if (!receivedDateFormat.test(parsedBody.receivedDate)) {
