@@ -100,18 +100,25 @@ export const syncTestResultInfo = async (
   if (updateNeeded) {
     const updatedNewRecords: TechRecordType<'get'>[] = [];
     const updatedRecordsToArchive: TechRecordType<'get'>[] = [];
-    newRecords.forEach((record) => {
+
+    const now = new Date();
+
+    newRecords.forEach((record, index) => {
+      // add the `index` to the time to make each record unique
+      const timestamp = new Date(now.getTime() + index).toISOString();
+
       updatedNewRecords.push(setCreatedAuditDetails(
         record as TechRecordType<'get'>,
         createdByName,
         createdById,
-        new Date().toISOString(),
+        timestamp,
         record.techRecord_statusCode as StatusCode,
       ));
     });
+
     recordsToArchive.forEach((record) => {
       record.techRecord_updateType = UpdateType.TECH_RECORD_UPDATE;
-      updatedRecordsToArchive.push(setLastUpdatedAuditDetails(record, createdByName, createdById, new Date().toISOString(), StatusCode.ARCHIVED));
+      updatedRecordsToArchive.push(setLastUpdatedAuditDetails(record, createdByName, createdById, now.toISOString(), StatusCode.ARCHIVED));
     });
 
     return updateVehicle(
