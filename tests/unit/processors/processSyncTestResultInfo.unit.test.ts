@@ -78,8 +78,10 @@ describe('syncTestResultInfo', () => {
       mockUpdateVehicle.mockResolvedValueOnce({});
       await syncTestResultInfo('5000', 'submitted', 'pass', '10', '012345', 'Test User', EUVehicleCategory.M2);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const [, newRecords] = mockUpdateVehicle.mock.calls[0];
       expect(newRecords).toHaveLength(2);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(newRecords[0].createdTimestamp).not.toEqual(newRecords[1].createdTimestamp);
     });
     it('should not call update if record is current and EuVehicleCategory is not updated', async () => {
