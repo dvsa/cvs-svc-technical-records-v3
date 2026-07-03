@@ -11,12 +11,12 @@ import {
   updateVehicle,
 } from '../services/database';
 import { donorVehicle } from '../services/donorVehicle';
+import { publish } from '../services/sns';
 import { getUserDetails } from '../services/user';
+import { formatErrorMessage } from '../util/errorMessage';
 import { addHttpHeaders } from '../util/httpHeaders';
 import logger from '../util/logger';
 import { validateUpdateVrmRequest, validateVrm, validateVrmExists } from '../validators/update';
-import { formatErrorMessage } from '../util/errorMessage';
-import { publish } from '../services/sns';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -24,7 +24,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const isRequestInvalid: APIGatewayProxyResult | boolean = validateUpdateVrmRequest(event);
     if (isRequestInvalid) {
-      return isRequestInvalid;
+      return addHttpHeaders(isRequestInvalid);
     }
 
     logger.debug('Request is Valid');
@@ -38,7 +38,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const newVrmNotCorrectFormat = validateVrm(recipientRecord, newVrm);
     if (newVrmNotCorrectFormat) {
-      return newVrmNotCorrectFormat;
+      return addHttpHeaders(newVrmNotCorrectFormat);
     }
 
     const userDetails = getUserDetails(event.headers.Authorization ?? '');
@@ -48,9 +48,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
       if (!thirdMark?.length) {
         const newVrmExistsOnActiveRecord = await validateVrmExists(newVrm);
-        if (newVrmExistsOnActiveRecord) {
-          return newVrmExistsOnActiveRecord;
-        }
+        if (newVrmExistsOnActiveRecord) return newVrmExistsOnActiveRecord;
+      } else {
+        const thirdMarkVrmExistsOnActiveRecord = await validateVrmExists(thirdMark);
+        if (thirdMarkVrmExistsOnActiveRecord) return thirdMarkVrmExistsOnActiveRecord;
       }
 
       const [donorVehicleRecord, error] = await donorVehicle(newVrm, thirdMark) as [TechRecordType<'get'>, APIGatewayProxyResult];

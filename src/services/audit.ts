@@ -32,3 +32,14 @@ export const setCreatedAuditDetails = (
   delete techRecord.techRecord_lastUpdatedByName;
   return techRecord;
 };
+
+export const setPatchUpdatedAuditDetails = (
+  techRecord: TechRecordType<'get'>,
+  createdByName: string,
+  createdById: string,
+  date: string,
+  statusCode: StatusCode,
+): TechRecordType<'get'> => {
+  techRecord.techRecord_reasonForCreation = 'ADR approval details updated';
+  return setCreatedAuditDetails(techRecord, createdByName, createdById, date, statusCode);
+};

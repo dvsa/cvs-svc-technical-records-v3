@@ -5,6 +5,7 @@ const mockProcessUpdateRequest = jest.fn();
 
 import { TechRecordType } from '@dvsa/cvs-type-definitions/types/v3/tech-record/tech-record-verb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { EUVehicleCategory } from '@dvsa/cvs-type-definitions/types/v3/tech-record/enums/euVehicleCategoryTrl.enum.js';
 import { handler } from '../../../src/handler/update';
 import * as UserDetails from '../../../src/services/user';
 import { ERRORS } from '../../../src/util/enum';
@@ -23,6 +24,7 @@ const trlPayload = {
   trailerId: 'C530005',
   techRecord_bodyType_description: 'artic',
   techRecord_bodyType_code: 'a',
+  techRecord_euVehicleCategory: EUVehicleCategory.O3,
 };
 
 jest.mock('../../../src/services/database.ts', () => ({
@@ -88,6 +90,13 @@ describe('update handler', () => {
       const result = await handler(invalidRequest);
       expect(result.statusCode).toBe(400);
       expect(result.body).toEqual(formatErrorMessage(ERRORS.MISSING_PAYLOAD));
+    });
+    it('should add CORS headers when path validation fails', async () => {
+      request.pathParameters = { createdTimestamp: '2023-06-16T11:26:30.196Z' };
+      const result = await handler(request);
+
+      expect(result.statusCode).toBe(400);
+      expect(result.headers).toEqual(expect.objectContaining({ 'Access-Control-Allow-Origin': '*' }));
     });
     it('should return error when event is invalid', async () => {
       const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);

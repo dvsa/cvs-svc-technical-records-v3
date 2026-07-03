@@ -7,19 +7,31 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: search.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           SearchLambdaApi:
             Type: Api
             Properties:
               Path: /v3/technical-records/search/{searchIdentifier}
               Method: get
+    UpdateADRFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: updateADR.ts
+        Runtime: nodejs22.x
+        Events:
+          UpdateADRApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/updateADR/{systemNumber}/{createdTimestamp}
+              Method: patch
     GetLambdaFunction:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/handler/
         Handler: get.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           GetLambdaApi:
             Type: Api
@@ -31,7 +43,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: post.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PostLambdaApi:
@@ -44,7 +56,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: archive.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           ArchiveLambdaApi:
             Type: Api
@@ -56,7 +68,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: unarchive.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           ArchiveLambdaApi:
             Type: Api
@@ -68,7 +80,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: update.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PatchLambda:
@@ -81,7 +93,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: promote.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Events:
           PromoteLambdaApi:
             Type: Api
@@ -93,7 +105,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: updateVrm.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PatchLambda:
@@ -106,7 +118,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: updateVin.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PatchLambda:
@@ -119,7 +131,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: plate.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PlateLambda:
@@ -132,7 +144,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: letter.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           LetterLambda:
@@ -146,7 +158,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: adrCertificate.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           PlateLambda:
@@ -159,7 +171,7 @@ Resources:
       Properties:
         CodeUri: src/handler/
         Handler: sync-test-result-info.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
         Events:
           SQSEvent:
@@ -168,21 +180,74 @@ Resources:
               Path: !GetAtt LocalQueue.Arn
               BatchSize: 10
 
+    RecallsLambdaFunction:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: motRecalls.handler
+        Runtime: nodejs22.x
+        Events:
+          GetRecallsApi:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/recalls/{vin}
+              Method: get
+
+    MotUpdateVrm:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: mot-update-vrm.handler
+        Runtime: nodejs22.x
+        Timeout: 20
+
     RemoveInvalidPrimaryVrms:
       Type: 'AWS::Serverless::Function'
       Properties:
         CodeUri: src/hotfix/cb2-10791/
         Handler: removeInvalidPrimaryVrms.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
 
     BatchPlateCreation:
       Type: 'AWS::Serverless::Function'
       Properties:
-        CodeUri: src/hotfix/cb2-11175/
+        CodeUri: src/handler/
         Handler: batchPlateCreation.handler
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Timeout: 20
+
+    UploadPlateSeed:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: uploadPlateSeedData.handler
+        Runtime: nodejs22.x
+        Timeout: 900
+        MemorySize: 10240
+        Events:
+          PlateSeed:
+            Type: Api
+            Properties:
+              Path: /v3/technical-records/uploadPlateSeed
+              Method: get
+
+    LoadBatchPlate:
+      Type: 'AWS::Serverless::Function'
+      Properties:
+        CodeUri: src/handler/
+        Handler: loadBatchPlate.handler
+        Runtime: nodejs22.x
+        Timeout: 20
+        Events:
+          S3Event:
+            Type: S3
+            Events: s3:ObjectCreated:*
+      Filter:
+        S3Key:
+          Rules:
+            - Name: prefix
+              Value: value
 
     LocalQueue:
       Type: AWS::SQS::Queue

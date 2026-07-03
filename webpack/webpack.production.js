@@ -2,18 +2,17 @@ const fs = require('fs-extra')
 const {merge} = require('webpack-merge');
 const common = require('./webpack.common.js');
 const archiver = require('archiver');
-const branchName = require('current-git-branch');
 const CopyPlugin = require('copy-webpack-plugin');
 const AwsSamPlugin = require("aws-sam-webpack-plugin");
 
-
 const LAMBDA_NAMES = ['SearchLambdaFunction', 'GetLambdaFunction', 'PostLambdaFunction', 'PatchLambdaFunction',
- 'ArchiveLambdaFunction', 'UnarchiveLambdaFunction', 'PromoteLambdaFunction', 'UpdateVrmFunction', 
+ 'ArchiveLambdaFunction', 'UnarchiveLambdaFunction', 'PromoteLambdaFunction', 'UpdateVrmFunction',
  'UpdateVinFunction', 'GeneratePlateFunction', 'GenerateLetterFunction', 'SyncTestResultInfoFunction',
- 'GenerateAdrCertificateFunction', 'RemoveInvalidPrimaryVrms', 'BatchPlateCreation'];
+ 'GenerateAdrCertificateFunction', 'RemoveInvalidPrimaryVrms', 'BatchPlateCreation', 'MotUpdateVrm','LoadBatchPlate',
+ 'UploadPlateSeed', 'RecallsLambdaFunction','UpdateADRFunction'];
+
 const OUTPUT_FOLDER = './'
-const REPO_NAME = 'cvs-svc-technical-records-v3';
-const BRANCH_NAME = branchName().replace(/\//g, "-");
+
 const COMMIT_HASH = process.env.ZIP_NAME ? process.env.ZIP_NAME : 'local';
 
 class BundlePlugin {
@@ -59,8 +58,7 @@ class BundlePlugin {
     );
     return archive.finalize();
   }
-};
-
+}
 
 module.exports = env => {
   let commit = env ? env.commit ? env.commit : 'local' : 'local';
