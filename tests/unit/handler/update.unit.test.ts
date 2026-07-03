@@ -91,6 +91,13 @@ describe('update handler', () => {
       expect(result.statusCode).toBe(400);
       expect(result.body).toEqual(formatErrorMessage(ERRORS.MISSING_PAYLOAD));
     });
+    it('should add CORS headers when path validation fails', async () => {
+      request.pathParameters = { createdTimestamp: '2023-06-16T11:26:30.196Z' };
+      const result = await handler(request);
+
+      expect(result.statusCode).toBe(400);
+      expect(result.headers).toEqual(expect.objectContaining({ 'Access-Control-Allow-Origin': '*' }));
+    });
     it('should return error when event is invalid', async () => {
       const result = await handler({ body: null } as unknown as APIGatewayProxyEvent);
       expect(result.statusCode).toBe(500);

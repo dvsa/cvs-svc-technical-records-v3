@@ -132,6 +132,12 @@ describe('update vrm handler', () => {
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe('invalid request');
     });
+    it('should add CORS headers when request validation returns an error', async () => {
+      mockValidateUpdateVrmRequest.mockReturnValueOnce({ statusCode: 400, body: 'invalid request' });
+      const result = await handler(request);
+
+      expect(result).toEqual(addHttpHeaders({ statusCode: 400, body: 'invalid request' }));
+    });
     it('should return error when event is invalid', async () => {
       request.pathParameters = null;
       mockValidateUpdateVrmRequest.mockReturnValueOnce(addHttpHeaders(
