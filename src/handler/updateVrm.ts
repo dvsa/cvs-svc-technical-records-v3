@@ -24,7 +24,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const isRequestInvalid: APIGatewayProxyResult | boolean = validateUpdateVrmRequest(event);
     if (isRequestInvalid) {
-      return isRequestInvalid;
+      return addHttpHeaders(isRequestInvalid);
     }
 
     logger.debug('Request is Valid');
@@ -38,7 +38,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const newVrmNotCorrectFormat = validateVrm(recipientRecord, newVrm);
     if (newVrmNotCorrectFormat) {
-      return newVrmNotCorrectFormat;
+      return addHttpHeaders(newVrmNotCorrectFormat);
     }
 
     const userDetails = getUserDetails(event.headers.Authorization ?? '');

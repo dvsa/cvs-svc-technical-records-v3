@@ -85,6 +85,7 @@ describe('update adr handler', () => {
       const result = await handler(request);
       expect(result.statusCode).toBe(400);
       expect(result.body).toBe(JSON.stringify({ errors: ['Missing system number'] }));
+      expect(result.headers).toEqual(expect.objectContaining({ 'Access-Control-Allow-Origin': '*' }));
     });
 
     it('should error when no created timestamp is given', async () => {
